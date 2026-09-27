@@ -131,226 +131,132 @@
       <!-- Full-Bleed Leaflet Map Background -->
       <div id="map" class="absolute inset-0 w-full h-full z-0" style="width: 100%; height: 100%;"></div>
 
-      <!-- Left Floating Card (100% Vertical Height: top-5 bottom-5 w-[390px]) -->
+      <!-- Left Floating Card (100% Full Vertical Height: top-5 bottom-5 w-[400px]) -->
       <div
         id="floatingInspector"
-        class="absolute top-5 left-5 bottom-5 w-[390px] bg-white rounded-2xl border border-zinc-200 shadow-lg flex flex-col z-10 overflow-hidden"
+        class="absolute top-5 left-5 bottom-5 w-[400px] bg-white rounded-3xl border border-zinc-200 shadow-2xl px-7 py-6 flex flex-col justify-between divide-y divide-zinc-100 z-10"
       >
-        <!-- Section 1 — Asset Header -->
-        <div class="p-4 pb-3 border-b border-zinc-100 flex items-center justify-between shrink-0">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-900 shrink-0">
-              <svg class="w-4 h-4 text-zinc-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </div>
+        <!-- Section 1 — Header, Status & Live Motion (flex-1 flex flex-col justify-center pb-2) -->
+        <div class="flex-1 flex flex-col justify-center pb-2">
+          <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <h2 id="cardBikeTitle" class="text-base font-bold font-mono text-zinc-900 tracking-tight leading-none truncate">
+              <h2 id="cardBikeTitle" class="font-sans text-[26px] font-bold text-zinc-950 tracking-tight leading-none truncate">
                 {{ selectedBike().plate }}
               </h2>
-              <p id="imeiBadge" class="text-[11px] font-mono text-zinc-400 mt-1 truncate">
-                #{{ selectedBike().imei }}
+              <p class="font-sans text-sm font-medium text-zinc-400 mt-1.5 truncate">
+                {{ selectedBike().model }}
+              </p>
+            </div>
+
+            <span
+              id="statusPill"
+              class="px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-900 text-xs font-mono font-bold inline-flex items-center gap-2 shrink-0"
+            >
+              <span
+                id="statusDot"
+                class="w-2 h-2 rounded-full"
+                [ngClass]="{
+                  'bg-emerald-500': selectedBike().status === 'RUNNING',
+                  'bg-amber-500': selectedBike().status === 'STOPPED'
+                }"
+              ></span>
+              <span id="statusText">{{ selectedBike().status }}</span>
+            </span>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 gap-6 pt-5 border-t border-zinc-100">
+            <div>
+              <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">SPEED</span>
+              <p class="font-mono text-xl font-bold text-zinc-950 mt-1">
+                {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }}
+              </p>
+            </div>
+            <div>
+              <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">IGNITION</span>
+              <p class="font-sans text-xl font-bold text-zinc-950 mt-1">
+                {{ selectedBike().speedText.includes('ON') ? 'Switched ON' : 'Switched OFF' }}
               </p>
             </div>
           </div>
-
-          <span
-            id="statusPill"
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-zinc-50 border border-zinc-200 text-zinc-900 shrink-0"
-          >
-            <span
-              id="statusDot"
-              class="w-1.5 h-1.5 rounded-full"
-              [ngClass]="{
-                'bg-emerald-600': selectedBike().status === 'RUNNING',
-                'bg-amber-600': selectedBike().status === 'STOPPED'
-              }"
-            ></span>
-            <span id="statusText">{{ selectedBike().status }}</span>
-          </span>
         </div>
 
-        <!-- Section 2 — Current Street Address Card -->
-        <div class="px-4 pt-3 shrink-0">
-          <div class="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 min-w-0 flex-1">
-              <div class="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-800 shrink-0 shadow-2xs">
-                <svg class="w-4 h-4 text-zinc-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div class="min-w-0 flex-1">
-                <p id="cardAddress" class="text-xs font-bold text-zinc-900 truncate" [title]="selectedBike().address">
-                  {{ selectedBike().address }}
-                </p>
-                <div class="flex items-center gap-2 text-[11px] font-mono text-zinc-500 mt-0.5 truncate">
-                  <span>{{ selectedBike().speedText.split('•')[0] || selectedBike().speedText }}</span>
-                  <span class="text-zinc-300">•</span>
-                  <span>IGN {{ selectedBike().speedText.includes('ON') ? 'ON' : 'OFF' }}</span>
-                </div>
-              </div>
-            </div>
+        <!-- Section 2 — Current Location (flex-1 flex items-center gap-4 py-2) -->
+        <div class="flex-1 flex items-center gap-4 py-2">
+          <div class="w-12 h-12 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">CURRENT LOCATION</span>
+            <p id="cardAddress" class="font-sans text-xl font-bold text-zinc-950 leading-snug mt-1" [title]="selectedBike().address">
+              {{ selectedBike().address }}
+            </p>
             <button
               type="button"
               (click)="recenterMap()"
-              title="Recenter on Bike"
-              class="w-8 h-8 rounded-lg bg-white border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-700 shrink-0 cursor-pointer shadow-2xs transition-colors"
+              class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-900 text-zinc-800 hover:text-white text-xs font-semibold transition-colors cursor-pointer w-fit"
             >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3m-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
+              <span>Center on map</span>
             </button>
           </div>
         </div>
 
-        <!-- Section 3 — 2-Column Spatial Grid -->
-        <div class="px-4 pt-2.5 grid grid-cols-2 gap-2.5 shrink-0">
-          <!-- Left Box: County / Sub-County -->
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-start gap-2.5">
-            <svg class="w-4 h-4 text-zinc-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <!-- Section 3 — County & Sub-County (flex-1 flex items-center gap-4 py-2) -->
+        <div class="flex-1 flex items-center gap-4 py-2">
+          <div class="w-12 h-12 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <div class="min-w-0">
-              <p id="cardCounty" class="text-xs font-bold text-zinc-900 leading-tight truncate">
-                {{ selectedBike().county }}
-              </p>
-              <p id="cardSubCounty" class="text-[11px] text-zinc-500 mt-0.5 truncate">
-                {{ selectedBike().subCounty }}
-              </p>
-            </div>
           </div>
+          <div class="flex-1 min-w-0">
+            <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">COUNTY & SUB-COUNTY</span>
+            <p id="cardCounty" class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
+              {{ selectedBike().county }}
+            </p>
+            <p id="cardSubCounty" class="font-sans text-base font-medium text-zinc-500 mt-0.5 truncate">
+              {{ selectedBike().subCounty }}
+            </p>
+          </div>
+        </div>
 
-          <!-- Right Box: Coordinates -->
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-start justify-between gap-1">
-            <div class="flex items-start gap-2 min-w-0">
-              <svg class="w-4 h-4 text-zinc-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-              </svg>
-              <div class="min-w-0 font-mono text-zinc-900 leading-tight">
-                <p id="cardLat" class="text-xs font-bold truncate">{{ selectedBike().lat.toFixed(6) }}</p>
-                <p id="cardLng" class="text-[11px] text-zinc-500 mt-0.5 truncate">{{ selectedBike().lng.toFixed(6) }}</p>
-              </div>
+        <!-- Section 4 — GPS Coordinates (flex-1 flex items-center gap-4 pt-2) -->
+        <div class="flex-1 flex items-center gap-4 pt-2">
+          <div class="w-12 h-12 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+            </svg>
+          </div>
+          <div class="flex-1 flex items-center justify-between gap-2 min-w-0">
+            <div class="min-w-0">
+              <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-400">GPS COORDINATES</span>
+              <p class="font-mono text-lg font-bold text-zinc-950 mt-1 truncate">
+                <span id="cardLat">{{ selectedBike().lat.toFixed(6) }}</span>, <span id="cardLng">{{ selectedBike().lng.toFixed(6) }}</span>
+              </p>
             </div>
             <button
               type="button"
               (click)="copyCoordinates()"
               [title]="copiedCoordinates() ? 'Copied!' : 'Copy coordinates'"
-              class="text-zinc-400 hover:text-zinc-900 transition-colors p-1 rounded-md hover:bg-zinc-200/60 cursor-pointer shrink-0"
+              class="w-10 h-10 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-600 hover:text-white flex items-center justify-center transition-colors shrink-0 cursor-pointer"
             >
               @if (copiedCoordinates()) {
-                <svg class="w-3.5 h-3.5 text-zinc-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               } @else {
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                   <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
                 </svg>
               }
             </button>
           </div>
-        </div>
-
-        <!-- Section 4 — Active Geofence & Email Card -->
-        <div class="px-4 pt-2.5 shrink-0">
-          <div class="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200/80">
-            <div class="flex items-center justify-between gap-2.5">
-              <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                <div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                  <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p id="cardFenceName" class="text-xs font-bold text-zinc-900 truncate">
-                    {{ selectedBike().fenceName }}
-                  </p>
-                  <p class="text-[11px] font-mono text-zinc-500 mt-0.5 truncate">
-                    {{ (selectedBike().fenceRadius / 1000).toFixed(1) }} km • {{ selectedBike().triggerCondition.replace('Alert on ', '') }}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                (click)="toggleGeofenceModal(true)"
-                title="Edit zone settings"
-                class="w-7 h-7 rounded-lg hover:bg-zinc-200/60 flex items-center justify-center text-zinc-700 hover:text-zinc-900 cursor-pointer transition-colors shrink-0"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-              </button>
-            </div>
-
-            <div class="mt-2.5 pt-2 border-t border-zinc-200/70 flex items-center justify-between text-[11px] font-mono text-zinc-600">
-              <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <svg class="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span id="cardAlertEmail" class="truncate max-w-[210px]">{{ selectedBike().email }}</span>
-              </div>
-              <div class="flex items-center gap-1.5 shrink-0 pl-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-zinc-900"></span>
-                <span class="text-[10px] font-semibold text-zinc-800">Armed</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 5 — Dynamic Height Filler: Fleet & Telemetry Feed -->
-        <div class="px-4 pt-4 pb-3 flex-1 flex flex-col min-h-0">
-          <div class="flex items-center justify-between mb-2 shrink-0">
-            <span class="text-xs font-bold text-zinc-900 tracking-tight">Fleet Units & Recent Packets</span>
-            <span class="text-[10px] font-mono font-semibold text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-full">
-              {{ bikeList().length }} Active
-            </span>
-          </div>
-
-          <div class="flex-1 overflow-y-auto space-y-2 pr-0.5">
-            @for (bike of bikeList(); track bike.id) {
-              <div
-                (click)="selectBike(bike.id)"
-                class="w-full p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors"
-                [ngClass]="activeKey() === bike.id ? 'bg-zinc-100 border-zinc-300 shadow-2xs' : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200/80'"
-              >
-                <div class="min-w-0 flex-1 pr-2">
-                  <div class="flex items-center gap-1.5">
-                    <span class="font-mono text-xs font-bold text-zinc-900">{{ bike.plate }}</span>
-                    <span class="text-[10px] font-mono text-zinc-400">#{{ bike.imei.slice(-4) }}</span>
-                  </div>
-                  <p class="text-[11px] text-zinc-500 truncate mt-0.5">
-                    {{ bike.address }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                  <span class="text-[11px] font-mono font-medium text-zinc-700">
-                    {{ bike.speedText.split('•')[0] || bike.speedText }}
-                  </span>
-                  <span
-                    class="w-1.5 h-1.5 rounded-full"
-                    [ngClass]="bike.status === 'RUNNING' ? 'bg-emerald-600' : 'bg-amber-600'"
-                  ></span>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Section 6 — Pinned Bottom Footer -->
-        <div class="p-3.5 bg-zinc-50 border-t border-zinc-200/80 shrink-0">
-          <button
-            type="button"
-            (click)="simulateBreach()"
-            class="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-          >
-            <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span>Simulate Perimeter Breach</span>
-          </button>
         </div>
       </div>
 
