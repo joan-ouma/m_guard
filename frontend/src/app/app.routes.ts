@@ -1,0 +1,44 @@
+import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { LoginComponent } from './auth/login/login.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { BikesComponent } from './bikes/bikes.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'bikes',
+    component: BikesComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'reset-password/:token',
+    component: ResetPasswordComponent,
+    canActivate: [guestGuard],
+  },
+  {
+    path: '**',
+    redirectTo: '',
+  },
+];

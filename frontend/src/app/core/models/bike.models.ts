@@ -1,0 +1,84 @@
+export interface BikeDTO {
+  id: string;
+  organization_id: string;
+  added_by: string;
+  registration_number: string;
+  label: string;
+  make: string;
+  model: string;
+  year: number;
+  color: string;
+  imei: string;
+  status: 'RUNNING' | 'STOPPED';
+  ignition: boolean;
+  speed_kmh: number;
+  heading_deg: number;
+  latitude: number;
+  longitude: number;
+  current_address: string;
+  sub_county: string;
+  county: string;
+  battery_percent: number;
+  signal_quality_csq: number;
+  last_telemetry_at?: string;
+  geofence_id?: string;
+  driver_contact_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BikeListMeta {
+  total: number;
+  default_selected_bike_id?: string;
+}
+
+export interface BikeListResponse {
+  data: BikeDTO[];
+  meta: BikeListMeta;
+}
+
+export interface CreateBikePayload {
+  registration_number: string;
+  label?: string;
+  make?: string;
+  model?: string;
+  year?: number;
+  color?: string;
+  imei: string;
+  latitude?: number;
+  longitude?: number;
+  current_address?: string;
+  sub_county?: string;
+  county?: string;
+  geofence_id?: string;
+  driver_contact_id?: string;
+}
+
+export interface UpdateBikePayload {
+  registration_number?: string;
+  label?: string;
+  make?: string;
+  model?: string;
+  year?: number;
+  color?: string;
+  current_address?: string;
+  sub_county?: string;
+  county?: string;
+  status?: 'RUNNING' | 'STOPPED';
+  geofence_id?: string;
+  driver_contact_id?: string;
+}
+
+export interface BreadcrumbDTO {
+  id: number;
+  bike_id: string;
+  latitude: number;
+  longitude: number;
+  speed_kmh: number;
+  heading_deg: number;
+  ignition: boolean;
+  battery_percent: number;
+  geofence_breach: boolean;
+  recorded_at: string;
+}
+
