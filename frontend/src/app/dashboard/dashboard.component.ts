@@ -168,21 +168,30 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       zoomControl: false,
     }).setView([bike.lat, bike.lng], 13);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // Custom Dark Basemap: Esri World Dark Gray Canvas
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; DeLorme, NAVTEQ',
+    }).addTo(this.map);
+
+    // Muted Reference Labels Layer (subtle, low opacity, no clutter)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      opacity: 0.45,
+      attribution: '',
     }).addTo(this.map);
 
     const shortCode = bike.plate.split(' ')[1] || bike.plate;
     this.bikeMarker = L.marker([bike.lat, bike.lng], {
-      icon: this.createBadgeIcon(shortCode),
+      icon: this.createBadgeIcon(shortCode, bike.status, false),
     }).addTo(this.map);
 
     this.geofenceLayer = L.circle([bike.lat, bike.lng], {
-      color: '#18181b',
-      fillColor: '#27272a',
-      fillOpacity: 0.12,
-      weight: 1.5,
+      color: '#0EA5E9',
+      fillColor: '#0EA5E9',
+      fillOpacity: 0.08,
+      weight: 2,
+      dashArray: '6, 6',
       radius: bike.fenceRadius,
     }).addTo(this.map);
 
@@ -201,7 +210,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
   private updateMapForCurrentBike(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
@@ -209,19 +217,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
-        icon: this.createBadgeIcon(shortCode, this.map.getZoom()),
+        icon: this.createBadgeIcon(shortCode, bike.status, false),
       }).addTo(this.map);
     } else {
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
-      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, this.map.getZoom()));
+      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, false));
     }
 
     if (!this.geofenceLayer) {
       this.geofenceLayer = L.circle([bike.lat, bike.lng], {
-        color: '#18181b',
-        fillColor: '#27272a',
-        fillOpacity: 0.12,
+        color: '#0EA5E9',
+        fillColor: '#0EA5E9',
+        fillOpacity: 0.08,
         weight: 2,
+        dashArray: '6, 6',
         radius: bike.fenceRadius,
       }).addTo(this.map);
     } else {
@@ -229,9 +238,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         .setLatLng([bike.lat, bike.lng])
         .setRadius(bike.fenceRadius)
         .setStyle({
-          color: '#18181b',
-          fillColor: '#27272a',
-          fillOpacity: 0.12,
+          color: '#0EA5E9',
+          fillColor: '#0EA5E9',
+          fillOpacity: 0.08,
+          weight: 2,
+          dashArray: '6, 6',
         });
     }
 
@@ -271,28 +282,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (coords.length > 1) {
       this.pathGlow = L.polyline(coords, {
-        color: '#60A5FA',
-        weight: 7,
+        color: '#38BDF8',
+        weight: 6,
         opacity: 0.35,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(this.map);
 
       this.pathPolyline = L.polyline(coords, {
-        color: '#1D4ED8',
-        weight: 3.5,
-        opacity: 0.9,
-        dashArray: '7, 7',
+        color: '#0EA5E9',
+        weight: 3,
+        opacity: 0.95,
+        dashArray: '6, 6',
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(this.map);
 
       this.pathOriginMarker = L.circleMarker(coords[0], {
         radius: 5,
-        color: '#1D4ED8',
-        fillColor: '#FFFFFF',
+        color: '#38BDF8',
+        fillColor: '#09090b',
         fillOpacity: 1,
-        weight: 2.5,
+        weight: 2,
       })
         .addTo(this.map)
         .bindTooltip('Trip Origin', { direction: 'top', offset: [0, -6] });
@@ -319,27 +330,43 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.bikeMarker || !this.map) return;
     const bike = this.selectedBike();
     const shortCode = bike.plate.split(' ')[1] || bike.plate;
-    this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, this.map.getZoom()));
+    this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, this.isBreachActive()));
   }
 
-  private createBadgeIcon(label: string, zoomLevel?: number): L.DivIcon {
-    const currentZoom = zoomLevel ?? (this.map ? this.map.getZoom() : 13);
-    const scale = Math.max(0.65, Math.min(2.5, Math.pow(1.18, currentZoom - 13)));
-    const imgSize = Math.round(68 * scale);
-    const fontSize = Math.max(9, Math.min(14, Math.round(11 * scale)));
-    const totalWidth = imgSize + 16;
-    const totalHeight = imgSize + 28;
+  private createBadgeIcon(label: string, status: string = 'RUNNING', isBreach: boolean = false): L.DivIcon {
+    const isRunning = status === 'RUNNING';
+    const statusClass = isBreach ? 'breached' : isRunning ? 'running' : 'stopped';
+    const haloClass = isBreach ? 'radar-halo radar-halo-breach' : 'radar-halo';
+    const dotColor = isBreach ? '#F43F5E' : isRunning ? '#10B981' : '#F59E0B';
 
     return L.divIcon({
       className: 'bike-marker-pin',
       html: `
-        <div style="display: flex; flex-direction: column; align-items: center; pointer-events: auto; transform-origin: bottom center;">
-          <span style="background: #18181b; color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: ${fontSize}px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1.5px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.25); white-space: nowrap; margin-bottom: 2px;">${label}</span>
-          <img src="/motorbike.png" alt="Motorbike" style="width: ${imgSize}px; height: ${imgSize}px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));" />
+        <div class="bike-marker-badge">
+          <!-- Plate Label Pill -->
+          <div style="background: rgba(9, 9, 11, 0.92); backdrop-filter: blur(4px); color: #f4f4f5; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 4px 12px rgba(0,0,0,0.5); white-space: nowrap; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: ${dotColor};"></span>
+            <span>${label}</span>
+          </div>
+
+          <!-- Pulsing Live Halo & Pin Container -->
+          <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+            <div class="${haloClass}"></div>
+            <div class="bike-marker-pin-body ${statusClass}">
+              <svg style="width: 20px; height: 20px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5.5" cy="17.5" r="3.5"/>
+                <circle cx="18.5" cy="17.5" r="3.5"/>
+                <path d="M15 6h-3l-2.5 5h6.5"/>
+                <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
+            </div>
+            <!-- Directional Heading Arrow -->
+            <div class="bike-marker-heading-arrow ${statusClass}"></div>
+          </div>
         </div>
       `,
-      iconSize: [totalWidth, totalHeight],
-      iconAnchor: [totalWidth / 2, totalHeight - 2],
+      iconSize: [84, 76],
+      iconAnchor: [42, 70],
     });
   }
 
@@ -359,16 +386,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.map && this.bikeMarker && this.geofenceLayer) {
       const shortCode = bike.plate.split(' ')[1] || bike.plate;
-      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, this.map.getZoom()));
+      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, false));
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
 
       this.geofenceLayer
         .setLatLng([bike.lat, bike.lng])
         .setRadius(bike.fenceRadius)
         .setStyle({
-          color: '#18181b',
-          fillColor: '#27272a',
-          fillOpacity: 0.12,
+          color: '#0EA5E9',
+          fillColor: '#0EA5E9',
+          fillOpacity: 0.08,
+          weight: 2,
+          dashArray: '6, 6',
         });
 
       this.map.setView([bike.lat, bike.lng], 13);
@@ -457,13 +486,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.bikeMarker) {
       this.bikeMarker.setLatLng([exitLat, exitLng]);
+      const shortCode = bike.plate.split(' ')[1] || bike.plate;
+      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, true));
     }
 
     if (this.geofenceLayer) {
       this.geofenceLayer.setStyle({
-        color: '#E11D48',
+        color: '#F43F5E',
         fillColor: '#F43F5E',
-        fillOpacity: 0.18,
+        fillOpacity: 0.16,
+        weight: 2.5,
+        dashArray: '4, 4',
       });
     }
 

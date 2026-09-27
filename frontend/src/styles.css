@@ -5,16 +5,114 @@
 
 .leaflet-control-attribution {
   font-size: 10px;
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(18, 18, 20, 0.75) !important;
   color: #71717a !important;
+  border-radius: 4px;
+  padding: 1px 5px !important;
 }
 
-.leaflet-tile-pane .leaflet-tile {
-  filter: grayscale(88%) contrast(92%) brightness(104%);
+.leaflet-control-attribution a {
+  color: #a1a1aa !important;
+  text-decoration: none;
 }
 
 .leaflet-container {
-  background: #f4f4f5 !important;
+  background: #121214 !important;
+}
+
+@keyframes radar-halo-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(2.3);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.radar-halo {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.45) 0%, rgba(14, 165, 233, 0) 70%);
+  border: 1.5px solid rgba(56, 189, 248, 0.85);
+  animation: radar-halo-pulse 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+.radar-halo-breach {
+  border-color: rgba(244, 63, 94, 0.95);
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.5) 0%, rgba(244, 63, 94, 0) 70%);
+}
+
+.bike-marker-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  user-select: none;
+}
+
+.bike-marker-pin-body {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #09090b;
+  border: 2px solid #38bdf8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 12px rgba(14, 165, 233, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  z-index: 2;
+}
+
+.bike-marker-pin-body.stopped {
+  border-color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.bike-marker-pin-body.running {
+  border-color: #10b981;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.bike-marker-pin-body.breached {
+  border-color: #f43f5e;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 14px rgba(244, 63, 94, 0.5);
+}
+
+.bike-marker-heading-arrow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #38bdf8;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  z-index: 1;
+}
+
+.bike-marker-heading-arrow.stopped {
+  border-top-color: #f59e0b;
+}
+
+.bike-marker-heading-arrow.running {
+  border-top-color: #10b981;
+}
+
+.bike-marker-heading-arrow.breached {
+  border-top-color: #f43f5e;
 }
 
 .custom-pin {
