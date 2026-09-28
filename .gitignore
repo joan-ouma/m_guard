@@ -1,32 +1,89 @@
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# ======================================================================
+#                       MOTOGUARD GITIGNORE
+# ======================================================================
 
-# Test binary, built with `go test -c`
-*.test
+# Database dumps & SQL exports
+*.sql
+**/*.sql
+*.dump
+*.sql.gz
+*.psql
+*.sqlite
+*.sqlite3
+*.db
 
-# Code coverage profiles and other test artifacts
-*.out
-coverage.*
-*.coverprofile
-profile.cov
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-go.work.sum
-
-# env file
+# Environment & Sensitive configs
 .env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
 
-# Editor/IDE
-# .idea/
-# .vscode/
+# Logs & monitoring
+*.log
+**/*.log
+logs/
+**/logs/
+mosquitto/log/
+mosquitto/data/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Helper scripts & temporary working files
+scripts/
+**/scripts/
+scratch/
+**/scratch/
+tmp/
+**/tmp/
+temp/
+**/temp/
+*.sh
+*.bash
+*.zsh
+
+# Sensitive keys, certificates & credentials
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+*.kdbx
+secrets/
+**/secrets/
+credentials/
+**/credentials/
+id_rsa*
+id_ed25519*
+*.secret
+*.passwd
+*.htpasswd
+
+# Node & Angular
+node_modules/
+**/node_modules/
+.angular/
+**/.angular/
+dist/
+**/dist/
+
+# Backend binaries & build artifacts
+server
+**/server
+*.exe
+*.test
+*.out
+/vendor/
+
+# System & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
