@@ -1,6 +1,6 @@
 # MotorGuard 🏍️🛡️
 
-**MotorGuard** is an ESP32-based stealth tracking and evidence system specifically designed for Kenyan boda bodas (motorcycle taxis). It uses motion-triggered telemetry and hashed, timestamped records to create verifiable proof of theft. Built by **Team Ignition Nine**, MotorGuard aims to ensure dignity, security, and recourse for informal transport workers in Kenya.
+**MotorGuard** is an ESP32-based stealth tracking and evidence system specifically designed for Kenyan boda bodas (motorcycle taxis). It uses motion-triggered telemetry and hashed, timestamped records to create verifiable proof of theft. Built by **the MotorGuard Team**, MotorGuard aims to ensure dignity, security, and recourse for informal transport workers in Kenya.
 
 ## Overview
 Boda bodas are a vital part of Kenya's economy, but riders face immense risks, including motorcycle theft, hijacking, and loss of livelihood. Traditional trackers are easily found and destroyed. MotorGuard offers a **stealthy, tamper-proof, and low-cost** alternative that not only tracks the motorcycle but also provides verifiable cryptographic proof of its location and movement to aid in recovery and legal recourse.
