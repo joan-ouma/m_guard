@@ -22,6 +22,7 @@ export interface FleetBike {
   model: string;
   imei: string;
   status: 'RUNNING' | 'STOPPED';
+  movementStatus: 'Moving' | 'Stationary';
   speedText: string;
   address: string;
   county: string;
@@ -42,6 +43,7 @@ const DEFAULT_BIKE: FleetBike = {
   model: 'No asset registered',
   imei: '',
   status: 'STOPPED',
+  movementStatus: 'Stationary',
   speedText: '0.0 km/h • Ignition OFF',
   address: 'Nairobi CBD',
   county: 'Nairobi County',
@@ -625,16 +627,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleImmobilize(bike: FleetBike): void {
     if (!bike.id) return;
     const isImmobilizing = !bike.isImmobilized;
+    const isMoving = bike.movementStatus === 'Moving';
+
+    const actionText = isImmobilizing
+      ? (isMoving 
+          ? "The bike is currently moving. This will queue the command to disable the ignition once the bike stops. The bike won't start until you restore it." 
+          : "This will disable the ignition. The bike won't start until you restore it.")
+      : 'This will restore electrical starter power to the motorcycle.';
+
     Swal.fire({
       title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
-      text: isImmobilizing
-        ? 'This will immediately cut off power to the motorcycle starter.'
-        : 'This will restore electrical starter power to the motorcycle.',
+      text: actionText,
       icon: isImmobilizing ? 'warning' : 'question',
       showCancelButton: true,
-      confirmButtonColor: isImmobilizing ? '#e11d48' : '#059669',
+      confirmButtonColor: isImmobilizing ? (isMoving ? '#f59e0b' : '#e11d48') : '#059669',
       cancelButtonColor: '#71717a',
-      confirmButtonText: isImmobilizing ? 'Yes, Immobilize' : 'Yes, Reactivate',
+      confirmButtonText: isImmobilizing ? (isMoving ? 'Queue Immobilization' : 'Yes, Immobilize') : 'Yes, Reactivate',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
     }).then((result) => {
@@ -656,7 +664,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: isImmobilizing ? `${bike.plate} Immobilized` : `${bike.plate} Reactivated`,
+              title: isImmobilizing ? (isMoving ? `${bike.plate} Immobilization Queued` : `${bike.plate} Immobilized`) : `${bike.plate} Reactivated`,
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
@@ -679,6 +687,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
     const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
+    const movementStatus = (b.status === 'RUNNING' || b.speed_kmh > 0) ? 'Moving' : 'Stationary';
 
     return {
       id: b.id,
@@ -686,6 +695,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       model: modelText,
       imei: b.imei,
       status: b.status,
+      movementStatus,
       speedText: speedText,
       address: b.current_address || 'Depot / Staging Yard',
       county: b.county || 'Nairobi County',
