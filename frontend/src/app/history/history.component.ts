@@ -46,12 +46,19 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly viewMode = signal<'text' | 'map'>('text');
 
   // Filter state
-  readonly selectedDate = signal<string>(this.formatDate(new Date()));
+  readonly selectedStartDate = signal<string>(this.formatDate(new Date()));
+  readonly selectedEndDate = signal<string>(this.formatDate(new Date()));
   readonly bikes = signal<BikeDTO[]>([]);
   readonly selectedBikeId = signal<string>('');
   readonly breadcrumbs = signal<BreadcrumbDTO[]>([]);
   readonly bikeEvents = signal<BikeEventDTO[]>([]);
   readonly isLoading = signal<boolean>(false);
+
+  // Report Modal & View state
+  readonly isReportModalOpen = signal(false);
+  readonly reportSharedWith = signal<'download' | 'police' | 'sacco' | 'lender'>('download');
+  readonly isReportViewOpen = signal(false);
+  readonly reportHash = signal('');
 
   // Leaflet references
   private map: L.Map | null = null;
@@ -68,7 +75,8 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   readonly isSelectedDateToday = computed<boolean>(() => {
-    return this.selectedDate() === this.formatDate(new Date());
+    const today = this.formatDate(new Date());
+    return this.selectedStartDate() === today && this.selectedEndDate() === today;
   });
 
   // Chronological trail & events list for the selected day
@@ -226,10 +234,20 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.bikes.set(res.data);
 
         const bikeParam = this.route.snapshot.queryParamMap.get('bike');
-        const dateParam = this.route.snapshot.queryParamMap.get('date');
+        const startParam = this.route.snapshot.queryParamMap.get('startDate');
+        const endParam = this.route.snapshot.queryParamMap.get('endDate');
+        const oldDateParam = this.route.snapshot.queryParamMap.get('date');
 
-        if (dateParam) {
-          this.selectedDate.set(dateParam);
+        if (startParam) {
+          this.selectedStartDate.set(startParam);
+        } else if (oldDateParam) {
+          this.selectedStartDate.set(oldDateParam);
+        }
+        
+        if (endParam) {
+          this.selectedEndDate.set(endParam);
+        } else if (oldDateParam) {
+          this.selectedEndDate.set(oldDateParam);
         }
 
         const validBike =
@@ -248,15 +266,20 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.route.queryParamMap.subscribe((params) => {
       const bikeParam = params.get('bike');
-      const dateParam = params.get('date');
+      const startParam = params.get('startDate');
+      const endParam = params.get('endDate');
 
       let changed = false;
       if (bikeParam && bikeParam !== this.selectedBikeId() && this.bikes().some((b) => b.id === bikeParam)) {
         this.selectedBikeId.set(bikeParam);
         changed = true;
       }
-      if (dateParam && dateParam !== this.selectedDate()) {
-        this.selectedDate.set(dateParam);
+      if (startParam && startParam !== this.selectedStartDate()) {
+        this.selectedStartDate.set(startParam);
+        changed = true;
+      }
+      if (endParam && endParam !== this.selectedEndDate()) {
+        this.selectedEndDate.set(endParam);
         changed = true;
       }
       if (changed) {
@@ -279,16 +302,17 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   fetchBreadcrumbs(): void {
     const bikeId = this.selectedBikeId();
-    const date = this.selectedDate();
-    if (!bikeId || !date) return;
+    const startDate = this.selectedStartDate();
+    const endDate = this.selectedEndDate();
+    if (!bikeId || !startDate || !endDate) return;
 
     this.isLoading.set(true);
 
     forkJoin({
-      breadcrumbs: this.bikeService.getBikeBreadcrumbs(bikeId, 1000, date).pipe(
+      breadcrumbs: this.bikeService.getBikeBreadcrumbs(bikeId, 5000, undefined, startDate, endDate).pipe(
         catchError(() => of({ data: [] as BreadcrumbDTO[] }))
       ),
-      events: this.bikeService.getBikeEvents(bikeId, 1000, date).pipe(
+      events: this.bikeService.getBikeEvents(bikeId, 5000, undefined, startDate, endDate).pipe(
         catchError(() => of({ data: [] as BikeEventDTO[] }))
       ),
     }).subscribe({
@@ -317,18 +341,28 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   prevDay(): void {
-    const cur = new Date(this.selectedDate());
-    cur.setDate(cur.getDate() - 1);
-    this.selectedDate.set(this.formatDate(cur));
+    const curStart = new Date(this.selectedStartDate());
+    curStart.setDate(curStart.getDate() - 1);
+    this.selectedStartDate.set(this.formatDate(curStart));
+    
+    const curEnd = new Date(this.selectedEndDate());
+    curEnd.setDate(curEnd.getDate() - 1);
+    this.selectedEndDate.set(this.formatDate(curEnd));
+    
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
 
   nextDay(): void {
     if (this.isSelectedDateToday()) return;
-    const cur = new Date(this.selectedDate());
-    cur.setDate(cur.getDate() + 1);
-    this.selectedDate.set(this.formatDate(cur));
+    const curStart = new Date(this.selectedStartDate());
+    curStart.setDate(curStart.getDate() + 1);
+    this.selectedStartDate.set(this.formatDate(curStart));
+    
+    const curEnd = new Date(this.selectedEndDate());
+    curEnd.setDate(curEnd.getDate() + 1);
+    this.selectedEndDate.set(this.formatDate(curEnd));
+    
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
@@ -338,15 +372,32 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (preset === 'yesterday') {
       d.setDate(d.getDate() - 1);
     }
-    this.selectedDate.set(this.formatDate(d));
+    const formatted = this.formatDate(d);
+    this.selectedStartDate.set(formatted);
+    this.selectedEndDate.set(formatted);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
 
-  onCustomDateChange(event: Event): void {
+  onStartDateChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target && target.value) {
-      this.selectedDate.set(target.value);
+      this.selectedStartDate.set(target.value);
+      if (this.selectedStartDate() > this.selectedEndDate()) {
+        this.selectedEndDate.set(this.selectedStartDate());
+      }
+      this.updateQueryParams();
+      this.fetchBreadcrumbs();
+    }
+  }
+
+  onEndDateChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target && target.value) {
+      this.selectedEndDate.set(target.value);
+      if (this.selectedEndDate() < this.selectedStartDate()) {
+        this.selectedStartDate.set(this.selectedEndDate());
+      }
       this.updateQueryParams();
       this.fetchBreadcrumbs();
     }
@@ -368,8 +419,50 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.viewMode.set('text');
   }
 
+  openReportModal(): void {
+    this.isReportModalOpen.set(true);
+  }
+
+  closeReportModal(): void {
+    this.isReportModalOpen.set(false);
+  }
+
   generateReport(): void {
+    this.isReportModalOpen.set(false);
+    
+    // Generate a pseudo-hash based on the trail events
+    const dataString = JSON.stringify(this.trailEvents().map(e => ({
+      id: e.id, 
+      time: e.time, 
+      type: e.type, 
+      lat: e.lat, 
+      lng: e.lng
+    })));
+    this.reportHash.set(this.simpleHash(dataString));
+    
+    this.isReportViewOpen.set(true);
+  }
+  
+  closeReportView(): void {
+    this.isReportViewOpen.set(false);
+  }
+  
+  printReport(): void {
     window.print();
+  }
+  
+  private simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0, len = str.length; i < len; i++) {
+        const chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0;
+    }
+    let hex = Math.abs(hash).toString(16);
+    while (hex.length < 64) {
+      hex += Math.abs(hash * 31).toString(16);
+    }
+    return hex.substring(0, 64);
   }
 
   private initMap(): void {
@@ -538,7 +631,8 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       relativeTo: this.route,
       queryParams: {
         bike: this.selectedBikeId(),
-        date: this.selectedDate(),
+        startDate: this.selectedStartDate(),
+        endDate: this.selectedEndDate(),
       },
       queryParamsHandling: 'merge',
     });
