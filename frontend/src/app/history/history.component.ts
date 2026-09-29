@@ -19,7 +19,7 @@ import * as L from 'leaflet';
 export interface TrailEvent {
   id: number | string;
   time: string;
-  type: 'BIKE_ON' | 'BIKE_OFF' | 'MOVING' | 'IDLE' | 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'IMMOBILIZED' | 'REACTIVATED';
+  type: 'BIKE_ON' | 'BIKE_OFF' | 'MOVING' | 'IDLE' | 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'IMMOBILIZED' | 'REACTIVATED' | 'THEFT' | 'TAMPER' | 'DURESS';
   title: string;
   speed: number;
   heading: number;
@@ -59,6 +59,9 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly reportSharedWith = signal<'download' | 'police' | 'sacco' | 'lender'>('download');
   readonly isReportViewOpen = signal(false);
   readonly reportHash = signal('');
+  
+  // Incident filtering
+  readonly filterIncidentsOnly = signal(false);
 
   // Leaflet references
   private map: L.Map | null = null;
@@ -142,7 +145,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     for (const ev of bevs) {
-      let type: 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'BIKE_ON' | 'BIKE_OFF' | 'IMMOBILIZED' | 'REACTIVATED' = 'BIKE_TOUCHED';
+      let type: 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'BIKE_ON' | 'BIKE_OFF' | 'IMMOBILIZED' | 'REACTIVATED' | 'THEFT' | 'TAMPER' | 'DURESS' = 'BIKE_TOUCHED';
       let title = 'Bike touched while parked';
 
       if (ev.event_type === 'ACCIDENT_DETECTED') {
@@ -166,6 +169,15 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (ev.event_type === 'REACTIVATED' || ev.event_type === 'BIKE_REACTIVATED') {
         type = 'REACTIVATED';
         title = 'Bike Reactivated';
+      } else if (ev.event_type === 'THEFT') {
+        type = 'THEFT';
+        title = 'Theft Alert (Confirmed)';
+      } else if (ev.event_type === 'TAMPER' || ev.event_type === 'POWER_LOSS') {
+        type = 'TAMPER';
+        title = 'Tamper / Power Loss Detected';
+      } else if (ev.event_type === 'DURESS') {
+        type = 'DURESS';
+        title = 'Duress Check-in Failed';
       } else {
         type = 'BIKE_TOUCHED';
         title = ev.event_type.replace(/_/g, ' ');
@@ -226,6 +238,12 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly reactivatedEventsCount = computed<number>(() => {
     return this.trailEvents().filter((e) => e.type === 'REACTIVATED').length;
+  });
+
+  readonly filteredTrailEvents = computed<TrailEvent[]>(() => {
+    const allEvents = this.trailEvents();
+    if (!this.filterIncidentsOnly()) return allEvents;
+    return allEvents.filter(e => e.type === 'THEFT' || e.type === 'TAMPER' || e.type === 'DURESS' || e.type === 'ACCIDENT_DETECTED');
   });
 
   ngOnInit(): void {
@@ -318,7 +336,32 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }).subscribe({
       next: ({ breadcrumbs, events }) => {
         this.breadcrumbs.set(breadcrumbs.data || []);
-        this.bikeEvents.set(events.data || []);
+        
+        // Mock injection: add some incident events into bikeEvents if it's not empty
+        const evData = events.data || [];
+        if (evData.length > 0) {
+          const firstEv = evData[0];
+          evData.push({
+            ...firstEv,
+            id: 9991,
+            event_type: 'TAMPER',
+            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 60).toISOString(),
+          });
+          evData.push({
+            ...firstEv,
+            id: 9992,
+            event_type: 'THEFT',
+            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 120).toISOString(),
+          });
+          evData.push({
+            ...firstEv,
+            id: 9993,
+            event_type: 'DURESS',
+            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 180).toISOString(),
+          });
+        }
+        this.bikeEvents.set(evData);
+        
         this.isLoading.set(false);
 
         if (this.viewMode() === 'map') {
@@ -562,8 +605,11 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       const isTouch = sev.type === 'BIKE_TOUCHED';
       const isImmobilized = sev.type === 'IMMOBILIZED';
       const isReactivated = sev.type === 'REACTIVATED';
+      const isIncident = sev.type === 'THEFT' || sev.type === 'TAMPER' || sev.type === 'DURESS';
       const bgClass = isAccident
         ? 'bg-red-600 ring-red-500/50 animate-bounce'
+        : isIncident
+        ? 'bg-rose-600 ring-rose-500/50 animate-pulse'
         : isTouch
         ? 'bg-rose-600 ring-rose-500/40 animate-pulse'
         : isImmobilized
@@ -578,6 +624,8 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
           <div class="w-8 h-8 rounded-full ${bgClass} text-white flex items-center justify-center font-bold text-xs shadow-xl border-2 border-white ring-4">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               ${isAccident
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'
+                : isIncident
                 ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'
                 : isTouch 
                 ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'

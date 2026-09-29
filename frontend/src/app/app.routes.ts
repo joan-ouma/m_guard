@@ -6,8 +6,20 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { BikesComponent } from './bikes/bikes.component';
 import { HistoryComponent } from './history/history.component';
+import { AlertsComponent } from './alerts/alerts.component';
+import { SettingsComponent } from './settings/settings.component';
 
 export const routes: Routes = [
+  {
+    path: 'alerts',
+    component: AlertsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [authGuard],
+  },
   {
     path: '',
     component: DashboardComponent,

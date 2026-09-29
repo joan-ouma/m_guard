@@ -81,6 +81,7 @@ export interface BreadcrumbDTO {
   address?: string;
   geofence_breach: boolean;
   recorded_at: string;
+  event_type?: 'THEFT' | 'TAMPER' | 'DURESS' | 'ROUTINE';
 }
 
 export interface BikeEventDTO {

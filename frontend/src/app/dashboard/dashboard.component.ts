@@ -82,10 +82,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isBreachActive = signal<boolean>(false);
   readonly alertBannerText = signal<string>('');
   readonly showGeofenceModal = signal<boolean>(false);
+  readonly showDuressPrompt = signal<boolean>(false);
+  readonly duressCountdown = signal<number>(30);
   readonly copiedCoordinates = signal<boolean>(false);
   readonly currentTime = signal<number>(Date.now());
   private tickerInterval?: ReturnType<typeof setInterval>;
   private pollInterval?: ReturnType<typeof setInterval>;
+  private duressInterval?: ReturnType<typeof setInterval>;
 
   readonly bikeList = computed<FleetBike[]>(() => Object.values(this.fleet()));
 
@@ -584,6 +587,50 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.map?.panTo([exitLat, exitLng]);
   }
 
+  simulateSuddenStop(): void {
+    if (this.showDuressPrompt()) return;
+    this.showDuressPrompt.set(true);
+    this.duressCountdown.set(30);
+
+    this.duressInterval = setInterval(() => {
+      const current = this.duressCountdown() - 1;
+      this.duressCountdown.set(current);
+      if (current <= 0) {
+        this.escalateDuress();
+      }
+    }, 1000);
+  }
+
+  cancelDuress(): void {
+    this.showDuressPrompt.set(false);
+    if (this.duressInterval) clearInterval(this.duressInterval);
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Status cleared. Safe riding.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  }
+
+  escalateDuress(): void {
+    this.showDuressPrompt.set(false);
+    if (this.duressInterval) clearInterval(this.duressInterval);
+
+    this.isBreachActive.set(true);
+    this.alertBannerText.set(`DURESS ESCALATED: Alert sent to Sacco & Emergency Contacts`);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Emergency Alert Sent',
+      text: 'Your Sacco and emergency contacts have been notified of a potential incident.',
+      confirmButtonColor: '#e11d48',
+    });
+  }
+
   handleLogout(): void {
     this.authService.logout().subscribe();
   }
@@ -637,7 +684,27 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     Swal.fire({
       title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
-      text: actionText,
+      html: `
+        <div class="text-left mb-5">
+          <p class="mb-4 text-zinc-600 text-sm">${actionText}</p>
+          <div class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Security Authorization</label>
+            <p class="text-sm font-medium text-zinc-700">Enter your 4-digit operator PIN to confirm this action.</p>
+          </div>
+        </div>
+      `,
+      input: 'password',
+      inputPlaceholder: '••••',
+      inputAttributes: {
+        maxlength: '4',
+        autocapitalize: 'off',
+        autocorrect: 'off',
+        pattern: '[0-9]*',
+        inputmode: 'numeric',
+      },
+      customClass: {
+        input: 'text-center tracking-[0.5em] text-2xl font-bold rounded-xl border-zinc-300 focus:border-rose-500 focus:ring-rose-500',
+      },
       icon: isImmobilizing ? 'warning' : 'question',
       showCancelButton: true,
       confirmButtonColor: isImmobilizing ? (isMoving ? '#f59e0b' : '#e11d48') : '#059669',
@@ -645,6 +712,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       confirmButtonText: isImmobilizing ? (isMoving ? 'Queue Immobilization' : 'Yes, Immobilize') : 'Yes, Reactivate',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
+      preConfirm: (pin) => {
+        if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+          Swal.showValidationMessage('Please enter a valid 4-digit PIN');
+          return false;
+        }
+        return pin; // In a real app, this PIN would be sent to the backend API for validation
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         this.bikeService.toggleImmobilize(bike.id, isImmobilizing).subscribe({

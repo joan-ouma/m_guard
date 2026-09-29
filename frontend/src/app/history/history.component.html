@@ -194,6 +194,29 @@
             </button>
           </div>
 
+          <!-- Incidents Only Toggle -->
+          <div class="flex items-center p-1 bg-zinc-100 rounded-2xl border border-zinc-200/80 ml-2">
+            <button
+              type="button"
+              (click)="filterIncidentsOnly.set(false)"
+              [class]="!filterIncidentsOnly() ? 'bg-white text-zinc-900 font-bold shadow-xs' : 'text-zinc-600 hover:text-zinc-900 font-semibold'"
+              class="h-10 px-4 rounded-xl text-sm transition-all cursor-pointer"
+            >
+              All Data
+            </button>
+            <button
+              type="button"
+              (click)="filterIncidentsOnly.set(true)"
+              [class]="filterIncidentsOnly() ? 'bg-white text-rose-600 font-bold shadow-xs' : 'text-zinc-600 hover:text-rose-500 font-semibold'"
+              class="h-10 px-4 rounded-xl text-sm transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Incidents Only
+            </button>
+          </div>
+
           <!-- Formatted date label -->
           <span class="text-base font-bold text-zinc-800 ml-1">
             {{ formatReadableDate(selectedStartDate()) }}
@@ -282,7 +305,7 @@
 
       <!-- EMPTY STATE -->
       <div
-        *ngIf="trailEvents().length === 0 && !isLoading()"
+        *ngIf="filteredTrailEvents().length === 0 && !isLoading()"
         class="bg-white p-12 rounded-3xl border border-zinc-200 text-center"
       >
         <p class="text-base font-bold text-zinc-800">No trail recorded for this date</p>
@@ -290,10 +313,10 @@
       </div>
 
       <!-- SIMPLE CHRONOLOGICAL TRAIL & EVENTS LIST -->
-      <div *ngIf="trailEvents().length > 0" class="bg-white rounded-3xl border border-zinc-200 divide-y divide-zinc-100 overflow-hidden shadow-2xs">
+      <div *ngIf="filteredTrailEvents().length > 0" class="bg-white rounded-3xl border border-zinc-200 divide-y divide-zinc-100 overflow-hidden shadow-2xs">
         
         <div
-          *ngFor="let ev of trailEvents()"
+          *ngFor="let ev of filteredTrailEvents()"
           class="p-5 flex items-center justify-between gap-5 hover:bg-zinc-50/70 transition-colors"
           [class.bg-red-50/80]="ev.type === 'ACCIDENT_DETECTED'"
           [class.bg-emerald-50/30]="ev.type === 'BIKE_ON'"
@@ -302,6 +325,8 @@
           [class.bg-violet-50/40]="ev.type === 'GEOFENCE_APPROACHING'"
           [class.bg-rose-50/60]="ev.type === 'IMMOBILIZED'"
           [class.bg-emerald-50/60]="ev.type === 'REACTIVATED'"
+          [class.bg-rose-100]="ev.type === 'THEFT' || ev.type === 'DURESS'"
+          [class.bg-amber-100]="ev.type === 'TAMPER'"
         >
           <!-- Left: Event Indicator & Time -->
           <div class="flex items-center gap-4 min-w-0">
@@ -311,10 +336,11 @@
               [class.bg-red-600]="ev.type === 'ACCIDENT_DETECTED'"
               [class.bg-emerald-500]="ev.type === 'BIKE_ON'"
               [class.bg-amber-500]="ev.type === 'BIKE_OFF'"
-              [class.bg-rose-600]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED'"
+              [class.bg-rose-600]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
+              [class.bg-amber-600]="ev.type === 'TAMPER'"
               [class.bg-emerald-600]="ev.type === 'REACTIVATED'"
               [class.bg-violet-600]="ev.type === 'GEOFENCE_APPROACHING'"
-              [class.text-white]="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'BIKE_ON' || ev.type === 'BIKE_OFF' || ev.type === 'BIKE_TOUCHED' || ev.type === 'GEOFENCE_APPROACHING' || ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED'"
+              [class.text-white]="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'BIKE_ON' || ev.type === 'BIKE_OFF' || ev.type === 'BIKE_TOUCHED' || ev.type === 'GEOFENCE_APPROACHING' || ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED' || ev.type === 'THEFT' || ev.type === 'TAMPER' || ev.type === 'DURESS'"
               [class.bg-zinc-100]="ev.type === 'MOVING' || ev.type === 'IDLE'"
               [class.text-zinc-600]="ev.type === 'MOVING' || ev.type === 'IDLE'"
             >
@@ -322,8 +348,8 @@
               <svg *ngIf="ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED'" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
               </svg>
-              <!-- Accident Detected icon -->
-              <svg *ngIf="ev.type === 'ACCIDENT_DETECTED'" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <!-- Accident / Theft / Tamper / Duress Detected icon -->
+              <svg *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'TAMPER' || ev.type === 'DURESS'" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <!-- Bike Touched icon -->
@@ -356,10 +382,10 @@
                 <span
                   class="text-base font-bold truncate"
                   [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
-                  [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED'"
+                  [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
+                  [class.text-amber-800]="ev.type === 'BIKE_OFF' || ev.type === 'TAMPER'"
                   [class.text-violet-700]="ev.type === 'GEOFENCE_APPROACHING'"
                   [class.text-emerald-700]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'"
-                  [class.text-amber-800]="ev.type === 'BIKE_OFF'"
                   [class.text-zinc-900]="ev.type === 'MOVING' || ev.type === 'IDLE'"
                 >
                   {{ ev.title }}
@@ -395,6 +421,27 @@
                   Touch Alert
                 </span>
                 <span
+                  *ngIf="ev.type === 'THEFT'"
+                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white flex items-center gap-1.5 shadow-2xs"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                  Theft Confirmed
+                </span>
+                <span
+                  *ngIf="ev.type === 'TAMPER'"
+                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-600 text-white flex items-center gap-1.5 shadow-2xs"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                  Power Cut / Tamper
+                </span>
+                <span
+                  *ngIf="ev.type === 'DURESS'"
+                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white flex items-center gap-1.5 shadow-2xs"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                  Duress Triggered
+                </span>
+                <span
                   *ngIf="ev.type === 'GEOFENCE_APPROACHING'"
                   class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800"
                 >
@@ -424,8 +471,9 @@
           <!-- Right: Timestamp & Battery -->
           <div class="text-right shrink-0">
             <p class="text-sm font-mono font-bold text-zinc-900">{{ formatTime(ev.time) }}</p>
-            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED'" class="text-xs font-mono font-semibold text-zinc-400 mt-0.5">Bat: {{ ev.battery }}%</p>
-            <p *ngIf="ev.type === 'ACCIDENT_DETECTED'" class="text-xs font-mono font-black text-red-600 mt-0.5 animate-pulse">EMERGENCY</p>
+            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED' && ev.type !== 'THEFT' && ev.type !== 'TAMPER' && ev.type !== 'DURESS'" class="text-xs font-mono font-semibold text-zinc-400 mt-0.5">Bat: {{ ev.battery }}%</p>
+            <p *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'DURESS'" class="text-xs font-mono font-black text-red-600 mt-0.5 animate-pulse">EMERGENCY</p>
+            <p *ngIf="ev.type === 'TAMPER'" class="text-xs font-mono font-black text-amber-600 mt-0.5 animate-pulse">CRITICAL</p>
             <p *ngIf="ev.type === 'BIKE_TOUCHED'" class="text-xs font-mono font-bold text-rose-600 mt-0.5">Parked Alert</p>
             <p *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="text-xs font-mono font-bold text-violet-600 mt-0.5">Proximity</p>
           </div>
@@ -599,7 +647,8 @@
           <td class="py-3 pr-4 font-mono whitespace-nowrap">{{ formatReadableDate(ev.time.split('T')[0]) }}<br>{{ formatTime(ev.time) }}</td>
           <td class="py-3 pr-4 font-bold"
               [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
-              [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED'"
+              [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
+              [class.text-amber-700]="ev.type === 'TAMPER'"
               [class.text-emerald-700]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'">
             {{ ev.title }}
           </td>
