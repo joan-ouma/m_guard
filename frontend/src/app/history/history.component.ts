@@ -368,6 +368,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.viewMode.set('text');
   }
 
+  generateReport(): void {
+    window.print();
+  }
+
   private initMap(): void {
     const mapEl = document.getElementById('historyMap');
     if (!mapEl) return;
@@ -591,7 +595,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getUserInitials(): string {
     const user = this.authService.currentUser();
-    if (!user || !user.name) return 'FD';
+    if (!user || !user.name) return 'R';
     const parts = user.name.trim().split(/\s+/);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
