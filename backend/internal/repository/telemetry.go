@@ -119,6 +119,9 @@ func (r *TelemetryRepository) SaveTelemetry(
 	sensorID string,
 	lat float64,
 	lng float64,
+	address string,
+	subCounty string,
+	county string,
 	speed float64,
 	heading float64,
 	status string,
@@ -140,18 +143,21 @@ func (r *TelemetryRepository) SaveTelemetry(
 		SET
 			latitude = $1,
 			longitude = $2,
-			speed_kmh = $3,
-			heading_deg = $4,
-			status = $5,
-			ignition = $6,
-			battery_percent = $7,
-			signal_quality_csq = $8,
-			last_telemetry_at = $9,
-			updated_at = $9
-		WHERE id = $10
+			current_address = COALESCE(NULLIF($3, ''), current_address),
+			sub_county = COALESCE(NULLIF($4, ''), sub_county),
+			county = COALESCE(NULLIF($5, ''), county),
+			speed_kmh = $6,
+			heading_deg = $7,
+			status = $8,
+			ignition = $9,
+			battery_percent = $10,
+			signal_quality_csq = $11,
+			last_telemetry_at = $12,
+			updated_at = $12
+		WHERE id = $13
 	`
 	_, err := tx.Exec(ctx, updateBikeQuery,
-		lat, lng, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
+		lat, lng, address, subCounty, county, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
 	)
 	if err != nil {
 		return err

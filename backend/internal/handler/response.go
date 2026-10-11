@@ -54,3 +54,16 @@ func parseDateRange(q url.Values) (string, string) {
 
 	return startDate, endDate
 }
+
+func getBikeID(r *http.Request) string {
+	if id := r.PathValue("id"); id != "" {
+		return id
+	}
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	for i, part := range parts {
+		if part == "bikes" && i+1 < len(parts) {
+			return parts[i+1]
+		}
+	}
+	return ""
+}

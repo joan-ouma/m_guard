@@ -32,13 +32,27 @@ func NewRouter(cfg RouterConfig) *http.ServeMux {
 	// Fleet Management
 	mux.Handle("GET /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.List)))
 	mux.Handle("POST /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.Create)))
-	mux.Handle("GET /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.GetByID)))
-	mux.Handle("PUT /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Update)))
-	mux.Handle("PATCH /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Update)))
-	mux.Handle("DELETE /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Delete)))
-	mux.Handle("GET /v1/bikes/{id}/breadcrumbs", authMW(http.HandlerFunc(cfg.BikeHandler.GetBreadcrumbs)))
-	mux.Handle("GET /v1/bikes/{id}/events", authMW(http.HandlerFunc(cfg.BikeHandler.GetEvents)))
-	mux.Handle("POST /v1/bikes/{id}/immobilize", authMW(http.HandlerFunc(cfg.BikeHandler.Immobilize)))
+	mux.Handle("GET /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.GetByID(w, r, getBikeID(r))
+	})))
+	mux.Handle("PUT /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.Update(w, r, getBikeID(r))
+	})))
+	mux.Handle("PATCH /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.Update(w, r, getBikeID(r))
+	})))
+	mux.Handle("DELETE /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.Delete(w, r, getBikeID(r))
+	})))
+	mux.Handle("GET /v1/bikes/{id}/breadcrumbs", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.GetBreadcrumbs(w, r, getBikeID(r))
+	})))
+	mux.Handle("GET /v1/bikes/{id}/events", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.GetEvents(w, r, getBikeID(r))
+	})))
+	mux.Handle("POST /v1/bikes/{id}/immobilize", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.BikeHandler.Immobilize(w, r, getBikeID(r))
+	})))
 
 	return mux
 }
