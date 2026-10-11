@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"motoguard-backend/internal/domain"
+	"motoguard-backend/internal/mailer"
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 
@@ -20,6 +23,8 @@ type AuthService struct {
 	jwtManager           *security.JWTManager
 	argonParams          *security.Argon2Params
 	refreshTokenDuration time.Duration
+	mailer               mailer.Mailer
+	frontendURL          string
 }
 
 func NewAuthService(
@@ -27,9 +32,18 @@ func NewAuthService(
 	repo *repository.AuthRepository,
 	jwtManager *security.JWTManager,
 	argonParams *security.Argon2Params,
+	mailClient mailer.Mailer,
+	frontendURL string,
 ) *AuthService {
 	if argonParams == nil {
 		argonParams = security.DefaultArgon2Params
+	}
+	if mailClient == nil {
+		mailClient = &mailer.NoopMailer{}
+	}
+	frontendURL = strings.TrimRight(frontendURL, "/")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:4200"
 	}
 	return &AuthService{
 		pool:                 pool,
@@ -37,6 +51,8 @@ func NewAuthService(
 		jwtManager:           jwtManager,
 		argonParams:          argonParams,
 		refreshTokenDuration: 7 * 24 * time.Hour,
+		mailer:               mailClient,
+		frontendURL:          frontendURL,
 	}
 }
 
@@ -241,7 +257,23 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 		return err
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	resetURL := fmt.Sprintf("%s/reset-password/%s", s.frontendURL, rawToken)
+	userEmail := user.Email
+	userName := user.Name
+
+	go func() {
+		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		if err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL); err != nil {
+			log.Printf("[AuthService] failed to send password reset email to %s: %v", userEmail, err)
+		}
+	}()
+
+	return nil
 }
 
 func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPassword string) error {
@@ -293,7 +325,24 @@ func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPas
 		return domain.NewInternalServerError(instance)
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return domain.NewInternalServerError(instance)
+	}
+
+	user, err := s.repo.GetUserByID(ctx, prt.UserID)
+	if err == nil && user != nil {
+		userEmail := user.Email
+		userName := user.Name
+		go func() {
+			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+			if err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName); err != nil {
+				log.Printf("[AuthService] failed to send password changed confirmation email to %s: %v", userEmail, err)
+			}
+		}()
+	}
+
+	return nil
 }
 
 func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*domain.UserDTO, error) {
