@@ -19,6 +19,10 @@ func NewRouter(cfg RouterConfig) *http.ServeMux {
 	authMW := cfg.AuthMiddleware
 	rateLimitMW := cfg.RateLimitMiddleware
 
+	// User Registration
+	mux.Handle("POST /v1/users/register", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
+	mux.Handle("POST /v1/users", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
+
 	// Authentication & Sessions
 	mux.Handle("POST /v1/sessions", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Login)))
 	mux.Handle("PUT /v1/sessions/current", http.HandlerFunc(cfg.AuthHandler.Refresh))

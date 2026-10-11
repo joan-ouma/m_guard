@@ -22,8 +22,8 @@ export class LoginComponent {
   readonly formSubmitted = signal<boolean>(false);
 
   readonly form: FormGroup = this.fb.group({
-    phone: ['', [Validators.required, Validators.pattern('^[0-9+]{9,15}$')]],
-    nationalId: ['', [Validators.required, Validators.pattern('^[0-9]{7,9}$')]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
   });
 
   togglePasswordVisibility(): void {

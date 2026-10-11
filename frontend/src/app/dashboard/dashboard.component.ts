@@ -112,6 +112,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     fenceEmail: ['operator@mototrack.ke', [Validators.required, Validators.email]],
   });
 
+  readonly showRegisterModal = signal<boolean>(false);
+  readonly registrationError = signal<string | null>(null);
+  readonly isSubmitting = signal<boolean>(false);
+
+  readonly registerForm: FormGroup = this.fb.group({
+    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}\s?[0-9]{3}[A-Z]$/i)]],
+    model: ['', [Validators.required]],
+    imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
+    county: ['Nairobi County', [Validators.required]],
+    subCounty: ['Westlands', [Validators.required]],
+  });
+
   ngOnInit(): void {
     this.tickerInterval = setInterval(() => {
       this.currentTime.set(Date.now());
@@ -537,6 +549,66 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.toggleGeofenceModal(false);
+  }
+
+  openRegisterModal(): void {
+    this.registrationError.set(null);
+    this.registerForm.reset({
+      county: 'Nairobi County',
+      subCounty: 'Westlands',
+    });
+    this.showRegisterModal.set(true);
+  }
+
+  closeRegisterModal(): void {
+    this.showRegisterModal.set(false);
+    this.registrationError.set(null);
+  }
+
+  registerBike(): void {
+    if (this.registerForm.invalid || this.isSubmitting()) return;
+
+    this.isSubmitting.set(true);
+    this.registrationError.set(null);
+
+    const val = this.registerForm.value;
+    const parts = val.model.trim().split(' ');
+    const make = parts[0] || 'Bajaj';
+    const model = parts.slice(1).join(' ') || val.model.trim();
+
+    this.bikeService
+      .createBike({
+        registration_number: val.plate.toUpperCase().trim(),
+        label: val.model.trim(),
+        make: make,
+        model: model,
+        imei: val.imei.trim(),
+        county: val.county,
+        sub_county: val.subCounty,
+        latitude: -1.286389,
+        longitude: 36.817223,
+        current_address: 'Nairobi CBD Staging Yard',
+      })
+      .subscribe({
+        next: (res) => {
+          this.isSubmitting.set(false);
+          this.closeRegisterModal();
+          
+          // Add the newly created bike directly to the fleet and select it
+          const mapped = this.mapToFleetBike(res.data);
+          this.fleet.update((prev) => ({ ...prev, [mapped.id]: mapped }));
+          this.selectBike(mapped.id);
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          const detail =
+            err?.error?.detail ||
+            (err?.error?.errors
+              ? Object.values(err.error.errors).flat().join(', ')
+              : 'Failed to register motorcycle');
+          this.registrationError.set(detail);
+        },
+      });
   }
 
   simulateBreach(): void {

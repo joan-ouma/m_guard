@@ -20,6 +20,49 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 	return &AuthHandler{service: s}
 }
 
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req domain.RegisterRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		domain.NewBadRequestError("Invalid request payload", r.URL.Path, nil).WriteJSON(w)
+		return
+	}
+
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+	req.Name = strings.TrimSpace(req.Name)
+
+	if req.Email == "" || req.Password == "" || req.Name == "" {
+		domain.NewBadRequestError("Email, name, and password are required", r.URL.Path, nil).WriteJSON(w)
+		return
+	}
+
+	if len(req.Password) < 8 {
+		domain.NewBadRequestError("Password must be at least 8 characters", r.URL.Path, nil).WriteJSON(w)
+		return
+	}
+
+	userDto, err := h.service.Register(r.Context(), req)
+	if err != nil {
+		if pd, ok := err.(domain.ProblemDetails); ok {
+			pd.WriteJSON(w)
+			return
+		}
+		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"data": userDto,
+	})
+}
+
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

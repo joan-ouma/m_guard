@@ -56,6 +56,49 @@ func NewAuthService(
 	}
 }
 
+func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (*domain.UserDTO, error) {
+	instance := "/v1/users/register"
+
+	// Check if user already exists
+	_, err := s.repo.GetUserByEmail(ctx, req.Email)
+	if err == nil {
+		return nil, domain.ProblemDetails{
+			Type:     "https://motoguard.co.ke/errors/conflict",
+			Title:    "Conflict",
+			Status:   409,
+			Detail:   "A user with this email already exists",
+			Instance: instance,
+		}
+	} else if !errors.Is(err, repository.ErrNotFound) {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	hashedPassword, err := security.HashPassword(req.Password, s.argonParams)
+	if err != nil {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	user := &domain.User{
+		ID:           uuid.NewString(),
+		Email:        req.Email,
+		Name:         req.Name,
+		PasswordHash: hashedPassword,
+		CreatedAt:    time.Now().UTC(),
+		UpdatedAt:    time.Now().UTC(),
+	}
+
+	if err := s.repo.CreateUser(ctx, user); err != nil {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	return &domain.UserDTO{
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
+		Role:  "owner",
+	}, nil
+}
+
 func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent string) (*domain.SessionData, string, error) {
 	instance := "/v1/sessions"
 

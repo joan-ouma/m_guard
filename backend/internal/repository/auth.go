@@ -41,6 +41,22 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 	return &u, nil
 }
 
+func (r *AuthRepository) CreateUser(ctx context.Context, u *domain.User) error {
+	query := `
+		INSERT INTO users (id, email, password_hash, name, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
+	`
+	_, err := r.pool.Exec(ctx, query,
+		u.ID,
+		u.Email,
+		u.PasswordHash,
+		u.Name,
+		u.CreatedAt,
+		u.UpdatedAt,
+	)
+	return err
+}
+
 func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	query := `
 		SELECT id, email, password_hash, name, created_at, updated_at
