@@ -7,20 +7,23 @@ import (
 	"time"
 
 	"motoguard-backend/internal/domain"
+	"motoguard-backend/internal/geolocation"
 	"motoguard-backend/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type TelemetryService struct {
-	pool *pgxpool.Pool
-	repo *repository.TelemetryRepository
+	pool            *pgxpool.Pool
+	repo            *repository.TelemetryRepository
+	reverseGeocoder *geolocation.ReverseGeocoder
 }
 
 func NewTelemetryService(pool *pgxpool.Pool, repo *repository.TelemetryRepository) *TelemetryService {
 	return &TelemetryService{
-		pool: pool,
-		repo: repo,
+		pool:            pool,
+		repo:            repo,
+		reverseGeocoder: geolocation.NewReverseGeocoder(),
 	}
 }
 
@@ -46,9 +49,21 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 
 	speed := payload.SpeedKMH
-	heading := payload.HeadingDeg
+	if speed < 0.0 {
+		speed = 0.0
+	}
 
-	if hasPrev {
+	heading := payload.HeadingDeg
+	if heading > 360.0 && heading <= 3600.0 {
+		heading = heading / 10.0
+	} else if heading > 360.0 {
+		heading = math.Mod(heading, 360.0)
+	}
+	if heading < 0.0 {
+		heading = 0.0
+	}
+
+	if hasPrev && payload.Latitude != 0 && payload.Longitude != 0 && prevLat != 0 && prevLng != 0 {
 		distanceKM := haversineDistanceKM(prevLat, prevLng, payload.Latitude, payload.Longitude)
 		elapsedHours := recordedAt.Sub(prevTime).Hours()
 
@@ -91,6 +106,16 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 	defer tx.Rollback(ctx)
 
+	var address, subCounty, county string
+	if payload.Latitude != 0 || payload.Longitude != 0 {
+		geoCtx, geoCancel := context.WithTimeout(ctx, 4*time.Second)
+		addrInfo := s.reverseGeocoder.ReverseGeocode(geoCtx, payload.Latitude, payload.Longitude)
+		geoCancel()
+		address = addrInfo.FormattedAddress
+		subCounty = addrInfo.SubCounty
+		county = addrInfo.County
+	}
+
 	err = s.repo.SaveTelemetry(
 		ctx,
 		tx,
@@ -98,6 +123,9 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		sensorID,
 		payload.Latitude,
 		payload.Longitude,
+		address,
+		subCounty,
+		county,
 		speed,
 		heading,
 		status,
