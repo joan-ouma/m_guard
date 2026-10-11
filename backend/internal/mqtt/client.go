@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"motoguard-backend/internal/domain"
+	"motoguard-backend/internal/geolocation"
 	"motoguard-backend/internal/service"
 
 	pahomqtt "github.com/eclipse/paho.mqtt.golang"
@@ -18,101 +19,157 @@ import (
 type MQTTSubscriber struct {
 	client           pahomqtt.Client
 	telemetryService *service.TelemetryService
-	topic            string
+	cellResolver     *geolocation.CellResolver
+	topics           []string
 }
 
-func NewMQTTSubscriber(brokerURL string, clientID string, telemetryService *service.TelemetryService) (*MQTTSubscriber, error) {
-	topicTelemetry := "motoguard/v1/telemetry/+"
-	topicEvents := "motoguard/v1/events/+"
+func NewMQTTSubscriber(brokerURL string, clientID string, username string, password string, telemetryService *service.TelemetryService) (*MQTTSubscriber, error) {
+	topics := []string{
+		"motoguard/v1/#",
+	}
+
+	cellResolver := geolocation.NewCellResolver()
 
 	opts := pahomqtt.NewClientOptions()
 	opts.AddBroker(brokerURL)
-	opts.SetClientID(clientID)
+	opts.SetClientID(fmt.Sprintf("%s-%d", clientID, time.Now().UnixNano()%100000))
 	opts.SetAutoReconnect(true)
 	opts.SetConnectRetry(true)
 	opts.SetConnectRetryInterval(3 * time.Second)
 	opts.SetKeepAlive(30 * time.Second)
 
+	opts.SetConnectionLostHandler(func(c pahomqtt.Client, err error) {
+		log.Printf("[MQTT] Connection lost: %v", err)
+	})
+
+	if username != "" {
+		opts.SetUsername(username)
+		if password != "" {
+			opts.SetPassword(password)
+		}
+	}
+
 	handler := func(c pahomqtt.Client, m pahomqtt.Message) {
-		if strings.HasPrefix(m.Topic(), "motoguard/v1/events/") {
-			var evPayload struct {
-				SensorID  string  `json:"sensor_id"`
-				EventType string  `json:"event_type"`
-				Event     string  `json:"event"`
-				Lat       float64 `json:"lat"`
-				Latitude  float64 `json:"latitude"`
-				Lng       float64 `json:"lng"`
-				Longitude float64 `json:"longitude"`
-				Timestamp int64   `json:"ts"`
-			}
-			if err := json.Unmarshal(m.Payload(), &evPayload); err != nil {
-				log.Printf("invalid mqtt event payload: %v", err)
+		topic := m.Topic()
+		log.Printf("[MQTT Incoming] Topic: %s, Size: %d bytes, Payload: %s", topic, len(m.Payload()), string(m.Payload()))
+
+		parts := strings.Split(topic, "/")
+		sensorID := ""
+		if len(parts) > 0 {
+			sensorID = strings.TrimSpace(parts[len(parts)-1])
+		}
+
+		// Handle Burglary & Tamper Alert (Instant Trigger)
+		if strings.Contains(topic, "/alert") || strings.Contains(topic, "/events") {
+			var alert domain.AlertPayload
+			if err := json.Unmarshal(m.Payload(), &alert); err != nil {
+				log.Printf("[MQTT Alert] invalid json payload from %s: %v", topic, err)
 				return
 			}
-			sensorID := strings.TrimSpace(evPayload.SensorID)
-			if sensorID == "" {
-				parts := strings.Split(m.Topic(), "/")
-				if len(parts) > 0 {
-					sensorID = parts[len(parts)-1]
+
+			// When GPS is 0,0, resolve location from Cell Tower database
+			if alert.Latitude == 0 && alert.Longitude == 0 && alert.MCC > 0 && alert.LAC > 0 && alert.CID > 0 {
+				geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
+				if lat, lng, ok := cellResolver.Resolve(geoCtx, alert.MCC, alert.MNC, alert.LAC, alert.CID); ok {
+					alert.Latitude = lat
+					alert.Longitude = lng
+					alert.LocType = "lbs"
 				}
+				geoCancel()
 			}
-			evType := evPayload.EventType
-			if evType == "" {
-				evType = evPayload.Event
+
+			recTime := time.Now().UTC()
+			if alert.Timestamp > 0 {
+				recTime = time.Unix(alert.Timestamp, 0).UTC()
 			}
-			lat := evPayload.Lat
-			if lat == 0 {
-				lat = evPayload.Latitude
+
+			reason := strings.TrimSpace(alert.Reason)
+			if reason == "" {
+				reason = "BURGLARY_TAMPER_ALERT"
 			}
-			lng := evPayload.Lng
-			if lng == 0 {
-				lng = evPayload.Longitude
-			}
-			var recTime time.Time
-			if evPayload.Timestamp > 0 {
-				recTime = time.Unix(evPayload.Timestamp, 0).UTC()
-			} else {
-				recTime = time.Now().UTC()
-			}
+
 			ingestCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-			if err := telemetryService.IngestEvent(ingestCtx, sensorID, evType, lat, lng, recTime); err != nil {
-				log.Printf("failed to ingest event for sensor %s: %v", sensorID, err)
+
+			// 1. Record the burglary/tamper alert event
+			if err := telemetryService.IngestEvent(ingestCtx, sensorID, reason, alert.Latitude, alert.Longitude, recTime); err != nil {
+				log.Printf("[MQTT Alert] failed to ingest event %s for sensor %s: %v", reason, sensorID, err)
 			} else {
-				log.Printf("[MQTT] Successfully recorded event %s for sensor %s", evType, sensorID)
+				log.Printf("[MQTT Alert] Recorded alert [%s] for sensor %s at (%.6f, %.6f)", reason, sensorID, alert.Latitude, alert.Longitude)
 			}
+
+			// 2. Ingest telemetry so live map position & status update immediately
+			telemetryPayload := domain.TelemetryPayload{
+				SensorID:       sensorID,
+				Latitude:       alert.Latitude,
+				Longitude:      alert.Longitude,
+				LocType:        alert.LocType,
+				MCC:            alert.MCC,
+				MNC:            alert.MNC,
+				LAC:            alert.LAC,
+				CID:            alert.CID,
+				SignalQuality:  alert.SignalQuality,
+				RSSIDBm:        alert.RSSIDBm,
+				SpeedKMH:       alert.SpeedKMH,
+				HeadingDeg:     alert.HeadingDeg,
+				Ignition:       alert.Ignition,
+				BatteryPercent: alert.BatteryPercent,
+				Timestamp:      recTime.Unix(),
+				Alert:          alert.Alert,
+				Reason:         alert.Reason,
+			}
+			_ = telemetryService.IngestTelemetry(ingestCtx, telemetryPayload)
 			return
 		}
 
+		// Handle Periodic Telemetry (Normal Tracking)
 		var payload domain.TelemetryPayload
 		if err := json.Unmarshal(m.Payload(), &payload); err != nil {
-			log.Printf("invalid mqtt json payload: %v", err)
+			log.Printf("[MQTT Telemetry] invalid json payload from %s: %v", topic, err)
 			return
 		}
 
 		if strings.TrimSpace(payload.SensorID) == "" {
-			parts := strings.Split(m.Topic(), "/")
-			if len(parts) > 0 {
-				payload.SensorID = parts[len(parts)-1]
-			}
+			payload.SensorID = sensorID
 		}
 
-		log.Printf("[MQTT] Received telemetry for sensor %s: ign=%v, spd=%.1f", payload.SensorID, payload.Ignition, payload.SpeedKMH)
+		// When GPS is 0,0, resolve location from Cell Tower database
+		if payload.Latitude == 0 && payload.Longitude == 0 && payload.MCC > 0 && payload.LAC > 0 && payload.CID > 0 {
+			geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
+			if lat, lng, ok := cellResolver.Resolve(geoCtx, payload.MCC, payload.MNC, payload.LAC, payload.CID); ok {
+				payload.Latitude = lat
+				payload.Longitude = lng
+				payload.LocType = "lbs"
+			}
+			geoCancel()
+		}
+
+		recTime := time.Now().UTC()
+		if payload.Timestamp > 0 {
+			recTime = time.Unix(payload.Timestamp, 0).UTC()
+		}
 
 		ingestCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		if err := telemetryService.IngestTelemetry(ingestCtx, payload); err != nil {
-			log.Printf("failed to ingest telemetry for sensor %s: %v", payload.SensorID, err)
+			log.Printf("[MQTT Telemetry] failed to ingest telemetry for sensor %s: %v", payload.SensorID, err)
 		} else {
-			log.Printf("[MQTT] Successfully ingested telemetry for sensor %s", payload.SensorID)
+			log.Printf("[MQTT Telemetry] Ingested sensor %s (loc=%s, lat=%.6f, lng=%.6f, ign=%v, spd=%.1f)",
+				payload.SensorID, payload.LocType, payload.Latitude, payload.Longitude, payload.Ignition, payload.SpeedKMH)
+		}
+
+		// If telemetry also includes an active alert flag or reason
+		if payload.Alert && payload.Reason != "" {
+			_ = telemetryService.IngestEvent(ingestCtx, payload.SensorID, payload.Reason, payload.Latitude, payload.Longitude, recTime)
 		}
 	}
 
 	opts.SetOnConnectHandler(func(c pahomqtt.Client) {
-		log.Printf("MQTT connected / reconnected. Subscribing to topics: %s, %s", topicTelemetry, topicEvents)
-		c.Subscribe(topicTelemetry, 1, handler)
-		c.Subscribe(topicEvents, 1, handler)
+		log.Printf("MQTT connected / reconnected. Subscribing to topics: %s", strings.Join(topics, ", "))
+		for _, top := range topics {
+			c.Subscribe(top, 1, handler)
+		}
 	})
 
 	client := pahomqtt.NewClient(opts)
@@ -120,7 +177,8 @@ func NewMQTTSubscriber(brokerURL string, clientID string, telemetryService *serv
 	return &MQTTSubscriber{
 		client:           client,
 		telemetryService: telemetryService,
-		topic:            topicTelemetry,
+		cellResolver:     cellResolver,
+		topics:           topics,
 	}, nil
 }
 
@@ -135,7 +193,9 @@ func (s *MQTTSubscriber) Start(ctx context.Context) error {
 
 func (s *MQTTSubscriber) Stop() {
 	if s.client.IsConnected() {
-		s.client.Unsubscribe(s.topic, "motoguard/v1/events/+")
+		for _, top := range s.topics {
+			s.client.Unsubscribe(top)
+		}
 		s.client.Disconnect(250)
 	}
 }
