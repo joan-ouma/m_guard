@@ -71,8 +71,7 @@ dist/
 **/dist/
 
 # Backend binaries & build artifacts
-server
-**/server
+backend/server
 *.exe
 *.test
 *.out

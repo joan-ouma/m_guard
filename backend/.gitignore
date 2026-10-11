@@ -4,4 +4,4 @@
 *.out
 /vendor/
 /tmp/
-server
+/server
