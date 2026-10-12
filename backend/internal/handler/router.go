@@ -9,12 +9,18 @@ import (
 type RouterConfig struct {
 	AuthHandler         *AuthHandler
 	BikeHandler         *BikeHandler
+	HealthHandler       *HealthHandler
 	AuthMiddleware      func(http.Handler) http.Handler
 	RateLimitMiddleware func(http.Handler) http.Handler
 }
 
 func NewRouter(cfg RouterConfig) *http.ServeMux {
 	mux := http.NewServeMux()
+
+	if cfg.HealthHandler != nil {
+		mux.Handle("GET /health", http.HandlerFunc(cfg.HealthHandler.Check))
+		mux.Handle("GET /v1/health", http.HandlerFunc(cfg.HealthHandler.Check))
+	}
 
 	authMW := cfg.AuthMiddleware
 	rateLimitMW := cfg.RateLimitMiddleware

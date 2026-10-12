@@ -76,9 +76,12 @@ func main() {
 		}
 	}
 
+	healthHandler := handler.NewHealthHandler(pool)
+
 	router := handler.NewRouter(handler.RouterConfig{
 		AuthHandler:         authHandler,
 		BikeHandler:         bikeHandler,
+		HealthHandler:       healthHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})
