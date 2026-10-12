@@ -138,13 +138,22 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 	sessionID := uuid.New().String()
 	now := time.Now().UTC()
 
+	ua := userAgent
+	if len(ua) > 255 {
+		ua = ua[:255]
+	}
+	ipAddr := ip
+	if len(ipAddr) > 45 {
+		ipAddr = ipAddr[:45]
+	}
+
 	session := &domain.Session{
 		ID:               sessionID,
 		UserID:           user.ID,
 		RefreshTokenHash: refreshTokenHash,
 		ExpiresAt:        now.Add(s.refreshTokenDuration),
-		UserAgent:        userAgent,
-		IPAddress:        ip,
+		UserAgent:        ua,
+		IPAddress:        ipAddr,
 		CreatedAt:        now,
 	}
 
@@ -218,13 +227,22 @@ func (s *AuthService) RefreshToken(ctx context.Context, rawRefreshToken, ip, use
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
+	ua := userAgent
+	if len(ua) > 255 {
+		ua = ua[:255]
+	}
+	ipAddr := ip
+	if len(ipAddr) > 45 {
+		ipAddr = ipAddr[:45]
+	}
+
 	newSession := &domain.Session{
 		ID:               uuid.New().String(),
 		UserID:           user.ID,
 		RefreshTokenHash: security.HashTokenSHA256(newRawRefreshToken),
 		ExpiresAt:        time.Now().UTC().Add(s.refreshTokenDuration),
-		UserAgent:        userAgent,
-		IPAddress:        ip,
+		UserAgent:        ua,
+		IPAddress:        ipAddr,
 		CreatedAt:        time.Now().UTC(),
 	}
 

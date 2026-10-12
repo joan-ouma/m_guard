@@ -96,7 +96,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		slog.Error("Login unhandled internal error", "email", req.Email, "error", err)
-		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
+		domain.ProblemDetails{
+			Type:     "https://motoguard.co.ke/errors/internal-server-error",
+			Title:    "Internal Server Error",
+			Status:   http.StatusInternalServerError,
+			Detail:   err.Error(),
+			Instance: r.URL.Path,
+		}.WriteJSON(w)
 		return
 	}
 
