@@ -9,6 +9,7 @@ import {
   CreateBikePayload,
   UpdateBikePayload,
 } from '../models/bike.models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,7 @@ export class BikeService {
     this.isLoading.set(true);
     this.error.set(null);
 
-    return this.http.get<BikeListResponse>('/v1/bikes').pipe(
+    return this.http.get<BikeListResponse>(`${environment.apiBaseUrl}/v1/bikes`).pipe(
       tap({
         next: (res) => {
           this.bikes.set(res.data);
@@ -41,7 +42,7 @@ export class BikeService {
   }
 
   getBike(id: string): Observable<{ data: BikeDTO }> {
-    return this.http.get<{ data: BikeDTO }>(`/v1/bikes/${id}`);
+    return this.http.get<{ data: BikeDTO }>(`${environment.apiBaseUrl}/v1/bikes/${id}`);
   }
 
   getBikeBreadcrumbs(
@@ -51,7 +52,7 @@ export class BikeService {
     startDate?: string,
     endDate?: string
   ): Observable<{ data: BreadcrumbDTO[] }> {
-    let url = `/v1/bikes/${id}/breadcrumbs?limit=${limit}`;
+    let url = `${environment.apiBaseUrl}/v1/bikes/${id}/breadcrumbs?limit=${limit}`;
     if (date) {
       url += `&date=${encodeURIComponent(date)}`;
     } else if (startDate && endDate) {
@@ -67,7 +68,7 @@ export class BikeService {
     startDate?: string,
     endDate?: string
   ): Observable<{ data: BikeEventDTO[] }> {
-    let url = `/v1/bikes/${id}/events?limit=${limit}`;
+    let url = `${environment.apiBaseUrl}/v1/bikes/${id}/events?limit=${limit}`;
     if (date) {
       url += `&date=${encodeURIComponent(date)}`;
     } else if (startDate && endDate) {
@@ -78,7 +79,7 @@ export class BikeService {
 
   createBike(payload: CreateBikePayload): Observable<{ data: BikeDTO }> {
     this.isLoading.set(true);
-    return this.http.post<{ data: BikeDTO }>('/v1/bikes', payload).pipe(
+    return this.http.post<{ data: BikeDTO }>(`${environment.apiBaseUrl}/v1/bikes`, payload).pipe(
       tap({
         next: (res) => {
           this.bikes.update((current) => [res.data, ...current]);
@@ -92,7 +93,7 @@ export class BikeService {
   }
 
   updateBike(id: string, payload: UpdateBikePayload): Observable<{ data: BikeDTO }> {
-    return this.http.patch<{ data: BikeDTO }>(`/v1/bikes/${id}`, payload).pipe(
+    return this.http.patch<{ data: BikeDTO }>(`${environment.apiBaseUrl}/v1/bikes/${id}`, payload).pipe(
       tap({
         next: (res) => {
           this.bikes.update((current) =>
@@ -104,7 +105,7 @@ export class BikeService {
   }
 
   deleteBike(id: string): Observable<void> {
-    return this.http.delete<void>(`/v1/bikes/${id}`).pipe(
+    return this.http.delete<void>(`${environment.apiBaseUrl}/v1/bikes/${id}`).pipe(
       tap({
         next: () => {
           this.bikes.update((current) => current.filter((b) => b.id !== id));
@@ -115,7 +116,7 @@ export class BikeService {
 
   toggleImmobilize(id: string, immobilize: boolean): Observable<{ data: BikeDTO }> {
     const action = immobilize ? 'IMMOBILIZE' : 'REACTIVATE';
-    return this.http.post<{ data: BikeDTO }>(`/v1/bikes/${id}/immobilize`, { action }).pipe(
+    return this.http.post<{ data: BikeDTO }>(`${environment.apiBaseUrl}/v1/bikes/${id}/immobilize`, { action }).pipe(
       tap({
         next: (res) => {
           this.bikes.update((current) =>

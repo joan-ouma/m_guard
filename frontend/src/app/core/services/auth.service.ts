@@ -9,6 +9,7 @@ import {
   SessionData,
   User,
 } from '../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 const STORAGE_KEY_TOKEN = 'motoguard_access_token';
 const STORAGE_KEY_USER = 'motoguard_user';
@@ -75,7 +76,7 @@ export class AuthService {
    */
   register(credentials: RegisterCredentials): Observable<{ data: User }> {
     this.isLoading.set(true);
-    return this.http.post<{ data: User }>('/v1/users/register', credentials).pipe(
+    return this.http.post<{ data: User }>(`${environment.apiBaseUrl}/v1/users/register`, credentials).pipe(
       tap(() => this.isLoading.set(false)),
       catchError((err) => {
         this.isLoading.set(false);
@@ -90,7 +91,7 @@ export class AuthService {
    */
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>('/v1/sessions', credentials).pipe(
+    return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions`, credentials).pipe(
       tap((res) => {
         this.isLoading.set(false);
         if (res?.data) {
@@ -110,7 +111,7 @@ export class AuthService {
    */
   logout(): Observable<void> {
     this.isLoading.set(true);
-    return this.http.delete<void>('/v1/sessions/current').pipe(
+    return this.http.delete<void>(`${environment.apiBaseUrl}/v1/sessions/current`).pipe(
       tap(() => {
         this.clearSession();
         this.isLoading.set(false);
@@ -130,7 +131,7 @@ export class AuthService {
    * Refresh access token via HttpOnly refresh cookie
    */
   refreshToken(): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>('/v1/sessions/current', {}).pipe(
+    return this.http.put<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions/current`, {}).pipe(
       tap((res) => {
         if (res?.data) {
           this.setSession(res.data);
@@ -150,7 +151,7 @@ export class AuthService {
   requestPasswordReset(email: string): Observable<{ message: string }> {
     this.isLoading.set(true);
     return this.http
-      .post<{ message: string }>('/v1/password-resets', { email })
+      .post<{ message: string }>(`${environment.apiBaseUrl}/v1/password-resets`, { email })
       .pipe(
         tap(() => this.isLoading.set(false)),
         catchError((err) => {
@@ -167,7 +168,7 @@ export class AuthService {
   confirmPasswordReset(token: string, password: string): Observable<{ message: string }> {
     this.isLoading.set(true);
     return this.http
-      .patch<{ message: string }>(`/v1/password-resets/${encodeURIComponent(token)}`, {
+      .patch<{ message: string }>(`${environment.apiBaseUrl}/v1/password-resets/${encodeURIComponent(token)}`, {
         password,
       })
       .pipe(

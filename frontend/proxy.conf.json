@@ -1,7 +1,0 @@
-{
-  "/v1": {
-    "target": "https://fleet-api.jullie.tech",
-    "secure": true,
-    "changeOrigin": true
-  }
-}
