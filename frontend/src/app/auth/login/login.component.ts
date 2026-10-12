@@ -54,8 +54,8 @@ export class LoginComponent {
       },
       error: (err) => {
         if (err.status === 401) {
-          // FR-AUTH-02: Generic 401 on failed login
-          this.errorMessage.set('Invalid phone number or National ID. Please verify your credentials and try again.');
+          // FR-AUTH-02: Generic 401 on failed login, no email/password disclosure
+          this.errorMessage.set('Invalid email or password. Please verify your credentials and try again.');
         } else if (err.status === 429) {
           // §6.2: 5 attempts/minute/IP rate limit
           this.errorMessage.set('Too many login attempts. Please wait a moment before trying again.');

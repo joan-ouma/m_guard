@@ -82,4 +82,3 @@ func Load() (Config, error) {
 		FrontendURL:         getEnv("FRONTEND_URL", defaultFrontendURL),
 	}, nil
 }
-
