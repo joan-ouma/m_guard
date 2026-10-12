@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: motoguard-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-motoguard}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d motoguard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: motoguard-backend
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-motoguard}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-motoguard-production-enterprise-secret-key-32bytes}
+      CORS_ORIGINS: http://localhost:4200
+      MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://x1db1845.ala.dedicated.aws.emqxcloud.com:1883}
+      MQTT_USERNAME: ${MQTT_USERNAME:-tracker}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-~:!Nu2>#6TDe5Y+}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
+      MAILJET_API_KEY: ${MAILJET_API_KEY:-b0db02dc22bbde39a369687dce33bc1c}
+      MAILJET_SECRET_KEY: ${MAILJET_SECRET_KEY:-b5cd5867d7906029a7fd2debad0cc8a4}
+      MAILJET_SENDER_EMAIL: ${MAILJET_SENDER_EMAIL:-no-reply@jullie.tech}
+      MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
+      MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MotoGuard}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import {
   BikeDTO,
+  BikeEventDTO,
   BikeListResponse,
   BreadcrumbDTO,
   CreateBikePayload,
@@ -43,8 +44,36 @@ export class BikeService {
     return this.http.get<{ data: BikeDTO }>(`/v1/bikes/${id}`);
   }
 
-  getBikeBreadcrumbs(id: string, limit = 200): Observable<{ data: BreadcrumbDTO[] }> {
-    return this.http.get<{ data: BreadcrumbDTO[] }>(`/v1/bikes/${id}/breadcrumbs?limit=${limit}`);
+  getBikeBreadcrumbs(
+    id: string,
+    limit = 1000,
+    date?: string,
+    startDate?: string,
+    endDate?: string
+  ): Observable<{ data: BreadcrumbDTO[] }> {
+    let url = `/v1/bikes/${id}/breadcrumbs?limit=${limit}`;
+    if (date) {
+      url += `&date=${encodeURIComponent(date)}`;
+    } else if (startDate && endDate) {
+      url += `&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    }
+    return this.http.get<{ data: BreadcrumbDTO[] }>(url);
+  }
+
+  getBikeEvents(
+    id: string,
+    limit = 1000,
+    date?: string,
+    startDate?: string,
+    endDate?: string
+  ): Observable<{ data: BikeEventDTO[] }> {
+    let url = `/v1/bikes/${id}/events?limit=${limit}`;
+    if (date) {
+      url += `&date=${encodeURIComponent(date)}`;
+    } else if (startDate && endDate) {
+      url += `&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    }
+    return this.http.get<{ data: BikeEventDTO[] }>(url);
   }
 
   createBike(payload: CreateBikePayload): Observable<{ data: BikeDTO }> {
@@ -79,6 +108,19 @@ export class BikeService {
       tap({
         next: () => {
           this.bikes.update((current) => current.filter((b) => b.id !== id));
+        },
+      })
+    );
+  }
+
+  toggleImmobilize(id: string, immobilize: boolean): Observable<{ data: BikeDTO }> {
+    const action = immobilize ? 'IMMOBILIZE' : 'REACTIVATE';
+    return this.http.post<{ data: BikeDTO }>(`/v1/bikes/${id}/immobilize`, { action }).pipe(
+      tap({
+        next: (res) => {
+          this.bikes.update((current) =>
+            current.map((b) => (b.id === id ? res.data : b))
+          );
         },
       })
     );

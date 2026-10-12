@@ -2,16 +2,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role?: 'owner' | 'admin' | 'dispatcher' | 'viewer';
+  role?: 'owner';
   created_at?: string;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  plan_tier?: 'individual' | 'fleet' | 'enterprise';
-  role?: 'owner' | 'admin' | 'dispatcher' | 'viewer';
-  breadcrumb_retention_days?: number;
 }
 
 export interface LoginCredentials {
@@ -24,7 +16,6 @@ export interface SessionData {
   token_type: string;
   expires_in: number;
   user: User;
-  organization?: Organization;
 }
 
 export interface AuthResponse {

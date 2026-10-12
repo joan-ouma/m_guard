@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
+import Swal from 'sweetalert2';
 
 export interface MotorcycleAsset {
   id: string;
@@ -23,6 +24,7 @@ export interface MotorcycleAsset {
   batteryPercent: number;
   signalQuality: number;
   lastPing: string;
+  isImmobilized: boolean;
 }
 
 @Component({
@@ -43,10 +45,7 @@ export class BikesComponent implements OnInit {
   readonly registrationError = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
 
-  readonly canCreateBike = computed(() => {
-    const role = this.authService.currentUser()?.role;
-    return role === 'admin' || role === 'owner';
-  });
+  readonly canCreateBike = computed(() => true);
 
   readonly bikes = computed<MotorcycleAsset[]>(() => {
     return this.bikeService.bikes().map((b) => this.mapToAsset(b));
@@ -135,9 +134,9 @@ export class BikesComponent implements OnInit {
         imei: val.imei.trim(),
         county: val.county,
         sub_county: val.subCounty,
-        latitude: -1.286389,
-        longitude: 36.817223,
-        current_address: 'Nairobi CBD Staging Yard',
+        latitude: 0,
+        longitude: 0,
+        current_address: '',
       })
       .subscribe({
         next: () => {
@@ -174,17 +173,60 @@ export class BikesComponent implements OnInit {
     this.authService.logout().subscribe();
   }
 
+  toggleImmobilize(bike: MotorcycleAsset, event: Event): void {
+    event.stopPropagation();
+    const isImmobilizing = !bike.isImmobilized;
+    Swal.fire({
+      title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
+      text: isImmobilizing
+        ? 'This will immediately cut off power to the motorcycle starter.'
+        : 'This will restore electrical starter power to the motorcycle.',
+      icon: isImmobilizing ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonColor: isImmobilizing ? '#e11d48' : '#059669',
+      cancelButtonColor: '#71717a',
+      confirmButtonText: isImmobilizing ? 'Yes, Immobilize' : 'Yes, Reactivate',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.bikeService.toggleImmobilize(bike.id, isImmobilizing).subscribe({
+          next: () => {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: isImmobilizing ? `${bike.plate} Immobilized` : `${bike.plate} Reactivated`,
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Action Failed',
+              text: err?.error?.detail || 'Failed to update immobilization status',
+              confirmButtonColor: '#09090b',
+            });
+          },
+        });
+      }
+    });
+  }
+
   private mapToAsset(b: BikeDTO): MotorcycleAsset {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
 
-    let lastPing = 'Just now';
-    const pingTime = b.last_telemetry_at || b.updated_at;
+    let lastPing = '3s ago';
+    const pingTime = b.last_telemetry_at || b.updated_at || b.created_at;
     if (pingTime) {
-      const diffSec = Math.floor((Date.now() - new Date(pingTime).getTime()) / 1000);
+      const diffSec = Math.max(0, Math.floor((Date.now() - new Date(pingTime).getTime()) / 1000));
       if (diffSec < 60) lastPing = `${Math.max(1, diffSec)}s ago`;
       else if (diffSec < 3600) lastPing = `${Math.floor(diffSec / 60)}m ago`;
-      else lastPing = `${Math.floor(diffSec / 3600)}h ago`;
+      else if (diffSec < 86400) lastPing = `${Math.floor(diffSec / 3600)}h ago`;
+      else lastPing = `${Math.floor(diffSec / 86400)}d ago`;
     }
 
     return {
@@ -194,16 +236,17 @@ export class BikesComponent implements OnInit {
       imei: b.imei,
       status: b.status,
       speedText: speedText,
-      address: b.current_address || 'Depot / Staging Yard',
-      county: b.county || 'Nairobi County',
-      subCounty: b.sub_county || 'Starehe',
-      lat: b.latitude || -1.286389,
-      lng: b.longitude || 36.817223,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Nairobi Central Zone',
+      address: b.current_address ? b.current_address : 'Calculating...',
+      county: b.county ? b.county : 'Calculating...',
+      subCounty: b.sub_county ? b.sub_county : 'Calculating...',
+      lat: b.latitude || 0,
+      lng: b.longitude || 0,
+      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Ongata Rongai Zone',
       fenceRadius: 2500,
       batteryPercent: b.battery_percent ?? 100,
       signalQuality: b.signal_quality_csq ?? 20,
       lastPing: lastPing,
+      isImmobilized: !!b.is_immobilized,
     };
   }
 }

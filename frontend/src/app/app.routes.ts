@@ -5,6 +5,7 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { BikesComponent } from './bikes/bikes.component';
+import { HistoryComponent } from './history/history.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,11 @@ export const routes: Routes = [
   {
     path: 'bikes',
     component: BikesComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'history',
+    component: HistoryComponent,
     canActivate: [authGuard],
   },
   {

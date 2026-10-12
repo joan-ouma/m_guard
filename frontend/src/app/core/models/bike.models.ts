@@ -1,7 +1,6 @@
 export interface BikeDTO {
   id: string;
-  organization_id: string;
-  added_by: string;
+  user_id?: string;
   registration_number: string;
   label: string;
   make: string;
@@ -23,6 +22,7 @@ export interface BikeDTO {
   last_telemetry_at?: string;
   geofence_id?: string;
   driver_contact_id?: string;
+  is_immobilized: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -78,7 +78,17 @@ export interface BreadcrumbDTO {
   heading_deg: number;
   ignition: boolean;
   battery_percent: number;
+  address?: string;
   geofence_breach: boolean;
+  recorded_at: string;
+}
+
+export interface BikeEventDTO {
+  id: number;
+  bike_id: string;
+  event_type: 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'IGNITION_ON' | 'IGNITION_OFF' | string;
+  latitude: number;
+  longitude: number;
   recorded_at: string;
 }
 

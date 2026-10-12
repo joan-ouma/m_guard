@@ -14,6 +14,7 @@ import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BreadcrumbDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
+import Swal from 'sweetalert2';
 
 export interface FleetBike {
   id: string;
@@ -31,6 +32,8 @@ export interface FleetBike {
   fenceRadius: number;
   triggerCondition: string;
   email: string;
+  lastSeenAt?: string;
+  isImmobilized: boolean;
 }
 
 const DEFAULT_BIKE: FleetBike = {
@@ -40,15 +43,17 @@ const DEFAULT_BIKE: FleetBike = {
   imei: '',
   status: 'STOPPED',
   speedText: '0.0 km/h • Ignition OFF',
-  address: 'Nairobi CBD',
-  county: 'Nairobi County',
-  subCounty: 'Starehe',
-  lat: -1.286389,
-  lng: 36.817223,
-  fenceName: 'Central Logistics Depot',
+  address: 'Calculating...',
+  county: '',
+  subCounty: '',
+  lat: -1.414046,
+  lng: 36.744676,
+  fenceName: 'Ongata Rongai Zone',
   fenceRadius: 2500,
   triggerCondition: 'Alert on Exit',
-  email: 'operator@mototrack.ke',
+  email: 'oyamo.brn@gmail.com',
+  lastSeenAt: new Date().toISOString(),
+  isImmobilized: false,
 };
 
 @Component({
@@ -76,6 +81,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly alertBannerText = signal<string>('');
   readonly showGeofenceModal = signal<boolean>(false);
   readonly copiedCoordinates = signal<boolean>(false);
+  readonly currentTime = signal<number>(Date.now());
+  private tickerInterval?: ReturnType<typeof setInterval>;
+  private pollInterval?: ReturnType<typeof setInterval>;
 
   readonly bikeList = computed<FleetBike[]>(() => Object.values(this.fleet()));
 
@@ -100,6 +108,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.tickerInterval = setInterval(() => {
+      this.currentTime.set(Date.now());
+    }, 1000);
+
     this.bikeService.loadBikes().subscribe({
       next: (res) => {
         const map: Record<string, FleetBike> = {};
@@ -130,9 +142,32 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           fenceEmail: current.email,
         });
 
-        this.updateMapForCurrentBike();
+        this.updateMapForCurrentBike(true);
       },
     });
+
+    this.pollInterval = setInterval(() => {
+      this.bikeService.loadBikes().subscribe({
+        next: (res) => {
+          this.fleet.update((prev) => {
+            const nextMap: Record<string, FleetBike> = { ...prev };
+            for (const b of res.data) {
+              const currentBike = prev[b.id];
+              const mapped = this.mapToFleetBike(b);
+              if (currentBike && currentBike.fenceRadius) {
+                mapped.fenceName = currentBike.fenceName;
+                mapped.fenceRadius = currentBike.fenceRadius;
+                mapped.triggerCondition = currentBike.triggerCondition;
+                mapped.email = currentBike.email;
+              }
+              nextMap[b.id] = mapped;
+            }
+            return nextMap;
+          });
+          this.updateMapForCurrentBike(false);
+        },
+      });
+    }, 3000);
 
     this.route.queryParamMap.subscribe((params) => {
       const bikeParam = params.get('bike');
@@ -152,6 +187,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.tickerInterval) {
+      clearInterval(this.tickerInterval);
+      this.tickerInterval = undefined;
+    }
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = undefined;
+    }
     this.clearPathLayers();
     if (this.map) {
       this.map.remove();
@@ -181,9 +224,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       attribution: '',
     }).addTo(this.map);
 
-    const shortCode = bike.plate.split(' ')[1] || bike.plate;
     this.bikeMarker = L.marker([bike.lat, bike.lng], {
-      icon: this.createBadgeIcon(shortCode, bike.status, false),
+      icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
     }).addTo(this.map);
 
     this.geofenceLayer = L.circle([bike.lat, bike.lng], {
@@ -210,18 +252,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private updateMapForCurrentBike(): void {
+  private updateMapForCurrentBike(centerCamera = false): void {
     if (!this.map) return;
     const bike = this.selectedBike();
-    const shortCode = bike.plate.split(' ')[1] || bike.plate;
+    if (!bike.lat || !bike.lng) return;
 
     if (!this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
-        icon: this.createBadgeIcon(shortCode, bike.status, false),
+        icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
       }).addTo(this.map);
     } else {
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
-      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, false));
+      this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false));
     }
 
     if (!this.geofenceLayer) {
@@ -246,8 +288,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-    this.map.setView([bike.lat, bike.lng], 13);
-    this.map.invalidateSize();
+    if (centerCamera) {
+      const zoom = this.map.getZoom() || 14;
+      this.map.setView([bike.lat, bike.lng], zoom);
+      this.map.invalidateSize();
+    }
+
     this.loadAndDrawPath(bike);
   }
 
@@ -269,15 +315,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.clearPathLayers();
 
-    const coords: [number, number][] = points.map((p) => [p.latitude, p.longitude] as [number, number]);
+    const validPoints = points.filter((p) => p.latitude !== 0 && p.longitude !== 0);
+    const coords: [number, number][] = validPoints.map((p) => [p.latitude, p.longitude] as [number, number]);
 
-    const isLastSame =
-      coords.length > 0 &&
-      Math.abs(coords[coords.length - 1][0] - currentBike.lat) < 0.0001 &&
-      Math.abs(coords[coords.length - 1][1] - currentBike.lng) < 0.0001;
+    if (currentBike.lat !== 0 && currentBike.lng !== 0) {
+      const isLastSame =
+        coords.length > 0 &&
+        Math.abs(coords[coords.length - 1][0] - currentBike.lat) < 0.0001 &&
+        Math.abs(coords[coords.length - 1][1] - currentBike.lng) < 0.0001;
 
-    if (!isLastSame) {
-      coords.push([currentBike.lat, currentBike.lng]);
+      if (!isLastSame) {
+        coords.push([currentBike.lat, currentBike.lng]);
+      }
     }
 
     if (coords.length > 1) {
@@ -329,44 +378,72 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private updateMarkerSize(): void {
     if (!this.bikeMarker || !this.map) return;
     const bike = this.selectedBike();
-    const shortCode = bike.plate.split(' ')[1] || bike.plate;
-    this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, this.isBreachActive()));
+    this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, this.isBreachActive()));
   }
 
-  private createBadgeIcon(label: string, status: string = 'RUNNING', isBreach: boolean = false): L.DivIcon {
-    const isRunning = status === 'RUNNING';
-    const statusClass = isBreach ? 'breached' : isRunning ? 'running' : 'stopped';
-    const haloClass = isBreach ? 'radar-halo radar-halo-breach' : 'radar-halo';
-    const dotColor = isBreach ? '#F43F5E' : isRunning ? '#10B981' : '#F59E0B';
+  private createBadgeIcon(plate: string, status: string = 'RUNNING', isImmobilized: boolean = false, isBreach: boolean = false): L.DivIcon {
+    const isImmobilizedState = isImmobilized;
+    const isRunning = status === 'RUNNING' && !isImmobilizedState;
+
+    let statusClass = 'stopped';
+    let haloClass = 'radar-halo radar-halo-stopped';
+    let dotColor = '#f59e0b';
+    let statusBg = 'rgba(245, 158, 11, 0.2)';
+
+    if (isBreach) {
+      statusClass = 'breached';
+      haloClass = 'radar-halo radar-halo-breach';
+      dotColor = '#f43f5e';
+      statusBg = 'rgba(244, 63, 94, 0.25)';
+    } else if (isImmobilizedState) {
+      statusClass = 'immobilized';
+      haloClass = 'radar-halo radar-halo-breach';
+      dotColor = '#e11d48';
+      statusBg = 'rgba(225, 29, 72, 0.25)';
+    } else if (isRunning) {
+      statusClass = 'running';
+      haloClass = 'radar-halo radar-halo-running';
+      dotColor = '#15803d';
+      statusBg = 'rgba(21, 128, 61, 0.25)';
+    }
+
+    const pinIconSvg = isImmobilizedState
+      ? `<svg style="width: 26px; height: 26px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+           <path d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/>
+         </svg>`
+      : `<svg style="width: 26px; height: 26px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <circle cx="5.5" cy="17.5" r="3.5"/>
+           <circle cx="18.5" cy="17.5" r="3.5"/>
+           <path d="M15 6h-3l-2.5 5h6.5"/>
+           <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+         </svg>`;
 
     return L.divIcon({
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <!-- Plate Label Pill -->
-          <div style="background: rgba(9, 9, 11, 0.92); backdrop-filter: blur(4px); color: #f4f4f5; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 4px 12px rgba(0,0,0,0.5); white-space: nowrap; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
-            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: ${dotColor};"></span>
-            <span>${label}</span>
+          <!-- Full Plate Label Pill with Status Heartbeat Dot -->
+          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid ${dotColor}; box-shadow: 0 4px 14px rgba(0,0,0,0.65), 0 0 10px ${statusBg}; white-space: nowrap; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; letter-spacing: 0.5px;">
+            <span style="position: relative; display: inline-flex; width: 8px; height: 8px; align-items: center; justify-content: center;">
+              <span class="marker-dot-ping" style="position: absolute; inset: 0; border-radius: 9999px; background: ${dotColor}; opacity: 0.85;"></span>
+              <span style="position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor};"></span>
+            </span>
+            <span>${plate}</span>
           </div>
 
-          <!-- Pulsing Live Halo & Pin Container -->
-          <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+          <!-- Pulsing Live Halo & Pin Container (Thumb-Sized 48px) -->
+          <div style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
             <div class="${haloClass}"></div>
             <div class="bike-marker-pin-body ${statusClass}">
-              <svg style="width: 20px; height: 20px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="5.5" cy="17.5" r="3.5"/>
-                <circle cx="18.5" cy="17.5" r="3.5"/>
-                <path d="M15 6h-3l-2.5 5h6.5"/>
-                <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
-              </svg>
+              ${pinIconSvg}
             </div>
             <!-- Directional Heading Arrow -->
             <div class="bike-marker-heading-arrow ${statusClass}"></div>
           </div>
         </div>
       `,
-      iconSize: [84, 76],
-      iconAnchor: [42, 70],
+      iconSize: [160, 94],
+      iconAnchor: [80, 88],
     });
   }
 
@@ -385,8 +462,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (this.map && this.bikeMarker && this.geofenceLayer) {
-      const shortCode = bike.plate.split(' ')[1] || bike.plate;
-      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, false));
+      this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false));
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
 
       this.geofenceLayer
@@ -400,7 +476,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           dashArray: '6, 6',
         });
 
-      this.map.setView([bike.lat, bike.lng], 13);
+      const zoom = this.map.getZoom() || 14;
+      this.map.setView([bike.lat, bike.lng], zoom);
       this.map.invalidateSize();
       this.loadAndDrawPath(bike);
     }
@@ -409,7 +486,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recenterMap(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
-    this.map.setView([bike.lat, bike.lng], 14);
+    const zoom = Math.max(this.map.getZoom() || 14, 14);
+    this.map.setView([bike.lat, bike.lng], zoom);
   }
 
   copyCoordinates(): void {
@@ -470,6 +548,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const bike = this.selectedBike();
     const exitLat = bike.lat + 0.036;
     const exitLng = bike.lng + 0.024;
+    const nowIso = new Date().toISOString();
 
     this.fleet.update((prev) => {
       const key = this.activeKey();
@@ -480,14 +559,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           ...prev[key],
           lat: exitLat,
           lng: exitLng,
+          lastSeenAt: nowIso,
         },
       };
     });
 
     if (this.bikeMarker) {
       this.bikeMarker.setLatLng([exitLat, exitLng]);
-      const shortCode = bike.plate.split(' ')[1] || bike.plate;
-      this.bikeMarker.setIcon(this.createBadgeIcon(shortCode, bike.status, true));
+      this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, true));
     }
 
     if (this.geofenceLayer) {
@@ -527,9 +606,89 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       .toUpperCase();
   }
 
+  getLastSeen(bike: FleetBike): string {
+    const now = this.currentTime();
+    return this.formatLastSeen(bike.lastSeenAt, now);
+  }
+
+  formatLastSeen(dateStr?: string | null, now = Date.now()): string {
+    if (!dateStr) return '3s ago';
+    const timestamp = new Date(dateStr).getTime();
+    if (isNaN(timestamp)) return '3s ago';
+
+    const diffSec = Math.max(0, Math.floor((now - timestamp) / 1000));
+    if (diffSec < 60) {
+      return `${Math.max(1, diffSec)}s ago`;
+    }
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) {
+      return `${diffMin}m ago`;
+    }
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) {
+      return `${diffHour}h ago`;
+    }
+    const diffDay = Math.floor(diffHour / 24);
+    return `${diffDay}d ago`;
+  }
+
+  toggleImmobilize(bike: FleetBike): void {
+    if (!bike.id) return;
+    const isImmobilizing = !bike.isImmobilized;
+    Swal.fire({
+      title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
+      text: isImmobilizing
+        ? 'This will immediately cut off power to the motorcycle starter.'
+        : 'This will restore electrical starter power to the motorcycle.',
+      icon: isImmobilizing ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonColor: isImmobilizing ? '#e11d48' : '#15803d',
+      cancelButtonColor: '#71717a',
+      confirmButtonText: isImmobilizing ? 'Yes, Immobilize' : 'Yes, Reactivate',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.bikeService.toggleImmobilize(bike.id, isImmobilizing).subscribe({
+          next: (res) => {
+            this.fleet.update((prev) => {
+              if (!prev[bike.id]) return prev;
+              return {
+                ...prev,
+                [bike.id]: {
+                  ...prev[bike.id],
+                  isImmobilized: res.data.is_immobilized,
+                },
+              };
+            });
+            this.updateMarkerSize();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: isImmobilizing ? `${bike.plate} Immobilized` : `${bike.plate} Reactivated`,
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Action Failed',
+              text: err?.error?.detail || 'Failed to update immobilization status',
+              confirmButtonColor: '#09090b',
+            });
+          },
+        });
+      }
+    });
+  }
+
   private mapToFleetBike(b: BikeDTO): FleetBike {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
+    const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
 
     return {
       id: b.id,
@@ -538,15 +697,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       imei: b.imei,
       status: b.status,
       speedText: speedText,
-      address: b.current_address || 'Depot / Staging Yard',
-      county: b.county || 'Nairobi County',
-      subCounty: b.sub_county || 'Starehe',
-      lat: b.latitude || -1.286389,
-      lng: b.longitude || 36.817223,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Nairobi Delivery Zone',
+      address: b.current_address ? b.current_address : 'Calculating...',
+      county: b.county ? b.county : 'Calculating...',
+      subCounty: b.sub_county ? b.sub_county : 'Calculating...',
+      lat: b.latitude || 0,
+      lng: b.longitude || 0,
+      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Ongata Rongai Delivery Zone',
       fenceRadius: 3000,
       triggerCondition: 'Alert on Exit',
       email: 'operator@mototrack.ke',
+      lastSeenAt: timestamp,
+      isImmobilized: !!b.is_immobilized,
     };
   }
 }
