@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 )
 
@@ -19,9 +20,27 @@ func (p ProblemDetails) Error() string {
 }
 
 func (p ProblemDetails) WriteJSON(w http.ResponseWriter) {
+	if p.Status >= 500 {
+		slog.Error("ProblemDetails internal error", "status", p.Status, "title", p.Title, "detail", p.Detail, "instance", p.Instance)
+	} else if p.Status >= 400 {
+		slog.Warn("ProblemDetails client error", "status", p.Status, "title", p.Title, "detail", p.Detail, "instance", p.Instance)
+	}
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(p.Status)
 	_ = json.NewEncoder(w).Encode(p)
+}
+
+func NewMethodNotAllowedError(detail string, instance string) ProblemDetails {
+	if detail == "" {
+		detail = "Method not allowed"
+	}
+	return ProblemDetails{
+		Type:     "https://motoguard.co.ke/errors/method-not-allowed",
+		Title:    "Method Not Allowed",
+		Status:   http.StatusMethodNotAllowed,
+		Detail:   detail,
+		Instance: instance,
+	}
 }
 
 func NewUnauthorizedError(detail string, instance string) ProblemDetails {

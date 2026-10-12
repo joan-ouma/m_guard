@@ -27,7 +27,7 @@ func (h *BikeHandler) HandleCollection(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		h.Create(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 	}
 }
 
@@ -46,7 +46,7 @@ func (h *BikeHandler) HandleItem(w http.ResponseWriter, r *http.Request) {
 			h.GetBreadcrumbs(w, r, bikeID)
 			return
 		}
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (h *BikeHandler) HandleItem(w http.ResponseWriter, r *http.Request) {
 			h.GetEvents(w, r, bikeID)
 			return
 		}
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *BikeHandler) HandleItem(w http.ResponseWriter, r *http.Request) {
 			h.Immobilize(w, r, bikeID)
 			return
 		}
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *BikeHandler) HandleItem(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		h.Delete(w, r, bikeID)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 	}
 }
 

@@ -10,7 +10,6 @@ import (
 	"motoguard-backend/internal/domain"
 )
 
-// GetClientIP extracts the client IP address from headers or RemoteAddr.
 func GetClientIP(r *http.Request) string {
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		parts := strings.Split(xff, ",")
@@ -33,7 +32,6 @@ type rateLimiter struct {
 	window  time.Duration
 }
 
-// RateLimitMiddleware enforces an in-memory sliding window rate limit per client IP.
 func RateLimitMiddleware(limit int, window time.Duration) func(http.Handler) http.Handler {
 	rl := &rateLimiter{
 		history: make(map[string][]time.Time),

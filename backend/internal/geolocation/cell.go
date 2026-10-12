@@ -39,7 +39,6 @@ func NewCellResolver() *CellResolver {
 	}
 }
 
-// Resolve looks up the geographic coordinates of a GSM cell tower using high-precision dual databases (OpenCelliD + BeaconDB).
 func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (float64, float64, bool) {
 	if mcc <= 0 || lac <= 0 || cid <= 0 {
 		return 0, 0, false
@@ -56,7 +55,6 @@ func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (flo
 		return cached.Latitude, cached.Longitude, cached.Found
 	}
 
-	// 1. Try OpenCelliD direct lookup
 	if lat, lon, ok := r.fromOpenCelliD(ctx, mcc, mnc, lac, cid); ok {
 		slog.Info("LBS Geolocation OpenCelliD resolved tower", "tower", key, "lat", lat, "lon", lon)
 		r.cacheMu.Lock()
@@ -70,7 +68,6 @@ func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (flo
 		return lat, lon, true
 	}
 
-	// 2. Try BeaconDB lookup
 	if lat, lon, ok := r.fromBeaconDB(ctx, mcc, mnc, lac, cid); ok {
 		slog.Info("LBS Geolocation BeaconDB resolved tower", "tower", key, "lat", lat, "lon", lon)
 		r.cacheMu.Lock()
@@ -84,7 +81,6 @@ func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (flo
 		return lat, lon, true
 	}
 
-	// Negative cache to prevent hammering
 	r.cacheMu.Lock()
 	r.cache[key] = Coordinates{Found: false, ExpiresAt: now.Add(10 * time.Minute)}
 	r.cacheMu.Unlock()
@@ -182,7 +178,6 @@ func (r *CellResolver) fromBeaconDB(ctx context.Context, mcc, mnc, lac, cid int)
 		return 0, 0, false
 	}
 
-	// Strictly reject IP address fallbacks
 	if geoResp.Fallback != "" {
 		return 0, 0, false
 	}

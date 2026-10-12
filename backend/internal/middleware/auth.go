@@ -13,7 +13,6 @@ type contextKey string
 
 const UserClaimsKey contextKey = "userClaims"
 
-// AuthMiddleware validates JWT Bearer tokens and attaches claims to the request context.
 func AuthMiddleware(jwtManager *security.JWTManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +35,6 @@ func AuthMiddleware(jwtManager *security.JWTManager) func(http.Handler) http.Han
 	}
 }
 
-// GetClaims retrieves validated JWTClaims from the request context if present.
 func GetClaims(ctx context.Context) (*security.JWTClaims, bool) {
 	claims, ok := ctx.Value(UserClaimsKey).(*security.JWTClaims)
 	return claims, ok && claims != nil

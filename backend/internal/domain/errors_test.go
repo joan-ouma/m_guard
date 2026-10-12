@@ -73,6 +73,12 @@ func TestProblemDetails_Constructors(t *testing.T) {
 			wantStatus: http.StatusForbidden,
 			wantTitle:  "Forbidden",
 		},
+		{
+			name:       "MethodNotAllowed",
+			err:        NewMethodNotAllowedError("method not allowed", "/path"),
+			wantStatus: http.StatusMethodNotAllowed,
+			wantTitle:  "Method Not Allowed",
+		},
 	}
 
 	for _, tt := range tests {

@@ -34,7 +34,6 @@ func NewReverseGeocoder() *ReverseGeocoder {
 	}
 }
 
-// ReverseGeocode calculates the street address, sub-county, and county on the fly for given coordinates.
 func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) AddressInfo {
 	if lat == 0 && lng == 0 {
 		return AddressInfo{
@@ -44,7 +43,6 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		}
 	}
 
-	// Grid precision to 3 decimal places (~110m) for caching
 	key := fmt.Sprintf("%.3f:%.3f", lat, lng)
 
 	g.cacheMu.RLock()
@@ -54,7 +52,6 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		return cached
 	}
 
-	// 1. Primary: OpenStreetMap Nominatim for street-level precision
 	info, err := g.fromNominatim(ctx, lat, lng)
 	if err == nil && info.FormattedAddress != "" {
 		g.cacheMu.Lock()
@@ -63,7 +60,6 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		return info
 	}
 
-	// 2. Secondary Fallback: BigDataCloud
 	info, err = g.fromBigDataCloud(ctx, lat, lng)
 	if err == nil && info.FormattedAddress != "" {
 		g.cacheMu.Lock()
@@ -72,7 +68,6 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		return info
 	}
 
-	// 3. Fallback: Empty values to trigger "Calculating..." state and save null in DB
 	return AddressInfo{
 		FormattedAddress: "",
 		SubCounty:        "",

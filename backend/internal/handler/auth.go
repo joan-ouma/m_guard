@@ -23,7 +23,7 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -114,7 +114,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -153,7 +153,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) GetCurrent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -210,7 +210,7 @@ func (h *AuthHandler) GetCurrent(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -234,7 +234,7 @@ func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Reques
 
 func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 

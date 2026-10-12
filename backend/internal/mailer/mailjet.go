@@ -21,7 +21,7 @@ type GeofenceAlertData struct {
 	BikeRegistration string
 	BikeModel        string
 	GeofenceName     string
-	BreachType       string // e.g., "Boundary Exit"
+	BreachType       string
 	Timestamp        string
 	Address          string
 	SpeedKMH         string
@@ -113,17 +113,14 @@ func NewMailjetMailer(apiKey, secretKey, senderEmail, senderName, replyToEmail s
 	}
 }
 
-// SetEndpoint allows overriding the Mailjet API endpoint for testing.
 func (m *MailjetMailer) SetEndpoint(endpoint string) {
 	m.endpoint = endpoint
 }
 
-// SetHTTPClient allows overriding the HTTP client for testing.
 func (m *MailjetMailer) SetHTTPClient(client *http.Client) {
 	m.httpClient = client
 }
 
-// SetReplyToEmail updates the reply-to address.
 func (m *MailjetMailer) SetReplyToEmail(replyToEmail string) {
 	m.replyToEmail = replyToEmail
 }

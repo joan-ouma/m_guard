@@ -59,7 +59,6 @@ func NewAuthService(
 func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (*domain.UserDTO, error) {
 	instance := "/v1/users/register"
 
-	// Check if user already exists
 	_, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, domain.ProblemDetails{
@@ -117,7 +116,11 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 	}
 
 	matched, err := security.VerifyPassword(password, user.PasswordHash)
-	if err != nil || !matched {
+	if err != nil {
+		slog.Error("Login password verification failed: malformed hash", "email", email, "error", err)
+		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
+	}
+	if !matched {
 		slog.Warn("Login failed: invalid password", "email", email)
 		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 	}

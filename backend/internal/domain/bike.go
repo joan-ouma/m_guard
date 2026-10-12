@@ -69,7 +69,7 @@ type BikeDTO struct {
 }
 
 type ImmobilizeBikeRequest struct {
-	Action string `json:"action"` // "IMMOBILIZE" or "REACTIVATE"
+	Action string `json:"action"`
 }
 
 type CreateBikeRequest struct {
