@@ -9,6 +9,8 @@ type User struct {
 	Email        string
 	PasswordHash string
 	Name         string
+	NationalID   string
+	PhoneNumber  string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
@@ -34,9 +36,11 @@ type PasswordResetToken struct {
 }
 
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	NationalID  string `json:"national_id,omitempty"`
+	PhoneNumber string `json:"phone_number,omitempty"`
 }
 
 type LoginRequest struct {
@@ -45,10 +49,12 @@ type LoginRequest struct {
 }
 
 type UserDTO struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
-	Role  string `json:"role,omitempty"`
+	ID          string `json:"id"`
+	Email       string `json:"email"`
+	Name        string `json:"name"`
+	Role        string `json:"role,omitempty"`
+	NationalID  string `json:"national_id,omitempty"`
+	PhoneNumber string `json:"phone_number,omitempty"`
 }
 
 type SessionData struct {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -83,7 +84,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	now := time.Now().UTC()
-	bikeID := fmt.Sprintf("bik_%s", strings.ReplaceAll(uuid.New().String(), "-", "")[:24])
+	bikeID := uuid.New().String()
 
 	bike := domain.Bike{
 		ID:                 bikeID,
@@ -109,6 +110,9 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		LastTelemetryAt:    nil,
 		GeofenceID:         strings.TrimSpace(req.GeofenceID),
 		DriverContactID:    strings.TrimSpace(req.DriverContactID),
+		RiderName:          strings.TrimSpace(req.RiderName),
+		RiderNationalID:    strings.TrimSpace(req.RiderNationalID),
+		RiderPhone:         strings.TrimSpace(req.RiderPhone),
 		IsImmobilized:      false,
 		CreatedAt:          now,
 		UpdatedAt:          now,
@@ -121,10 +125,12 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.Create(ctx, tx, &bike); err != nil {
+		log.Printf("[CreateBike] repo.Create error: %v", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+		log.Printf("[CreateBike] tx.Commit error: %v", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -243,6 +249,15 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 	}
 	if req.DriverContactID != "" {
 		existing.DriverContactID = strings.TrimSpace(req.DriverContactID)
+	}
+	if req.RiderName != "" {
+		existing.RiderName = strings.TrimSpace(req.RiderName)
+	}
+	if req.RiderNationalID != "" {
+		existing.RiderNationalID = strings.TrimSpace(req.RiderNationalID)
+	}
+	if req.RiderPhone != "" {
+		existing.RiderPhone = strings.TrimSpace(req.RiderPhone)
 	}
 
 	existing.UpdatedAt = time.Now().UTC()
@@ -403,6 +418,9 @@ func toBikeDTO(b *domain.Bike) domain.BikeDTO {
 		LastTelemetryAt:    b.LastTelemetryAt,
 		GeofenceID:         b.GeofenceID,
 		DriverContactID:    b.DriverContactID,
+		RiderName:          b.RiderName,
+		RiderNationalID:    b.RiderNationalID,
+		RiderPhone:         b.RiderPhone,
 		IsImmobilized:      b.IsImmobilized,
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,

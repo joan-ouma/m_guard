@@ -35,6 +35,9 @@ export interface FleetBike {
   email: string;
   lastSeenAt?: string;
   isImmobilized: boolean;
+  riderName: string;
+  riderNationalId: string;
+  riderPhone: string;
 }
 
 const DEFAULT_BIKE: FleetBike = {
@@ -56,6 +59,9 @@ const DEFAULT_BIKE: FleetBike = {
   email: 'operator@mototrack.ke',
   lastSeenAt: new Date().toISOString(),
   isImmobilized: false,
+  riderName: 'Unassigned',
+  riderNationalId: 'N/A',
+  riderPhone: 'N/A',
 };
 
 @Component({
@@ -122,6 +128,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
     county: ['Nairobi County', [Validators.required]],
     subCounty: ['Westlands', [Validators.required]],
+    isSelfRider: [false],
+    riderName: ['', [Validators.required, Validators.minLength(2)]],
+    riderNationalId: ['', [Validators.required, Validators.pattern(/^[0-9]{6,10}$/)]],
+    riderPhone: ['', [Validators.required, Validators.pattern(/^(\+?[0-9\s-]{9,15})$/)]],
   });
 
   ngOnInit(): void {
@@ -556,8 +566,27 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.registerForm.reset({
       county: 'Nairobi County',
       subCounty: 'Westlands',
+      isSelfRider: false,
+      riderName: '',
+      riderNationalId: '',
+      riderPhone: '',
     });
     this.showRegisterModal.set(true);
+  }
+
+  onToggleSelfRider(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.registerForm.patchValue({ isSelfRider: checked });
+    if (checked) {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.registerForm.patchValue({
+          riderName: user.name || '',
+          riderNationalId: user.national_id || '',
+          riderPhone: user.phone_number || '',
+        });
+      }
+    }
   }
 
   closeRegisterModal(): void {
@@ -585,6 +614,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         imei: val.imei.trim(),
         county: val.county,
         sub_county: val.subCounty,
+        rider_name: val.riderName ? val.riderName.trim() : undefined,
+        rider_national_id: val.riderNationalId ? val.riderNationalId.trim() : undefined,
+        rider_phone: val.riderPhone ? val.riderPhone.trim() : undefined,
         latitude: -1.286389,
         longitude: 36.817223,
         current_address: 'Nairobi CBD Staging Yard',
@@ -854,6 +886,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       email: 'operator@mototrack.ke',
       lastSeenAt: timestamp,
       isImmobilized: !!b.is_immobilized,
+      riderName: b.rider_name || 'Primary Rider',
+      riderNationalId: b.rider_national_id || 'N/A',
+      riderPhone: b.rider_phone || 'N/A',
     };
   }
 }

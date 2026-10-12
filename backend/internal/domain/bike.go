@@ -28,6 +28,9 @@ type Bike struct {
 	LastTelemetryAt    *time.Time
 	GeofenceID         string
 	DriverContactID    string
+	RiderName          string
+	RiderNationalID    string
+	RiderPhone         string
 	IsImmobilized      bool
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
@@ -57,6 +60,9 @@ type BikeDTO struct {
 	LastTelemetryAt    *time.Time `json:"last_telemetry_at,omitempty"`
 	GeofenceID         string     `json:"geofence_id,omitempty"`
 	DriverContactID    string     `json:"driver_contact_id,omitempty"`
+	RiderName          string     `json:"rider_name,omitempty"`
+	RiderNationalID    string     `json:"rider_national_id,omitempty"`
+	RiderPhone         string     `json:"rider_phone,omitempty"`
 	IsImmobilized      bool       `json:"is_immobilized"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
@@ -81,6 +87,9 @@ type CreateBikeRequest struct {
 	County             string  `json:"county"`
 	GeofenceID         string  `json:"geofence_id"`
 	DriverContactID    string  `json:"driver_contact_id"`
+	RiderName          string  `json:"rider_name"`
+	RiderNationalID    string  `json:"rider_national_id"`
+	RiderPhone         string  `json:"rider_phone"`
 }
 
 type UpdateBikeRequest struct {
@@ -96,6 +105,9 @@ type UpdateBikeRequest struct {
 	Status             string `json:"status"`
 	GeofenceID         string `json:"geofence_id"`
 	DriverContactID    string `json:"driver_contact_id"`
+	RiderName          string `json:"rider_name"`
+	RiderNationalID    string `json:"rider_national_id"`
+	RiderPhone         string `json:"rider_phone"`
 }
 
 type BikeListMeta struct {

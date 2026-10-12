@@ -2,6 +2,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  national_id?: string;
+  phone_number?: string;
   role?: 'owner';
   created_at?: string;
 }
@@ -15,6 +17,8 @@ export interface RegisterCredentials {
   name: string;
   email: string;
   password: string;
+  national_id?: string;
+  phone_number?: string;
 }
 
 export interface SessionData {

@@ -28,22 +28,40 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
+	var riderNameVal any
+	if b.RiderName != "" {
+		riderNameVal = b.RiderName
+	}
+	var riderIDVal any
+	if b.RiderNationalID != "" {
+		riderIDVal = b.RiderNationalID
+	}
+	var riderPhoneVal any
+	if b.RiderPhone != "" {
+		riderPhoneVal = b.RiderPhone
+	}
 
 	query := `
 		INSERT INTO bikes (
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
+			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
+			rider_name, rider_national_id, rider_phone,
+			is_immobilized, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9,
 			$10, $11, $12, $13, $14, $15, $16, $17, $18,
-			$19, $20, $21, $22, $23, $24, $25, $26
+			$19, $20, $21, $22, $23,
+			$24, $25, $26,
+			$27, $28, $29
 		)
 	`
 	_, err := tx.Exec(ctx, query,
 		b.ID, b.UserID, b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color, b.IMEI,
 		b.Status, b.Ignition, b.SpeedKMH, b.HeadingDeg, b.Latitude, b.Longitude, b.CurrentAddress, b.SubCounty, b.County,
-		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal, b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
+		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal,
+		riderNameVal, riderIDVal, riderPhoneVal,
+		b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
 	)
 	return err
 }
@@ -53,7 +71,9 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		SELECT 
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
+			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
+			rider_name, rider_national_id, rider_phone,
+			is_immobilized, created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 		LIMIT 1
@@ -61,12 +81,14 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	row := r.pool.QueryRow(ctx, query, userID, bikeID)
 
 	var b domain.Bike
-	var geofenceVal, driverVal sql.NullString
+	var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 
 	err := row.Scan(
 		&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
 		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal, &b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
+		&riderNameVal, &riderIDVal, &riderPhoneVal,
+		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -81,6 +103,15 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	if driverVal.Valid {
 		b.DriverContactID = driverVal.String
 	}
+	if riderNameVal.Valid {
+		b.RiderName = riderNameVal.String
+	}
+	if riderIDVal.Valid {
+		b.RiderNationalID = riderIDVal.String
+	}
+	if riderPhoneVal.Valid {
+		b.RiderPhone = riderPhoneVal.String
+	}
 
 	return &b, nil
 }
@@ -90,7 +121,9 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 		SELECT 
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
+			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
+			rider_name, rider_national_id, rider_phone,
+			is_immobilized, created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -104,11 +137,13 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 	var bikes []domain.Bike
 	for rows.Next() {
 		var b domain.Bike
-		var geofenceVal, driverVal sql.NullString
+		var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 		err := rows.Scan(
 			&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
 			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal, &b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
+			&riderNameVal, &riderIDVal, &riderPhoneVal,
+			&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -118,6 +153,15 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 		}
 		if driverVal.Valid {
 			b.DriverContactID = driverVal.String
+		}
+		if riderNameVal.Valid {
+			b.RiderName = riderNameVal.String
+		}
+		if riderIDVal.Valid {
+			b.RiderNationalID = riderIDVal.String
+		}
+		if riderPhoneVal.Valid {
+			b.RiderPhone = riderPhoneVal.String
 		}
 		bikes = append(bikes, b)
 	}
@@ -195,6 +239,18 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
+	var riderNameVal any
+	if b.RiderName != "" {
+		riderNameVal = b.RiderName
+	}
+	var riderIDVal any
+	if b.RiderNationalID != "" {
+		riderIDVal = b.RiderNationalID
+	}
+	var riderPhoneVal any
+	if b.RiderPhone != "" {
+		riderPhoneVal = b.RiderPhone
+	}
 
 	query := `
 		UPDATE bikes
@@ -211,13 +267,18 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 			county = $10,
 			geofence_id = $11,
 			driver_contact_id = $12,
-			updated_at = $13
-		WHERE user_id = $14 AND id = $15
+			rider_name = $13,
+			rider_national_id = $14,
+			rider_phone = $15,
+			updated_at = $16
+		WHERE user_id = $17 AND id = $18
 	`
 	tag, err := tx.Exec(ctx, query,
 		b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color,
 		b.Status, b.CurrentAddress, b.SubCounty, b.County,
-		geofenceVal, driverVal, b.UpdatedAt,
+		geofenceVal, driverVal,
+		riderNameVal, riderIDVal, riderPhoneVal,
+		b.UpdatedAt,
 		b.UserID, b.ID,
 	)
 	if err != nil {
@@ -245,10 +306,14 @@ func (r *BikeRepository) Delete(ctx context.Context, tx pgx.Tx, userID string, b
 }
 
 func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBikeID string) (bool, error) {
-	query := `
-		SELECT 1 FROM bikes WHERE imei = $1 AND id != $2 LIMIT 1
-	`
-	row := r.pool.QueryRow(ctx, query, imei, excludeBikeID)
+	var row pgx.Row
+	if excludeBikeID != "" {
+		query := `SELECT 1 FROM bikes WHERE imei = $1 AND id != $2 LIMIT 1`
+		row = r.pool.QueryRow(ctx, query, imei, excludeBikeID)
+	} else {
+		query := `SELECT 1 FROM bikes WHERE imei = $1 LIMIT 1`
+		row = r.pool.QueryRow(ctx, query, imei)
+	}
 	var val int
 	err := row.Scan(&val)
 	if err != nil {
@@ -261,10 +326,14 @@ func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBik
 }
 
 func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID string, regNumber string, excludeBikeID string) (bool, error) {
-	query := `
-		SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1
-	`
-	row := r.pool.QueryRow(ctx, query, userID, regNumber, excludeBikeID)
+	var row pgx.Row
+	if excludeBikeID != "" {
+		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1`
+		row = r.pool.QueryRow(ctx, query, userID, regNumber, excludeBikeID)
+	} else {
+		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) LIMIT 1`
+		row = r.pool.QueryRow(ctx, query, userID, regNumber)
+	}
 	var val int
 	err := row.Scan(&val)
 	if err != nil {

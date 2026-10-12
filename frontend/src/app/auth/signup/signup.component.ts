@@ -42,6 +42,8 @@ export class SignupComponent {
   readonly form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
+    nationalId: ['', [Validators.required, Validators.pattern(/^[0-9]{6,10}$/)]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^(\+?[0-9\s-]{9,15})$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]],
   }, { validators: passwordMatchValidator });
@@ -68,9 +70,15 @@ export class SignupComponent {
     }
 
     this.errorMessage.set(null);
-    const { name, email, password } = this.form.value;
+    const { name, email, nationalId, phoneNumber, password } = this.form.value;
 
-    this.authService.register({ name, email, password }).subscribe({
+    this.authService.register({
+      name,
+      email,
+      national_id: nationalId ? nationalId.trim() : undefined,
+      phone_number: phoneNumber ? phoneNumber.trim() : undefined,
+      password,
+    }).subscribe({
       next: () => {
         // Automatically login after successful registration or route to login with success message
         this.router.navigate(['/login']);

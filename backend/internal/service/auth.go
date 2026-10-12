@@ -82,6 +82,8 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 		ID:           uuid.NewString(),
 		Email:        req.Email,
 		Name:         req.Name,
+		NationalID:   req.NationalID,
+		PhoneNumber:  req.PhoneNumber,
 		PasswordHash: hashedPassword,
 		CreatedAt:    time.Now().UTC(),
 		UpdatedAt:    time.Now().UTC(),
@@ -92,10 +94,12 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 	}
 
 	return &domain.UserDTO{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
-		Role:  "owner",
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		Role:        "owner",
+		NationalID:  user.NationalID,
+		PhoneNumber: user.PhoneNumber,
 	}, nil
 }
 
@@ -158,10 +162,12 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
-			ID:    user.ID,
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  "owner",
+			ID:          user.ID,
+			Email:       user.Email,
+			Name:        user.Name,
+			Role:        "owner",
+			NationalID:  user.NationalID,
+			PhoneNumber: user.PhoneNumber,
 		},
 	}
 
@@ -235,10 +241,12 @@ func (s *AuthService) RefreshToken(ctx context.Context, rawRefreshToken, ip, use
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
-			ID:    user.ID,
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  "owner",
+			ID:          user.ID,
+			Email:       user.Email,
+			Name:        user.Name,
+			Role:        "owner",
+			NationalID:  user.NationalID,
+			PhoneNumber: user.PhoneNumber,
 		},
 	}
 
@@ -400,10 +408,12 @@ func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*do
 	}
 
 	userDTO := &domain.UserDTO{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
-		Role:  "owner",
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		Role:        "owner",
+		NationalID:  user.NationalID,
+		PhoneNumber: user.PhoneNumber,
 	}
 
 	return userDTO, nil

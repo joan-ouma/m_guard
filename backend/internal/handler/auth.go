@@ -35,6 +35,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	req.Email = strings.TrimSpace(req.Email)
 	req.Password = strings.TrimSpace(req.Password)
 	req.Name = strings.TrimSpace(req.Name)
+	req.NationalID = strings.TrimSpace(req.NationalID)
+	req.PhoneNumber = strings.TrimSpace(req.PhoneNumber)
 
 	if req.Email == "" || req.Password == "" || req.Name == "" {
 		domain.NewBadRequestError("Email, name, and password are required", r.URL.Path, nil).WriteJSON(w)
