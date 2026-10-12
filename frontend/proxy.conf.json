@@ -1,12 +1,7 @@
 {
   "/v1": {
-<<<<<<< HEAD
-    "target": "http://localhost:8080",
-    "secure": false,
-=======
     "target": "https://fleet-api.jullie.tech",
     "secure": true,
->>>>>>> origin/main
     "changeOrigin": true
   }
 }

@@ -138,75 +138,6 @@ func (r *TelemetryRepository) SaveTelemetry(
 	`
 	_, _ = tx.Exec(ctx, updateTrackerQuery, recordedAt, sensorID)
 
-<<<<<<< HEAD
-	var addrVal, subCountyVal, countyVal any
-	if address != "" && address != "Calculating..." {
-		addrVal = address
-	}
-	if subCounty != "" && subCounty != "Calculating..." {
-		subCountyVal = subCounty
-	}
-	if county != "" && county != "Calculating..." {
-		countyVal = county
-	}
-
-	if lat != 0 || lng != 0 {
-		updateBikeQuery := `
-			UPDATE bikes
-			SET
-				latitude = $1,
-				longitude = $2,
-				speed_kmh = $3,
-				heading_deg = $4,
-				status = $5,
-				ignition = $6,
-				battery_percent = $7,
-				signal_quality_csq = $8,
-				last_telemetry_at = $9,
-				updated_at = $9,
-				current_address = $11,
-				sub_county = $12,
-				county = $13
-			WHERE id = $10
-		`
-		_, err := tx.Exec(ctx, updateBikeQuery,
-			lat, lng, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
-			addrVal, subCountyVal, countyVal,
-		)
-		if err != nil {
-			return err
-		}
-
-		insertBreadcrumbQuery := `
-			INSERT INTO bike_breadcrumbs (
-				bike_id, latitude, longitude, address, heading_deg, speed_kmh, ignition, battery_percent, geofence_breach, recorded_at
-			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-			)
-		`
-		_, err = tx.Exec(ctx, insertBreadcrumbQuery,
-			bikeID, lat, lng, address, heading, speed, ignition, battery, breach, recordedAt,
-		)
-		return err
-	}
-
-	// When coordinates are zero, preserve existing bike coordinates and do not insert zero breadcrumb
-	updateBikeQuery := `
-		UPDATE bikes
-		SET
-			speed_kmh = $1,
-			heading_deg = $2,
-			status = $3,
-			ignition = $4,
-			battery_percent = $5,
-			signal_quality_csq = $6,
-			last_telemetry_at = $7,
-			updated_at = $7
-		WHERE id = $8
-	`
-	_, err := tx.Exec(ctx, updateBikeQuery,
-		speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
-=======
 	updateBikeQuery := `
 		UPDATE bikes
 		SET
@@ -241,7 +172,6 @@ func (r *TelemetryRepository) SaveTelemetry(
 	`
 	_, err = tx.Exec(ctx, insertBreadcrumbQuery,
 		bikeID, lat, lng, heading, speed, ignition, battery, breach, recordedAt,
->>>>>>> origin/main
 	)
 	return err
 }
@@ -261,16 +191,6 @@ func (r *TelemetryRepository) SaveEvent(
 	lng float64,
 	recordedAt time.Time,
 ) error {
-<<<<<<< HEAD
-	if lat == 0 && lng == 0 {
-		// Use bike's last known location
-		_ = r.pool.QueryRow(ctx, `SELECT latitude, longitude FROM bikes WHERE id = $1`, bikeID).Scan(&lat, &lng)
-	}
-	if lat == 0 && lng == 0 {
-		return nil
-	}
-=======
->>>>>>> origin/main
 	query := `
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, $5)

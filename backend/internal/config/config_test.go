@@ -38,7 +38,7 @@ func TestConfigLoad_Mailjet(t *testing.T) {
 	if cfg.FrontendURL != "http://localhost:4200" {
 		t.Errorf("expected frontend URL %q, got %q", "http://localhost:4200", cfg.FrontendURL)
 	}
-	if cfg.MQTTBrokerURL != "tcp://x1db1845.ala.dedicated.aws.emqxcloud.com:1883" {
+	if cfg.MQTTBrokerURL != "tcp://localhost:1883" {
 		t.Errorf("expected default MQTTBrokerURL, got %q", cfg.MQTTBrokerURL)
 	}
 	if cfg.MQTTUsername != "tracker" {

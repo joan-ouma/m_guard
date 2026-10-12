@@ -19,13 +19,10 @@ func NewRouter(cfg RouterConfig) *http.ServeMux {
 	authMW := cfg.AuthMiddleware
 	rateLimitMW := cfg.RateLimitMiddleware
 
-<<<<<<< HEAD
-=======
 	// User Registration
 	mux.Handle("POST /v1/users/register", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
 	mux.Handle("POST /v1/users", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
 
->>>>>>> origin/main
 	// Authentication & Sessions
 	mux.Handle("POST /v1/sessions", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Login)))
 	mux.Handle("PUT /v1/sessions/current", http.HandlerFunc(cfg.AuthHandler.Refresh))
@@ -39,15 +36,6 @@ func NewRouter(cfg RouterConfig) *http.ServeMux {
 	// Fleet Management
 	mux.Handle("GET /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.List)))
 	mux.Handle("POST /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.Create)))
-<<<<<<< HEAD
-	mux.Handle("GET /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.GetByID)))
-	mux.Handle("PUT /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Update)))
-	mux.Handle("PATCH /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Update)))
-	mux.Handle("DELETE /v1/bikes/{id}", authMW(http.HandlerFunc(cfg.BikeHandler.Delete)))
-	mux.Handle("GET /v1/bikes/{id}/breadcrumbs", authMW(http.HandlerFunc(cfg.BikeHandler.GetBreadcrumbs)))
-	mux.Handle("GET /v1/bikes/{id}/events", authMW(http.HandlerFunc(cfg.BikeHandler.GetEvents)))
-	mux.Handle("POST /v1/bikes/{id}/immobilize", authMW(http.HandlerFunc(cfg.BikeHandler.Immobilize)))
-=======
 	mux.Handle("GET /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cfg.BikeHandler.GetByID(w, r, getBikeID(r))
 	})))
@@ -69,7 +57,6 @@ func NewRouter(cfg RouterConfig) *http.ServeMux {
 	mux.Handle("POST /v1/bikes/{id}/immobilize", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cfg.BikeHandler.Immobilize(w, r, getBikeID(r))
 	})))
->>>>>>> origin/main
 
 	return mux
 }

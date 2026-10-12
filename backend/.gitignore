@@ -4,8 +4,4 @@
 *.out
 /vendor/
 /tmp/
-<<<<<<< HEAD
-server
-=======
 /server
->>>>>>> origin/main

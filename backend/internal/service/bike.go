@@ -4,10 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-<<<<<<< HEAD
-=======
 	"log"
->>>>>>> origin/main
 	"strings"
 	"time"
 
@@ -87,11 +84,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	now := time.Now().UTC()
-<<<<<<< HEAD
-	bikeID := fmt.Sprintf("bik_%s", strings.ReplaceAll(uuid.New().String(), "-", "")[:24])
-=======
 	bikeID := uuid.New().String()
->>>>>>> origin/main
 
 	bike := domain.Bike{
 		ID:                 bikeID,
@@ -117,12 +110,9 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		LastTelemetryAt:    nil,
 		GeofenceID:         strings.TrimSpace(req.GeofenceID),
 		DriverContactID:    strings.TrimSpace(req.DriverContactID),
-<<<<<<< HEAD
-=======
 		RiderName:          strings.TrimSpace(req.RiderName),
 		RiderNationalID:    strings.TrimSpace(req.RiderNationalID),
 		RiderPhone:         strings.TrimSpace(req.RiderPhone),
->>>>>>> origin/main
 		IsImmobilized:      false,
 		CreatedAt:          now,
 		UpdatedAt:          now,
@@ -135,18 +125,12 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.Create(ctx, tx, &bike); err != nil {
-<<<<<<< HEAD
-=======
 		log.Printf("[CreateBike] repo.Create error: %v", err)
->>>>>>> origin/main
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-<<<<<<< HEAD
-=======
 		log.Printf("[CreateBike] tx.Commit error: %v", err)
->>>>>>> origin/main
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -233,9 +217,6 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 		existing.RegistrationNumber = regNumber
 	}
 
-<<<<<<< HEAD
-	applyBikeUpdates(existing, req)
-=======
 	if strings.TrimSpace(req.Label) != "" {
 		existing.Label = strings.TrimSpace(req.Label)
 	}
@@ -279,7 +260,6 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 		existing.RiderPhone = strings.TrimSpace(req.RiderPhone)
 	}
 
->>>>>>> origin/main
 	existing.UpdatedAt = time.Now().UTC()
 
 	tx, err := s.pool.Begin(ctx)
@@ -300,34 +280,6 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 	return &dto, nil
 }
 
-<<<<<<< HEAD
-func applyBikeUpdates(b *domain.Bike, req domain.UpdateBikeRequest) {
-	setIfNotEmpty(&b.Label, req.Label)
-	setIfNotEmpty(&b.Make, req.Make)
-	setIfNotEmpty(&b.Model, req.Model)
-	setIfNotEmpty(&b.Color, req.Color)
-	setIfNotEmpty(&b.CurrentAddress, req.CurrentAddress)
-	setIfNotEmpty(&b.SubCounty, req.SubCounty)
-	setIfNotEmpty(&b.County, req.County)
-	setIfNotEmpty(&b.GeofenceID, req.GeofenceID)
-	setIfNotEmpty(&b.DriverContactID, req.DriverContactID)
-
-	if req.Year > 0 {
-		b.Year = req.Year
-	}
-	if req.Status == "RUNNING" || req.Status == "STOPPED" {
-		b.Status = req.Status
-	}
-}
-
-func setIfNotEmpty(target *string, value string) {
-	if trimmed := strings.TrimSpace(value); trimmed != "" {
-		*target = trimmed
-	}
-}
-
-=======
->>>>>>> origin/main
 func (s *BikeService) DeleteBike(ctx context.Context, claims *security.JWTClaims, bikeID string) error {
 	instance := fmt.Sprintf("/v1/bikes/%s", bikeID)
 
@@ -442,22 +394,6 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 }
 
 func toBikeDTO(b *domain.Bike) domain.BikeDTO {
-<<<<<<< HEAD
-	address := b.CurrentAddress
-	if address == "" {
-		address = "Calculating..."
-	}
-	subCounty := b.SubCounty
-	if subCounty == "" {
-		subCounty = "Calculating..."
-	}
-	county := b.County
-	if county == "" {
-		county = "Calculating..."
-	}
-
-=======
->>>>>>> origin/main
 	return domain.BikeDTO{
 		ID:                 b.ID,
 		UserID:             b.UserID,
@@ -474,26 +410,17 @@ func toBikeDTO(b *domain.Bike) domain.BikeDTO {
 		HeadingDeg:         b.HeadingDeg,
 		Latitude:           b.Latitude,
 		Longitude:          b.Longitude,
-<<<<<<< HEAD
-		CurrentAddress:     address,
-		SubCounty:          subCounty,
-		County:             county,
-=======
 		CurrentAddress:     b.CurrentAddress,
 		SubCounty:          b.SubCounty,
 		County:             b.County,
->>>>>>> origin/main
 		BatteryPercent:     b.BatteryPercent,
 		SignalQualityCSQ:   b.SignalQualityCSQ,
 		LastTelemetryAt:    b.LastTelemetryAt,
 		GeofenceID:         b.GeofenceID,
 		DriverContactID:    b.DriverContactID,
-<<<<<<< HEAD
-=======
 		RiderName:          b.RiderName,
 		RiderNationalID:    b.RiderNationalID,
 		RiderPhone:         b.RiderPhone,
->>>>>>> origin/main
 		IsImmobilized:      b.IsImmobilized,
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,

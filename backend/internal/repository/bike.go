@@ -28,8 +28,6 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-<<<<<<< HEAD
-=======
 	var riderNameVal any
 	if b.RiderName != "" {
 		riderNameVal = b.RiderName
@@ -42,19 +40,11 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.RiderPhone != "" {
 		riderPhoneVal = b.RiderPhone
 	}
->>>>>>> origin/main
 
 	query := `
 		INSERT INTO bikes (
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-<<<<<<< HEAD
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9,
-			$10, $11, $12, $13, $14, $15, $16, $17, $18,
-			$19, $20, $21, $22, $23, $24, $25, $26
-=======
 			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
 			rider_name, rider_national_id, rider_phone,
 			is_immobilized, created_at, updated_at
@@ -64,19 +54,14 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 			$19, $20, $21, $22, $23,
 			$24, $25, $26,
 			$27, $28, $29
->>>>>>> origin/main
 		)
 	`
 	_, err := tx.Exec(ctx, query,
 		b.ID, b.UserID, b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color, b.IMEI,
 		b.Status, b.Ignition, b.SpeedKMH, b.HeadingDeg, b.Latitude, b.Longitude, b.CurrentAddress, b.SubCounty, b.County,
-<<<<<<< HEAD
-		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal, b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
-=======
 		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal,
 		riderNameVal, riderIDVal, riderPhoneVal,
 		b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
->>>>>>> origin/main
 	)
 	return err
 }
@@ -86,13 +71,9 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		SELECT 
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-<<<<<<< HEAD
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
-=======
 			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
 			rider_name, rider_national_id, rider_phone,
 			is_immobilized, created_at, updated_at
->>>>>>> origin/main
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 		LIMIT 1
@@ -100,14 +81,6 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	row := r.pool.QueryRow(ctx, query, userID, bikeID)
 
 	var b domain.Bike
-<<<<<<< HEAD
-	var geofenceVal, driverVal, addrVal, subCountyVal, countyVal sql.NullString
-
-	err := row.Scan(
-		&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &addrVal, &subCountyVal, &countyVal,
-		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal, &b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
-=======
 	var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 
 	err := row.Scan(
@@ -116,7 +89,6 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
 		&riderNameVal, &riderIDVal, &riderPhoneVal,
 		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
->>>>>>> origin/main
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -131,16 +103,6 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	if driverVal.Valid {
 		b.DriverContactID = driverVal.String
 	}
-<<<<<<< HEAD
-	if addrVal.Valid {
-		b.CurrentAddress = addrVal.String
-	}
-	if subCountyVal.Valid {
-		b.SubCounty = subCountyVal.String
-	}
-	if countyVal.Valid {
-		b.County = countyVal.String
-=======
 	if riderNameVal.Valid {
 		b.RiderName = riderNameVal.String
 	}
@@ -149,7 +111,6 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	}
 	if riderPhoneVal.Valid {
 		b.RiderPhone = riderPhoneVal.String
->>>>>>> origin/main
 	}
 
 	return &b, nil
@@ -160,13 +121,9 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 		SELECT 
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-<<<<<<< HEAD
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id, is_immobilized, created_at, updated_at
-=======
 			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
 			rider_name, rider_national_id, rider_phone,
 			is_immobilized, created_at, updated_at
->>>>>>> origin/main
 		FROM bikes
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -180,13 +137,6 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 	var bikes []domain.Bike
 	for rows.Next() {
 		var b domain.Bike
-<<<<<<< HEAD
-		var geofenceVal, driverVal, addrVal, subCountyVal, countyVal sql.NullString
-		err := rows.Scan(
-			&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &addrVal, &subCountyVal, &countyVal,
-			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal, &b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
-=======
 		var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 		err := rows.Scan(
 			&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
@@ -194,7 +144,6 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
 			&riderNameVal, &riderIDVal, &riderPhoneVal,
 			&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
->>>>>>> origin/main
 		)
 		if err != nil {
 			return nil, err
@@ -205,16 +154,6 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 		if driverVal.Valid {
 			b.DriverContactID = driverVal.String
 		}
-<<<<<<< HEAD
-		if addrVal.Valid {
-			b.CurrentAddress = addrVal.String
-		}
-		if subCountyVal.Valid {
-			b.SubCounty = subCountyVal.String
-		}
-		if countyVal.Valid {
-			b.County = countyVal.String
-=======
 		if riderNameVal.Valid {
 			b.RiderName = riderNameVal.String
 		}
@@ -223,7 +162,6 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 		}
 		if riderPhoneVal.Valid {
 			b.RiderPhone = riderPhoneVal.String
->>>>>>> origin/main
 		}
 		bikes = append(bikes, b)
 	}
@@ -301,8 +239,6 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-<<<<<<< HEAD
-=======
 	var riderNameVal any
 	if b.RiderName != "" {
 		riderNameVal = b.RiderName
@@ -315,7 +251,6 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.RiderPhone != "" {
 		riderPhoneVal = b.RiderPhone
 	}
->>>>>>> origin/main
 
 	query := `
 		UPDATE bikes
@@ -332,27 +267,18 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 			county = $10,
 			geofence_id = $11,
 			driver_contact_id = $12,
-<<<<<<< HEAD
-			updated_at = $13
-		WHERE user_id = $14 AND id = $15
-=======
 			rider_name = $13,
 			rider_national_id = $14,
 			rider_phone = $15,
 			updated_at = $16
 		WHERE user_id = $17 AND id = $18
->>>>>>> origin/main
 	`
 	tag, err := tx.Exec(ctx, query,
 		b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color,
 		b.Status, b.CurrentAddress, b.SubCounty, b.County,
-<<<<<<< HEAD
-		geofenceVal, driverVal, b.UpdatedAt,
-=======
 		geofenceVal, driverVal,
 		riderNameVal, riderIDVal, riderPhoneVal,
 		b.UpdatedAt,
->>>>>>> origin/main
 		b.UserID, b.ID,
 	)
 	if err != nil {
@@ -380,12 +306,6 @@ func (r *BikeRepository) Delete(ctx context.Context, tx pgx.Tx, userID string, b
 }
 
 func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBikeID string) (bool, error) {
-<<<<<<< HEAD
-	query := `
-		SELECT 1 FROM bikes WHERE imei = $1 AND id != $2 LIMIT 1
-	`
-	row := r.pool.QueryRow(ctx, query, imei, excludeBikeID)
-=======
 	var row pgx.Row
 	if excludeBikeID != "" {
 		query := `SELECT 1 FROM bikes WHERE imei = $1 AND id != $2 LIMIT 1`
@@ -394,7 +314,6 @@ func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBik
 		query := `SELECT 1 FROM bikes WHERE imei = $1 LIMIT 1`
 		row = r.pool.QueryRow(ctx, query, imei)
 	}
->>>>>>> origin/main
 	var val int
 	err := row.Scan(&val)
 	if err != nil {
@@ -407,12 +326,6 @@ func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBik
 }
 
 func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID string, regNumber string, excludeBikeID string) (bool, error) {
-<<<<<<< HEAD
-	query := `
-		SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1
-	`
-	row := r.pool.QueryRow(ctx, query, userID, regNumber, excludeBikeID)
-=======
 	var row pgx.Row
 	if excludeBikeID != "" {
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1`
@@ -421,7 +334,6 @@ func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID st
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) LIMIT 1`
 		row = r.pool.QueryRow(ctx, query, userID, regNumber)
 	}
->>>>>>> origin/main
 	var val int
 	err := row.Scan(&val)
 	if err != nil {
@@ -446,11 +358,7 @@ func (r *BikeRepository) GetBreadcrumbs(ctx context.Context, userID string, bike
 			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
 			FROM bike_breadcrumbs bb
 			JOIN bikes b ON b.id = bb.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3 AND bb.recorded_at <= $4 AND bb.latitude != 0 AND bb.longitude != 0
-=======
 			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3 AND bb.recorded_at <= $4
->>>>>>> origin/main
 			ORDER BY bb.recorded_at ASC
 			LIMIT $5
 		`
@@ -460,11 +368,7 @@ func (r *BikeRepository) GetBreadcrumbs(ctx context.Context, userID string, bike
 			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
 			FROM bike_breadcrumbs bb
 			JOIN bikes b ON b.id = bb.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3 AND bb.latitude != 0 AND bb.longitude != 0
-=======
 			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3
->>>>>>> origin/main
 			ORDER BY bb.recorded_at ASC
 			LIMIT $4
 		`
@@ -474,11 +378,7 @@ func (r *BikeRepository) GetBreadcrumbs(ctx context.Context, userID string, bike
 			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
 			FROM bike_breadcrumbs bb
 			JOIN bikes b ON b.id = bb.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.latitude != 0 AND bb.longitude != 0
-=======
 			WHERE b.user_id = $1 AND bb.bike_id = $2
->>>>>>> origin/main
 			ORDER BY bb.recorded_at ASC
 			LIMIT $3
 		`
@@ -521,11 +421,7 @@ func (r *BikeRepository) GetEvents(ctx context.Context, userID string, bikeID st
 			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
 			FROM bike_events be
 			JOIN bikes b ON b.id = be.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3 AND be.recorded_at <= $4 AND be.latitude != 0 AND be.longitude != 0
-=======
 			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3 AND be.recorded_at <= $4
->>>>>>> origin/main
 			ORDER BY be.recorded_at ASC
 			LIMIT $5
 		`
@@ -535,11 +431,7 @@ func (r *BikeRepository) GetEvents(ctx context.Context, userID string, bikeID st
 			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
 			FROM bike_events be
 			JOIN bikes b ON b.id = be.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3 AND be.latitude != 0 AND be.longitude != 0
-=======
 			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3
->>>>>>> origin/main
 			ORDER BY be.recorded_at ASC
 			LIMIT $4
 		`
@@ -549,11 +441,7 @@ func (r *BikeRepository) GetEvents(ctx context.Context, userID string, bikeID st
 			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
 			FROM bike_events be
 			JOIN bikes b ON b.id = be.bike_id
-<<<<<<< HEAD
-			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.latitude != 0 AND be.longitude != 0
-=======
 			WHERE b.user_id = $1 AND be.bike_id = $2
->>>>>>> origin/main
 			ORDER BY be.recorded_at ASC
 			LIMIT $3
 		`

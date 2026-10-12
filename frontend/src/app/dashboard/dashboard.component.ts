@@ -22,10 +22,7 @@ export interface FleetBike {
   model: string;
   imei: string;
   status: 'RUNNING' | 'STOPPED';
-<<<<<<< HEAD
-=======
   movementStatus: 'Moving' | 'Stationary';
->>>>>>> origin/main
   speedText: string;
   address: string;
   county: string;
@@ -38,12 +35,9 @@ export interface FleetBike {
   email: string;
   lastSeenAt?: string;
   isImmobilized: boolean;
-<<<<<<< HEAD
-=======
   riderName: string;
   riderNationalId: string;
   riderPhone: string;
->>>>>>> origin/main
 }
 
 const DEFAULT_BIKE: FleetBike = {
@@ -52,20 +46,6 @@ const DEFAULT_BIKE: FleetBike = {
   model: 'No asset registered',
   imei: '',
   status: 'STOPPED',
-<<<<<<< HEAD
-  speedText: '0.0 km/h • Ignition OFF',
-  address: 'Calculating...',
-  county: '',
-  subCounty: '',
-  lat: -1.414046,
-  lng: 36.744676,
-  fenceName: 'Ongata Rongai Zone',
-  fenceRadius: 2500,
-  triggerCondition: 'Alert on Exit',
-  email: 'oyamo.brn@gmail.com',
-  lastSeenAt: new Date().toISOString(),
-  isImmobilized: false,
-=======
   movementStatus: 'Stationary',
   speedText: '0.0 km/h • Ignition OFF',
   address: 'Nairobi CBD',
@@ -82,7 +62,6 @@ const DEFAULT_BIKE: FleetBike = {
   riderName: 'Unassigned',
   riderNationalId: 'N/A',
   riderPhone: 'N/A',
->>>>>>> origin/main
 };
 
 @Component({
@@ -109,19 +88,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isBreachActive = signal<boolean>(false);
   readonly alertBannerText = signal<string>('');
   readonly showGeofenceModal = signal<boolean>(false);
-<<<<<<< HEAD
-=======
   readonly showDuressPrompt = signal<boolean>(false);
   readonly duressCountdown = signal<number>(30);
->>>>>>> origin/main
   readonly copiedCoordinates = signal<boolean>(false);
   readonly currentTime = signal<number>(Date.now());
   private tickerInterval?: ReturnType<typeof setInterval>;
   private pollInterval?: ReturnType<typeof setInterval>;
-<<<<<<< HEAD
-=======
   private duressInterval?: ReturnType<typeof setInterval>;
->>>>>>> origin/main
 
   readonly bikeList = computed<FleetBike[]>(() => Object.values(this.fleet()));
 
@@ -145,8 +118,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     fenceEmail: ['operator@mototrack.ke', [Validators.required, Validators.email]],
   });
 
-<<<<<<< HEAD
-=======
   readonly showRegisterModal = signal<boolean>(false);
   readonly registrationError = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
@@ -163,7 +134,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     riderPhone: ['', [Validators.required, Validators.pattern(/^(\+?[0-9\s-]{9,15})$/)]],
   });
 
->>>>>>> origin/main
   ngOnInit(): void {
     this.tickerInterval = setInterval(() => {
       this.currentTime.set(Date.now());
@@ -199,11 +169,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           fenceEmail: current.email,
         });
 
-<<<<<<< HEAD
-        this.updateMapForCurrentBike(true);
-=======
         this.updateMapForCurrentBike();
->>>>>>> origin/main
       },
     });
 
@@ -225,11 +191,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             return nextMap;
           });
-<<<<<<< HEAD
-          this.updateMapForCurrentBike(false);
-=======
           this.updateMapForCurrentBike();
->>>>>>> origin/main
         },
       });
     }, 3000);
@@ -317,16 +279,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-<<<<<<< HEAD
-  private updateMapForCurrentBike(centerCamera = false): void {
-    if (!this.map) return;
-    const bike = this.selectedBike();
-    if (!bike.lat || !bike.lng) return;
-=======
   private updateMapForCurrentBike(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
->>>>>>> origin/main
 
     if (!this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
@@ -359,17 +314,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-<<<<<<< HEAD
-    if (centerCamera) {
-      const zoom = this.map.getZoom() || 14;
-      this.map.setView([bike.lat, bike.lng], zoom);
-      this.map.invalidateSize();
-    }
-
-=======
     this.map.setView([bike.lat, bike.lng], 13);
     this.map.invalidateSize();
->>>>>>> origin/main
     this.loadAndDrawPath(bike);
   }
 
@@ -391,20 +337,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.clearPathLayers();
 
-<<<<<<< HEAD
-    const validPoints = points.filter((p) => p.latitude !== 0 && p.longitude !== 0);
-    const coords: [number, number][] = validPoints.map((p) => [p.latitude, p.longitude] as [number, number]);
-
-    if (currentBike.lat !== 0 && currentBike.lng !== 0) {
-      const isLastSame =
-        coords.length > 0 &&
-        Math.abs(coords[coords.length - 1][0] - currentBike.lat) < 0.0001 &&
-        Math.abs(coords[coords.length - 1][1] - currentBike.lng) < 0.0001;
-
-      if (!isLastSame) {
-        coords.push([currentBike.lat, currentBike.lng]);
-      }
-=======
     const coords: [number, number][] = points.map((p) => [p.latitude, p.longitude] as [number, number]);
 
     const isLastSame =
@@ -414,7 +346,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!isLastSame) {
       coords.push([currentBike.lat, currentBike.lng]);
->>>>>>> origin/main
     }
 
     if (coords.length > 1) {
@@ -491,13 +422,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (isRunning) {
       statusClass = 'running';
       haloClass = 'radar-halo radar-halo-running';
-<<<<<<< HEAD
-      dotColor = '#15803d';
-      statusBg = 'rgba(21, 128, 61, 0.25)';
-=======
       dotColor = '#10b981';
       statusBg = 'rgba(16, 185, 129, 0.2)';
->>>>>>> origin/main
     }
 
     const pinIconSvg = isImmobilizedState
@@ -569,12 +495,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           dashArray: '6, 6',
         });
 
-<<<<<<< HEAD
-      const zoom = this.map.getZoom() || 14;
-      this.map.setView([bike.lat, bike.lng], zoom);
-=======
       this.map.setView([bike.lat, bike.lng], 13);
->>>>>>> origin/main
       this.map.invalidateSize();
       this.loadAndDrawPath(bike);
     }
@@ -583,12 +504,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recenterMap(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
-<<<<<<< HEAD
-    const zoom = Math.max(this.map.getZoom() || 14, 14);
-    this.map.setView([bike.lat, bike.lng], zoom);
-=======
     this.map.setView([bike.lat, bike.lng], 14);
->>>>>>> origin/main
   }
 
   copyCoordinates(): void {
@@ -645,8 +561,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.toggleGeofenceModal(false);
   }
 
-<<<<<<< HEAD
-=======
   openRegisterModal(): void {
     this.registrationError.set(null);
     this.registerForm.reset({
@@ -729,7 +643,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
->>>>>>> origin/main
   simulateBreach(): void {
     const bike = this.selectedBike();
     const exitLat = bike.lat + 0.036;
@@ -778,8 +691,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.map?.panTo([exitLat, exitLng]);
   }
 
-<<<<<<< HEAD
-=======
   simulateSuddenStop(): void {
     if (this.showDuressPrompt()) return;
     this.showDuressPrompt.set(true);
@@ -824,7 +735,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
->>>>>>> origin/main
   handleLogout(): void {
     this.authService.logout().subscribe();
   }
@@ -868,20 +778,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleImmobilize(bike: FleetBike): void {
     if (!bike.id) return;
     const isImmobilizing = !bike.isImmobilized;
-<<<<<<< HEAD
-    Swal.fire({
-      title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
-      text: isImmobilizing
-        ? 'This will immediately cut off power to the motorcycle starter.'
-        : 'This will restore electrical starter power to the motorcycle.',
-      icon: isImmobilizing ? 'warning' : 'question',
-      showCancelButton: true,
-      confirmButtonColor: isImmobilizing ? '#e11d48' : '#15803d',
-      cancelButtonColor: '#71717a',
-      confirmButtonText: isImmobilizing ? 'Yes, Immobilize' : 'Yes, Reactivate',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-=======
     const isMoving = bike.movementStatus === 'Moving';
 
     const actionText = isImmobilizing
@@ -927,7 +823,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         return pin; // In a real app, this PIN would be sent to the backend API for validation
       },
->>>>>>> origin/main
     }).then((result) => {
       if (result.isConfirmed) {
         this.bikeService.toggleImmobilize(bike.id, isImmobilizing).subscribe({
@@ -947,11 +842,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               toast: true,
               position: 'top-end',
               icon: 'success',
-<<<<<<< HEAD
-              title: isImmobilizing ? `${bike.plate} Immobilized` : `${bike.plate} Reactivated`,
-=======
               title: isImmobilizing ? (isMoving ? `${bike.plate} Immobilization Queued` : `${bike.plate} Immobilized`) : `${bike.plate} Reactivated`,
->>>>>>> origin/main
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
@@ -974,10 +865,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
     const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
-<<<<<<< HEAD
-=======
     const movementStatus = (b.status === 'RUNNING' || b.speed_kmh > 0) ? 'Moving' : 'Stationary';
->>>>>>> origin/main
 
     return {
       id: b.id,
@@ -985,15 +873,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       model: modelText,
       imei: b.imei,
       status: b.status,
-<<<<<<< HEAD
-      speedText: speedText,
-      address: b.current_address ? b.current_address : 'Calculating...',
-      county: b.county ? b.county : 'Calculating...',
-      subCounty: b.sub_county ? b.sub_county : 'Calculating...',
-      lat: b.latitude || 0,
-      lng: b.longitude || 0,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Ongata Rongai Delivery Zone',
-=======
       movementStatus,
       speedText: speedText,
       address: b.current_address || 'Depot / Staging Yard',
@@ -1002,18 +881,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       lat: b.latitude || -1.286389,
       lng: b.longitude || 36.817223,
       fenceName: b.geofence_id ? 'Assigned Geofence' : 'Nairobi Delivery Zone',
->>>>>>> origin/main
       fenceRadius: 3000,
       triggerCondition: 'Alert on Exit',
       email: 'operator@mototrack.ke',
       lastSeenAt: timestamp,
       isImmobilized: !!b.is_immobilized,
-<<<<<<< HEAD
-=======
       riderName: b.rider_name || 'Primary Rider',
       riderNationalId: b.rider_national_id || 'N/A',
       riderPhone: b.rider_phone || 'N/A',
->>>>>>> origin/main
     };
   }
 }

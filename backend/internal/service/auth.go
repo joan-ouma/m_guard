@@ -56,8 +56,6 @@ func NewAuthService(
 	}
 }
 
-<<<<<<< HEAD
-=======
 func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (*domain.UserDTO, error) {
 	instance := "/v1/users/register"
 
@@ -105,7 +103,6 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 	}, nil
 }
 
->>>>>>> origin/main
 func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent string) (*domain.SessionData, string, error) {
 	instance := "/v1/sessions"
 
@@ -165,19 +162,12 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
-<<<<<<< HEAD
-			ID:    user.ID,
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  "owner",
-=======
 			ID:          user.ID,
 			Email:       user.Email,
 			Name:        user.Name,
 			Role:        "owner",
 			NationalID:  user.NationalID,
 			PhoneNumber: user.PhoneNumber,
->>>>>>> origin/main
 		},
 	}
 
@@ -251,19 +241,12 @@ func (s *AuthService) RefreshToken(ctx context.Context, rawRefreshToken, ip, use
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
-<<<<<<< HEAD
-			ID:    user.ID,
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  "owner",
-=======
 			ID:          user.ID,
 			Email:       user.Email,
 			Name:        user.Name,
 			Role:        "owner",
 			NationalID:  user.NationalID,
 			PhoneNumber: user.PhoneNumber,
->>>>>>> origin/main
 		},
 	}
 
@@ -425,19 +408,12 @@ func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*do
 	}
 
 	userDTO := &domain.UserDTO{
-<<<<<<< HEAD
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
-		Role:  "owner",
-=======
 		ID:          user.ID,
 		Email:       user.Email,
 		Name:        user.Name,
 		Role:        "owner",
 		NationalID:  user.NationalID,
 		PhoneNumber: user.PhoneNumber,
->>>>>>> origin/main
 	}
 
 	return userDTO, nil

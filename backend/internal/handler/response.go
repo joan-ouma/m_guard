@@ -54,8 +54,6 @@ func parseDateRange(q url.Values) (string, string) {
 
 	return startDate, endDate
 }
-<<<<<<< HEAD
-=======
 
 func getBikeID(r *http.Request) string {
 	if id := r.PathValue("id"); id != "" {
@@ -69,4 +67,3 @@ func getBikeID(r *http.Request) string {
 	}
 	return ""
 }
->>>>>>> origin/main

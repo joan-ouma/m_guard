@@ -2,10 +2,7 @@ package repository
 
 import (
 	"context"
-<<<<<<< HEAD
-=======
 	"database/sql"
->>>>>>> origin/main
 	"errors"
 	"time"
 
@@ -27,11 +24,7 @@ func NewAuthRepository(pool *pgxpool.Pool) *AuthRepository {
 
 func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-<<<<<<< HEAD
-		SELECT id, email, password_hash, name, created_at, updated_at
-=======
 		SELECT id, email, password_hash, name, national_id, phone_number, created_at, updated_at
->>>>>>> origin/main
 		FROM users
 		WHERE LOWER(email) = LOWER($1)
 		LIMIT 1
@@ -39,26 +32,14 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 	row := r.pool.QueryRow(ctx, query, email)
 
 	var u domain.User
-<<<<<<< HEAD
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.CreatedAt, &u.UpdatedAt)
-=======
 	var nationalID, phone sql.NullString
 	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt)
->>>>>>> origin/main
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-<<<<<<< HEAD
-	return &u, nil
-}
-
-func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
-	query := `
-		SELECT id, email, password_hash, name, created_at, updated_at
-=======
 	if nationalID.Valid {
 		u.NationalID = nationalID.String
 	}
@@ -89,7 +70,6 @@ func (r *AuthRepository) CreateUser(ctx context.Context, u *domain.User) error {
 func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	query := `
 		SELECT id, email, password_hash, name, national_id, phone_number, created_at, updated_at
->>>>>>> origin/main
 		FROM users
 		WHERE id = $1
 		LIMIT 1
@@ -97,27 +77,20 @@ func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domai
 	row := r.pool.QueryRow(ctx, query, userID)
 
 	var u domain.User
-<<<<<<< HEAD
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.CreatedAt, &u.UpdatedAt)
-=======
 	var nationalID, phone sql.NullString
 	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt)
->>>>>>> origin/main
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		}
 		return nil, err
 	}
-<<<<<<< HEAD
-=======
 	if nationalID.Valid {
 		u.NationalID = nationalID.String
 	}
 	if phone.Valid {
 		u.PhoneNumber = phone.String
 	}
->>>>>>> origin/main
 	return &u, nil
 }
 
@@ -125,11 +98,7 @@ func (r *AuthRepository) GetSessionWithUser(ctx context.Context, tokenHash strin
 	query := `
 		SELECT 
 			s.id, s.user_id, s.refresh_token_hash, s.expires_at, COALESCE(s.revoked_at, '0001-01-01 00:00:00+00'), s.user_agent, s.ip_address, s.created_at,
-<<<<<<< HEAD
-			u.id, u.email, u.password_hash, u.name, u.created_at, u.updated_at
-=======
 			u.id, u.email, u.password_hash, u.name, u.national_id, u.phone_number, u.created_at, u.updated_at
->>>>>>> origin/main
 		FROM sessions s
 		JOIN users u ON u.id = s.user_id
 		WHERE s.refresh_token_hash = $1
@@ -140,18 +109,11 @@ func (r *AuthRepository) GetSessionWithUser(ctx context.Context, tokenHash strin
 	var s domain.Session
 	var revokedAt time.Time
 	var u domain.User
-<<<<<<< HEAD
-
-	err := row.Scan(
-		&s.ID, &s.UserID, &s.RefreshTokenHash, &s.ExpiresAt, &revokedAt, &s.UserAgent, &s.IPAddress, &s.CreatedAt,
-		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.CreatedAt, &u.UpdatedAt,
-=======
 	var nationalID, phone sql.NullString
 
 	err := row.Scan(
 		&s.ID, &s.UserID, &s.RefreshTokenHash, &s.ExpiresAt, &revokedAt, &s.UserAgent, &s.IPAddress, &s.CreatedAt,
 		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt,
->>>>>>> origin/main
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -163,15 +125,12 @@ func (r *AuthRepository) GetSessionWithUser(ctx context.Context, tokenHash strin
 	if !revokedAt.IsZero() && revokedAt.Year() > 1 {
 		s.RevokedAt = revokedAt
 	}
-<<<<<<< HEAD
-=======
 	if nationalID.Valid {
 		u.NationalID = nationalID.String
 	}
 	if phone.Valid {
 		u.PhoneNumber = phone.String
 	}
->>>>>>> origin/main
 
 	return &s, &u, nil
 }

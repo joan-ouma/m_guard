@@ -5,10 +5,7 @@ import { Observable, tap, catchError, throwError, of } from 'rxjs';
 import {
   AuthResponse,
   LoginCredentials,
-<<<<<<< HEAD
-=======
   RegisterCredentials,
->>>>>>> origin/main
   SessionData,
   User,
 } from '../models/auth.models';
@@ -73,8 +70,6 @@ export class AuthService {
   }
 
   /**
-<<<<<<< HEAD
-=======
    * POST /v1/users/register
    * Register a new user account
    */
@@ -90,7 +85,6 @@ export class AuthService {
   }
 
   /**
->>>>>>> origin/main
    * POST /v1/sessions
    * Login with email and password
    */
