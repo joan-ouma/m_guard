@@ -22,6 +22,7 @@ func (p ProblemDetails) Error() string {
 func (p ProblemDetails) WriteJSON(w http.ResponseWriter) {
 	if p.Status >= 500 {
 		slog.Error("ProblemDetails internal error", "status", p.Status, "title", p.Title, "detail", p.Detail, "instance", p.Instance)
+		p.Detail = "Internal server error"
 	} else if p.Status >= 400 {
 		slog.Warn("ProblemDetails client error", "status", p.Status, "title", p.Title, "detail", p.Detail, "instance", p.Instance)
 	}

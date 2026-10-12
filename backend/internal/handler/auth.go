@@ -101,7 +101,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		slog.Error("Login unhandled internal error", "email", req.Email, "error", err)
-		domain.NewInternalServerErrorWithDetail(err.Error(), r.URL.Path).WriteJSON(w)
+		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
 		return
 	}
 
