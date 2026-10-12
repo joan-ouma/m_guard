@@ -22,9 +22,6 @@ export interface BikeDTO {
   last_telemetry_at?: string;
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
   is_immobilized: boolean;
   created_at: string;
   updated_at: string;
@@ -55,9 +52,6 @@ export interface CreateBikePayload {
   county?: string;
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
 }
 
 export interface UpdateBikePayload {
@@ -73,9 +67,6 @@ export interface UpdateBikePayload {
   status?: 'RUNNING' | 'STOPPED';
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
 }
 
 export interface BreadcrumbDTO {

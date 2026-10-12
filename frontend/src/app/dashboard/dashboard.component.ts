@@ -641,9 +641,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         imei: val.imei.trim(),
         county: val.county,
         sub_county: val.subCounty,
-        rider_name: val.riderName ? val.riderName.trim() : undefined,
-        rider_national_id: val.riderNationalId ? val.riderNationalId.trim() : undefined,
-        rider_phone: val.riderPhone ? val.riderPhone.trim() : undefined,
         latitude: -1.286389,
         longitude: 36.817223,
         current_address: 'Nairobi CBD Staging Yard',
@@ -913,9 +910,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       email: 'operator@mototrack.ke',
       lastSeenAt: timestamp,
       isImmobilized: !!b.is_immobilized,
-      riderName: b.rider_name || 'Primary Rider',
-      riderNationalId: b.rider_national_id || 'N/A',
-      riderPhone: b.rider_phone || 'N/A',
+      riderName: this.authService.currentUser()?.name || 'Primary Rider',
+      riderNationalId: this.authService.currentUser()?.national_id || 'N/A',
+      riderPhone: this.authService.currentUser()?.phone_number || 'N/A',
     };
   }
 }

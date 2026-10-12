@@ -60,6 +60,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 
 	imeiExists, err := s.repo.ExistsIMEI(ctx, imei, "")
 	if err != nil {
+		slog.Error("CreateBike ExistsIMEI error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 	if imeiExists {
@@ -70,6 +71,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 
 	regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, "")
 	if err != nil {
+		slog.Error("CreateBike ExistsRegistrationNumber error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 	if regExists {
@@ -110,9 +112,6 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		LastTelemetryAt:    nil,
 		GeofenceID:         strings.TrimSpace(req.GeofenceID),
 		DriverContactID:    strings.TrimSpace(req.DriverContactID),
-		RiderName:          strings.TrimSpace(req.RiderName),
-		RiderNationalID:    strings.TrimSpace(req.RiderNationalID),
-		RiderPhone:         strings.TrimSpace(req.RiderPhone),
 		IsImmobilized:      false,
 		CreatedAt:          now,
 		UpdatedAt:          now,
@@ -120,6 +119,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
+		slog.Error("CreateBike pool.Begin error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 	defer tx.Rollback(ctx)
@@ -150,6 +150,7 @@ func (s *BikeService) GetBike(ctx context.Context, claims *security.JWTClaims, b
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("GetBike GetByID error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -166,6 +167,7 @@ func (s *BikeService) ListBikes(ctx context.Context, claims *security.JWTClaims)
 
 	bikes, err := s.repo.ListByOwner(ctx, claims.UserID)
 	if err != nil {
+		slog.Error("ListBikes ListByOwner error", "user_id", claims.UserID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -200,6 +202,7 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("UpdateBike GetByID error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -207,6 +210,7 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 	if regNumber != "" && !strings.EqualFold(regNumber, existing.RegistrationNumber) {
 		regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, bikeID)
 		if err != nil {
+			slog.Error("UpdateBike ExistsRegistrationNumber error", "error", err)
 			return nil, domain.NewInternalServerError(instance)
 		}
 		if regExists {
@@ -250,29 +254,23 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 	if req.DriverContactID != "" {
 		existing.DriverContactID = strings.TrimSpace(req.DriverContactID)
 	}
-	if req.RiderName != "" {
-		existing.RiderName = strings.TrimSpace(req.RiderName)
-	}
-	if req.RiderNationalID != "" {
-		existing.RiderNationalID = strings.TrimSpace(req.RiderNationalID)
-	}
-	if req.RiderPhone != "" {
-		existing.RiderPhone = strings.TrimSpace(req.RiderPhone)
-	}
 
 	existing.UpdatedAt = time.Now().UTC()
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
+		slog.Error("UpdateBike pool.Begin error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.Update(ctx, tx, existing); err != nil {
+		slog.Error("UpdateBike repo.Update error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+		slog.Error("UpdateBike tx.Commit error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -289,6 +287,7 @@ func (s *BikeService) DeleteBike(ctx context.Context, claims *security.JWTClaims
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
+		slog.Error("DeleteBike pool.Begin error", "error", err)
 		return domain.NewInternalServerError(instance)
 	}
 	defer tx.Rollback(ctx)
@@ -297,10 +296,12 @@ func (s *BikeService) DeleteBike(ctx context.Context, claims *security.JWTClaims
 		if errors.Is(err, repository.ErrNotFound) {
 			return domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("DeleteBike repo.Delete error", "error", err)
 		return domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+		slog.Error("DeleteBike tx.Commit error", "error", err)
 		return domain.NewInternalServerError(instance)
 	}
 
@@ -319,11 +320,13 @@ func (s *BikeService) GetBreadcrumbs(ctx context.Context, claims *security.JWTCl
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("GetBreadcrumbs GetByID error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	breadcrumbs, err := s.repo.GetBreadcrumbs(ctx, claims.UserID, bikeID, startDate, endDate, limit)
 	if err != nil {
+		slog.Error("GetBreadcrumbs repo.GetBreadcrumbs error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -346,11 +349,13 @@ func (s *BikeService) GetEvents(ctx context.Context, claims *security.JWTClaims,
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("GetEvents GetByID error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	events, err := s.repo.GetEvents(ctx, claims.UserID, bikeID, startDate, endDate, limit)
 	if err != nil {
+		slog.Error("GetEvents repo.GetEvents error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -373,6 +378,7 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
 		}
+		slog.Error("ImmobilizeBike SetImmobilized error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -386,6 +392,7 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 
 	bike, err := s.repo.GetByID(ctx, claims.UserID, bikeID)
 	if err != nil {
+		slog.Error("ImmobilizeBike GetByID error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -418,9 +425,6 @@ func toBikeDTO(b *domain.Bike) domain.BikeDTO {
 		LastTelemetryAt:    b.LastTelemetryAt,
 		GeofenceID:         b.GeofenceID,
 		DriverContactID:    b.DriverContactID,
-		RiderName:          b.RiderName,
-		RiderNationalID:    b.RiderNationalID,
-		RiderPhone:         b.RiderPhone,
 		IsImmobilized:      b.IsImmobilized,
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,

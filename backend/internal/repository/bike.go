@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"motoguard-backend/internal/domain"
@@ -28,39 +27,24 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-	var riderNameVal any
-	if b.RiderName != "" {
-		riderNameVal = b.RiderName
-	}
-	var riderIDVal any
-	if b.RiderNationalID != "" {
-		riderIDVal = b.RiderNationalID
-	}
-	var riderPhoneVal any
-	if b.RiderPhone != "" {
-		riderPhoneVal = b.RiderPhone
-	}
 
 	query := `
 		INSERT INTO bikes (
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
 			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
 			is_immobilized, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9,
 			$10, $11, $12, $13, $14, $15, $16, $17, $18,
 			$19, $20, $21, $22, $23,
-			$24, $25, $26,
-			$27, $28, $29
+			$24, $25, $26
 		)
 	`
 	_, err := tx.Exec(ctx, query,
 		b.ID, b.UserID, b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color, b.IMEI,
 		b.Status, b.Ignition, b.SpeedKMH, b.HeadingDeg, b.Latitude, b.Longitude, b.CurrentAddress, b.SubCounty, b.County,
 		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal,
-		riderNameVal, riderIDVal, riderPhoneVal,
 		b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
 	)
 	return err
@@ -69,11 +53,14 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID string) (*domain.Bike, error) {
 	query := `
 		SELECT 
-			id, user_id, registration_number, label, make, model, year, color, imei,
-			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
-			is_immobilized, created_at, updated_at
+			id, user_id, registration_number,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+			COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+			COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+			COALESCE(is_immobilized, false), created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 		LIMIT 1
@@ -81,13 +68,14 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	row := r.pool.QueryRow(ctx, query, userID, bikeID)
 
 	var b domain.Bike
-	var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
-
 	err := row.Scan(
-		&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
-		&riderNameVal, &riderIDVal, &riderPhoneVal,
+		&b.ID, &b.UserID, &b.RegistrationNumber,
+		&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
+		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
+		&b.Latitude, &b.Longitude,
+		&b.CurrentAddress, &b.SubCounty, &b.County,
+		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
+		&b.GeofenceID, &b.DriverContactID,
 		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 	)
 	if err != nil {
@@ -97,33 +85,20 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		return nil, err
 	}
 
-	if geofenceVal.Valid {
-		b.GeofenceID = geofenceVal.String
-	}
-	if driverVal.Valid {
-		b.DriverContactID = driverVal.String
-	}
-	if riderNameVal.Valid {
-		b.RiderName = riderNameVal.String
-	}
-	if riderIDVal.Valid {
-		b.RiderNationalID = riderIDVal.String
-	}
-	if riderPhoneVal.Valid {
-		b.RiderPhone = riderPhoneVal.String
-	}
-
 	return &b, nil
 }
 
 func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]domain.Bike, error) {
 	query := `
 		SELECT 
-			id, user_id, registration_number, label, make, model, year, color, imei,
-			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
-			is_immobilized, created_at, updated_at
+			id, user_id, registration_number,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+			COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+			COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+			COALESCE(is_immobilized, false), created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -137,31 +112,18 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]doma
 	var bikes []domain.Bike
 	for rows.Next() {
 		var b domain.Bike
-		var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 		err := rows.Scan(
-			&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
-			&riderNameVal, &riderIDVal, &riderPhoneVal,
+			&b.ID, &b.UserID, &b.RegistrationNumber,
+			&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
+			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
+			&b.Latitude, &b.Longitude,
+			&b.CurrentAddress, &b.SubCounty, &b.County,
+			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
+			&b.GeofenceID, &b.DriverContactID,
 			&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
-		}
-		if geofenceVal.Valid {
-			b.GeofenceID = geofenceVal.String
-		}
-		if driverVal.Valid {
-			b.DriverContactID = driverVal.String
-		}
-		if riderNameVal.Valid {
-			b.RiderName = riderNameVal.String
-		}
-		if riderIDVal.Valid {
-			b.RiderNationalID = riderIDVal.String
-		}
-		if riderPhoneVal.Valid {
-			b.RiderPhone = riderPhoneVal.String
 		}
 		bikes = append(bikes, b)
 	}
@@ -196,7 +158,6 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		return "", err
 	}
 
-	// State is already at desired value; avoid recording duplicate events
 	if currentImmobilized == isImmobilized {
 		return imei, nil
 	}
@@ -239,18 +200,6 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-	var riderNameVal any
-	if b.RiderName != "" {
-		riderNameVal = b.RiderName
-	}
-	var riderIDVal any
-	if b.RiderNationalID != "" {
-		riderIDVal = b.RiderNationalID
-	}
-	var riderPhoneVal any
-	if b.RiderPhone != "" {
-		riderPhoneVal = b.RiderPhone
-	}
 
 	query := `
 		UPDATE bikes
@@ -267,17 +216,13 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 			county = $10,
 			geofence_id = $11,
 			driver_contact_id = $12,
-			rider_name = $13,
-			rider_national_id = $14,
-			rider_phone = $15,
-			updated_at = $16
-		WHERE user_id = $17 AND id = $18
+			updated_at = $13
+		WHERE user_id = $14 AND id = $15
 	`
 	tag, err := tx.Exec(ctx, query,
 		b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color,
 		b.Status, b.CurrentAddress, b.SubCounty, b.County,
 		geofenceVal, driverVal,
-		riderNameVal, riderIDVal, riderPhoneVal,
 		b.UpdatedAt,
 		b.UserID, b.ID,
 	)
