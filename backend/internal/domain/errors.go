@@ -66,11 +66,18 @@ func NewTooManyRequestsError(detail string, instance string) ProblemDetails {
 }
 
 func NewInternalServerError(instance string) ProblemDetails {
+	return NewInternalServerErrorWithDetail("Internal server error", instance)
+}
+
+func NewInternalServerErrorWithDetail(detail, instance string) ProblemDetails {
+	if detail == "" {
+		detail = "Internal server error"
+	}
 	return ProblemDetails{
 		Type:     "https://motoguard.co.ke/errors/internal-server-error",
 		Title:    "Internal Server Error",
 		Status:   http.StatusInternalServerError,
-		Detail:   "Internal server error",
+		Detail:   detail,
 		Instance: instance,
 	}
 }

@@ -92,17 +92,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	sessionData, refreshToken, err := h.service.Login(r.Context(), req.Email, req.Password, ip, userAgent)
 	if err != nil {
 		if pd, ok := err.(domain.ProblemDetails); ok {
+			if pd.Status >= 500 {
+				slog.Error("Login 500 internal error", "email", req.Email, "detail", pd.Detail, "instance", pd.Instance)
+			} else {
+				slog.Warn("Login client error", "email", req.Email, "status", pd.Status, "detail", pd.Detail)
+			}
 			pd.WriteJSON(w)
 			return
 		}
 		slog.Error("Login unhandled internal error", "email", req.Email, "error", err)
-		domain.ProblemDetails{
-			Type:     "https://motoguard.co.ke/errors/internal-server-error",
-			Title:    "Internal Server Error",
-			Status:   http.StatusInternalServerError,
-			Detail:   err.Error(),
-			Instance: r.URL.Path,
-		}.WriteJSON(w)
+		domain.NewInternalServerErrorWithDetail(err.Error(), r.URL.Path).WriteJSON(w)
 		return
 	}
 
