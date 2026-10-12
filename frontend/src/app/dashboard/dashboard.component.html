@@ -1,5 +1,228 @@
 <div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden select-none">
-  <aside class="w-72 bg-white border-r border-zinc-200 flex flex-col justify-between shrink-0 z-30">
+  @if (mobileDrawerOpen()) {
+    <div
+      (click)="closeMobileDrawer()"
+      class="fixed inset-0 bg-zinc-900/50 backdrop-blur-xs z-50 lg:hidden transition-opacity"
+    ></div>
+
+    <aside
+      class="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white z-50 lg:hidden flex flex-col justify-between shadow-2xl border-r border-zinc-200 animate-in slide-in-from-left duration-200"
+    >
+      <div>
+        <div class="h-16 px-6 flex items-center justify-between border-b border-zinc-100">
+          <div class="flex items-center gap-3.5">
+            <div
+              class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+          </div>
+          <button
+            type="button"
+            (click)="closeMobileDrawer()"
+            class="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        <nav class="p-4 space-y-1.5">
+          <a
+            routerLink="/"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold bg-zinc-900 text-white cursor-pointer shadow-xs transition-colors"
+          >
+            <svg
+              class="w-5 h-5 text-white shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              />
+            </svg>
+            Home
+          </a>
+
+          <a
+            routerLink="/bikes"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+              />
+            </svg>
+            Bikes
+          </a>
+
+          <a
+            routerLink="/history"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            History
+          </a>
+
+          <a
+            href="#geofence"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+          >
+            <svg
+              class="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            Geofence
+          </a>
+
+          <a
+            routerLink="/alerts"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+            Alerts
+          </a>
+
+          <a
+            routerLink="/settings"
+            (click)="closeMobileDrawer()"
+            class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            Settings
+          </a>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-zinc-100">
+        <div
+          class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <div
+              class="w-10 h-10 rounded-full bg-zinc-900 text-white font-bold text-sm flex items-center justify-center shrink-0"
+            >
+              {{ getUserInitials() }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-zinc-900 truncate">
+                {{ authService.currentUser()?.name || 'Rider' }}
+              </p>
+              <p class="text-xs text-zinc-500 truncate">
+                {{ authService.currentUser()?.email || 'operator@mototrack.ke' }}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="handleLogout()"
+            title="Log out"
+            class="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+  }
+
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
     <div>
       <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
         <div
@@ -200,15 +423,32 @@
 
   <div class="flex-1 flex flex-col h-full relative overflow-hidden">
     <header
-      class="h-20 bg-white border-b border-zinc-200 px-8 flex items-center justify-between shrink-0 z-20"
+      class="h-16 lg:h-20 bg-white border-b border-zinc-200 px-4 lg:px-8 flex items-center justify-between shrink-0 z-20"
     >
-      <div class="flex items-center gap-6">
-        <div class="flex items-center gap-2.5">
-          <span class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">My Ride</span>
+      <div class="flex items-center gap-3 lg:gap-6 min-w-0">
+        <button
+          type="button"
+          (click)="toggleMobileDrawer()"
+          title="Open Menu"
+          class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer shrink-0"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-2 lg:gap-2.5 min-w-0">
+          <span class="text-xs lg:text-sm font-semibold text-zinc-400 uppercase tracking-wider shrink-0">My Ride</span>
           @if (bikeList().length > 0) {
-            <span class="text-zinc-300 font-bold">/</span>
-            <span id="headerPlateLabel" class="text-base font-bold text-zinc-900">
-              {{ selectedBike().plate }} ({{ selectedBike().model }})
+            <span class="text-zinc-300 font-bold shrink-0">/</span>
+            <span id="headerPlateLabel" class="text-sm lg:text-base font-bold text-zinc-900 truncate">
+              {{ selectedBike().plate }} <span class="hidden sm:inline">({{ selectedBike().model }})</span>
             </span>
           }
         </div>
@@ -216,23 +456,23 @@
         @if (isBreachActive()) {
           <div
             id="alertBanner"
-            class="flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-2 rounded-full text-sm font-semibold"
+            class="flex items-center gap-1.5 lg:gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 lg:px-4 py-1 lg:py-2 rounded-full text-xs lg:text-sm font-semibold truncate"
           >
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
-            <span id="alertBannerText">{{ alertBannerText() }}</span>
+            <span class="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-rose-600 shrink-0"></span>
+            <span id="alertBannerText" class="truncate">{{ alertBannerText() }}</span>
           </div>
         }
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 lg:gap-4 shrink-0">
         @if (bikeList().length > 0) {
           <button
             type="button"
             (click)="simulateSuddenStop()"
-            class="h-12 px-5 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-900 text-sm font-bold flex items-center gap-2 cursor-pointer transition-colors"
+            class="h-10 lg:h-12 px-3 lg:px-5 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-900 text-xs lg:text-sm font-bold flex items-center gap-1.5 lg:gap-2 cursor-pointer transition-colors"
           >
             <svg
-              class="w-5 h-5 text-rose-500"
+              class="w-4 h-4 lg:w-5 lg:h-5 text-rose-500 shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -244,16 +484,17 @@
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <span>Simulate Stop</span>
+            <span class="hidden sm:inline">Simulate Stop</span>
+            <span class="sm:hidden">Stop</span>
           </button>
 
           <button
             type="button"
             (click)="toggleGeofenceModal(true)"
-            class="h-12 px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold flex items-center gap-2.5 cursor-pointer shadow-xs transition-colors"
+            class="h-10 lg:h-12 px-3.5 lg:px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs lg:text-sm font-bold flex items-center gap-1.5 lg:gap-2.5 cursor-pointer shadow-xs transition-colors"
           >
             <svg
-              class="w-5 h-5"
+              class="w-4 h-4 lg:w-5 lg:h-5 shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -261,7 +502,8 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            <span>Create Geofence</span>
+            <span class="hidden sm:inline">Create Geofence</span>
+            <span class="sm:hidden">Geofence</span>
           </button>
         }
       </div>
@@ -276,10 +518,10 @@
         style="width: 100%; height: 100%"
       ></div>
 
-      <!-- Left Floating Card (Scaled Up: top-6 left-6 bottom-6 w-[460px] with Thumb-Sized Targets) -->
+      <!-- Left Floating Card (Tablet & Desktop: lg:w-[460px] untouched, md:w-[380px]) -->
       <div
         id="floatingInspector"
-        class="absolute top-6 left-6 bottom-6 w-[460px] bg-white rounded-3xl border border-zinc-200/90 shadow-2xl flex flex-col z-10 overflow-hidden"
+        class="hidden md:flex absolute top-6 left-6 bottom-6 w-[380px] lg:w-[460px] bg-white rounded-3xl border border-zinc-200/90 shadow-2xl flex-col z-10 overflow-hidden"
       >
         <!-- Top Half: Selected Motorcycle Telemetry (divide-y divide-zinc-100 p-7 pb-5 shrink-0) -->
         @if (bikeList().length > 0) {
@@ -764,9 +1006,206 @@
         }
       </div>
 
-      <!-- Map Zoom Controls (Bottom Right - Thumb-Sized 48px) -->
+      <!-- Mobile Bottom Sheet (Phone View < md) -->
+      @if (bikeList().length > 0) {
+        <div
+          id="mobileBottomSheet"
+          class="md:hidden absolute bottom-0 inset-x-0 bg-white rounded-t-3xl border-t border-zinc-200/90 shadow-2xl flex flex-col z-20 transition-all duration-300 ease-in-out"
+          [ngClass]="mobileSheetExpanded() ? 'max-h-[85vh]' : 'max-h-28 pb-2'"
+        >
+          <!-- Grab Handle & Peek Row -->
+          <div
+            (click)="toggleMobileSheet()"
+            class="pt-2.5 pb-2 px-5 cursor-pointer shrink-0 border-b border-zinc-100 flex flex-col items-center select-none"
+          >
+            <!-- Drag Handle Pill -->
+            <div class="w-10 h-1 bg-zinc-300 rounded-full mb-2"></div>
+
+            <div class="w-full flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-bold text-zinc-950 tracking-tight leading-none truncate">
+                    {{ selectedBike().plate }}
+                  </h2>
+                  <span class="text-xs text-zinc-400 font-medium truncate">
+                    {{ selectedBike().model }}
+                  </span>
+                </div>
+                <p class="font-mono text-xs font-bold text-zinc-600 mt-1 truncate">
+                  {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }} • {{ getLastSeen(selectedBike()) }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                @if (selectedBike().isImmobilized) {
+                  <span class="h-8 px-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                    </span>
+                    IMMOBILIZED
+                  </span>
+                } @else {
+                  <span
+                    class="h-8 px-3 rounded-full border text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
+                    [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-zinc-100 border-zinc-200 text-zinc-900'"
+                  >
+                    <span class="relative flex h-2 w-2">
+                      <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                        [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-400' : 'bg-zinc-400'"
+                      ></span>
+                      <span
+                        class="relative inline-flex rounded-full h-2 w-2"
+                        [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-500' : 'bg-zinc-500'"
+                      ></span>
+                    </span>
+                    {{ selectedBike().movementStatus | uppercase }}
+                  </span>
+                }
+
+                <button
+                  type="button"
+                  class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer"
+                  [title]="mobileSheetExpanded() ? 'Collapse' : 'Expand'"
+                >
+                  <svg
+                    class="w-4 h-4 transition-transform duration-200"
+                    [ngClass]="mobileSheetExpanded() ? 'rotate-180' : ''"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded Telemetry Details (Scrollable) -->
+          @if (mobileSheetExpanded()) {
+            <div class="p-5 divide-y divide-zinc-100 overflow-y-auto flex-1 overscroll-contain">
+              <!-- Speed & Ignition Row -->
+              <div class="pb-3 flex items-center justify-between gap-4">
+                <div>
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Current Speed</span>
+                  <p class="font-mono text-base font-bold text-zinc-950 mt-0.5">
+                    {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
+                  <p class="text-base font-bold mt-0.5" [ngClass]="selectedBike().speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
+                    {{ selectedBike().speedText.includes('ON') ? 'ON' : 'OFF' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Location & Recenter -->
+              <div class="py-3">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Current Location</span>
+                <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5">
+                  {{ selectedBike().address }}
+                </p>
+                <p class="font-sans text-xs text-zinc-500 mt-0.5">
+                  {{ selectedBike().subCounty }}, {{ selectedBike().county }}
+                </p>
+                <div class="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    (click)="recenterMap()"
+                    class="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3m-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>Center Map</span>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="copyCoordinates()"
+                    class="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-mono font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>{{ selectedBike().lat.toFixed(4) }}, {{ selectedBike().lng.toFixed(4) }}</span>
+                    <span>{{ copiedCoordinates() ? '✓' : '⧉' }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Assigned Rider -->
+              <div class="py-3">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Assigned Rider</span>
+                <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5">
+                  {{ selectedBike().riderName }}
+                </p>
+                <div class="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 font-mono">
+                  <span>ID: {{ selectedBike().riderNationalId }}</span>
+                  <span>•</span>
+                  <a
+                    *ngIf="selectedBike().riderPhone && selectedBike().riderPhone !== 'N/A'"
+                    [href]="'tel:' + selectedBike().riderPhone"
+                    class="text-indigo-600 underline font-semibold"
+                  >
+                    {{ selectedBike().riderPhone }}
+                  </a>
+                  <span *ngIf="!selectedBike().riderPhone || selectedBike().riderPhone === 'N/A'">N/A</span>
+                </div>
+              </div>
+
+              <!-- Immobilize Action -->
+              @if (selectedBike().id) {
+                <div class="pt-3 pb-2">
+                  <button
+                    type="button"
+                    (click)="toggleImmobilize(selectedBike())"
+                    class="w-full rounded-2xl p-3.5 text-left flex items-center justify-between text-white transition-all cursor-pointer"
+                    [ngClass]="{
+                      'bg-rose-600 hover:bg-rose-700': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Stationary',
+                      'bg-amber-500 hover:bg-amber-600': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Moving',
+                      'bg-emerald-600 hover:bg-emerald-700': selectedBike().isImmobilized
+                    }"
+                  >
+                    <div>
+                      <h3 class="font-bold text-base tracking-tight">
+                        {{ selectedBike().isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
+                      </h3>
+                      <p class="text-xs text-white/80 mt-0.5">
+                        {{ selectedBike().isImmobilized ? 'Tap to re-enable electrical starter.' : 'Disable starter motor.' }}
+                      </p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                      <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Mobile No Motorcycle Banner -->
+        <div class="md:hidden absolute bottom-4 inset-x-4 bg-white rounded-2xl border border-zinc-200 shadow-xl p-4 flex items-center justify-between gap-3 z-20">
+          <div>
+            <h3 class="font-bold text-sm text-zinc-900">No Motorcycle Found</h3>
+            <p class="text-xs text-zinc-500">Register to start tracking.</p>
+          </div>
+          <button
+            type="button"
+            (click)="openRegisterModal()"
+            class="px-4 py-2 rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 cursor-pointer"
+          >
+            Register
+          </button>
+        </div>
+      }
+
+      <!-- Map Zoom Controls (Repositioned on mobile to avoid bottom sheet) -->
       <div
-        class="absolute bottom-6 right-6 flex flex-col bg-white border border-zinc-200 rounded-2xl shadow-md overflow-hidden z-10"
+        class="absolute bottom-36 md:bottom-6 right-4 md:right-6 flex flex-col bg-white border border-zinc-200 rounded-2xl shadow-md overflow-hidden z-10"
       >
         <button
           type="button"

@@ -92,6 +92,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly duressCountdown = signal<number>(30);
   readonly copiedCoordinates = signal<boolean>(false);
   readonly currentTime = signal<number>(Date.now());
+  readonly mobileDrawerOpen = signal<boolean>(false);
+  readonly mobileSheetExpanded = signal<boolean>(false);
   private tickerInterval?: ReturnType<typeof setInterval>;
   private pollInterval?: ReturnType<typeof setInterval>;
   private duressInterval?: ReturnType<typeof setInterval>;
@@ -528,6 +530,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleGeofenceModal(open: boolean): void {
     this.showGeofenceModal.set(open);
+  }
+
+  toggleMobileDrawer(open?: boolean): void {
+    const nextState = open !== undefined ? open : !this.mobileDrawerOpen();
+    this.mobileDrawerOpen.set(nextState);
+    setTimeout(() => this.map?.invalidateSize(), 300);
+  }
+
+  closeMobileDrawer(): void {
+    this.mobileDrawerOpen.set(false);
+  }
+
+  toggleMobileSheet(): void {
+    this.mobileSheetExpanded.update((v) => !v);
+    setTimeout(() => this.map?.invalidateSize(), 300);
+  }
+
+  expandMobileSheet(): void {
+    this.mobileSheetExpanded.set(true);
+    setTimeout(() => this.map?.invalidateSize(), 300);
+  }
+
+  collapseMobileSheet(): void {
+    this.mobileSheetExpanded.set(false);
+    setTimeout(() => this.map?.invalidateSize(), 300);
   }
 
   saveGeofence(e?: Event): void {
