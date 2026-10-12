@@ -98,15 +98,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		Path:     "/v1/sessions",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, refreshToken, time.Now().Add(7*24*time.Hour), int(7*24*time.Hour.Seconds()))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -145,15 +137,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    newRefreshToken,
-		Path:     "/v1/sessions",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, newRefreshToken, time.Now().Add(7*24*time.Hour), int(7*24*time.Hour.Seconds()))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -173,16 +157,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.service.Logout(r.Context(), rawRefreshToken)
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		Path:     "/v1/sessions",
-		Expires:  time.Unix(0, 0),
-		MaxAge:   -1,
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, "", time.Unix(0, 0), -1)
 
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -283,4 +258,24 @@ func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Reques
 	_ = json.NewEncoder(w).Encode(domain.MessageResponse{
 		Message: "Password has been successfully updated. All active sessions have been revoked.",
 	})
+}
+
+func setSessionCookie(w http.ResponseWriter, r *http.Request, value string, expires time.Time, maxAge int) {
+	isHTTPS := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
+	cookie := &http.Cookie{
+		Name:     "refresh_token",
+		Value:    value,
+		Path:     "/v1/sessions",
+		Expires:  expires,
+		MaxAge:   maxAge,
+		HttpOnly: true,
+	}
+	if isHTTPS {
+		cookie.Secure = true
+		cookie.SameSite = http.SameSiteNoneMode
+	} else {
+		cookie.Secure = false
+		cookie.SameSite = http.SameSiteLaxMode
+	}
+	http.SetCookie(w, cookie)
 }

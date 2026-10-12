@@ -59,12 +59,14 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("JWT_SECRET environment variable is required")
 	}
 
-	origins := getEnvSlice("CORS_ORIGINS", []string{"http://localhost:4200"})
+	origins := getEnvSlice("CORS_ORIGINS", []string{
+		"https://mxguard.jullie.tech",
+		"http://mxguard.jullie.tech",
+		"*.jullie.tech",
+		"*.vercel.app",
+	})
 
-	defaultFrontendURL := "http://localhost:4200"
-	if len(origins) > 0 && origins[0] != "*" {
-		defaultFrontendURL = origins[0]
-	}
+	defaultFrontendURL := "https://mxguard.jullie.tech"
 
 	return Config{
 		Port:                getEnv("PORT", "8080"),

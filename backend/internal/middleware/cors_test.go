@@ -33,4 +33,25 @@ func TestCORSMiddleware(t *testing.T) {
 	if origin := rrDisallowed.Header().Get("Access-Control-Allow-Origin"); origin != "" {
 		t.Fatalf("expected no CORS origin for disallowed origin, got %s", origin)
 	}
+
+	// Test wildcard domain *.jullie.tech with mxguard.jullie.tech
+	wildcardHandler := CORSMiddleware([]string{"*.jullie.tech"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	reqWildcard := httptest.NewRequest(http.MethodOptions, "/v1/sessions", nil)
+	reqWildcard.Header.Set("Origin", "https://mxguard.jullie.tech")
+	reqWildcard.Header.Set("Access-Control-Request-Headers", "content-type, authorization")
+	rrWildcard := httptest.NewRecorder()
+	wildcardHandler.ServeHTTP(rrWildcard, reqWildcard)
+
+	if rrWildcard.Code != http.StatusNoContent {
+		t.Fatalf("expected 204 No Content on wildcard OPTIONS, got %d", rrWildcard.Code)
+	}
+	if origin := rrWildcard.Header().Get("Access-Control-Allow-Origin"); origin != "https://mxguard.jullie.tech" {
+		t.Fatalf("expected CORS origin https://mxguard.jullie.tech, got %s", origin)
+	}
+	if allowHeaders := rrWildcard.Header().Get("Access-Control-Allow-Headers"); allowHeaders != "content-type, authorization" {
+		t.Fatalf("expected echoed headers, got %s", allowHeaders)
+	}
 }
