@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/argon2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -53,11 +52,6 @@ func HashPassword(password string, p *Argon2Params) (string, error) {
 }
 
 func VerifyPassword(password, encodedHash string) (bool, error) {
-	if strings.HasPrefix(encodedHash, "$2a$") || strings.HasPrefix(encodedHash, "$2b$") || strings.HasPrefix(encodedHash, "$2y$") {
-		err := bcrypt.CompareHashAndPassword([]byte(encodedHash), []byte(password))
-		return err == nil, nil
-	}
-
 	parts := strings.Split(encodedHash, "$")
 	if len(parts) != 6 {
 		return false, ErrInvalidHash
