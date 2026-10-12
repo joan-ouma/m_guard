@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -39,7 +39,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 	opts.SetKeepAlive(30 * time.Second)
 
 	opts.SetConnectionLostHandler(func(c pahomqtt.Client, err error) {
-		log.Printf("[MQTT] Connection lost: %v", err)
+		slog.Warn("MQTT connection lost", "error", err)
 	})
 
 	if username != "" {
@@ -51,7 +51,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 
 	handler := func(c pahomqtt.Client, m pahomqtt.Message) {
 		topic := m.Topic()
-		log.Printf("[MQTT Incoming] Topic: %s, Size: %d bytes, Payload: %s", topic, len(m.Payload()), string(m.Payload()))
+		slog.Info("MQTT incoming message", "topic", topic, "bytes", len(m.Payload()))
 
 		parts := strings.Split(topic, "/")
 		sensorID := ""
@@ -63,7 +63,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		if strings.Contains(topic, "/alert") || strings.Contains(topic, "/events") {
 			var alert domain.AlertPayload
 			if err := json.Unmarshal(m.Payload(), &alert); err != nil {
-				log.Printf("[MQTT Alert] invalid json payload from %s: %v", topic, err)
+				slog.Error("MQTT alert invalid json payload", "topic", topic, "error", err)
 				return
 			}
 
@@ -93,9 +93,9 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 
 			// 1. Record the burglary/tamper alert event
 			if err := telemetryService.IngestEvent(ingestCtx, sensorID, reason, alert.Latitude, alert.Longitude, recTime); err != nil {
-				log.Printf("[MQTT Alert] failed to ingest event %s for sensor %s: %v", reason, sensorID, err)
+				slog.Error("MQTT alert failed to ingest event", "reason", reason, "sensor_id", sensorID, "error", err)
 			} else {
-				log.Printf("[MQTT Alert] Recorded alert [%s] for sensor %s at (%.6f, %.6f)", reason, sensorID, alert.Latitude, alert.Longitude)
+				slog.Info("MQTT alert recorded", "reason", reason, "sensor_id", sensorID, "lat", alert.Latitude, "lng", alert.Longitude)
 			}
 
 			// 2. Ingest telemetry so live map position & status update immediately
@@ -125,7 +125,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		// Handle Periodic Telemetry (Normal Tracking)
 		var payload domain.TelemetryPayload
 		if err := json.Unmarshal(m.Payload(), &payload); err != nil {
-			log.Printf("[MQTT Telemetry] invalid json payload from %s: %v", topic, err)
+			slog.Error("MQTT telemetry invalid json payload", "topic", topic, "error", err)
 			return
 		}
 
@@ -153,10 +153,9 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		defer cancel()
 
 		if err := telemetryService.IngestTelemetry(ingestCtx, payload); err != nil {
-			log.Printf("[MQTT Telemetry] failed to ingest telemetry for sensor %s: %v", payload.SensorID, err)
+			slog.Error("MQTT telemetry failed to ingest", "sensor_id", payload.SensorID, "error", err)
 		} else {
-			log.Printf("[MQTT Telemetry] Ingested sensor %s (loc=%s, lat=%.6f, lng=%.6f, ign=%v, spd=%.1f)",
-				payload.SensorID, payload.LocType, payload.Latitude, payload.Longitude, payload.Ignition, payload.SpeedKMH)
+			slog.Info("MQTT telemetry ingested", "sensor_id", payload.SensorID, "loc_type", payload.LocType, "lat", payload.Latitude, "lng", payload.Longitude, "ignition", payload.Ignition, "speed", payload.SpeedKMH)
 		}
 
 		// If telemetry also includes an active alert flag or reason
@@ -166,7 +165,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 	}
 
 	opts.SetOnConnectHandler(func(c pahomqtt.Client) {
-		log.Printf("MQTT connected / reconnected. Subscribing to topics: %s", strings.Join(topics, ", "))
+		slog.Info("MQTT connected / reconnected", "topics", topics)
 		for _, top := range topics {
 			c.Subscribe(top, 1, handler)
 		}
@@ -214,6 +213,6 @@ func (s *MQTTSubscriber) PublishCommand(imei string, action string) error {
 	}
 	token := s.client.Publish(topic, 1, false, payload)
 	token.Wait()
-	log.Printf("[MQTT] Published command %s to topic %s", action, topic)
+	slog.Info("MQTT published command", "action", action, "topic", topic)
 	return token.Error()
 }

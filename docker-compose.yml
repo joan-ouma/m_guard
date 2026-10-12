@@ -28,7 +28,6 @@ services:
       PORT: 8080
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-motoguard}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-motoguard-production-enterprise-secret-key-32bytes}
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://mxguard.jullie.tech,http://mxguard.jullie.tech,*.jullie.tech,*.vercel.app}
       MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://mqtt:1883}
       MQTT_USERNAME: ${MQTT_USERNAME:-}
       MQTT_PASSWORD: ${MQTT_PASSWORD:-}
@@ -38,6 +37,9 @@ services:
       MAILJET_SENDER_EMAIL: ${MAILJET_SENDER_EMAIL:-no-reply@jullie.tech}
       MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
       MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MGuard}
+      LOG_FILE: ${LOG_FILE:-/var/log/fleet/fleet.log}
+    volumes:
+      - ./logs:/var/log/fleet
     ports:
       - "8080:8080"
     depends_on:

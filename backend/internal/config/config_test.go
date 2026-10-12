@@ -14,10 +14,15 @@ func TestConfigLoad_Mailjet(t *testing.T) {
 	os.Setenv("MAILJET_REPLY_TO_EMAIL", "hello@jullie.tech")
 	os.Setenv("MAILJET_SENDER_NAME", "MotoGuard")
 	os.Setenv("FRONTEND_URL", "http://localhost:4200")
+	os.Setenv("LOG_FILE", "/var/log/motoguard.log")
 
 	cfg, err := Load()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if cfg.LogFile != "/var/log/motoguard.log" {
+		t.Errorf("expected LogFile %q, got %q", "/var/log/motoguard.log", cfg.LogFile)
 	}
 
 	if cfg.MailjetAPIKey != "test-api-key" {

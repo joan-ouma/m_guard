@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"sync"
@@ -200,7 +200,7 @@ func (g *ReverseGeocoder) fromBigDataCloud(ctx context.Context, lat, lng float64
 		formatted = fmt.Sprintf("%s, %s", formatted, county)
 	}
 
-	log.Printf("[Reverse Geocoding] Resolved BigDataCloud (%.6f, %.6f) -> %s", lat, lng, formatted)
+	slog.Info("Reverse Geocoding resolved BigDataCloud", "lat", lat, "lng", lng, "formatted", formatted)
 
 	return AddressInfo{
 		FormattedAddress: formatted,

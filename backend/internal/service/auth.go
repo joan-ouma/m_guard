@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -320,7 +320,7 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 		if err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL); err != nil {
-			log.Printf("[AuthService] failed to send password reset email to %s: %v", userEmail, err)
+			slog.Error("failed to send password reset email", "email", userEmail, "error", err)
 		}
 	}()
 
@@ -388,7 +388,7 @@ func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPas
 			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 			defer cancel()
 			if err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName); err != nil {
-				log.Printf("[AuthService] failed to send password changed confirmation email to %s: %v", userEmail, err)
+				slog.Error("failed to send password changed confirmation email", "email", userEmail, "error", err)
 			}
 		}()
 	}

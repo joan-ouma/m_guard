@@ -3,7 +3,6 @@
 DATABASE_URL ?= postgres://postgres:postgres@localhost:5433/motoguard?sslmode=disable
 JWT_SECRET ?= motoguard-production-enterprise-secret-key-32bytes
 PORT ?= 8080
-CORS_ORIGINS ?= https://mxguard.jullie.tech,http://mxguard.jullie.tech,*.jullie.tech,*.vercel.app
 MQTT_BROKER_URL ?= tcp://localhost:1883
 MQTT_USERNAME ?= tracker
 MQTT_PASSWORD ?= ~:!Nu2>#6TDe5Y+
@@ -13,6 +12,7 @@ MAILJET_SECRET_KEY ?= b5cd5867d7906029a7fd2debad0cc8a4
 MAILJET_SENDER_EMAIL ?= no-reply@jullie.tech
 MAILJET_REPLY_TO_EMAIL ?= hello@jullie.tech
 MAILJET_SENDER_NAME ?= MGuard
+LOG_FILE ?= ./logs/app.log
 
 all: run
 

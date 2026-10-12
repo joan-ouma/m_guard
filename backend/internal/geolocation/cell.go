@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"sync"
 	"time"
@@ -58,7 +58,7 @@ func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (flo
 
 	// 1. Try OpenCelliD direct lookup
 	if lat, lon, ok := r.fromOpenCelliD(ctx, mcc, mnc, lac, cid); ok {
-		log.Printf("[LBS Geolocation - OpenCelliD] Resolved tower %s -> (%.6f, %.6f)", key, lat, lon)
+		slog.Info("LBS Geolocation OpenCelliD resolved tower", "tower", key, "lat", lat, "lon", lon)
 		r.cacheMu.Lock()
 		r.cache[key] = Coordinates{
 			Latitude:  lat,
@@ -72,7 +72,7 @@ func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (flo
 
 	// 2. Try BeaconDB lookup
 	if lat, lon, ok := r.fromBeaconDB(ctx, mcc, mnc, lac, cid); ok {
-		log.Printf("[LBS Geolocation - BeaconDB] Resolved tower %s -> (%.6f, %.6f)", key, lat, lon)
+		slog.Info("LBS Geolocation BeaconDB resolved tower", "tower", key, "lat", lat, "lon", lon)
 		r.cacheMu.Lock()
 		r.cache[key] = Coordinates{
 			Latitude:  lat,

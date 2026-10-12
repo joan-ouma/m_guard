@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -125,12 +125,12 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.Create(ctx, tx, &bike); err != nil {
-		log.Printf("[CreateBike] repo.Create error: %v", err)
+		slog.Error("CreateBike repo.Create error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		log.Printf("[CreateBike] tx.Commit error: %v", err)
+		slog.Error("CreateBike tx.Commit error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
 

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	htmlTemplate "html/template"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -98,7 +98,7 @@ func NewMailjetMailer(apiKey, secretKey, senderEmail, senderName, replyToEmail s
 
 	tmpl, err := htmlTemplate.ParseFS(templateFS, "templates/*.html")
 	if err != nil {
-		log.Printf("[MailjetMailer] Warning: error parsing email templates: %v", err)
+		slog.Warn("Mailjet error parsing email templates", "error", err)
 	}
 
 	return &MailjetMailer{
@@ -335,21 +335,21 @@ MotoGuard &bull; Fleet Tracking & Security`,
 type NoopMailer struct{}
 
 func (n *NoopMailer) SendPasswordResetEmail(ctx context.Context, toEmail, toName, resetURL string) error {
-	log.Printf("[NoopMailer] Password reset email for %s <%s>: %s", toName, toEmail, resetURL)
+	slog.Info("NoopMailer password reset email", "to_name", toName, "to_email", toEmail, "reset_url", resetURL)
 	return nil
 }
 
 func (n *NoopMailer) SendPasswordChangedEmail(ctx context.Context, toEmail, toName string) error {
-	log.Printf("[NoopMailer] Password changed confirmation email for %s <%s>", toName, toEmail)
+	slog.Info("NoopMailer password changed confirmation email", "to_name", toName, "to_email", toEmail)
 	return nil
 }
 
 func (n *NoopMailer) SendGeofenceBreachAlertEmail(ctx context.Context, toEmail, toName string, data GeofenceAlertData) error {
-	log.Printf("[NoopMailer] Geofence breach alert email for %s: %s", data.BikeRegistration, data.GeofenceName)
+	slog.Info("NoopMailer geofence breach alert email", "bike", data.BikeRegistration, "geofence", data.GeofenceName)
 	return nil
 }
 
 func (n *NoopMailer) SendBikeTouchedAlertEmail(ctx context.Context, toEmail, toName string, data BikeTouchedAlertData) error {
-	log.Printf("[NoopMailer] Bike touched alert email for %s", data.BikeRegistration)
+	slog.Info("NoopMailer bike touched alert email", "bike", data.BikeRegistration)
 	return nil
 }

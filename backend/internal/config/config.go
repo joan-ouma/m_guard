@@ -10,7 +10,6 @@ type Config struct {
 	Port                string
 	DatabaseURL         string
 	JWTSecret           string
-	CORSOrigins         []string
 	MQTTBrokerURL       string
 	MQTTUsername        string
 	MQTTPassword        string
@@ -20,6 +19,7 @@ type Config struct {
 	MailjetReplyToEmail string
 	MailjetSenderName   string
 	FrontendURL         string
+	LogFile             string
 }
 
 func getEnv(key, fallback string) string {
@@ -27,25 +27,6 @@ func getEnv(key, fallback string) string {
 		return val
 	}
 	return fallback
-}
-
-func getEnvSlice(key string, fallback []string) []string {
-	raw := strings.TrimSpace(os.Getenv(key))
-	if raw == "" {
-		return fallback
-	}
-
-	var items []string
-	for _, item := range strings.Split(raw, ",") {
-		if trimmed := strings.TrimSpace(item); trimmed != "" {
-			items = append(items, trimmed)
-		}
-	}
-
-	if len(items) == 0 {
-		return fallback
-	}
-	return items
 }
 
 func Load() (Config, error) {
@@ -59,20 +40,12 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("JWT_SECRET environment variable is required")
 	}
 
-	origins := getEnvSlice("CORS_ORIGINS", []string{
-		"https://mxguard.jullie.tech",
-		"http://mxguard.jullie.tech",
-		"*.jullie.tech",
-		"*.vercel.app",
-	})
-
 	defaultFrontendURL := "https://mxguard.jullie.tech"
 
 	return Config{
 		Port:                getEnv("PORT", "8080"),
 		DatabaseURL:         dbURL,
 		JWTSecret:           jwtSecret,
-		CORSOrigins:         origins,
 		MQTTBrokerURL:       getEnv("MQTT_BROKER_URL", "tcp://localhost:1883"),
 		MQTTUsername:        getEnv("MQTT_USERNAME", "tracker"),
 		MQTTPassword:        getEnv("MQTT_PASSWORD", "~:!Nu2>#6TDe5Y+"),
@@ -82,5 +55,6 @@ func Load() (Config, error) {
 		MailjetReplyToEmail: getEnv("MAILJET_REPLY_TO_EMAIL", "hello@jullie.tech"),
 		MailjetSenderName:   getEnv("MAILJET_SENDER_NAME", "MGuard"),
 		FrontendURL:         getEnv("FRONTEND_URL", defaultFrontendURL),
+		LogFile:             getEnv("LOG_FILE", "/var/log/fleet/fleet.log"),
 	}, nil
 }
