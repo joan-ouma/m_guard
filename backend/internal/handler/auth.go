@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -94,6 +95,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			pd.WriteJSON(w)
 			return
 		}
+		slog.Error("Login unhandled internal error", "email", req.Email, "error", err)
 		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
 		return
 	}

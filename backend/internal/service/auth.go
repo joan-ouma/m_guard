@@ -109,23 +109,28 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
+			slog.Warn("Login failed: user not found", "email", email)
 			return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 		}
+		slog.Error("Login failed: database error", "email", email, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	matched, err := security.VerifyPassword(password, user.PasswordHash)
 	if err != nil || !matched {
+		slog.Warn("Login failed: invalid password", "email", email)
 		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 	}
 
 	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID)
 	if err != nil {
+		slog.Error("Login failed: access token error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	rawRefreshToken, err := security.GenerateRandomToken(32)
 	if err != nil {
+		slog.Error("Login failed: refresh token error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
@@ -145,17 +150,22 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
+		slog.Error("Login failed: pool.Begin error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.CreateSession(ctx, tx, session); err != nil {
+		slog.Error("Login failed: CreateSession error", "user_id", user.ID, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+		slog.Error("Login failed: tx.Commit error", "user_id", user.ID, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
+
+	slog.Info("User logged in successfully", "user_id", user.ID, "email", user.Email)
 
 	sessionData := &domain.SessionData{
 		AccessToken: accessToken,
