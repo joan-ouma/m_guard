@@ -138,6 +138,7 @@ func (r *TelemetryRepository) SaveTelemetry(
 	`
 	_, _ = tx.Exec(ctx, updateTrackerQuery, recordedAt, sensorID)
 
+<<<<<<< HEAD
 	var addrVal, subCountyVal, countyVal any
 	if address != "" && address != "Calculating..." {
 		addrVal = address
@@ -205,6 +206,42 @@ func (r *TelemetryRepository) SaveTelemetry(
 	`
 	_, err := tx.Exec(ctx, updateBikeQuery,
 		speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
+=======
+	updateBikeQuery := `
+		UPDATE bikes
+		SET
+			latitude = $1,
+			longitude = $2,
+			current_address = COALESCE(NULLIF($3, ''), current_address),
+			sub_county = COALESCE(NULLIF($4, ''), sub_county),
+			county = COALESCE(NULLIF($5, ''), county),
+			speed_kmh = $6,
+			heading_deg = $7,
+			status = $8,
+			ignition = $9,
+			battery_percent = $10,
+			signal_quality_csq = $11,
+			last_telemetry_at = $12,
+			updated_at = $12
+		WHERE id = $13
+	`
+	_, err := tx.Exec(ctx, updateBikeQuery,
+		lat, lng, address, subCounty, county, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
+	)
+	if err != nil {
+		return err
+	}
+
+	insertBreadcrumbQuery := `
+		INSERT INTO bike_breadcrumbs (
+			bike_id, latitude, longitude, heading_deg, speed_kmh, ignition, battery_percent, geofence_breach, recorded_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8, $9
+		)
+	`
+	_, err = tx.Exec(ctx, insertBreadcrumbQuery,
+		bikeID, lat, lng, heading, speed, ignition, battery, breach, recordedAt,
+>>>>>>> origin/main
 	)
 	return err
 }
@@ -224,6 +261,7 @@ func (r *TelemetryRepository) SaveEvent(
 	lng float64,
 	recordedAt time.Time,
 ) error {
+<<<<<<< HEAD
 	if lat == 0 && lng == 0 {
 		// Use bike's last known location
 		_ = r.pool.QueryRow(ctx, `SELECT latitude, longitude FROM bikes WHERE id = $1`, bikeID).Scan(&lat, &lng)
@@ -231,6 +269,8 @@ func (r *TelemetryRepository) SaveEvent(
 	if lat == 0 && lng == 0 {
 		return nil
 	}
+=======
+>>>>>>> origin/main
 	query := `
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, $5)

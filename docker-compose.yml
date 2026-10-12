@@ -8,9 +8,16 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-motoguard}
     ports:
+<<<<<<< HEAD
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+=======
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+>>>>>>> origin/main
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d motoguard"]
       interval: 5s
@@ -28,6 +35,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-motoguard}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-motoguard-production-enterprise-secret-key-32bytes}
       CORS_ORIGINS: http://localhost:4200
+<<<<<<< HEAD
       MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://x1db1845.ala.dedicated.aws.emqxcloud.com:1883}
       MQTT_USERNAME: ${MQTT_USERNAME:-tracker}
       MQTT_PASSWORD: ${MQTT_PASSWORD:-~:!Nu2>#6TDe5Y+}
@@ -37,11 +45,55 @@ services:
       MAILJET_SENDER_EMAIL: ${MAILJET_SENDER_EMAIL:-no-reply@jullie.tech}
       MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
       MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MotoGuard}
+=======
+      MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://mqtt:1883}
+      MQTT_USERNAME: ${MQTT_USERNAME:-}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
+      MAILJET_API_KEY: ${MAILJET_API_KEY:-}
+      MAILJET_SECRET_KEY: ${MAILJET_SECRET_KEY:-}
+      MAILJET_SENDER_EMAIL: ${MAILJET_SENDER_EMAIL:-no-reply@jullie.tech}
+      MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
+      MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MGuard}
+>>>>>>> origin/main
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
+<<<<<<< HEAD
 
 volumes:
   postgres_data:
+=======
+      mqtt:
+        condition: service_started
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: motoguard-mqtt
+    restart: unless-stopped
+    ports:
+      - "1884:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: motoguard-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mosquitto_data:
+  mosquitto_log:
+>>>>>>> origin/main

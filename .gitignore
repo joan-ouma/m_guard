@@ -12,6 +12,7 @@
 *.sqlite3
 *.db
 
+<<<<<<< HEAD
 # Agent instructions & specifications
 agent.md
 *agent*.md
@@ -20,6 +21,8 @@ skills.md
 deliverables.md
 SRS-Addendum*.md
 
+=======
+>>>>>>> origin/main
 # Environment & Sensitive configs
 .env
 .env.*
@@ -79,6 +82,7 @@ dist/
 **/dist/
 
 # Backend binaries & build artifacts
+<<<<<<< HEAD
 server
 **/server
 *.exe
@@ -86,6 +90,12 @@ server
 *.out
 *.zip
 *.tar.gz
+=======
+backend/server
+*.exe
+*.test
+*.out
+>>>>>>> origin/main
 /vendor/
 
 # System & Editor

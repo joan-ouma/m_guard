@@ -23,7 +23,11 @@ export class LoginComponent {
 
   readonly form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
+<<<<<<< HEAD
     password: ['', [Validators.required, Validators.minLength(6)]],
+=======
+    password: ['', [Validators.required]],
+>>>>>>> origin/main
   });
 
   togglePasswordVisibility(): void {
@@ -54,8 +58,13 @@ export class LoginComponent {
       },
       error: (err) => {
         if (err.status === 401) {
+<<<<<<< HEAD
           // FR-AUTH-02: Generic 401 on failed login, no email/password disclosure
           this.errorMessage.set('Invalid email or password. Please verify your credentials and try again.');
+=======
+          // FR-AUTH-02: Generic 401 on failed login
+          this.errorMessage.set('Invalid phone number or National ID. Please verify your credentials and try again.');
+>>>>>>> origin/main
         } else if (err.status === 429) {
           // §6.2: 5 attempts/minute/IP rate limit
           this.errorMessage.set('Too many login attempts. Please wait a moment before trying again.');

@@ -71,14 +71,26 @@ func Load() (Config, error) {
 		DatabaseURL:         dbURL,
 		JWTSecret:           jwtSecret,
 		CORSOrigins:         origins,
+<<<<<<< HEAD
 		MQTTBrokerURL:       getEnv("MQTT_BROKER_URL", "tcp://x1db1845.ala.dedicated.aws.emqxcloud.com:1883"),
+=======
+		MQTTBrokerURL:       getEnv("MQTT_BROKER_URL", "tcp://localhost:1883"),
+>>>>>>> origin/main
 		MQTTUsername:        getEnv("MQTT_USERNAME", "tracker"),
 		MQTTPassword:        getEnv("MQTT_PASSWORD", "~:!Nu2>#6TDe5Y+"),
 		MailjetAPIKey:       getEnv("MAILJET_API_KEY", ""),
 		MailjetSecretKey:    getEnv("MAILJET_SECRET_KEY", ""),
 		MailjetSenderEmail:  getEnv("MAILJET_SENDER_EMAIL", "no-reply@jullie.tech"),
 		MailjetReplyToEmail: getEnv("MAILJET_REPLY_TO_EMAIL", "hello@jullie.tech"),
+<<<<<<< HEAD
 		MailjetSenderName:   getEnv("MAILJET_SENDER_NAME", "MotoGuard"),
 		FrontendURL:         getEnv("FRONTEND_URL", defaultFrontendURL),
 	}, nil
 }
+=======
+		MailjetSenderName:   getEnv("MAILJET_SENDER_NAME", "MGuard"),
+		FrontendURL:         getEnv("FRONTEND_URL", defaultFrontendURL),
+	}, nil
+}
+
+>>>>>>> origin/main

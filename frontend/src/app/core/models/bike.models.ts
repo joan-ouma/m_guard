@@ -22,6 +22,12 @@ export interface BikeDTO {
   last_telemetry_at?: string;
   geofence_id?: string;
   driver_contact_id?: string;
+<<<<<<< HEAD
+=======
+  rider_name?: string;
+  rider_national_id?: string;
+  rider_phone?: string;
+>>>>>>> origin/main
   is_immobilized: boolean;
   created_at: string;
   updated_at: string;
@@ -52,6 +58,12 @@ export interface CreateBikePayload {
   county?: string;
   geofence_id?: string;
   driver_contact_id?: string;
+<<<<<<< HEAD
+=======
+  rider_name?: string;
+  rider_national_id?: string;
+  rider_phone?: string;
+>>>>>>> origin/main
 }
 
 export interface UpdateBikePayload {
@@ -67,6 +79,12 @@ export interface UpdateBikePayload {
   status?: 'RUNNING' | 'STOPPED';
   geofence_id?: string;
   driver_contact_id?: string;
+<<<<<<< HEAD
+=======
+  rider_name?: string;
+  rider_national_id?: string;
+  rider_phone?: string;
+>>>>>>> origin/main
 }
 
 export interface BreadcrumbDTO {
@@ -81,6 +99,10 @@ export interface BreadcrumbDTO {
   address?: string;
   geofence_breach: boolean;
   recorded_at: string;
+<<<<<<< HEAD
+=======
+  event_type?: 'THEFT' | 'TAMPER' | 'DURESS' | 'ROUTINE';
+>>>>>>> origin/main
 }
 
 export interface BikeEventDTO {

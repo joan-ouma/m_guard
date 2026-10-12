@@ -56,6 +56,56 @@ func NewAuthService(
 	}
 }
 
+<<<<<<< HEAD
+=======
+func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (*domain.UserDTO, error) {
+	instance := "/v1/users/register"
+
+	// Check if user already exists
+	_, err := s.repo.GetUserByEmail(ctx, req.Email)
+	if err == nil {
+		return nil, domain.ProblemDetails{
+			Type:     "https://motoguard.co.ke/errors/conflict",
+			Title:    "Conflict",
+			Status:   409,
+			Detail:   "A user with this email already exists",
+			Instance: instance,
+		}
+	} else if !errors.Is(err, repository.ErrNotFound) {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	hashedPassword, err := security.HashPassword(req.Password, s.argonParams)
+	if err != nil {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	user := &domain.User{
+		ID:           uuid.NewString(),
+		Email:        req.Email,
+		Name:         req.Name,
+		NationalID:   req.NationalID,
+		PhoneNumber:  req.PhoneNumber,
+		PasswordHash: hashedPassword,
+		CreatedAt:    time.Now().UTC(),
+		UpdatedAt:    time.Now().UTC(),
+	}
+
+	if err := s.repo.CreateUser(ctx, user); err != nil {
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	return &domain.UserDTO{
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		Role:        "owner",
+		NationalID:  user.NationalID,
+		PhoneNumber: user.PhoneNumber,
+	}, nil
+}
+
+>>>>>>> origin/main
 func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent string) (*domain.SessionData, string, error) {
 	instance := "/v1/sessions"
 
@@ -115,10 +165,19 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
+<<<<<<< HEAD
 			ID:    user.ID,
 			Email: user.Email,
 			Name:  user.Name,
 			Role:  "owner",
+=======
+			ID:          user.ID,
+			Email:       user.Email,
+			Name:        user.Name,
+			Role:        "owner",
+			NationalID:  user.NationalID,
+			PhoneNumber: user.PhoneNumber,
+>>>>>>> origin/main
 		},
 	}
 
@@ -192,10 +251,19 @@ func (s *AuthService) RefreshToken(ctx context.Context, rawRefreshToken, ip, use
 		TokenType:   "Bearer",
 		ExpiresIn:   900,
 		User: domain.UserDTO{
+<<<<<<< HEAD
 			ID:    user.ID,
 			Email: user.Email,
 			Name:  user.Name,
 			Role:  "owner",
+=======
+			ID:          user.ID,
+			Email:       user.Email,
+			Name:        user.Name,
+			Role:        "owner",
+			NationalID:  user.NationalID,
+			PhoneNumber: user.PhoneNumber,
+>>>>>>> origin/main
 		},
 	}
 
@@ -357,10 +425,19 @@ func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*do
 	}
 
 	userDTO := &domain.UserDTO{
+<<<<<<< HEAD
 		ID:    user.ID,
 		Email: user.Email,
 		Name:  user.Name,
 		Role:  "owner",
+=======
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		Role:        "owner",
+		NationalID:  user.NationalID,
+		PhoneNumber: user.PhoneNumber,
+>>>>>>> origin/main
 	}
 
 	return userDTO, nil

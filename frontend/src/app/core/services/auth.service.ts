@@ -5,6 +5,10 @@ import { Observable, tap, catchError, throwError, of } from 'rxjs';
 import {
   AuthResponse,
   LoginCredentials,
+<<<<<<< HEAD
+=======
+  RegisterCredentials,
+>>>>>>> origin/main
   SessionData,
   User,
 } from '../models/auth.models';
@@ -69,6 +73,24 @@ export class AuthService {
   }
 
   /**
+<<<<<<< HEAD
+=======
+   * POST /v1/users/register
+   * Register a new user account
+   */
+  register(credentials: RegisterCredentials): Observable<{ data: User }> {
+    this.isLoading.set(true);
+    return this.http.post<{ data: User }>('/v1/users/register', credentials).pipe(
+      tap(() => this.isLoading.set(false)),
+      catchError((err) => {
+        this.isLoading.set(false);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+>>>>>>> origin/main
    * POST /v1/sessions
    * Login with email and password
    */

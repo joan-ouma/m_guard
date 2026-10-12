@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+<<<<<<< HEAD
+=======
+	"log"
+>>>>>>> origin/main
 	"strings"
 	"time"
 
@@ -83,7 +87,11 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	now := time.Now().UTC()
+<<<<<<< HEAD
 	bikeID := fmt.Sprintf("bik_%s", strings.ReplaceAll(uuid.New().String(), "-", "")[:24])
+=======
+	bikeID := uuid.New().String()
+>>>>>>> origin/main
 
 	bike := domain.Bike{
 		ID:                 bikeID,
@@ -109,6 +117,12 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		LastTelemetryAt:    nil,
 		GeofenceID:         strings.TrimSpace(req.GeofenceID),
 		DriverContactID:    strings.TrimSpace(req.DriverContactID),
+<<<<<<< HEAD
+=======
+		RiderName:          strings.TrimSpace(req.RiderName),
+		RiderNationalID:    strings.TrimSpace(req.RiderNationalID),
+		RiderPhone:         strings.TrimSpace(req.RiderPhone),
+>>>>>>> origin/main
 		IsImmobilized:      false,
 		CreatedAt:          now,
 		UpdatedAt:          now,
@@ -121,10 +135,18 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.Create(ctx, tx, &bike); err != nil {
+<<<<<<< HEAD
+=======
+		log.Printf("[CreateBike] repo.Create error: %v", err)
+>>>>>>> origin/main
 		return nil, domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+<<<<<<< HEAD
+=======
+		log.Printf("[CreateBike] tx.Commit error: %v", err)
+>>>>>>> origin/main
 		return nil, domain.NewInternalServerError(instance)
 	}
 
@@ -211,7 +233,53 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 		existing.RegistrationNumber = regNumber
 	}
 
+<<<<<<< HEAD
 	applyBikeUpdates(existing, req)
+=======
+	if strings.TrimSpace(req.Label) != "" {
+		existing.Label = strings.TrimSpace(req.Label)
+	}
+	if strings.TrimSpace(req.Make) != "" {
+		existing.Make = strings.TrimSpace(req.Make)
+	}
+	if strings.TrimSpace(req.Model) != "" {
+		existing.Model = strings.TrimSpace(req.Model)
+	}
+	if req.Year > 0 {
+		existing.Year = req.Year
+	}
+	if strings.TrimSpace(req.Color) != "" {
+		existing.Color = strings.TrimSpace(req.Color)
+	}
+	if strings.TrimSpace(req.CurrentAddress) != "" {
+		existing.CurrentAddress = strings.TrimSpace(req.CurrentAddress)
+	}
+	if strings.TrimSpace(req.SubCounty) != "" {
+		existing.SubCounty = strings.TrimSpace(req.SubCounty)
+	}
+	if strings.TrimSpace(req.County) != "" {
+		existing.County = strings.TrimSpace(req.County)
+	}
+	if req.Status == "RUNNING" || req.Status == "STOPPED" {
+		existing.Status = req.Status
+	}
+	if req.GeofenceID != "" {
+		existing.GeofenceID = strings.TrimSpace(req.GeofenceID)
+	}
+	if req.DriverContactID != "" {
+		existing.DriverContactID = strings.TrimSpace(req.DriverContactID)
+	}
+	if req.RiderName != "" {
+		existing.RiderName = strings.TrimSpace(req.RiderName)
+	}
+	if req.RiderNationalID != "" {
+		existing.RiderNationalID = strings.TrimSpace(req.RiderNationalID)
+	}
+	if req.RiderPhone != "" {
+		existing.RiderPhone = strings.TrimSpace(req.RiderPhone)
+	}
+
+>>>>>>> origin/main
 	existing.UpdatedAt = time.Now().UTC()
 
 	tx, err := s.pool.Begin(ctx)
@@ -232,6 +300,7 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 	return &dto, nil
 }
 
+<<<<<<< HEAD
 func applyBikeUpdates(b *domain.Bike, req domain.UpdateBikeRequest) {
 	setIfNotEmpty(&b.Label, req.Label)
 	setIfNotEmpty(&b.Make, req.Make)
@@ -257,6 +326,8 @@ func setIfNotEmpty(target *string, value string) {
 	}
 }
 
+=======
+>>>>>>> origin/main
 func (s *BikeService) DeleteBike(ctx context.Context, claims *security.JWTClaims, bikeID string) error {
 	instance := fmt.Sprintf("/v1/bikes/%s", bikeID)
 
@@ -371,6 +442,7 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 }
 
 func toBikeDTO(b *domain.Bike) domain.BikeDTO {
+<<<<<<< HEAD
 	address := b.CurrentAddress
 	if address == "" {
 		address = "Calculating..."
@@ -384,6 +456,8 @@ func toBikeDTO(b *domain.Bike) domain.BikeDTO {
 		county = "Calculating..."
 	}
 
+=======
+>>>>>>> origin/main
 	return domain.BikeDTO{
 		ID:                 b.ID,
 		UserID:             b.UserID,
@@ -400,14 +474,26 @@ func toBikeDTO(b *domain.Bike) domain.BikeDTO {
 		HeadingDeg:         b.HeadingDeg,
 		Latitude:           b.Latitude,
 		Longitude:          b.Longitude,
+<<<<<<< HEAD
 		CurrentAddress:     address,
 		SubCounty:          subCounty,
 		County:             county,
+=======
+		CurrentAddress:     b.CurrentAddress,
+		SubCounty:          b.SubCounty,
+		County:             b.County,
+>>>>>>> origin/main
 		BatteryPercent:     b.BatteryPercent,
 		SignalQualityCSQ:   b.SignalQualityCSQ,
 		LastTelemetryAt:    b.LastTelemetryAt,
 		GeofenceID:         b.GeofenceID,
 		DriverContactID:    b.DriverContactID,
+<<<<<<< HEAD
+=======
+		RiderName:          b.RiderName,
+		RiderNationalID:    b.RiderNationalID,
+		RiderPhone:         b.RiderPhone,
+>>>>>>> origin/main
 		IsImmobilized:      b.IsImmobilized,
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,
