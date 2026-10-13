@@ -16,6 +16,8 @@ import (
 type TelemetryService struct {
 	pool            *pgxpool.Pool
 	repo            *repository.TelemetryRepository
+	bikeRepo        *repository.BikeRepository
+	sseBroker       SSEBroker
 	reverseGeocoder *geolocation.ReverseGeocoder
 }
 
@@ -25,6 +27,14 @@ func NewTelemetryService(pool *pgxpool.Pool, repo *repository.TelemetryRepositor
 		repo:            repo,
 		reverseGeocoder: geolocation.NewReverseGeocoder(),
 	}
+}
+
+func (s *TelemetryService) SetSSEBroker(broker SSEBroker) {
+	s.sseBroker = broker
+}
+
+func (s *TelemetryService) SetBikeRepo(repo *repository.BikeRepository) {
+	s.bikeRepo = repo
 }
 
 func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.TelemetryPayload) error {
@@ -147,7 +157,18 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		_ = s.repo.SaveEvent(ctx, bikeID, evType, payload.Latitude, payload.Longitude, recordedAt)
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	if s.sseBroker != nil && s.bikeRepo != nil {
+		if updatedBike, err := s.bikeRepo.GetByIDDirect(ctx, bikeID); err == nil && updatedBike != nil {
+			dto := ToBikeDTO(updatedBike)
+			s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+		}
+	}
+
+	return nil
 }
 
 func (s *TelemetryService) IngestEvent(ctx context.Context, sensorID string, eventType string, lat float64, lng float64, recordedAt time.Time) error {
@@ -162,7 +183,18 @@ func (s *TelemetryService) IngestEvent(ctx context.Context, sensorID string, eve
 	if recordedAt.IsZero() {
 		recordedAt = time.Now().UTC()
 	}
-	return s.repo.SaveEvent(ctx, bikeID, eventType, lat, lng, recordedAt)
+
+	err = s.repo.SaveEvent(ctx, bikeID, eventType, lat, lng, recordedAt)
+	if err == nil && s.sseBroker != nil {
+		s.sseBroker.BroadcastAlert("", map[string]any{
+			"bike_id":     bikeID,
+			"event_type":  eventType,
+			"latitude":    lat,
+			"longitude":   lng,
+			"recorded_at": recordedAt,
+		})
+	}
+	return err
 }
 
 func haversineDistanceKM(lat1, lon1, lat2, lon2 float64) float64 {

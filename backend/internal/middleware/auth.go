@@ -16,13 +16,18 @@ const UserClaimsKey contextKey = "userClaims"
 func AuthMiddleware(jwtManager *security.JWTManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			tokenStr := ""
 			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			if strings.HasPrefix(authHeader, "Bearer ") {
+				tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
+			} else if qToken := r.URL.Query().Get("token"); qToken != "" {
+				tokenStr = qToken
+			}
+
+			if tokenStr == "" {
 				domain.NewUnauthorizedError("Authentication token is missing", r.URL.Path).WriteJSON(w)
 				return
 			}
-
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 			claims, err := jwtManager.ValidateAccessToken(tokenStr)
 			if err != nil {
 				domain.NewUnauthorizedError("Authentication token is invalid or expired", r.URL.Path).WriteJSON(w)

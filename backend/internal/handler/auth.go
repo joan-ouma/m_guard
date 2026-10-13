@@ -11,6 +11,8 @@ import (
 	"motoguard-backend/internal/middleware"
 	"motoguard-backend/internal/security"
 	"motoguard-backend/internal/service"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type AuthHandler struct {
@@ -19,6 +21,37 @@ type AuthHandler struct {
 
 func NewAuthHandler(s *service.AuthService) *AuthHandler {
 	return &AuthHandler{service: s}
+}
+
+func (h *AuthHandler) UserRoutes(rateLimit func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+	r.Use(rateLimit)
+
+	r.Post("/register", h.Register)
+	r.Post("/", h.Register)
+
+	return r
+}
+
+func (h *AuthHandler) SessionRoutes(rateLimit func(http.Handler) http.Handler, auth func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+
+	r.With(rateLimit).Post("/", h.Login)
+	r.Put("/current", h.Refresh)
+	r.Delete("/current", h.Logout)
+	r.With(auth).Get("/current", h.GetCurrent)
+
+	return r
+}
+
+func (h *AuthHandler) PasswordResetRoutes(rateLimit func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+	r.Use(rateLimit)
+
+	r.Post("/", h.RequestPasswordReset)
+	r.Patch("/{token}", h.ConfirmPasswordReset)
+
+	return r
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -238,7 +271,10 @@ func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	token := strings.TrimPrefix(r.URL.Path, "/v1/password-resets/")
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		token = strings.TrimPrefix(r.URL.Path, "/v1/password-resets/")
+	}
 	token = strings.TrimSpace(token)
 	if token == "" {
 		domain.NewBadRequestError("Missing reset token in path", r.URL.Path, nil).WriteJSON(w)

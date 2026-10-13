@@ -19,6 +19,7 @@ import (
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 	"motoguard-backend/internal/service"
+	"motoguard-backend/internal/sse"
 )
 
 func main() {
@@ -57,12 +58,18 @@ func main() {
 	authService := service.NewAuthService(pool, authRepo, jwtManager, nil, mailClient, cfg.FrontendURL)
 	authHandler := handler.NewAuthHandler(authService)
 
+	sseBroker := sse.NewBroker()
+	defer sseBroker.Stop()
+
 	bikeRepo := repository.NewBikeRepository(pool)
 	bikeService := service.NewBikeService(pool, bikeRepo)
+	bikeService.SetSSEBroker(sseBroker)
 	bikeHandler := handler.NewBikeHandler(bikeService)
 
 	telemetryRepo := repository.NewTelemetryRepository(pool)
 	telemetryService := service.NewTelemetryService(pool, telemetryRepo)
+	telemetryService.SetBikeRepo(bikeRepo)
+	telemetryService.SetSSEBroker(sseBroker)
 
 	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService)
 	if err != nil {
@@ -76,12 +83,14 @@ func main() {
 		}
 	}
 
+	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
 
 	router := handler.NewRouter(handler.RouterConfig{
 		AuthHandler:         authHandler,
 		BikeHandler:         bikeHandler,
 		HealthHandler:       healthHandler,
+		SSEHandler:          sseHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})

@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func Setup(logPath string) func() {
@@ -17,13 +19,16 @@ func Setup(logPath string) func() {
 		_ = os.MkdirAll(dir, 0755)
 	}
 
-	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		slog.Error("Failed to open log file, falling back to stdout", "error", err)
-		return func() {}
+	rotator := &lumberjack.Logger{
+		Filename:   logPath,
+		MaxSize:    50,
+		MaxBackups: 10,
+		MaxAge:     30,
+		LocalTime:  true,
+		Compress:   true,
 	}
 
-	mw := io.MultiWriter(os.Stdout, logFile)
+	mw := io.MultiWriter(os.Stdout, rotator)
 	handler := slog.NewJSONHandler(mw, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	})
@@ -37,7 +42,6 @@ func Setup(logPath string) func() {
 	slog.Info("Fleet API backend started successfully", "log_file", logPath)
 
 	return func() {
-		_ = logFile.Sync()
-		_ = logFile.Close()
+		_ = rotator.Close()
 	}
 }

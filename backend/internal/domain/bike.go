@@ -100,6 +100,10 @@ type UpdateBikeRequest struct {
 
 type BikeListMeta struct {
 	Total                 int    `json:"total"`
+	Limit                 int    `json:"limit,omitempty"`
+	Cursor                string `json:"cursor,omitempty"`
+	NextCursor            string `json:"next_cursor,omitempty"`
+	HasMore               bool   `json:"has_more"`
 	DefaultSelectedBikeID string `json:"default_selected_bike_id,omitempty"`
 }
 

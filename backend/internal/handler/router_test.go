@@ -17,6 +17,7 @@ func TestNewRouter(t *testing.T) {
 		AuthHandler:         &AuthHandler{},
 		BikeHandler:         &BikeHandler{},
 		HealthHandler:       healthH,
+		SSEHandler:          &SSEHandler{},
 		AuthMiddleware:      passthroughMW,
 		RateLimitMiddleware: passthroughMW,
 	})

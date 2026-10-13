@@ -20,10 +20,16 @@ type CommandPublisher interface {
 	PublishCommand(imei string, action string) error
 }
 
+type SSEBroker interface {
+	BroadcastBikeUpdate(userID string, bike domain.BikeDTO)
+	BroadcastAlert(userID string, alert any)
+}
+
 type BikeService struct {
-	pool   *pgxpool.Pool
-	repo   *repository.BikeRepository
-	cmdPub CommandPublisher
+	pool      *pgxpool.Pool
+	repo      *repository.BikeRepository
+	cmdPub    CommandPublisher
+	sseBroker SSEBroker
 }
 
 func NewBikeService(pool *pgxpool.Pool, repo *repository.BikeRepository) *BikeService {
@@ -35,6 +41,10 @@ func NewBikeService(pool *pgxpool.Pool, repo *repository.BikeRepository) *BikeSe
 
 func (s *BikeService) SetCommandPublisher(pub CommandPublisher) {
 	s.cmdPub = pub
+}
+
+func (s *BikeService) SetSSEBroker(broker SSEBroker) {
+	s.sseBroker = broker
 }
 
 func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims, req domain.CreateBikeRequest) (*domain.BikeDTO, error) {
@@ -134,7 +144,10 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	dto := toBikeDTO(&bike)
+	dto := ToBikeDTO(&bike)
+	if s.sseBroker != nil {
+		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+	}
 	return &dto, nil
 }
 
@@ -154,18 +167,18 @@ func (s *BikeService) GetBike(ctx context.Context, claims *security.JWTClaims, b
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	dto := toBikeDTO(bike)
+	dto := ToBikeDTO(bike)
 	return &dto, nil
 }
 
-func (s *BikeService) ListBikes(ctx context.Context, claims *security.JWTClaims) (*domain.BikeListResponse, error) {
+func (s *BikeService) ListBikes(ctx context.Context, claims *security.JWTClaims, cursor string, limit int) (*domain.BikeListResponse, error) {
 	instance := "/v1/bikes"
 
 	if claims == nil || claims.UserID == "" {
 		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
 	}
 
-	bikes, err := s.repo.ListByOwner(ctx, claims.UserID)
+	bikes, meta, err := s.repo.ListByOwner(ctx, claims.UserID, cursor, limit)
 	if err != nil {
 		slog.Error("ListBikes ListByOwner error", "user_id", claims.UserID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -174,19 +187,18 @@ func (s *BikeService) ListBikes(ctx context.Context, claims *security.JWTClaims)
 	dtos := make([]domain.BikeDTO, 0, len(bikes))
 	defaultSelectedID := ""
 	for i := range bikes {
-		dto := toBikeDTO(&bikes[i])
+		dto := ToBikeDTO(&bikes[i])
 		dtos = append(dtos, dto)
 		if i == 0 {
 			defaultSelectedID = dto.ID
 		}
 	}
 
+	meta.DefaultSelectedBikeID = defaultSelectedID
+
 	return &domain.BikeListResponse{
 		Data: dtos,
-		Meta: domain.BikeListMeta{
-			Total:                 len(dtos),
-			DefaultSelectedBikeID: defaultSelectedID,
-		},
+		Meta: meta,
 	}, nil
 }
 
@@ -274,7 +286,10 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	dto := toBikeDTO(existing)
+	dto := ToBikeDTO(existing)
+	if s.sseBroker != nil {
+		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+	}
 	return &dto, nil
 }
 
@@ -308,7 +323,15 @@ func (s *BikeService) DeleteBike(ctx context.Context, claims *security.JWTClaims
 	return nil
 }
 
-func (s *BikeService) GetBreadcrumbs(ctx context.Context, claims *security.JWTClaims, bikeID string, startDate string, endDate string, limit int) ([]domain.BreadcrumbDTO, error) {
+func (s *BikeService) GetBreadcrumbs(
+	ctx context.Context,
+	claims *security.JWTClaims,
+	bikeID string,
+	startDate string,
+	endDate string,
+	cursor int64,
+	limit int,
+) (*domain.PaginatedBreadcrumbsResponse, error) {
 	instance := fmt.Sprintf("/v1/bikes/%s/breadcrumbs", bikeID)
 
 	if claims == nil || claims.UserID == "" {
@@ -324,7 +347,7 @@ func (s *BikeService) GetBreadcrumbs(ctx context.Context, claims *security.JWTCl
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	breadcrumbs, err := s.repo.GetBreadcrumbs(ctx, claims.UserID, bikeID, startDate, endDate, limit)
+	breadcrumbs, pagination, err := s.repo.GetBreadcrumbs(ctx, claims.UserID, bikeID, startDate, endDate, cursor, limit)
 	if err != nil {
 		slog.Error("GetBreadcrumbs repo.GetBreadcrumbs error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -334,10 +357,21 @@ func (s *BikeService) GetBreadcrumbs(ctx context.Context, claims *security.JWTCl
 		breadcrumbs = []domain.BreadcrumbDTO{}
 	}
 
-	return breadcrumbs, nil
+	return &domain.PaginatedBreadcrumbsResponse{
+		Data:       breadcrumbs,
+		Pagination: pagination,
+	}, nil
 }
 
-func (s *BikeService) GetEvents(ctx context.Context, claims *security.JWTClaims, bikeID string, startDate string, endDate string, limit int) ([]domain.BikeEventDTO, error) {
+func (s *BikeService) GetEvents(
+	ctx context.Context,
+	claims *security.JWTClaims,
+	bikeID string,
+	startDate string,
+	endDate string,
+	cursor int64,
+	limit int,
+) (*domain.PaginatedEventsResponse, error) {
 	instance := fmt.Sprintf("/v1/bikes/%s/events", bikeID)
 
 	if claims == nil || claims.UserID == "" {
@@ -353,7 +387,7 @@ func (s *BikeService) GetEvents(ctx context.Context, claims *security.JWTClaims,
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	events, err := s.repo.GetEvents(ctx, claims.UserID, bikeID, startDate, endDate, limit)
+	events, pagination, err := s.repo.GetEvents(ctx, claims.UserID, bikeID, startDate, endDate, cursor, limit)
 	if err != nil {
 		slog.Error("GetEvents repo.GetEvents error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -363,7 +397,10 @@ func (s *BikeService) GetEvents(ctx context.Context, claims *security.JWTClaims,
 		events = []domain.BikeEventDTO{}
 	}
 
-	return events, nil
+	return &domain.PaginatedEventsResponse{
+		Data:       events,
+		Pagination: pagination,
+	}, nil
 }
 
 func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTClaims, bikeID string, immobilize bool) (*domain.BikeDTO, error) {
@@ -396,11 +433,14 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	dto := toBikeDTO(bike)
+	dto := ToBikeDTO(bike)
+	if s.sseBroker != nil {
+		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+	}
 	return &dto, nil
 }
 
-func toBikeDTO(b *domain.Bike) domain.BikeDTO {
+func ToBikeDTO(b *domain.Bike) domain.BikeDTO {
 	return domain.BikeDTO{
 		ID:                 b.ID,
 		UserID:             b.UserID,
