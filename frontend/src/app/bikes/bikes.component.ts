@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
 import Swal from 'sweetalert2';
+import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 
 export interface MotorcycleAsset {
   id: string;
@@ -30,7 +31,7 @@ export interface MotorcycleAsset {
 @Component({
   selector: 'app-bikes',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ReactiveFormsModule, MobileNavComponent],
   templateUrl: './bikes.component.html',
 })
 export class BikesComponent implements OnInit {
