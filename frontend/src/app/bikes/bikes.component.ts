@@ -46,6 +46,10 @@ export class BikesComponent implements OnInit {
   readonly registrationError = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
 
+  // Bike Details Modal
+  readonly selectedBikeForModal = signal<MotorcycleAsset | null>(null);
+  readonly showDetailsModal = signal<boolean>(false);
+
   readonly canCreateBike = computed(() => true);
 
   readonly bikes = computed<MotorcycleAsset[]>(() => {
@@ -157,7 +161,23 @@ export class BikesComponent implements OnInit {
   }
 
   navigateToMap(bikeId: string): void {
+    this.closeBikeDetails();
     this.router.navigate(['/'], { queryParams: { bike: bikeId } });
+  }
+
+  navigateToHistory(bikeId: string): void {
+    this.closeBikeDetails();
+    this.router.navigate(['/history'], { queryParams: { bike: bikeId } });
+  }
+
+  openBikeDetails(bike: MotorcycleAsset): void {
+    this.selectedBikeForModal.set(bike);
+    this.showDetailsModal.set(true);
+  }
+
+  closeBikeDetails(): void {
+    this.showDetailsModal.set(false);
+    this.selectedBikeForModal.set(null);
   }
 
   getUserInitials(): string {
