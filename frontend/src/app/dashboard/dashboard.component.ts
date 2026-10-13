@@ -445,10 +445,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         <div class="bike-marker-badge">
           <!-- Full Plate Label Pill with Status Heartbeat Dot -->
           <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px;[...]
-            <span style="position: relative; display: inline-flex; width: 8px; height: 8px; align-items: center; justify-content: center;">
-              <span class="marker-dot-ping" style="position: absolute; inset: 0; border-radius: 9999px; background: ${dotColor}; opacity: 0.85;"></span>
-              <span style="position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor};"></span>
-            </span>
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor}; flex-shrink: 0;"></span>
             <span>${plate}</span>
           </div>
 
