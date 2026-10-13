@@ -12,7 +12,6 @@ import (
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -84,7 +83,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	now := time.Now().UTC()
-	bikeID := uuid.New().String()
+	bikeID := security.NewID("bik_")
 
 	bike := domain.Bike{
 		ID:                 bikeID,
