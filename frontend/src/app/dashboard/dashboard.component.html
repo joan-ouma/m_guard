@@ -540,17 +540,6 @@
         style="width: 100%; height: 100%"
       ></div>
 
-      <button
-        type="button"
-        (click)="toggleMobileDrawer()"
-        title="Open Menu"
-        class="md:hidden absolute top-4 left-4 z-30 w-11 h-11 rounded-2xl bg-white shadow-lg border border-zinc-200 flex items-center justify-center text-zinc-800 cursor-pointer"
-      >
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
       <!-- Left Floating Card (Tablet & Desktop: lg:w-[460px] untouched, md:w-[380px]) -->
       <div
         id="floatingInspector"
@@ -1056,15 +1045,10 @@
 
             <div class="w-full flex items-center justify-between gap-3">
               <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <h2 class="text-xl font-bold text-zinc-950 tracking-tight leading-none truncate">
-                    {{ selectedBike().plate }}
-                  </h2>
-                  <span class="text-xs text-zinc-400 font-medium truncate">
-                    {{ selectedBike().model }}
-                  </span>
-                </div>
-                <p class="font-mono text-xs font-bold text-zinc-600 mt-1 truncate">
+                <h2 class="text-xl font-bold text-zinc-950 tracking-tight leading-none truncate font-mono">
+                  {{ selectedBike().plate }}
+                </h2>
+                <p class="font-mono text-xs font-bold text-zinc-500 mt-1 truncate">
                   {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }} • {{ getLastSeen(selectedBike()) }}
                 </p>
               </div>
@@ -1099,7 +1083,7 @@
 
                 <button
                   type="button"
-                  class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer"
+                  class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer shrink-0"
                   [title]="mobileSheetExpanded() ? 'Collapse' : 'Expand'"
                 >
                   <svg
@@ -1117,106 +1101,53 @@
             </div>
           </div>
 
-          <!-- Expanded Telemetry Details (Scrollable) -->
+          <!-- Expanded Telemetry Details (Stupid Simple & Uncrowded) -->
           @if (mobileSheetExpanded()) {
-            <div class="p-5 divide-y divide-zinc-100 overflow-y-auto flex-1 overscroll-contain">
+            <div class="p-4 space-y-3 overflow-y-auto flex-1 overscroll-contain">
+              <!-- Location Row -->
+              <div class="flex items-center gap-2.5 p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
+                <svg class="w-4 h-4 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p class="text-xs font-bold text-zinc-800 truncate">
+                  {{ selectedBike().address || 'Nairobi' }}
+                </p>
+              </div>
+
               <!-- Speed & Ignition Row -->
-              <div class="pb-3 flex items-center justify-between gap-4">
-                <div>
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Current Speed</span>
-                  <p class="font-mono text-base font-bold text-zinc-950 mt-0.5">
-                    {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }}
-                  </p>
-                </div>
-                <div class="text-right">
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
                   <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
-                  <p class="text-base font-bold mt-0.5" [ngClass]="selectedBike().speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
-                    {{ selectedBike().speedText.includes('ON') ? 'ON' : 'OFF' }}
+                  <p class="text-xs font-bold mt-0.5" [ngClass]="selectedBike().speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
+                    {{ selectedBike().speedText.includes('ON') ? 'Engine ON' : 'Engine OFF' }}
+                  </p>
+                </div>
+                <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Speed</span>
+                  <p class="font-mono text-xs font-bold text-zinc-900 mt-0.5">
+                    {{ selectedBike().speedText.split('•')[0].trim() || '0.0 km/h' }}
                   </p>
                 </div>
               </div>
 
-              <!-- Location & Recenter -->
-              <div class="py-3">
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Current Location</span>
-                <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5">
-                  {{ selectedBike().address }}
-                </p>
-                <p class="font-sans text-xs text-zinc-500 mt-0.5">
-                  {{ selectedBike().subCounty }}, {{ selectedBike().county }}
-                </p>
-                <div class="flex items-center gap-2 mt-2">
-                  <button
-                    type="button"
-                    (click)="recenterMap()"
-                    class="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3m-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <span>Center Map</span>
-                  </button>
-                  <button
-                    type="button"
-                    (click)="copyCoordinates()"
-                    class="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-mono font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <span>{{ selectedBike().lat.toFixed(4) }}, {{ selectedBike().lng.toFixed(4) }}</span>
-                    <span>{{ copiedCoordinates() ? '✓' : '⧉' }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Assigned Rider -->
-              <div class="py-3">
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Assigned Rider</span>
-                <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5">
-                  {{ selectedBike().riderName }}
-                </p>
-                <div class="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 font-mono">
-                  <span>ID: {{ selectedBike().riderNationalId }}</span>
-                  <span>•</span>
-                  @if (selectedBike().riderPhone && selectedBike().riderPhone !== 'N/A') {
-                    <a
-                      [href]="'tel:' + selectedBike().riderPhone"
-                      class="text-indigo-600 underline font-semibold"
-                    >
-                      {{ selectedBike().riderPhone }}
-                    </a>
-                  } @else {
-                    <span>N/A</span>
-                  }
-                </div>
-              </div>
-
-              <!-- Immobilize Action -->
+              <!-- Primary Action: Immobilize / Restore Button -->
               @if (selectedBike().id) {
-                <div class="pt-3 pb-2">
-                  <button
-                    type="button"
-                    (click)="toggleImmobilize(selectedBike())"
-                    class="w-full rounded-2xl p-3.5 text-left flex items-center justify-between text-white transition-all cursor-pointer"
-                    [ngClass]="{
-                      'bg-rose-600 hover:bg-rose-700': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Stationary',
-                      'bg-amber-500 hover:bg-amber-600': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Moving',
-                      'bg-emerald-600 hover:bg-emerald-700': selectedBike().isImmobilized
-                    }"
-                  >
-                    <div>
-                      <h3 class="font-bold text-base tracking-tight">
-                        {{ selectedBike().isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
-                      </h3>
-                      <p class="text-xs text-white/80 mt-0.5">
-                        {{ selectedBike().isImmobilized ? 'Tap to re-enable electrical starter.' : 'Disable starter motor.' }}
-                      </p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                      <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  (click)="toggleImmobilize(selectedBike())"
+                  class="w-full h-11 rounded-xl text-center font-bold text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  [ngClass]="{
+                    'bg-rose-600 hover:bg-rose-700': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Stationary',
+                    'bg-amber-500 hover:bg-amber-600': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Moving',
+                    'bg-emerald-600 hover:bg-emerald-700': selectedBike().isImmobilized
+                  }"
+                >
+                  <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>{{ selectedBike().isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}</span>
+                </button>
               }
             </div>
           }
