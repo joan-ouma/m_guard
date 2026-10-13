@@ -8,7 +8,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
@@ -67,7 +67,7 @@ const DEFAULT_BIKE: FleetBike = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ReactiveFormsModule],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -444,7 +444,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       html: `
         <div class="bike-marker-badge">
           <!-- Full Plate Label Pill with Status Heartbeat Dot -->
-          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px; border: 1.5px solid ${dotColor}; box-shadow: 0 4px 14px rgba(0,0,0,0.65), 0 0 10px ${statusBg}; white-space: nowrap; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; letter-spacing: 0.5px;">
+          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px;[...]
             <span style="position: relative; display: inline-flex; width: 8px; height: 8px; align-items: center; justify-content: center;">
               <span class="marker-dot-ping" style="position: absolute; inset: 0; border-radius: 9999px; background: ${dotColor}; opacity: 0.85;"></span>
               <span style="position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor};"></span>
