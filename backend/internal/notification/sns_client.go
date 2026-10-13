@@ -1,7 +1,6 @@
 package notification
 
 import (
-	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
