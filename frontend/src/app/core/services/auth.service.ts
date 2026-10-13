@@ -91,7 +91,7 @@ export class AuthService {
    */
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions`, credentials, { withCredentials: true }).pipe(
       tap((res) => {
         this.isLoading.set(false);
         if (res?.data) {
@@ -111,7 +111,7 @@ export class AuthService {
    */
   logout(): Observable<void> {
     this.isLoading.set(true);
-    return this.http.delete<void>(`${environment.apiBaseUrl}/v1/sessions/current`).pipe(
+    return this.http.delete<void>(`${environment.apiBaseUrl}/v1/sessions/current`, { withCredentials: true }).pipe(
       tap(() => {
         this.clearSession();
         this.isLoading.set(false);
@@ -131,7 +131,7 @@ export class AuthService {
    * Refresh access token via HttpOnly refresh cookie
    */
   refreshToken(): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions/current`, {}).pipe(
+    return this.http.put<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions/current`, {}, { withCredentials: true }).pipe(
       tap((res) => {
         if (res?.data) {
           this.setSession(res.data);

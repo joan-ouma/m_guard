@@ -20,8 +20,8 @@ func AuthMiddleware(jwtManager *security.JWTManager) func(http.Handler) http.Han
 			authHeader := r.Header.Get("Authorization")
 			if strings.HasPrefix(authHeader, "Bearer ") {
 				tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
-			} else if qToken := r.URL.Query().Get("token"); qToken != "" {
-				tokenStr = qToken
+			} else if cookie, err := r.Cookie("motoguard_token"); err == nil && cookie.Value != "" {
+				tokenStr = cookie.Value
 			}
 
 			if tokenStr == "" {

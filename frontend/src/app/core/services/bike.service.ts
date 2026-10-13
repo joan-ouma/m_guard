@@ -60,8 +60,8 @@ export class BikeService {
 
     this.disconnectSSE();
 
-    const streamUrl = `${environment.apiBaseUrl}/v1/bikes/stream?token=${encodeURIComponent(token)}`;
-    const es = new EventSource(streamUrl);
+    const streamUrl = `${environment.apiBaseUrl}/v1/bikes/stream`;
+    const es = new EventSource(streamUrl, { withCredentials: true });
     this.eventSource = es;
 
     es.onopen = () => {
