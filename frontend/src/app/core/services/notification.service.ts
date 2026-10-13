@@ -83,7 +83,7 @@ export class NotificationService {
                 applicationServerKey: this.urlBase64ToUint8Array(
                   // Fallback public VAPID key for browser push registration
                   'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
-                ),
+                ) as unknown as BufferSource,
               });
             } catch (subErr) {
               console.warn('PushManager subscription warning, generating device token:', subErr);

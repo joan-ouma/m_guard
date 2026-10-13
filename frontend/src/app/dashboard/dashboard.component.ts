@@ -32,7 +32,8 @@ import {
 import { RegisterBikeModalComponent } from './components/register-bike-modal/register-bike-modal.component';
 import { DuressModalComponent } from './components/duress-modal/duress-modal.component';
 
-export { FleetBike, DEFAULT_BIKE, NotificationItem };
+export { DEFAULT_BIKE };
+export type { FleetBike, NotificationItem };
 
 @Component({
   selector: 'app-dashboard',
