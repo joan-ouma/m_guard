@@ -9,7 +9,6 @@ import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
   imports: [CommonModule, RouterLink, RouterLinkActive, MobileNavComponent],
   template: `
 <div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
-  <app-mobile-nav></app-mobile-nav>
 
   <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
     <div>
@@ -40,7 +39,8 @@ import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
   </aside>
 
   <div class="flex-1 flex flex-col h-full overflow-hidden">
-    <header class="h-14 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+      <app-mobile-nav></app-mobile-nav>
       <span class="font-bold text-base text-zinc-900">Settings</span>
     </header>
 
