@@ -39,18 +39,18 @@ func (h *NotificationHandler) RegisterDevice(w http.ResponseWriter, r *http.Requ
 
 	var req notification.RegisterDeviceRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		domain.NewBadRequestError("Invalid request body", r.URL.Path).WriteJSON(w)
+		domain.NewBadRequestError("Invalid request body", r.URL.Path, nil).WriteJSON(w)
 		return
 	}
 
 	if req.Token == "" {
-		domain.NewValidationError("token is required", r.URL.Path).WriteJSON(w)
+		domain.NewBadRequestError("token is required", r.URL.Path, nil).WriteJSON(w)
 		return
 	}
 
 	endpointARN, err := h.service.RegisterDevice(r.Context(), claims.UserID, req.Token, req.Platform, req.PhoneNumber)
 	if err != nil {
-		domain.NewInternalServerError("Failed to register device endpoint: "+err.Error(), r.URL.Path).WriteJSON(w)
+		domain.NewInternalServerErrorWithDetail("Failed to register device endpoint: "+err.Error(), r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (h *NotificationHandler) RegisterDevice(w http.ResponseWriter, r *http.Requ
 func (h *NotificationHandler) UnregisterDevice(w http.ResponseWriter, r *http.Request) {
 	endpointARN := r.URL.Query().Get("endpoint_arn")
 	if endpointARN == "" {
-		domain.NewValidationError("endpoint_arn query param required", r.URL.Path).WriteJSON(w)
+		domain.NewBadRequestError("endpoint_arn query param required", r.URL.Path, nil).WriteJSON(w)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (h *NotificationHandler) SendTestNotification(w http.ResponseWriter, r *htt
 
 	err := h.service.SendTestNotification(r.Context(), claims.UserID, req.Title, req.Body, req.PhoneNumber, req.BikeID)
 	if err != nil {
-		domain.NewInternalServerError("Failed to send test alert: "+err.Error(), r.URL.Path).WriteJSON(w)
+		domain.NewInternalServerErrorWithDetail("Failed to send test alert: "+err.Error(), r.URL.Path).WriteJSON(w)
 		return
 	}
 
