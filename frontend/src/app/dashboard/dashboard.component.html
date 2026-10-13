@@ -86,4 +86,9 @@
     (cancel)="cancelDuress()"
     (escalate)="escalateDuress()"
   />
+
+  <app-onboarding-modal
+    [isOpen]="showOnboardingModal()"
+    (close)="closeOnboardingModal()"
+  />
 </div>

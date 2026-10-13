@@ -93,7 +93,8 @@ export class BikesComponent implements OnInit {
   });
 
   readonly currentPage = signal<number>(1);
-  readonly pageSize = signal<number>(25);
+  readonly pageSize = signal<number>(10);
+  readonly pageSizes = [10, 25, 50, 100];
 
   readonly totalPages = computed(() => {
     return Math.max(1, Math.ceil(this.filteredBikes().length / this.pageSize()));
@@ -102,14 +103,6 @@ export class BikesComponent implements OnInit {
   readonly paginatedBikes = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize();
     return this.filteredBikes().slice(start, start + this.pageSize());
-  });
-
-  readonly showingStart = computed(() => {
-    return this.filteredBikes().length === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
-  });
-
-  readonly showingEnd = computed(() => {
-    return Math.min(this.currentPage() * this.pageSize(), this.filteredBikes().length);
   });
 
   prevPage(): void {
@@ -124,11 +117,15 @@ export class BikesComponent implements OnInit {
     }
   }
 
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
   onPageSizeChange(event: Event): void {
     const val = parseInt((event.target as HTMLSelectElement).value, 10);
     if (!isNaN(val) && val > 0) {
-      this.pageSize.set(val);
-      this.currentPage.set(1);
+      this.setPageSize(val);
     }
   }
 
