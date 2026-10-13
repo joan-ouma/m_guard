@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           fenceEmail: current.email,
         });
 
-        this.updateMapForCurrentBike();
+        this.updateMapForCurrentBike(true);
       },
     });
 
@@ -193,7 +193,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             return nextMap;
           });
-          this.updateMapForCurrentBike();
+          this.updateMapForCurrentBike(false);
         },
       });
     }, 3000);
@@ -266,10 +266,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       radius: bike.fenceRadius,
     }).addTo(this.map);
 
-    this.map.on('zoom', () => {
-      this.updateMarkerSize();
-    });
-
     this.loadAndDrawPath(bike);
     this.map.invalidateSize();
   }
@@ -281,7 +277,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private updateMapForCurrentBike(): void {
+  private updateMapForCurrentBike(recenter: boolean = false): void {
     if (!this.map) return;
     const bike = this.selectedBike();
 
@@ -316,8 +312,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-    this.map.setView([bike.lat, bike.lng], 13);
-    this.map.invalidateSize();
+    if (recenter) {
+      const currentZoom = this.map.getZoom() || 13;
+      this.map.setView([bike.lat, bike.lng], currentZoom);
+      this.map.invalidateSize();
+    }
     this.loadAndDrawPath(bike);
   }
 
@@ -494,7 +493,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           dashArray: '6, 6',
         });
 
-      this.map.setView([bike.lat, bike.lng], 13);
+      const currentZoom = this.map.getZoom() || 13;
+      this.map.setView([bike.lat, bike.lng], currentZoom);
       this.map.invalidateSize();
       this.loadAndDrawPath(bike);
     }
@@ -503,7 +503,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recenterMap(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
-    this.map.setView([bike.lat, bike.lng], 14);
+    this.map.panTo([bike.lat, bike.lng]);
   }
 
   copyCoordinates(): void {
