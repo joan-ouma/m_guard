@@ -55,6 +55,13 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly bikeEvents = signal<BikeEventDTO[]>([]);
   readonly isLoading = signal<boolean>(false);
 
+  // Filter Modal Form state
+  readonly isFilterModalOpen = signal<boolean>(false);
+  readonly tempBikeId = signal<string>('');
+  readonly tempStartDate = signal<string>('');
+  readonly tempEndDate = signal<string>('');
+  readonly tempIncidentsOnly = signal<boolean>(false);
+
   // Report Modal & View state
   readonly isReportModalOpen = signal(false);
   readonly reportSharedWith = signal<'download' | 'police' | 'sacco' | 'lender'>('download');
@@ -63,9 +70,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   
   // Incident filtering
   readonly filterIncidentsOnly = signal(false);
-
-  // Range mode toggle (default false = clean single day view)
-  readonly isRangeMode = signal<boolean>(false);
 
   // Leaflet references
   private map: L.Map | null = null;
@@ -299,10 +303,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.selectedEndDate.set(oldDateParam);
         }
 
-        if (startParam && endParam && startParam !== endParam) {
-          this.isRangeMode.set(true);
-        }
-
         const validBike =
           bikeParam && res.data.some((b) => b.id === bikeParam)
             ? bikeParam
@@ -418,19 +418,66 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fetchBreadcrumbs();
   }
 
+  openFilterModal(): void {
+    this.tempBikeId.set(this.selectedBikeId());
+    this.tempStartDate.set(this.selectedStartDate());
+    this.tempEndDate.set(this.selectedEndDate());
+    this.tempIncidentsOnly.set(this.filterIncidentsOnly());
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  setModalPreset(preset: 'today' | 'yesterday' | 'week'): void {
+    const today = new Date();
+    if (preset === 'today') {
+      const d = this.formatDate(today);
+      this.tempStartDate.set(d);
+      this.tempEndDate.set(d);
+    } else if (preset === 'yesterday') {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      const d = this.formatDate(y);
+      this.tempStartDate.set(d);
+      this.tempEndDate.set(d);
+    } else if (preset === 'week') {
+      const past = new Date();
+      past.setDate(past.getDate() - 6);
+      this.tempStartDate.set(this.formatDate(past));
+      this.tempEndDate.set(this.formatDate(today));
+    }
+  }
+
+  applyFilters(): void {
+    let start = this.tempStartDate();
+    let end = this.tempEndDate();
+    if (start && end && start > end) {
+      const tmp = start;
+      start = end;
+      end = tmp;
+    }
+    if (start) this.selectedStartDate.set(start);
+    if (end) this.selectedEndDate.set(end);
+    if (this.tempBikeId()) this.selectedBikeId.set(this.tempBikeId());
+    this.filterIncidentsOnly.set(this.tempIncidentsOnly());
+
+    this.isFilterModalOpen.set(false);
+    this.updateQueryParams();
+    this.fetchBreadcrumbs();
+  }
+
+  clearIncidentFilter(): void {
+    this.filterIncidentsOnly.set(false);
+  }
+
   prevDay(): void {
     const curStart = new Date(this.selectedStartDate());
     curStart.setDate(curStart.getDate() - 1);
-    this.selectedStartDate.set(this.formatDate(curStart));
-    
-    if (this.isRangeMode()) {
-      const curEnd = new Date(this.selectedEndDate());
-      curEnd.setDate(curEnd.getDate() - 1);
-      this.selectedEndDate.set(this.formatDate(curEnd));
-    } else {
-      this.selectedEndDate.set(this.formatDate(curStart));
-    }
-    
+    const d = this.formatDate(curStart);
+    this.selectedStartDate.set(d);
+    this.selectedEndDate.set(d);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
@@ -439,22 +486,14 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isSelectedDateToday()) return;
     const curStart = new Date(this.selectedStartDate());
     curStart.setDate(curStart.getDate() + 1);
-    this.selectedStartDate.set(this.formatDate(curStart));
-    
-    if (this.isRangeMode()) {
-      const curEnd = new Date(this.selectedEndDate());
-      curEnd.setDate(curEnd.getDate() + 1);
-      this.selectedEndDate.set(this.formatDate(curEnd));
-    } else {
-      this.selectedEndDate.set(this.formatDate(curStart));
-    }
-    
+    const d = this.formatDate(curStart);
+    this.selectedStartDate.set(d);
+    this.selectedEndDate.set(d);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
 
   setPreset(preset: 'today' | 'yesterday'): void {
-    this.isRangeMode.set(false);
     const d = new Date();
     if (preset === 'yesterday') {
       d.setDate(d.getDate() - 1);
@@ -464,50 +503,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEndDate.set(formatted);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
-  }
-
-  toggleRangeMode(): void {
-    const next = !this.isRangeMode();
-    this.isRangeMode.set(next);
-    if (!next) {
-      this.selectedEndDate.set(this.selectedStartDate());
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
-  }
-
-  onSingleDateChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target && target.value) {
-      this.selectedStartDate.set(target.value);
-      this.selectedEndDate.set(target.value);
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
-  }
-
-  onStartDateChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target && target.value) {
-      this.selectedStartDate.set(target.value);
-      if (this.selectedStartDate() > this.selectedEndDate()) {
-        this.selectedEndDate.set(this.selectedStartDate());
-      }
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
-  }
-
-  onEndDateChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target && target.value) {
-      this.selectedEndDate.set(target.value);
-      if (this.selectedEndDate() < this.selectedStartDate()) {
-        this.selectedStartDate.set(this.selectedEndDate());
-      }
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
   }
 
   seeTrailInMap(): void {
@@ -810,6 +805,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }
