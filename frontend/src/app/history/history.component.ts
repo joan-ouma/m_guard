@@ -64,6 +64,9 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   // Incident filtering
   readonly filterIncidentsOnly = signal(false);
 
+  // Range mode toggle (default false = clean single day view)
+  readonly isRangeMode = signal<boolean>(false);
+
   // Leaflet references
   private map: L.Map | null = null;
   private pathPolyline: L.Polyline | null = null;
@@ -81,6 +84,13 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isSelectedDateToday = computed<boolean>(() => {
     const today = this.formatDate(new Date());
     return this.selectedStartDate() === today && this.selectedEndDate() === today;
+  });
+
+  readonly isSelectedDateYesterday = computed<boolean>(() => {
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    const yesterday = this.formatDate(y);
+    return this.selectedStartDate() === yesterday && this.selectedEndDate() === yesterday;
   });
 
   // Chronological trail & events list for the selected day
@@ -241,10 +251,30 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.trailEvents().filter((e) => e.type === 'REACTIVATED').length;
   });
 
+  readonly incidentEventsCount = computed<number>(() => {
+    return this.trailEvents().filter((e) => 
+      e.type === 'THEFT' || 
+      e.type === 'TAMPER' || 
+      e.type === 'DURESS' || 
+      e.type === 'ACCIDENT_DETECTED' || 
+      e.type === 'BIKE_TOUCHED' || 
+      e.type === 'GEOFENCE_APPROACHING' || 
+      e.type === 'IMMOBILIZED'
+    ).length;
+  });
+
   readonly filteredTrailEvents = computed<TrailEvent[]>(() => {
     const allEvents = this.trailEvents();
     if (!this.filterIncidentsOnly()) return allEvents;
-    return allEvents.filter(e => e.type === 'THEFT' || e.type === 'TAMPER' || e.type === 'DURESS' || e.type === 'ACCIDENT_DETECTED');
+    return allEvents.filter(e => 
+      e.type === 'THEFT' || 
+      e.type === 'TAMPER' || 
+      e.type === 'DURESS' || 
+      e.type === 'ACCIDENT_DETECTED' || 
+      e.type === 'BIKE_TOUCHED' || 
+      e.type === 'GEOFENCE_APPROACHING' || 
+      e.type === 'IMMOBILIZED'
+    );
   });
 
   ngOnInit(): void {
@@ -267,6 +297,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.selectedEndDate.set(endParam);
         } else if (oldDateParam) {
           this.selectedEndDate.set(oldDateParam);
+        }
+
+        if (startParam && endParam && startParam !== endParam) {
+          this.isRangeMode.set(true);
         }
 
         const validBike =
@@ -389,9 +423,13 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     curStart.setDate(curStart.getDate() - 1);
     this.selectedStartDate.set(this.formatDate(curStart));
     
-    const curEnd = new Date(this.selectedEndDate());
-    curEnd.setDate(curEnd.getDate() - 1);
-    this.selectedEndDate.set(this.formatDate(curEnd));
+    if (this.isRangeMode()) {
+      const curEnd = new Date(this.selectedEndDate());
+      curEnd.setDate(curEnd.getDate() - 1);
+      this.selectedEndDate.set(this.formatDate(curEnd));
+    } else {
+      this.selectedEndDate.set(this.formatDate(curStart));
+    }
     
     this.updateQueryParams();
     this.fetchBreadcrumbs();
@@ -403,15 +441,20 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     curStart.setDate(curStart.getDate() + 1);
     this.selectedStartDate.set(this.formatDate(curStart));
     
-    const curEnd = new Date(this.selectedEndDate());
-    curEnd.setDate(curEnd.getDate() + 1);
-    this.selectedEndDate.set(this.formatDate(curEnd));
+    if (this.isRangeMode()) {
+      const curEnd = new Date(this.selectedEndDate());
+      curEnd.setDate(curEnd.getDate() + 1);
+      this.selectedEndDate.set(this.formatDate(curEnd));
+    } else {
+      this.selectedEndDate.set(this.formatDate(curStart));
+    }
     
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
 
   setPreset(preset: 'today' | 'yesterday'): void {
+    this.isRangeMode.set(false);
     const d = new Date();
     if (preset === 'yesterday') {
       d.setDate(d.getDate() - 1);
@@ -421,6 +464,26 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEndDate.set(formatted);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
+  }
+
+  toggleRangeMode(): void {
+    const next = !this.isRangeMode();
+    this.isRangeMode.set(next);
+    if (!next) {
+      this.selectedEndDate.set(this.selectedStartDate());
+      this.updateQueryParams();
+      this.fetchBreadcrumbs();
+    }
+  }
+
+  onSingleDateChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target && target.value) {
+      this.selectedStartDate.set(target.value);
+      this.selectedEndDate.set(target.value);
+      this.updateQueryParams();
+      this.fetchBreadcrumbs();
+    }
   }
 
   onStartDateChange(event: Event): void {
