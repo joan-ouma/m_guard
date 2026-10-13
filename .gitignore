@@ -76,6 +76,8 @@ backend/server
 *.test
 *.out
 /vendor/
+go.work
+go.work.sum
 
 # System & Editor
 .DS_Store

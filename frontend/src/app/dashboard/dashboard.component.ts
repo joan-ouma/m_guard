@@ -6,75 +6,54 @@ import {
   inject,
   signal,
   computed,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
+import { NotificationService } from '../core/services/notification.service';
 import { BikeDTO, BreadcrumbDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
 import Swal from 'sweetalert2';
 
-export interface FleetBike {
-  id: string;
-  plate: string;
-  model: string;
-  imei: string;
-  status: 'RUNNING' | 'STOPPED';
-  movementStatus: 'Moving' | 'Stationary';
-  speedText: string;
-  address: string;
-  county: string;
-  subCounty: string;
-  lat: number;
-  lng: number;
-  fenceName: string;
-  fenceRadius: number;
-  triggerCondition: string;
-  email: string;
-  lastSeenAt?: string;
-  isImmobilized: boolean;
-  riderName: string;
-  riderNationalId: string;
-  riderPhone: string;
-}
+import {
+  FleetBike,
+  DEFAULT_BIKE,
+  NotificationItem,
+} from './models/dashboard.models';
+import { DashboardSidebarComponent } from './components/dashboard-sidebar/dashboard-sidebar.component';
+import { DashboardHeaderComponent } from './components/dashboard-header/dashboard-header.component';
+import { BikeInspectorComponent } from './components/bike-inspector/bike-inspector.component';
+import {
+  GeofenceModalComponent,
+  GeofenceData,
+} from './components/geofence-modal/geofence-modal.component';
+import { RegisterBikeModalComponent } from './components/register-bike-modal/register-bike-modal.component';
+import { DuressModalComponent } from './components/duress-modal/duress-modal.component';
 
-const DEFAULT_BIKE: FleetBike = {
-  id: '',
-  plate: 'NO BIKE',
-  model: 'No asset registered',
-  imei: '',
-  status: 'STOPPED',
-  movementStatus: 'Stationary',
-  speedText: '0.0 km/h • Ignition OFF',
-  address: 'Nairobi CBD',
-  county: 'Nairobi County',
-  subCounty: 'Starehe',
-  lat: -1.286389,
-  lng: 36.817223,
-  fenceName: 'Central Logistics Depot',
-  fenceRadius: 2500,
-  triggerCondition: 'Alert on Exit',
-  email: 'operator@mototrack.ke',
-  lastSeenAt: new Date().toISOString(),
-  isImmobilized: false,
-  riderName: 'Unassigned',
-  riderNationalId: 'N/A',
-  riderPhone: 'N/A',
-};
+export { FleetBike, DEFAULT_BIKE, NotificationItem };
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    DashboardSidebarComponent,
+    DashboardHeaderComponent,
+    BikeInspectorComponent,
+    GeofenceModalComponent,
+    RegisterBikeModalComponent,
+    DuressModalComponent,
+  ],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly authService = inject(AuthService);
   readonly bikeService = inject(BikeService);
-  private readonly fb = inject(FormBuilder);
+  readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   private map: L.Map | null = null;
   private bikeMarker: L.Marker | null = null;
@@ -94,9 +73,71 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly currentTime = signal<number>(Date.now());
   readonly mobileDrawerOpen = signal<boolean>(false);
   readonly mobileSheetExpanded = signal<boolean>(false);
+  readonly notifications = signal<NotificationItem[]>([]);
+  readonly unreadAlertCount = computed(() => this.notifications().filter((n) => !n.read).length);
+
+  readonly showRegisterModal = signal<boolean>(false);
+  readonly registrationError = signal<string | null>(null);
+  readonly isSubmitting = signal<boolean>(false);
+
   private tickerInterval?: ReturnType<typeof setInterval>;
-  private pollInterval?: ReturnType<typeof setInterval>;
   private duressInterval?: ReturnType<typeof setInterval>;
+
+  constructor() {
+    effect(() => {
+      const alert = this.bikeService.latestAlert();
+      if (!alert) return;
+
+      const notif = this.createNotificationFromAlert(alert);
+      this.notifications.update((prev) => {
+        if (prev.some((p) => p.id === notif.id)) return prev;
+        return [notif, ...prev];
+      });
+      this.notificationService.notify(
+        notif.title,
+        notif.activity,
+        notif.bikeId ? `/history?bike=${notif.bikeId}` : '/history'
+      );
+    });
+
+    effect(() => {
+      const bikes = this.bikeService.bikes();
+      if (!bikes || bikes.length === 0) return;
+
+      this.fleet.update((prev) => {
+        const nextMap: Record<string, FleetBike> = { ...prev };
+        for (const b of bikes) {
+          const currentBike = prev[b.id];
+          const mapped = this.mapToFleetBike(b);
+          if (currentBike && currentBike.fenceRadius) {
+            mapped.fenceName = currentBike.fenceName;
+            mapped.fenceRadius = currentBike.fenceRadius;
+            mapped.triggerCondition = currentBike.triggerCondition;
+            mapped.email = currentBike.email;
+          }
+          nextMap[b.id] = mapped;
+        }
+        return nextMap;
+      });
+
+      const currentActive = this.activeKey();
+      if (!currentActive || !this.fleet()[currentActive]) {
+        const bikeParam = this.route.snapshot.queryParamMap.get('bike');
+        const defaultId = this.bikeService.defaultSelectedBikeId();
+        const targetId =
+          bikeParam && this.fleet()[bikeParam]
+            ? bikeParam
+            : defaultId && this.fleet()[defaultId]
+            ? defaultId
+            : bikes[0]?.id;
+        if (targetId) {
+          this.activeKey.set(targetId);
+        }
+      }
+
+      this.updateMapForCurrentBike(false);
+    });
+  }
 
   readonly bikeList = computed<FleetBike[]>(() => Object.values(this.fleet()));
 
@@ -113,27 +154,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     return DEFAULT_BIKE;
   });
 
-  readonly geofenceForm: FormGroup = this.fb.group({
-    fenceName: ['Ongata Rongai Delivery Zone', [Validators.required]],
-    fenceRadius: [3500, [Validators.required, Validators.min(100), Validators.max(50000)]],
-    fenceTrigger: ['Alert on Exit', [Validators.required]],
-    fenceEmail: ['operator@mototrack.ke', [Validators.required, Validators.email]],
-  });
-
-  readonly showRegisterModal = signal<boolean>(false);
-  readonly registrationError = signal<string | null>(null);
-  readonly isSubmitting = signal<boolean>(false);
-
-  readonly registerForm: FormGroup = this.fb.group({
-    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}\s?[0-9]{3}[A-Z]$/i)]],
-    model: ['', [Validators.required]],
-    imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
-    county: ['Nairobi County', [Validators.required]],
-    subCounty: ['Westlands', [Validators.required]],
-    isSelfRider: [false],
-    riderName: ['', [Validators.required, Validators.minLength(2)]],
-    riderNationalId: ['', [Validators.required, Validators.pattern(/^[0-9]{6,10}$/)]],
-    riderPhone: ['', [Validators.required, Validators.pattern(/^(\+?[0-9\s-]{9,15})$/)]],
+  readonly currentGeofenceData = computed<GeofenceData>(() => {
+    const bike = this.selectedBike();
+    return {
+      fenceName: bike.fenceName,
+      fenceRadius: bike.fenceRadius,
+      fenceTrigger: bike.triggerCondition,
+      fenceEmail: bike.email,
+    };
   });
 
   ngOnInit(): void {
@@ -163,40 +191,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.activeKey.set(targetId);
         }
 
-        const current = this.selectedBike();
-        this.geofenceForm.patchValue({
-          fenceName: current.fenceName,
-          fenceRadius: current.fenceRadius,
-          fenceTrigger: current.triggerCondition,
-          fenceEmail: current.email,
-        });
-
         this.updateMapForCurrentBike(true);
       },
     });
-
-    this.pollInterval = setInterval(() => {
-      this.bikeService.loadBikes().subscribe({
-        next: (res) => {
-          this.fleet.update((prev) => {
-            const nextMap: Record<string, FleetBike> = { ...prev };
-            for (const b of res.data) {
-              const currentBike = prev[b.id];
-              const mapped = this.mapToFleetBike(b);
-              if (currentBike && currentBike.fenceRadius) {
-                mapped.fenceName = currentBike.fenceName;
-                mapped.fenceRadius = currentBike.fenceRadius;
-                mapped.triggerCondition = currentBike.triggerCondition;
-                mapped.email = currentBike.email;
-              }
-              nextMap[b.id] = mapped;
-            }
-            return nextMap;
-          });
-          this.updateMapForCurrentBike(false);
-        },
-      });
-    }, 3000);
 
     this.route.queryParamMap.subscribe((params) => {
       const bikeParam = params.get('bike');
@@ -220,9 +217,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       clearInterval(this.tickerInterval);
       this.tickerInterval = undefined;
     }
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = undefined;
+    if (this.duressInterval) {
+      clearInterval(this.duressInterval);
+      this.duressInterval = undefined;
     }
     this.clearPathLayers();
     if (this.map) {
@@ -241,17 +238,23 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }).setView([bike.lat, bike.lng], 13);
 
     // Custom Dark Basemap: Esri World Dark Gray Canvas
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 16,
-      attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; DeLorme, NAVTEQ',
-    }).addTo(this.map);
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 16,
+        attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; DeLorme, NAVTEQ',
+      }
+    ).addTo(this.map);
 
-    // Muted Reference Labels Layer (subtle, low opacity, no clutter)
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 16,
-      opacity: 0.45,
-      attribution: '',
-    }).addTo(this.map);
+    // Muted Reference Labels Layer
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 16,
+        opacity: 0.45,
+        attribution: '',
+      }
+    ).addTo(this.map);
 
     this.bikeMarker = L.marker([bike.lat, bike.lng], {
       icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
@@ -268,13 +271,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadAndDrawPath(bike);
     this.map.invalidateSize();
-  }
-
-  onSelectBikeChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    if (target && target.value) {
-      this.selectBike(target.value);
-    }
   }
 
   private updateMapForCurrentBike(recenter: boolean = false): void {
@@ -338,7 +334,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.clearPathLayers();
 
-    const coords: [number, number][] = points.map((p) => [p.latitude, p.longitude] as [number, number]);
+    const coords: [number, number][] = points.map(
+      (p) => [p.latitude, p.longitude] as [number, number]
+    );
 
     const isLastSame =
       coords.length > 0 &&
@@ -398,33 +396,36 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private updateMarkerSize(): void {
     if (!this.bikeMarker || !this.map) return;
     const bike = this.selectedBike();
-    this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, this.isBreachActive()));
+    this.bikeMarker.setIcon(
+      this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, this.isBreachActive())
+    );
   }
 
-  private createBadgeIcon(plate: string, status: string = 'RUNNING', isImmobilized: boolean = false, isBreach: boolean = false): L.DivIcon {
+  private createBadgeIcon(
+    plate: string,
+    status: string = 'RUNNING',
+    isImmobilized: boolean = false,
+    isBreach: boolean = false
+  ): L.DivIcon {
     const isImmobilizedState = isImmobilized;
     const isRunning = status === 'RUNNING' && !isImmobilizedState;
 
     let statusClass = 'stopped';
     let haloClass = 'radar-halo radar-halo-stopped';
     let dotColor = '#f59e0b';
-    let statusBg = 'rgba(245, 158, 11, 0.2)';
 
     if (isBreach) {
       statusClass = 'breached';
       haloClass = 'radar-halo radar-halo-breach';
       dotColor = '#f43f5e';
-      statusBg = 'rgba(244, 63, 94, 0.25)';
     } else if (isImmobilizedState) {
       statusClass = 'immobilized';
       haloClass = 'radar-halo radar-halo-breach';
       dotColor = '#e11d48';
-      statusBg = 'rgba(225, 29, 72, 0.25)';
     } else if (isRunning) {
       statusClass = 'running';
       haloClass = 'radar-halo radar-halo-running';
       dotColor = '#10b981';
-      statusBg = 'rgba(16, 185, 129, 0.2)';
     }
 
     const pinIconSvg = isImmobilizedState
@@ -442,19 +443,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <!-- Full Plate Label Pill with Status Heartbeat Dot -->
-          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px;[...]
+          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; items-center gap: 8px; white-space: nowrap; margin-bottom: 8px;">
             <span style="display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor}; flex-shrink: 0;"></span>
             <span>${plate}</span>
           </div>
-
-          <!-- Pulsing Live Halo & Pin Container (Thumb-Sized 48px) -->
           <div style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
             <div class="${haloClass}"></div>
             <div class="bike-marker-pin-body ${statusClass}">
               ${pinIconSvg}
             </div>
-            <!-- Directional Heading Arrow -->
             <div class="bike-marker-heading-arrow ${statusClass}"></div>
           </div>
         </div>
@@ -471,15 +468,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const bike = this.selectedBike();
 
-    this.geofenceForm.patchValue({
-      fenceName: bike.fenceName,
-      fenceRadius: bike.fenceRadius,
-      fenceTrigger: bike.triggerCondition,
-      fenceEmail: bike.email,
-    });
-
     if (this.map && this.bikeMarker && this.geofenceLayer) {
-      this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false));
+      this.bikeMarker.setIcon(
+        this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false)
+      );
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
 
       this.geofenceLayer
@@ -520,13 +512,37 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.map?.zoomIn();
   }
 
-
   zoomOut(): void {
     this.map?.zoomOut();
   }
 
   toggleGeofenceModal(open: boolean): void {
     this.showGeofenceModal.set(open);
+  }
+
+  saveGeofence(data: GeofenceData): void {
+    const key = this.activeKey();
+
+    this.fleet.update((prev) => {
+      const current = prev[key];
+      if (!current) return prev;
+      return {
+        ...prev,
+        [key]: {
+          ...current,
+          fenceName: data.fenceName,
+          fenceRadius: data.fenceRadius,
+          triggerCondition: data.fenceTrigger,
+          email: data.fenceEmail,
+        },
+      };
+    });
+
+    if (this.geofenceLayer) {
+      this.geofenceLayer.setRadius(data.fenceRadius);
+    }
+
+    this.toggleGeofenceModal(false);
   }
 
   toggleMobileDrawer(open?: boolean): void {
@@ -544,73 +560,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.map?.invalidateSize(), 300);
   }
 
-  expandMobileSheet(): void {
-    this.mobileSheetExpanded.set(true);
-    setTimeout(() => this.map?.invalidateSize(), 300);
-  }
-
-  collapseMobileSheet(): void {
-    this.mobileSheetExpanded.set(false);
-    setTimeout(() => this.map?.invalidateSize(), 300);
-  }
-
-  saveGeofence(e?: Event): void {
-    if (e) {
-      e.preventDefault();
-    }
-    if (this.geofenceForm.invalid) return;
-
-    const val = this.geofenceForm.value;
-    const key = this.activeKey();
-
-    this.fleet.update((prev) => {
-      const current = prev[key];
-      if (!current) return prev;
-      return {
-        ...prev,
-        [key]: {
-          ...current,
-          fenceName: val.fenceName,
-          fenceRadius: parseInt(val.fenceRadius, 10),
-          triggerCondition: val.fenceTrigger,
-          email: val.fenceEmail,
-        },
-      };
-    });
-
-    if (this.geofenceLayer) {
-      this.geofenceLayer.setRadius(parseInt(val.fenceRadius, 10));
-    }
-
-    this.toggleGeofenceModal(false);
-  }
-
   openRegisterModal(): void {
     this.registrationError.set(null);
-    this.registerForm.reset({
-      county: 'Nairobi County',
-      subCounty: 'Westlands',
-      isSelfRider: false,
-      riderName: '',
-      riderNationalId: '',
-      riderPhone: '',
-    });
     this.showRegisterModal.set(true);
-  }
-
-  onToggleSelfRider(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.registerForm.patchValue({ isSelfRider: checked });
-    if (checked) {
-      const user = this.authService.currentUser();
-      if (user) {
-        this.registerForm.patchValue({
-          riderName: user.name || '',
-          riderNationalId: user.national_id || '',
-          riderPhone: user.phone_number || '',
-        });
-      }
-    }
   }
 
   closeRegisterModal(): void {
@@ -618,14 +570,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.registrationError.set(null);
   }
 
-  registerBike(): void {
-    if (this.registerForm.invalid || this.isSubmitting()) return;
+  registerBike(val: any): void {
+    if (this.isSubmitting()) return;
 
     this.isSubmitting.set(true);
     this.registrationError.set(null);
 
-    const val = this.registerForm.value;
-    const parts = val.model.trim().split(' ');
+    const parts = (val.model || '').trim().split(' ');
     const make = parts[0] || 'Bajaj';
     const model = parts.slice(1).join(' ') || val.model.trim();
 
@@ -646,8 +597,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (res) => {
           this.isSubmitting.set(false);
           this.closeRegisterModal();
-          
-          // Add the newly created bike directly to the fleet and select it
           const mapped = this.mapToFleetBike(res.data);
           this.fleet.update((prev) => ({ ...prev, [mapped.id]: mapped }));
           this.selectBike(mapped.id);
@@ -686,7 +635,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.bikeMarker) {
       this.bikeMarker.setLatLng([exitLat, exitLng]);
-      this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, true));
+      this.bikeMarker.setIcon(
+        this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, true)
+      );
     }
 
     if (this.geofenceLayer) {
@@ -709,6 +660,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isBreachActive.set(true);
     this.alertBannerText.set(`Breach email sent to ${bike.email}`);
 
+    this.addNotification({
+      id: `breach-${Date.now()}`,
+      title: `${bike.plate} • Geofence Breach`,
+      activity: `Vehicle exited ${bike.fenceName} perimeter`,
+      bikeId: bike.id,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+    });
+
+    this.notificationService.notify(
+      `${bike.plate} • Geofence Breach`,
+      `Vehicle exited ${bike.fenceName} perimeter`,
+      bike.id ? `/history?bike=${bike.id}` : '/history'
+    );
+
     this.map?.panTo([exitLat, exitLng]);
   }
 
@@ -716,6 +682,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.showDuressPrompt()) return;
     this.showDuressPrompt.set(true);
     this.duressCountdown.set(30);
+
+    const bike = this.selectedBike();
+    this.addNotification({
+      id: `stop-${Date.now()}`,
+      title: `${bike.plate} • Sudden Stop`,
+      activity: 'Rapid deceleration anomaly detected',
+      bikeId: bike.id,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+    });
+
+    this.notificationService.notify(
+      `${bike.plate} • Sudden Stop`,
+      'Rapid deceleration anomaly detected',
+      bike.id ? `/history?bike=${bike.id}` : '/history'
+    );
 
     this.duressInterval = setInterval(() => {
       const current = this.duressCountdown() - 1;
@@ -748,6 +730,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isBreachActive.set(true);
     this.alertBannerText.set(`DURESS ESCALATED: Alert sent to Sacco & Emergency Contacts`);
 
+    const bike = this.selectedBike();
+    this.addNotification({
+      id: `duress-${Date.now()}`,
+      title: `${bike.plate} • Duress Escalated`,
+      activity: 'Emergency alert dispatched to contacts',
+      bikeId: bike.id,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+    });
+
+    this.notificationService.notify(
+      `${bike.plate} • Duress Escalated`,
+      'Emergency alert dispatched to Sacco and emergency contacts',
+      bike.id ? `/history?bike=${bike.id}` : '/history'
+    );
+
     Swal.fire({
       icon: 'error',
       title: 'Emergency Alert Sent',
@@ -756,44 +754,71 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  markAllNotificationsRead(): void {
+    this.notifications.update((prev) => prev.map((n) => ({ ...n, read: true })));
+  }
+
+  addNotification(item: NotificationItem): void {
+    this.notifications.update((prev) => [item, ...prev]);
+  }
+
+  viewNotification(item: NotificationItem): void {
+    this.notifications.update((prev) =>
+      prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
+    );
+    if (item.bikeId) {
+      if (this.fleet()[item.bikeId]) {
+        this.selectBike(item.bikeId);
+      }
+      this.router.navigate(['/history'], { queryParams: { bike: item.bikeId } });
+    } else {
+      this.router.navigate(['/history']);
+    }
+  }
+
+  private createNotificationFromAlert(alert: any): NotificationItem {
+    const bikeId = alert.bike_id || alert.bikeId || '';
+    const bike = this.fleet()[bikeId];
+    const bikeName = bike ? bike.plate : alert.plate || 'Motorcycle';
+    const rawType = (alert.event_type || alert.eventType || alert.title || 'Alert')
+      .toUpperCase()
+      .replace(/_/g, ' ');
+
+    let title = bikeName ? `${bikeName} • ${rawType}` : rawType;
+    let activity = alert.activity || alert.message || alert.details;
+
+    if (!activity) {
+      if (rawType.includes('GEOFENCE') || rawType.includes('BREACH')) {
+        activity = 'Boundary breach detected outside perimeter';
+      } else if (rawType.includes('STOP') || rawType.includes('DURESS')) {
+        activity = 'Sudden stop anomaly recorded';
+      } else if (rawType.includes('CRASH')) {
+        activity = 'Collision impact detected';
+      } else if (rawType.includes('THEFT') || rawType.includes('TAMPER')) {
+        activity = 'Unauthorized movement or tamper alert';
+      } else {
+        activity = 'Security event detected';
+      }
+    }
+
+    const timeStr = alert.recorded_at
+      ? new Date(alert.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const id = alert.id || `${bikeId}-${rawType}-${alert.recorded_at || Date.now()}`;
+
+    return {
+      id,
+      title,
+      activity,
+      bikeId,
+      time: timeStr,
+      read: false,
+    };
+  }
+
   handleLogout(): void {
     this.authService.logout().subscribe();
-  }
-
-  getUserInitials(): string {
-    const name = this.authService.currentUser()?.name || 'Brian Otieno';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-  }
-
-  getLastSeen(bike: FleetBike): string {
-    const now = this.currentTime();
-    return this.formatLastSeen(bike.lastSeenAt, now);
-  }
-
-  formatLastSeen(dateStr?: string | null, now = Date.now()): string {
-    if (!dateStr) return '3s ago';
-    const timestamp = new Date(dateStr).getTime();
-    if (isNaN(timestamp)) return '3s ago';
-
-    const diffSec = Math.max(0, Math.floor((now - timestamp) / 1000));
-    if (diffSec < 60) {
-      return `${Math.max(1, diffSec)}s ago`;
-    }
-    const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) {
-      return `${diffMin}m ago`;
-    }
-    const diffHour = Math.floor(diffMin / 60);
-    if (diffHour < 24) {
-      return `${diffHour}h ago`;
-    }
-    const diffDay = Math.floor(diffHour / 24);
-    return `${diffDay}d ago`;
   }
 
   toggleImmobilize(bike: FleetBike): void {
@@ -802,9 +827,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const isMoving = bike.movementStatus === 'Moving';
 
     const actionText = isImmobilizing
-      ? (isMoving 
-          ? "The bike is currently moving. This will queue the command to disable the ignition once the bike stops. The bike won't start until you restore it." 
-          : "This will disable the ignition. The bike won't start until you restore it.")
+      ? isMoving
+        ? "The bike is currently moving. This will queue the command to disable the ignition once the bike stops. The bike won't start until you restore it."
+        : "This will disable the ignition. The bike won't start until you restore it."
       : 'This will restore electrical starter power to the motorcycle.';
 
     Swal.fire({
@@ -828,13 +853,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         inputmode: 'numeric',
       },
       customClass: {
-        input: 'text-center tracking-[0.5em] text-2xl font-bold rounded-xl border-zinc-300 focus:border-rose-500 focus:ring-rose-500',
+        input:
+          'text-center tracking-[0.5em] text-2xl font-bold rounded-xl border-zinc-300 focus:border-rose-500 focus:ring-rose-500',
       },
       icon: isImmobilizing ? 'warning' : 'question',
       showCancelButton: true,
-      confirmButtonColor: isImmobilizing ? (isMoving ? '#f59e0b' : '#e11d48') : '#059669',
+      confirmButtonColor: isImmobilizing
+        ? isMoving
+          ? '#f59e0b'
+          : '#e11d48'
+        : '#059669',
       cancelButtonColor: '#71717a',
-      confirmButtonText: isImmobilizing ? (isMoving ? 'Queue Immobilization' : 'Yes, Immobilize') : 'Yes, Reactivate',
+      confirmButtonText: isImmobilizing
+        ? isMoving
+          ? 'Queue Immobilization'
+          : 'Yes, Immobilize'
+        : 'Yes, Reactivate',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
       preConfirm: (pin) => {
@@ -842,7 +876,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           Swal.showValidationMessage('Please enter a valid 4-digit PIN');
           return false;
         }
-        return pin; // In a real app, this PIN would be sent to the backend API for validation
+        return pin;
       },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -863,7 +897,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: isImmobilizing ? (isMoving ? `${bike.plate} Immobilization Queued` : `${bike.plate} Immobilized`) : `${bike.plate} Reactivated`,
+              title: isImmobilizing
+                ? isMoving
+                  ? `${bike.plate} Immobilization Queued`
+                  : `${bike.plate} Immobilized`
+                : `${bike.plate} Reactivated`,
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
@@ -886,7 +924,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
     const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
-    const movementStatus = (b.status === 'RUNNING' || b.speed_kmh > 0) ? 'Moving' : 'Stationary';
+    const movementStatus = b.status === 'RUNNING' || b.speed_kmh > 0 ? 'Moving' : 'Stationary';
 
     return {
       id: b.id,
@@ -904,7 +942,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       fenceName: b.geofence_id ? 'Assigned Geofence' : 'Nairobi Delivery Zone',
       fenceRadius: 3000,
       triggerCondition: 'Alert on Exit',
-      email: 'operator@mototrack.ke',
+      email: this.authService.currentUser()?.email || '',
       lastSeenAt: timestamp,
       isImmobilized: !!b.is_immobilized,
       riderName: this.authService.currentUser()?.name || 'Primary Rider',

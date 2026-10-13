@@ -27,14 +27,36 @@ export interface BikeDTO {
   updated_at: string;
 }
 
+export interface PaginationMeta {
+  total: number;
+  limit: number;
+  cursor?: string;
+  next_cursor?: string;
+  has_more: boolean;
+}
+
 export interface BikeListMeta {
   total: number;
+  limit?: number;
+  cursor?: string;
+  next_cursor?: string;
+  has_more?: boolean;
   default_selected_bike_id?: string;
 }
 
 export interface BikeListResponse {
   data: BikeDTO[];
   meta: BikeListMeta;
+}
+
+export interface PaginatedBreadcrumbsResponse {
+  data: BreadcrumbDTO[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedEventsResponse {
+  data: BikeEventDTO[];
+  pagination: PaginationMeta;
 }
 
 export interface CreateBikePayload {

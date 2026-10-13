@@ -50,17 +50,13 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	client := &sse.Client{
-		ID:     uuid.NewString(),
-		UserID: claims.UserID,
-		Send:   make(chan []byte, 64),
-	}
+	client := sse.NewClient(uuid.NewString(), claims.UserID, 128)
 
 	h.broker.Register(client)
 	defer h.broker.Unregister(client)
 
 	// Send initial snapshot of bikes immediately upon connection
-	if bikesList, err := h.bikeService.ListBikes(r.Context(), claims); err == nil {
+	if bikesList, err := h.bikeService.ListBikes(r.Context(), claims, "", 100); err == nil {
 		if dataBytes, err := json.Marshal(bikesList); err == nil {
 			fmt.Fprintf(w, "event: bikes_init\ndata: %s\n\n", dataBytes)
 			flusher.Flush()
@@ -71,16 +67,23 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	flusher.Flush()
 
 	ctx := r.Context()
+	pingTicker := time.NewTicker(15 * time.Second)
+	defer pingTicker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return
+		case <-pingTicker.C:
+			if _, err := w.Write([]byte(": ping\n\n")); err != nil {
+				return
+			}
+			flusher.Flush()
 		case msg, ok := <-client.Send:
 			if !ok {
 				return
 			}
-			_, err := w.Write(msg)
-			if err != nil {
+			if _, err := w.Write(msg); err != nil {
 				return
 			}
 			flusher.Flush()

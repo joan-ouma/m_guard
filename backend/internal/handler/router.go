@@ -13,6 +13,7 @@ type RouterConfig struct {
 	AuthHandler         *AuthHandler
 	BikeHandler         *BikeHandler
 	HealthHandler       *HealthHandler
+	NotificationHandler *NotificationHandler
 	SSEHandler          *SSEHandler
 	AuthMiddleware      func(http.Handler) http.Handler
 	RateLimitMiddleware func(http.Handler) http.Handler
@@ -32,6 +33,9 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 	r.Mount("/v1/sessions", cfg.AuthHandler.SessionRoutes(cfg.RateLimitMiddleware, cfg.AuthMiddleware))
 	r.Mount("/v1/password-resets", cfg.AuthHandler.PasswordResetRoutes(cfg.RateLimitMiddleware))
 	r.Mount("/v1/bikes", cfg.BikeHandler.Routes(cfg.AuthMiddleware, cfg.SSEHandler.Stream))
+	if cfg.NotificationHandler != nil {
+		r.Mount("/v1/notifications", cfg.NotificationHandler.Routes(cfg.AuthMiddleware))
+	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		domain.NewNotFoundError("Resource not found", r.URL.Path).WriteJSON(w)

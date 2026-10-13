@@ -16,6 +16,7 @@ import (
 	"motoguard-backend/internal/mailer"
 	"motoguard-backend/internal/middleware"
 	"motoguard-backend/internal/mqtt"
+	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 	"motoguard-backend/internal/service"
@@ -61,6 +62,20 @@ func main() {
 	sseBroker := sse.NewBroker()
 	defer sseBroker.Stop()
 
+	// Initialize AWS SNS Notification Service
+	var snsClient notification.SNSClient
+	if cfg.AWSAccessKeyID != "" && cfg.AWSSecretAccessKey != "" {
+		slog.Info("Initializing AWS SNS client", "region", cfg.AWSRegion, "platform_app_arn", cfg.AWSSNSPlatformAppARN)
+		snsClient = notification.NewAWSSNSClient(cfg.AWSRegion, cfg.AWSAccessKeyID, cfg.AWSSecretAccessKey)
+	} else {
+		slog.Info("AWS credentials not configured, falling back to NoopSNSClient")
+		snsClient = &notification.NoopSNSClient{}
+	}
+
+	notificationRepo := notification.NewRepository(pool)
+	notificationService := notification.NewService(snsClient, notificationRepo, cfg.AWSSNSPlatformAppARN, cfg.AWSSNSTopicARN)
+	notificationHandler := handler.NewNotificationHandler(notificationService)
+
 	bikeRepo := repository.NewBikeRepository(pool)
 	bikeService := service.NewBikeService(pool, bikeRepo)
 	bikeService.SetSSEBroker(sseBroker)
@@ -70,6 +85,7 @@ func main() {
 	telemetryService := service.NewTelemetryService(pool, telemetryRepo)
 	telemetryService.SetBikeRepo(bikeRepo)
 	telemetryService.SetSSEBroker(sseBroker)
+	telemetryService.SetNotificationService(notificationService)
 
 	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService)
 	if err != nil {
@@ -90,6 +106,7 @@ func main() {
 		AuthHandler:         authHandler,
 		BikeHandler:         bikeHandler,
 		HealthHandler:       healthHandler,
+		NotificationHandler: notificationHandler,
 		SSEHandler:          sseHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),

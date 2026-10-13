@@ -20,6 +20,11 @@ type Config struct {
 	MailjetSenderName   string
 	FrontendURL         string
 	LogFile             string
+	AWSRegion           string
+	AWSAccessKeyID      string
+	AWSSecretAccessKey  string
+	AWSSNSPlatformAppARN string
+	AWSSNSTopicARN      string
 }
 
 func getEnv(key, fallback string) string {
@@ -43,18 +48,23 @@ func Load() (Config, error) {
 	defaultFrontendURL := "https://mxguard.jullie.tech"
 
 	return Config{
-		Port:                getEnv("PORT", "8080"),
-		DatabaseURL:         dbURL,
-		JWTSecret:           jwtSecret,
-		MQTTBrokerURL:       getEnv("MQTT_BROKER_URL", "tcp://localhost:1883"),
-		MQTTUsername:        getEnv("MQTT_USERNAME", "tracker"),
-		MQTTPassword:        getEnv("MQTT_PASSWORD", "~:!Nu2>#6TDe5Y+"),
-		MailjetAPIKey:       getEnv("MAILJET_API_KEY", ""),
-		MailjetSecretKey:    getEnv("MAILJET_SECRET_KEY", ""),
-		MailjetSenderEmail:  getEnv("MAILJET_SENDER_EMAIL", "no-reply@jullie.tech"),
-		MailjetReplyToEmail: getEnv("MAILJET_REPLY_TO_EMAIL", "hello@jullie.tech"),
-		MailjetSenderName:   getEnv("MAILJET_SENDER_NAME", "MGuard"),
-		FrontendURL:         getEnv("FRONTEND_URL", defaultFrontendURL),
-		LogFile:             getEnv("LOG_FILE", "/var/log/fleet/fleet.log"),
+		Port:                 getEnv("PORT", "8080"),
+		DatabaseURL:          dbURL,
+		JWTSecret:            jwtSecret,
+		MQTTBrokerURL:        getEnv("MQTT_BROKER_URL", "tcp://localhost:1883"),
+		MQTTUsername:         getEnv("MQTT_USERNAME", "tracker"),
+		MQTTPassword:         getEnv("MQTT_PASSWORD", "~:!Nu2>#6TDe5Y+"),
+		MailjetAPIKey:        getEnv("MAILJET_API_KEY", ""),
+		MailjetSecretKey:     getEnv("MAILJET_SECRET_KEY", ""),
+		MailjetSenderEmail:   getEnv("MAILJET_SENDER_EMAIL", "no-reply@jullie.tech"),
+		MailjetReplyToEmail:  getEnv("MAILJET_REPLY_TO_EMAIL", "hello@jullie.tech"),
+		MailjetSenderName:    getEnv("MAILJET_SENDER_NAME", "MGuard"),
+		FrontendURL:          getEnv("FRONTEND_URL", defaultFrontendURL),
+		LogFile:              getEnv("LOG_FILE", "/var/log/fleet/fleet.log"),
+		AWSRegion:            getEnv("AWS_REGION", "eu-west-1"),
+		AWSAccessKeyID:       getEnv("AWS_ACCESS_KEY_ID", ""),
+		AWSSecretAccessKey:   getEnv("AWS_SECRET_ACCESS_KEY", ""),
+		AWSSNSPlatformAppARN: getEnv("AWS_SNS_PLATFORM_APP_ARN", ""),
+		AWSSNSTopicARN:       getEnv("AWS_SNS_TOPIC_ARN", ""),
 	}, nil
 }

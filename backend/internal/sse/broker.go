@@ -5,104 +5,128 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
-	"time"
 
 	"motoguard-backend/internal/domain"
 )
 
 type Client struct {
-	ID     string
-	UserID string
-	Send   chan []byte
+	ID        string
+	UserID    string
+	Send      chan []byte
+	closeOnce sync.Once
 }
 
+func NewClient(id string, userID string, bufferSize int) *Client {
+	if bufferSize <= 0 {
+		bufferSize = 128
+	}
+	return &Client{
+		ID:     id,
+		UserID: userID,
+		Send:   make(chan []byte, bufferSize),
+	}
+}
+
+func (c *Client) Close() {
+	c.closeOnce.Do(func() {
+		close(c.Send)
+	})
+}
+
+// Broker is a high-throughput, low-latency in-process event fanout engine
+// designed for immediate telemetry dispatch with zero external infrastructure dependencies.
 type Broker struct {
 	mu          sync.RWMutex
-	clients     map[*Client]bool
-	userClients map[string]map[*Client]bool
-	register    chan *Client
-	unregister  chan *Client
-	quit        chan struct{}
+	clients     map[*Client]struct{}
+	userClients map[string]map[*Client]struct{}
+	closeOnce   sync.Once
 }
 
 func NewBroker() *Broker {
-	b := &Broker{
-		clients:     make(map[*Client]bool),
-		userClients: make(map[string]map[*Client]bool),
-		register:    make(chan *Client, 64),
-		unregister:  make(chan *Client, 64),
-		quit:        make(chan struct{}),
-	}
-	go b.run()
-	return b
-}
-
-func (b *Broker) run() {
-	// Send lightweight comment keepalive ping every 15 seconds to prevent mobile drops and proxy timeouts
-	ticker := time.NewTicker(15 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-b.quit:
-			b.mu.Lock()
-			for c := range b.clients {
-				close(c.Send)
-			}
-			b.clients = make(map[*Client]bool)
-			b.userClients = make(map[string]map[*Client]bool)
-			b.mu.Unlock()
-			return
-
-		case c := <-b.register:
-			b.mu.Lock()
-			b.clients[c] = true
-			if b.userClients[c.UserID] == nil {
-				b.userClients[c.UserID] = make(map[*Client]bool)
-			}
-			b.userClients[c.UserID][c] = true
-			slog.Info("SSE client registered", "client_id", c.ID, "user_id", c.UserID, "total_clients", len(b.clients))
-			b.mu.Unlock()
-
-		case c := <-b.unregister:
-			b.mu.Lock()
-			if _, ok := b.clients[c]; ok {
-				delete(b.clients, c)
-				if b.userClients[c.UserID] != nil {
-					delete(b.userClients[c.UserID], c)
-					if len(b.userClients[c.UserID]) == 0 {
-						delete(b.userClients, c.UserID)
-					}
-				}
-				close(c.Send)
-				slog.Info("SSE client unregistered", "client_id", c.ID, "user_id", c.UserID, "total_clients", len(b.clients))
-			}
-			b.mu.Unlock()
-
-		case <-ticker.C:
-			pingMsg := []byte(": keepalive\n\n")
-			b.mu.RLock()
-			for c := range b.clients {
-				select {
-				case c.Send <- pingMsg:
-				default:
-				}
-			}
-			b.mu.RUnlock()
-		}
+	return &Broker{
+		clients:     make(map[*Client]struct{}),
+		userClients: make(map[string]map[*Client]struct{}),
 	}
 }
 
 func (b *Broker) Register(c *Client) {
-	b.register <- c
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	b.clients[c] = struct{}{}
+	if b.userClients[c.UserID] == nil {
+		b.userClients[c.UserID] = make(map[*Client]struct{})
+	}
+	b.userClients[c.UserID][c] = struct{}{}
+
+	slog.Info("SSE client connected", "client_id", c.ID, "user_id", c.UserID, "total_subscribers", len(b.clients))
 }
 
 func (b *Broker) Unregister(c *Client) {
-	b.unregister <- c
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if _, exists := b.clients[c]; !exists {
+		return
+	}
+
+	delete(b.clients, c)
+	if group, ok := b.userClients[c.UserID]; ok {
+		delete(group, c)
+		if len(group) == 0 {
+			delete(b.userClients, c.UserID)
+		}
+	}
+	c.Close()
+
+	slog.Info("SSE client disconnected", "client_id", c.ID, "user_id", c.UserID, "total_subscribers", len(b.clients))
 }
 
-func (b *Broker) Stop() {
-	close(b.quit)
+// BroadcastEvent dispatches events immediately upon arrival from sensors with zero intermediary hops.
+func (b *Broker) BroadcastEvent(userID string, eventType string, data any) {
+	payload, err := json.Marshal(data)
+	if err != nil {
+		slog.Error("SSE serialization error", "event_type", eventType, "error", err)
+		return
+	}
+
+	frame := []byte(fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, payload))
+
+	b.mu.RLock()
+	var targets []*Client
+	if userID != "" {
+		if group, ok := b.userClients[userID]; ok {
+			targets = make([]*Client, 0, len(group))
+			for c := range group {
+				targets = append(targets, c)
+			}
+		}
+	} else {
+		targets = make([]*Client, 0, len(b.clients))
+		for c := range b.clients {
+			targets = append(targets, c)
+		}
+	}
+	b.mu.RUnlock()
+
+	var slowClients []*Client
+	for _, c := range targets {
+		select {
+		case c.Send <- frame:
+		default:
+			// Client's network buffer is full; mark for eviction to prevent resource leaks
+			slowClients = append(slowClients, c)
+		}
+	}
+
+	if len(slowClients) > 0 {
+		go func(evicted []*Client) {
+			for _, c := range evicted {
+				slog.Warn("Evicting slow or dead SSE subscriber", "client_id", c.ID, "user_id", c.UserID)
+				b.Unregister(c)
+			}
+		}(slowClients)
+	}
 }
 
 func (b *Broker) BroadcastBikeUpdate(userID string, bike domain.BikeDTO) {
@@ -113,36 +137,15 @@ func (b *Broker) BroadcastAlert(userID string, alert any) {
 	b.BroadcastEvent(userID, "alert", alert)
 }
 
-func (b *Broker) BroadcastEvent(userID string, eventType string, data any) {
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		slog.Error("SSE marshal error", "error", err)
-		return
-	}
+func (b *Broker) Stop() {
+	b.closeOnce.Do(func() {
+		b.mu.Lock()
+		defer b.mu.Unlock()
 
-	msg := []byte(fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, dataBytes))
-
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	if userID != "" {
-		if clients, ok := b.userClients[userID]; ok {
-			for c := range clients {
-				select {
-				case c.Send <- msg:
-				default:
-					slog.Warn("SSE client buffer full, skipping frame", "client_id", c.ID, "user_id", userID)
-				}
-			}
+		for c := range b.clients {
+			c.Close()
 		}
-		return
-	}
-
-	for c := range b.clients {
-		select {
-		case c.Send <- msg:
-		default:
-			slog.Warn("SSE client buffer full, skipping frame", "client_id", c.ID)
-		}
-	}
+		b.clients = make(map[*Client]struct{})
+		b.userClients = make(map[string]map[*Client]struct{})
+	})
 }

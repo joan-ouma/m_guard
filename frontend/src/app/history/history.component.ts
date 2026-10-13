@@ -281,6 +281,46 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   });
 
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(25);
+
+  readonly totalPages = computed(() => {
+    return Math.max(1, Math.ceil(this.filteredTrailEvents().length / this.pageSize()));
+  });
+
+  readonly paginatedTrailEvents = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredTrailEvents().slice(start, start + this.pageSize());
+  });
+
+  readonly showingStart = computed(() => {
+    return this.filteredTrailEvents().length === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  readonly showingEnd = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.filteredTrailEvents().length);
+  });
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = parseInt((event.target as HTMLSelectElement).value, 10);
+    if (!isNaN(val) && val > 0) {
+      this.pageSize.set(val);
+      this.currentPage.set(1);
+    }
+  }
+
   ngOnInit(): void {
     this.bikeService.loadBikes().subscribe({
       next: (res) => {
@@ -360,13 +400,14 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!bikeId || !startDate || !endDate) return;
 
     this.isLoading.set(true);
+    this.currentPage.set(1);
 
     forkJoin({
       breadcrumbs: this.bikeService.getBikeBreadcrumbs(bikeId, 5000, undefined, startDate, endDate).pipe(
-        catchError(() => of({ data: [] as BreadcrumbDTO[] }))
+        catchError(() => of({ data: [] as BreadcrumbDTO[], pagination: { total: 0, limit: 5000, has_more: false } }))
       ),
       events: this.bikeService.getBikeEvents(bikeId, 5000, undefined, startDate, endDate).pipe(
-        catchError(() => of({ data: [] as BikeEventDTO[] }))
+        catchError(() => of({ data: [] as BikeEventDTO[], pagination: { total: 0, limit: 5000, has_more: false } }))
       ),
     }).subscribe({
       next: ({ breadcrumbs, events }) => {

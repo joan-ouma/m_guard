@@ -8,17 +8,19 @@ import (
 
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/geolocation"
+	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type TelemetryService struct {
-	pool            *pgxpool.Pool
-	repo            *repository.TelemetryRepository
-	bikeRepo        *repository.BikeRepository
-	sseBroker       SSEBroker
-	reverseGeocoder *geolocation.ReverseGeocoder
+	pool                *pgxpool.Pool
+	repo                *repository.TelemetryRepository
+	bikeRepo            *repository.BikeRepository
+	sseBroker           SSEBroker
+	reverseGeocoder     *geolocation.ReverseGeocoder
+	notificationService *notification.Service
 }
 
 func NewTelemetryService(pool *pgxpool.Pool, repo *repository.TelemetryRepository) *TelemetryService {
@@ -35,6 +37,10 @@ func (s *TelemetryService) SetSSEBroker(broker SSEBroker) {
 
 func (s *TelemetryService) SetBikeRepo(repo *repository.BikeRepository) {
 	s.bikeRepo = repo
+}
+
+func (s *TelemetryService) SetNotificationService(ns *notification.Service) {
+	s.notificationService = ns
 }
 
 func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.TelemetryPayload) error {
@@ -165,6 +171,18 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		if updatedBike, err := s.bikeRepo.GetByIDDirect(ctx, bikeID); err == nil && updatedBike != nil {
 			dto := ToBikeDTO(updatedBike)
 			s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+
+			if breach && s.notificationService != nil {
+				_ = s.notificationService.DispatchSecurityAlert(ctx, dto.UserID, notification.SecurityAlert{
+					BikeID:     bikeID,
+					Title:      "🚨 Geofence Breach Alert",
+					Body:       "Motorcycle " + dto.RegistrationNumber + " has breached its geofence boundary.",
+					EventType:  "GEOFENCE_BREACH",
+					Latitude:   payload.Latitude,
+					Longitude:  payload.Longitude,
+					RecordedAt: recordedAt,
+				})
+			}
 		}
 	}
 
@@ -185,14 +203,39 @@ func (s *TelemetryService) IngestEvent(ctx context.Context, sensorID string, eve
 	}
 
 	err = s.repo.SaveEvent(ctx, bikeID, eventType, lat, lng, recordedAt)
-	if err == nil && s.sseBroker != nil {
-		s.sseBroker.BroadcastAlert("", map[string]any{
-			"bike_id":     bikeID,
-			"event_type":  eventType,
-			"latitude":    lat,
-			"longitude":   lng,
-			"recorded_at": recordedAt,
-		})
+	if err == nil {
+		userID := ""
+		bikeReg := bikeID
+		if s.bikeRepo != nil {
+			if bike, bErr := s.bikeRepo.GetByIDDirect(ctx, bikeID); bErr == nil && bike != nil {
+				userID = bike.UserID
+				if bike.RegistrationNumber != "" {
+					bikeReg = bike.RegistrationNumber
+				}
+			}
+		}
+
+		if s.sseBroker != nil {
+			s.sseBroker.BroadcastAlert(userID, map[string]any{
+				"bike_id":     bikeID,
+				"event_type":  eventType,
+				"latitude":    lat,
+				"longitude":   lng,
+				"recorded_at": recordedAt,
+			})
+		}
+
+		if s.notificationService != nil && userID != "" {
+			_ = s.notificationService.DispatchSecurityAlert(ctx, userID, notification.SecurityAlert{
+				BikeID:     bikeID,
+				Title:      "MotorGuard Alert: " + eventType,
+				Body:       "Security event " + eventType + " detected on " + bikeReg,
+				EventType:  eventType,
+				Latitude:   lat,
+				Longitude:  lng,
+				RecordedAt: recordedAt,
+			})
+		}
 	}
 	return err
 }
