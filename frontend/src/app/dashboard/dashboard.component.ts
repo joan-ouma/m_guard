@@ -207,20 +207,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem('motorguard_onboarding_dismissed');
-      const isStandalone =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
-      const notifsActive =
-        this.notificationService.isSupported() &&
-        (this.notificationService.permission() === 'granted' || this.notificationService.isSnsSubscribed());
+      try {
+        localStorage.removeItem('motorguard_onboarding_dismissed');
+      } catch {}
 
-      // Only prompt if user hasn't dismissed and at least one action is still needed
-      if (!dismissed && !(isStandalone && notifsActive)) {
-        setTimeout(() => {
-          this.showOnboardingModal.set(true);
-        }, 700);
-      }
+      setTimeout(() => {
+        this.showOnboardingModal.set(true);
+      }, 700);
     }
   }
 
@@ -943,9 +936,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   closeOnboardingModal(): void {
     this.showOnboardingModal.set(false);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('motorguard_onboarding_dismissed', 'true');
-    }
   }
 
   private mapToFleetBike(b: BikeDTO): FleetBike {
