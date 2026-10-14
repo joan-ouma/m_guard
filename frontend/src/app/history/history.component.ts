@@ -283,6 +283,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly currentPage = signal<number>(1);
   readonly pageSize = signal<number>(25);
+  readonly pageSizes = [10, 25, 50, 100];
 
   readonly totalPages = computed(() => {
     return Math.max(1, Math.ceil(this.filteredTrailEvents().length / this.pageSize()));
@@ -313,11 +314,15 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
   onPageSizeChange(event: Event): void {
     const val = parseInt((event.target as HTMLSelectElement).value, 10);
     if (!isNaN(val) && val > 0) {
-      this.pageSize.set(val);
-      this.currentPage.set(1);
+      this.setPageSize(val);
     }
   }
 
