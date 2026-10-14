@@ -59,21 +59,20 @@ export class SignupComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
 
   @ViewChild('scannerVideo') videoRef?: ElementRef<HTMLVideoElement>;
-  @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
   // Wizard Step State
   readonly currentStep = signal<OnboardingStep>('SCAN');
-  readonly showCamera = signal<boolean>(false);
+  readonly activeInputTab = signal<'CAMERA' | 'MANUAL'>('CAMERA');
 
-  // Computed Title & Subtitle for Single Title layout
+  // Computed Title & Subtitle matching the reference layout
   readonly stepTitle = computed<string>(() => {
     switch (this.currentStep()) {
       case 'SCAN':
-        return 'Connect Tracker';
+        return 'Tracker Hardware';
       case 'DETAILS':
-        return 'Account & Vehicle';
+        return 'Account & Motorcycle';
       case 'PREVIEW':
-        return 'Review Details';
+        return 'Details Confirmation';
       case 'ATTACHED':
         return 'Tracker Activated';
     }
@@ -82,13 +81,13 @@ export class SignupComponent implements OnInit, OnDestroy {
   readonly stepSubtitle = computed<string>(() => {
     switch (this.currentStep()) {
       case 'SCAN':
-        return 'Enter your 15-digit hardware IMEI';
+        return 'Scan the QR code on your hardware unit or enter its 15-digit IMEI.';
       case 'DETAILS':
-        return 'Enter your account and motorcycle details';
+        return 'Fill in your credentials, motorcycle, and assigned rider details.';
       case 'PREVIEW':
-        return 'Verify your information before activating';
+        return 'Please review your details before sending for hardware activation.';
       case 'ATTACHED':
-        return 'Your motorcycle is online and ready';
+        return 'Your tracker has been verified and telemetry is active.';
     }
   });
 
@@ -164,7 +163,11 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
   });
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.currentStep() === 'SCAN' && this.activeInputTab() === 'CAMERA') {
+      setTimeout(() => this.startCamera(), 100);
+    }
+  }
 
   ngOnDestroy(): void {
     this.stopCamera();
@@ -179,13 +182,13 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.showConfirmPassword.update((prev) => !prev);
   }
 
-  toggleCamera(): void {
-    if (this.showCamera()) {
-      this.stopCamera();
-      this.showCamera.set(false);
+  setTab(tab: 'CAMERA' | 'MANUAL'): void {
+    this.activeInputTab.set(tab);
+    this.verifyError.set(null);
+    if (tab === 'CAMERA') {
+      setTimeout(() => this.startCamera(), 100);
     } else {
-      this.showCamera.set(true);
-      setTimeout(() => this.startCamera(), 50);
+      this.stopCamera();
     }
   }
 
@@ -200,7 +203,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   async startCamera(): Promise<void> {
     if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       this.cameraError.set('Camera is not supported on this device. Please enter IMEI manually.');
-      this.showCamera.set(false);
+      this.activeInputTab.set('MANUAL');
       return;
     }
 
@@ -227,7 +230,6 @@ export class SignupComponent implements OnInit, OnDestroy {
       this.cameraError.set(
         'Camera permission was denied or camera is unavailable.'
       );
-      this.showCamera.set(false);
     }
   }
 
@@ -277,42 +279,6 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onFileUpload(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    if (!('BarcodeDetector' in window)) {
-      this.verifyError.set(
-        'Your browser does not support image barcode detection. Please enter IMEI manually.'
-      );
-      return;
-    }
-
-    try {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      await img.decode();
-
-      const barcodeDetector = new (window as any).BarcodeDetector({
-        formats: ['qr_code'],
-      });
-      const barcodes = await barcodeDetector.detect(img);
-
-      if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
-        this.handleScannedCode(barcodes[0].rawValue);
-      } else {
-        this.verifyError.set(
-          'No QR code detected in this photo. Please try another photo or enter IMEI.'
-        );
-      }
-    } catch {
-      this.verifyError.set('Could not read QR image. Please enter IMEI manually.');
-    } finally {
-      input.value = '';
-    }
-  }
-
   handleScannedCode(raw: string): void {
     const extracted = this.extractIMEIFromRaw(raw);
     if (!extracted) {
@@ -324,7 +290,6 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     this.imeiInput.set(extracted);
     this.stopCamera();
-    this.showCamera.set(false);
     this.verifyTrackerCode(extracted);
   }
 
@@ -495,8 +460,11 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   backToStep(step: OnboardingStep): void {
     this.currentStep.set(step);
-    this.stopCamera();
-    this.showCamera.set(false);
+    if (step === 'SCAN' && this.activeInputTab() === 'CAMERA') {
+      setTimeout(() => this.startCamera(), 100);
+    } else {
+      this.stopCamera();
+    }
   }
 
   // --- Step 3 & 4: Account Creation + Attachment + Activation ---

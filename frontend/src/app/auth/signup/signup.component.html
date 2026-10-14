@@ -1,153 +1,320 @@
-<div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-zinc-50 dark:bg-zinc-950 font-sans">
-  <!-- Minimalist Card Container -->
-  <div
-    class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col my-auto"
-  >
-    <!-- Top Header & Minimalist Segmented Progress Bar (no numbers, no text) -->
-    <div class="px-6 pt-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 flex flex-col gap-4 bg-zinc-50/50 dark:bg-zinc-900/40">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs shadow-xs">
-            MG
-          </div>
-          <span class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white">MotoGuard</span>
-        </div>
+<div class="min-h-screen w-full flex flex-col lg:flex-row bg-[#0e121e] font-sans selection:bg-indigo-500 selection:text-white">
 
-        <a
-          routerLink="/login"
-          class="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
-        >
-          Sign in &rarr;
-        </a>
-      </div>
+  <!-- ================================================================= -->
+  <!-- LEFT COLUMN: DARK HERO PANEL with "Lunar Surface" Aura Gradient   -->
+  <!-- ================================================================= -->
+  <div class="w-full lg:w-[42%] xl:w-[38%] min-h-[300px] lg:min-h-screen bg-[#100e0b] text-white shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 relative overflow-hidden flex flex-col justify-between">
+    
+    <!-- Layer 1 - Linear gradient, normal blend -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="background: linear-gradient(150deg, #090a0c 0%, #27272a 40%, #52525b 68%, #71717a 100%); mix-blend-mode: normal; transform: translateZ(0); will-change: transform;"
+      aria-hidden="true"
+    ></div>
 
-      <!-- Clean 4-segment Progress Bar without numbers or labels -->
-      <div class="grid grid-cols-4 gap-1.5">
-        <div
-          class="h-1 rounded-full transition-all duration-300"
-          [ngClass]="stepIndex() >= 0 ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-200 dark:bg-zinc-800'"
-        ></div>
-        <div
-          class="h-1 rounded-full transition-all duration-300"
-          [ngClass]="stepIndex() >= 1 ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-200 dark:bg-zinc-800'"
-        ></div>
-        <div
-          class="h-1 rounded-full transition-all duration-300"
-          [ngClass]="stepIndex() >= 2 ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-200 dark:bg-zinc-800'"
-        ></div>
-        <div
-          class="h-1 rounded-full transition-all duration-300"
-          [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-zinc-200 dark:bg-zinc-800'"
-        ></div>
-      </div>
+    <!-- Layer 2 - Radial gradient, screen blend, blur -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(ellipse 45% 50% at 60% 38%, rgba(212,212,216,0.18) 0%, transparent 68%); mix-blend-mode: screen; filter: blur(140px); transform: translateZ(0); will-change: transform;"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Film-grain overlay - SVG feTurbulence noise, overlay blend, opacity: 0.85 -->
+    <div
+      aria-hidden="true"
+      class="absolute inset-0 pointer-events-none"
+      style="mix-blend-mode: overlay; opacity: 0.85;"
+    >
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <filter id="lunar-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix
+            type="matrix"
+            values="0.181 0.608 0.061 0 0.075
+                    0.181 0.608 0.061 0 0.075
+                    0.181 0.608 0.061 0 0.075
+                    0     0     0     1 0"
+          />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#lunar-grain)" />
+      </svg>
     </div>
 
-    <!-- Step Body -->
-    <div class="p-6 sm:p-7 space-y-6 max-h-[75vh] overflow-y-auto">
-      <!-- Single Title & Subtitle -->
-      <div>
-        <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
-          {{ stepTitle() }}
+    <!-- Content Sitting Above Layers (z-index: 10) -->
+    <div class="relative z-10 p-8 sm:p-12 lg:p-16 flex flex-col justify-between h-full flex-1">
+      <!-- Brand Header -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-white text-zinc-950 flex items-center justify-center font-black text-xs tracking-wider shadow-sm">
+          MG
+        </div>
+        <span class="font-bold text-base tracking-tight text-white">MotoGuard</span>
+      </div>
+
+      <!-- Center Hero Copy -->
+      <div class="my-auto py-10 lg:py-0 max-w-md">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.15]">
+          Let's get you started!
         </h1>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+        <p class="text-sm sm:text-base text-zinc-300 mt-4 leading-relaxed font-normal">
+          Please fill in a few details so we can get your motorcycle online. Pair your hardware tracker and configure anti-theft telemetry.
+        </p>
+
+        <!-- Video / Feature Pill (From reference screenshot) -->
+        <div class="mt-8 inline-flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs text-zinc-200 backdrop-blur-sm">
+          <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0">
+            <svg class="w-3.5 h-3.5 fill-current ml-0.5" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+          <span class="font-medium">Real-time GPS tracking &amp; instant alerts</span>
+        </div>
+      </div>
+
+      <!-- Bottom Links -->
+      <div class="pt-6 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <p>
+          Already have an account?
+          <a routerLink="/login" class="text-white font-bold hover:underline ml-1 cursor-pointer">
+            Sign in
+          </a>
+        </p>
+        <a href="mailto:support@motoguard.co.ke" class="text-zinc-400 hover:text-white transition-colors">
+          Need help?
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- RIGHT COLUMN: FULL-PAGE WORK AREA (No cards!)                     -->
+  <!-- ================================================================= -->
+  <div class="flex-1 bg-white dark:bg-zinc-900 min-h-screen flex flex-col justify-between p-6 sm:p-12 lg:p-16 overflow-y-auto">
+
+    <!-- Top Row: Section Title + Stepper Node Indicators -->
+    <div class="w-full max-w-2xl mx-auto flex items-center justify-between pb-8 border-b border-zinc-100 dark:border-zinc-800">
+      <div>
+        <h2 class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
+          {{ stepTitle() }}
+        </h2>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
           {{ stepSubtitle() }}
         </p>
       </div>
 
-      <!-- Error Banner -->
+      <!-- Node Connected Stepper (Exact match to reference top-right) -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Node 1 -->
+        <div class="flex items-center justify-center">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
+            [ngClass]="stepIndex() === 0 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-zinc-900' : (stepIndex() > 0 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-zinc-300 dark:border-zinc-700')"
+          >
+            @if (stepIndex() === 0) {
+              <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+            } @else if (stepIndex() > 0) {
+              <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </div>
+        </div>
+        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 1 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+
+        <!-- Node 2 -->
+        <div class="flex items-center justify-center">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
+            [ngClass]="stepIndex() === 1 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-zinc-900' : (stepIndex() > 1 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-zinc-300 dark:border-zinc-700')"
+          >
+            @if (stepIndex() === 1) {
+              <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+            } @else if (stepIndex() > 1) {
+              <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </div>
+        </div>
+        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 2 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+
+        <!-- Node 3 -->
+        <div class="flex items-center justify-center">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
+            [ngClass]="stepIndex() === 2 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-zinc-900' : (stepIndex() > 2 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-zinc-300 dark:border-zinc-700')"
+          >
+            @if (stepIndex() === 2) {
+              <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+            } @else if (stepIndex() > 2) {
+              <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </div>
+        </div>
+        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+
+        <!-- Node 4 -->
+        <div class="flex items-center justify-center">
+          <div
+            class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
+            [ngClass]="stepIndex() >= 3 ? 'border-2 border-emerald-600 bg-emerald-600' : 'border-2 border-zinc-300 dark:border-zinc-700'"
+          >
+            @if (stepIndex() === 3) {
+              <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dynamic Form Area -->
+    <div class="w-full max-w-2xl mx-auto py-8 my-auto">
+
+      <!-- Global Error Notification -->
       @if (errorMessage()) {
-        <div class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs">
-          {{ errorMessage() }}
+        <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span class="leading-relaxed">{{ errorMessage() }}</span>
         </div>
       }
 
       <!-- ============================================================= -->
-      <!-- STEP 1: SCAN / ENTER TRACKER IMEI                             -->
+      <!-- STEP 1: SCAN OR MANUAL IMEI (Tabs start with Camera)          -->
       <!-- ============================================================= -->
       @if (currentStep() === 'SCAN') {
-        <div class="space-y-4">
-          <div>
-            <label for="imeiInput" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
-              Tracker IMEI
-            </label>
-            <div class="relative">
-              <input
-                id="imeiInput"
-                type="text"
-                inputmode="numeric"
-                placeholder="Enter 15-digit IMEI"
-                [value]="imeiInput()"
-                (input)="onImeiInputChange($event)"
-                maxlength="15"
-                class="w-full px-4 py-3 font-mono text-base font-semibold rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
-              />
-              <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">
-                {{ imeiInput().length }}/15
-              </div>
-            </div>
-          </div>
-
-          @if (cooldownSeconds() > 0) {
-            <div class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400 text-xs flex justify-between items-center">
-              <span>Cooldown active</span>
-              <span class="font-mono font-bold">{{ formatCooldown() }}</span>
-            </div>
-          }
-
-          @if (verifyError()) {
-            <div class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs">
-              {{ verifyError() }}
-            </div>
-          }
-
-          <button
-            type="button"
-            (click)="verifyTrackerCode()"
-            [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
-            class="w-full py-3.5 px-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-[0.99]"
-          >
-            @if (isVerifying()) {
-              <span>Verifying...</span>
-            } @else {
-              <span>Continue &rarr;</span>
-            }
-          </button>
-
-          @if (showCamera()) {
-            <div class="pt-2 space-y-2">
-              <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800">
-                <video #scannerVideo playsinline muted class="w-full h-full object-cover"></video>
-              </div>
-            </div>
-          }
-
-          <div class="flex items-center justify-center gap-4 pt-2 text-xs text-zinc-500">
+        <div class="space-y-6">
+          <!-- Camera / Manual Tabs -->
+          <div class="inline-flex p-1 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 w-full sm:w-auto">
             <button
               type="button"
-              (click)="toggleCamera()"
-              class="hover:text-zinc-900 dark:hover:text-white font-medium cursor-pointer"
+              (click)="setTab('CAMERA')"
+              class="flex-1 sm:flex-initial py-2.5 px-6 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+              [ngClass]="activeInputTab() === 'CAMERA' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'"
             >
-              {{ showCamera() ? 'Close Camera' : 'Scan with Camera' }}
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Camera Scanner
             </button>
-            <span>&bull;</span>
-            <label class="hover:text-zinc-900 dark:hover:text-white font-medium cursor-pointer">
-              Upload QR Image
-              <input type="file" accept="image/*" class="hidden" (change)="onFileUpload($event)" />
-            </label>
+
+            <button
+              type="button"
+              (click)="setTab('MANUAL')"
+              class="flex-1 sm:flex-initial py-2.5 px-6 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+              [ngClass]="activeInputTab() === 'MANUAL' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Manual IMEI
+            </button>
           </div>
+
+          <!-- TAB 1: Live Camera Scanner -->
+          @if (activeInputTab() === 'CAMERA') {
+            <div class="space-y-4">
+              <div class="relative w-full aspect-video max-w-xl rounded-2xl bg-zinc-950 overflow-hidden flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-inner">
+                <video
+                  #scannerVideo
+                  playsinline
+                  muted
+                  class="w-full h-full object-cover"
+                ></video>
+
+                @if (!isCameraActive()) {
+                  <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-900/90 text-white gap-3">
+                    <p class="text-xs text-zinc-400 max-w-xs">
+                      Initializing camera... Please allow camera access in your browser.
+                    </p>
+                    <button
+                      type="button"
+                      (click)="startCamera()"
+                      class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold cursor-pointer"
+                    >
+                      Retry Camera
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                Point your camera at the QR code printed on your GPS tracker unit or packaging box.
+              </p>
+            </div>
+          }
+
+          <!-- TAB 2: Manual IMEI Entry -->
+          @if (activeInputTab() === 'MANUAL') {
+            <div class="space-y-4 max-w-xl">
+              <div>
+                <label for="imeiInput" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  15-Digit Hardware IMEI Number
+                </label>
+                <div class="relative">
+                  <input
+                    id="imeiInput"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="Enter 15-digit IMEI"
+                    [value]="imeiInput()"
+                    (input)="onImeiInputChange($event)"
+                    maxlength="15"
+                    class="w-full px-4 py-3.5 font-mono text-base font-semibold rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                  />
+                  <div class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">
+                    {{ imeiInput().length }}/15
+                  </div>
+                </div>
+              </div>
+
+              @if (cooldownSeconds() > 0) {
+                <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400 text-xs flex justify-between items-center">
+                  <span>Cooldown active. Please wait.</span>
+                  <span class="font-mono font-bold">{{ formatCooldown() }}</span>
+                </div>
+              }
+
+              @if (verifyError()) {
+                <div class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs">
+                  {{ verifyError() }}
+                </div>
+              }
+
+              <button
+                type="button"
+                (click)="verifyTrackerCode()"
+                [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
+                class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#1e1b4b] hover:bg-[#2e2a72] text-white font-bold text-xs transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
+              >
+                @if (isVerifying()) {
+                  <span>Verifying...</span>
+                } @else {
+                  <span>Verify Tracker &rarr;</span>
+                }
+              </button>
+            </div>
+          }
         </div>
       }
 
       <!-- ============================================================= -->
-      <!-- STEP 2: DETAILS (ACCOUNT + MOTORCYCLE + RIDER)                -->
+      <!-- STEP 2: ACCOUNT + MOTORCYCLE + RIDER DETAILS                  -->
       <!-- ============================================================= -->
       @if (currentStep() === 'DETAILS') {
-        <form [formGroup]="form" class="space-y-5">
+        <form [formGroup]="form" class="space-y-6">
           <!-- Tracker Tag -->
-          <div class="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 flex items-center justify-between text-xs">
+          <div class="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between text-xs">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="font-semibold text-zinc-900 dark:text-white font-mono">{{ verifiedTracker()?.imei }}</span>
+              <span class="font-semibold text-zinc-900 dark:text-white">
+                Tracker: <span class="font-mono">{{ verifiedTracker()?.imei }}</span>
+              </span>
             </div>
             <button
               type="button"
@@ -158,13 +325,13 @@
             </button>
           </div>
 
-          <!-- Account -->
+          <!-- Section 1: Account Information -->
           <div class="space-y-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
-              Account
-            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              Account Information
+            </h3>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label for="name" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
                 <input
@@ -173,39 +340,39 @@
                   formControlName="name"
                   (input)="onAccountFieldChange()"
                   placeholder="e.g. Brian Ouma"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('name')"
                 />
               </div>
 
               <div>
-                <label for="email" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
+                <label for="email" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Email Address</label>
                 <input
                   id="email"
                   type="email"
                   formControlName="email"
                   (input)="onAccountFieldChange()"
                   placeholder="name@example.com"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('email')"
                 />
               </div>
             </div>
 
             <div>
-              <label for="phoneNumber" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Phone</label>
+              <label for="phoneNumber" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Phone Number</label>
               <input
                 id="phoneNumber"
                 type="tel"
                 formControlName="phoneNumber"
                 (input)="onAccountFieldChange()"
                 placeholder="0712 345 678"
-                class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                 [class.border-rose-400]="isFieldInvalid('phoneNumber')"
               />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label for="password" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
                 <div class="relative">
@@ -214,13 +381,13 @@
                     [type]="showPassword() ? 'text' : 'password'"
                     formControlName="password"
                     placeholder="Min 8 characters"
-                    class="w-full pl-3.5 pr-10 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                    class="w-full pl-4 pr-10 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                     [class.border-rose-400]="isFieldInvalid('password')"
                   />
                   <button
                     type="button"
                     (click)="togglePasswordVisibility()"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -231,26 +398,26 @@
               </div>
 
               <div>
-                <label for="confirmPassword" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Confirm</label>
+                <label for="confirmPassword" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Confirm Password</label>
                 <input
                   id="confirmPassword"
                   [type]="showConfirmPassword() ? 'text' : 'password'"
                   formControlName="confirmPassword"
                   placeholder="Repeat password"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('confirmPassword') || form.hasError('passwordMismatch')"
                 />
               </div>
             </div>
           </div>
 
-          <!-- Motorcycle -->
+          <!-- Section 2: Motorcycle Details -->
           <div class="space-y-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
-              Motorcycle
-            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              Motorcycle Details
+            </h3>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label for="plate" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                   Number Plate <span class="text-rose-500">*</span>
@@ -260,7 +427,7 @@
                   type="text"
                   formControlName="plate"
                   placeholder="e.g. KMDG 456X"
-                  class="w-full px-3.5 py-2.5 font-mono text-base font-bold uppercase rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 font-mono text-base font-bold uppercase rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('plate')"
                 />
               </div>
@@ -272,7 +439,7 @@
                 <select
                   id="make"
                   formControlName="make"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition cursor-pointer"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition cursor-pointer"
                   [class.border-rose-400]="isFieldInvalid('make')"
                 >
                   <option value="" disabled selected>Select Make</option>
@@ -295,7 +462,7 @@
                   type="text"
                   formControlName="model"
                   placeholder="e.g. Ace 125, BM 150"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('model')"
                 />
               </div>
@@ -308,7 +475,7 @@
                     type="number"
                     formControlName="year"
                     placeholder="2024"
-                    class="w-full px-3 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                    class="w-full px-3 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   />
                 </div>
                 <div>
@@ -318,7 +485,7 @@
                     type="text"
                     formControlName="color"
                     placeholder="Red"
-                    class="w-full px-3 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                    class="w-full px-3 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   />
                 </div>
               </div>
@@ -330,7 +497,7 @@
                   type="text"
                   formControlName="county"
                   placeholder="e.g. Nairobi"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                 />
               </div>
 
@@ -341,39 +508,39 @@
                   type="text"
                   formControlName="subCounty"
                   placeholder="e.g. Westlands"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                 />
               </div>
             </div>
           </div>
 
-          <!-- Rider -->
+          <!-- Section 3: Rider Details -->
           <div class="space-y-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
-                Rider
-              </span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                Assigned Rider
+              </h3>
 
               <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-zinc-900 dark:text-white select-none">
                 <input
                   type="checkbox"
                   [checked]="form.get('isSelfRider')?.value"
                   (change)="onToggleSelfRider($event)"
-                  class="w-4 h-4 rounded text-zinc-900 focus:ring-zinc-900 border-zinc-300"
+                  class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-600 border-zinc-300"
                 />
                 I am the rider
               </label>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label for="riderName" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Rider Name</label>
+                <label for="riderName" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Rider Full Name</label>
                 <input
                   id="riderName"
                   type="text"
                   formControlName="riderName"
                   placeholder="e.g. John Doe"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('riderName')"
                 />
               </div>
@@ -385,7 +552,7 @@
                   type="text"
                   formControlName="riderNationalId"
                   placeholder="e.g. 29384756"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('riderNationalId')"
                 />
               </div>
@@ -397,7 +564,7 @@
                   type="tel"
                   formControlName="riderPhone"
                   placeholder="0712 345 678"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('riderPhone')"
                 />
               </div>
@@ -409,119 +576,107 @@
                   type="email"
                   formControlName="riderEmail"
                   placeholder="rider@example.com"
-                  class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700/80 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
                   [class.border-rose-400]="isFieldInvalid('riderEmail')"
                 />
               </div>
             </div>
           </div>
-
-          <!-- Actions -->
-          <div class="pt-4 flex items-center justify-between gap-3 border-t border-zinc-100 dark:border-zinc-800">
-            <button
-              type="button"
-              (click)="backToStep('SCAN')"
-              class="px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
-            >
-              &larr; Back
-            </button>
-
-            <button
-              type="button"
-              (click)="goToPreview()"
-              class="px-6 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white text-xs font-bold transition cursor-pointer flex items-center gap-2 shadow-xs active:scale-95"
-            >
-              <span>Next &rarr;</span>
-            </button>
-          </div>
         </form>
       }
 
       <!-- ============================================================= -->
-      <!-- STEP 3: PREVIEW DETAILS                                       -->
+      <!-- STEP 3: PREVIEW DETAILS ("Details Confirmation" from ref)     -->
       <!-- ============================================================= -->
       @if (currentStep() === 'PREVIEW') {
-        <div class="space-y-5">
-          <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 p-5 space-y-4">
-            <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 pb-3">
-              <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                  Plate
-                </span>
-                <span class="text-base px-3 py-1 rounded-lg bg-amber-400 text-zinc-950 border border-amber-500 font-black">
-                  {{ form.get('plate')?.value | uppercase }}
-                </span>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                  Vehicle
-                </span>
-                <p class="font-bold text-zinc-900 dark:text-white text-sm">
-                  {{ form.get('make')?.value }} {{ form.get('model')?.value }}
-                </p>
-                <p class="text-xs text-zinc-500">
-                  {{ form.get('year')?.value }} • {{ form.get('color')?.value }}
-                </p>
-              </div>
+        <div class="space-y-4 max-w-xl">
+          <!-- Item 1: Email / Account -->
+          <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Owner Account</span>
+              <p class="font-bold text-zinc-900 dark:text-white text-sm">{{ form.get('name')?.value }}</p>
+              <p class="text-xs text-zinc-500 font-mono">{{ form.get('email')?.value }}</p>
             </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs border-b border-zinc-200 dark:border-zinc-700 pb-3">
-              <div>
-                <span class="text-zinc-400 block text-[10px] font-bold uppercase">Tracker</span>
-                <span class="font-mono font-semibold text-zinc-900 dark:text-white">{{ verifiedTracker()?.imei || imeiInput() }}</span>
-              </div>
-              <div>
-                <span class="text-zinc-400 block text-[10px] font-bold uppercase">Location</span>
-                <span class="font-semibold text-zinc-900 dark:text-white">
-                  {{ form.get('subCounty')?.value }}, {{ form.get('county')?.value }}
-                </span>
-              </div>
-            </div>
-
-            <div class="text-xs space-y-1">
-              <span class="text-zinc-400 block text-[10px] font-bold uppercase">Rider</span>
-              <p class="font-bold text-zinc-900 dark:text-white">{{ form.get('riderName')?.value }}</p>
-              <p class="text-zinc-500 text-[11px]">
-                ID: {{ form.get('riderNationalId')?.value }} • {{ form.get('riderPhone')?.value }} • {{ form.get('riderEmail')?.value }}
-              </p>
-            </div>
-          </div>
-
-          <div class="pt-4 flex items-center justify-between gap-3 border-t border-zinc-100 dark:border-zinc-800">
             <button
               type="button"
               (click)="backToStep('DETAILS')"
-              [disabled]="isSubmitting()"
-              class="px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer disabled:opacity-50"
+              class="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 cursor-pointer"
+              title="Edit"
             >
-              &larr; Back
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
             </button>
+          </div>
 
+          <!-- Item 2: Number Plate & Vehicle -->
+          <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Motorcycle</span>
+              <p class="font-bold text-zinc-900 dark:text-white text-sm">
+                {{ form.get('plate')?.value | uppercase }} &bull; {{ form.get('make')?.value }} {{ form.get('model')?.value }}
+              </p>
+              <p class="text-xs text-zinc-500">{{ form.get('year')?.value }} &bull; {{ form.get('color')?.value }} &bull; {{ form.get('county')?.value }}</p>
+            </div>
             <button
               type="button"
-              (click)="confirmAndComplete()"
-              [disabled]="isSubmitting()"
-              class="px-6 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white text-xs font-bold transition cursor-pointer flex items-center gap-2 shadow-xs active:scale-95 disabled:opacity-50"
+              (click)="backToStep('DETAILS')"
+              class="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 cursor-pointer"
+              title="Edit"
             >
-              @if (isSubmitting()) {
-                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                </svg>
-                <span>Activating...</span>
-              } @else {
-                <span>Activate Tracker &rarr;</span>
-              }
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Item 3: Hardware Tracker -->
+          <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Hardware Tracker</span>
+              <p class="font-bold text-zinc-900 dark:text-white text-sm font-mono">{{ verifiedTracker()?.imei || imeiInput() }}</p>
+              <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified &amp; Ready
+              </p>
+            </div>
+            <button
+              type="button"
+              (click)="backToStep('SCAN')"
+              class="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 cursor-pointer"
+              title="Edit"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Item 4: Assigned Rider -->
+          <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Assigned Rider</span>
+              <p class="font-bold text-zinc-900 dark:text-white text-sm">{{ form.get('riderName')?.value }}</p>
+              <p class="text-xs text-zinc-500">ID: {{ form.get('riderNationalId')?.value }} &bull; {{ form.get('riderPhone')?.value }}</p>
+            </div>
+            <button
+              type="button"
+              (click)="backToStep('DETAILS')"
+              class="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1.5 cursor-pointer"
+              title="Edit"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
             </button>
           </div>
         </div>
       }
 
       <!-- ============================================================= -->
-      <!-- STEP 4: ACTIVE (SUCCESS)                                      -->
+      <!-- STEP 4: ACTIVE TELEMETRY                                      -->
       <!-- ============================================================= -->
       @if (currentStep() === 'ATTACHED') {
-        <div class="py-6 flex flex-col items-center justify-center text-center space-y-4">
+        <div class="py-8 flex flex-col items-center justify-center text-center space-y-4 max-w-md mx-auto">
           <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border-2 border-emerald-500 text-emerald-600 flex items-center justify-center">
             <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -529,33 +684,80 @@
           </div>
 
           <div>
-            <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
-              Activated
+            <h3 class="text-2xl font-bold text-zinc-900 dark:text-white">
+              Tracker Activated
             </h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
-              Motorcycle <strong class="font-mono text-zinc-900 dark:text-white">{{ form.get('plate')?.value }}</strong> is online.
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+              Motorcycle <strong class="font-mono text-zinc-900 dark:text-white">{{ form.get('plate')?.value }}</strong> is attached to tracker <strong class="font-mono text-zinc-900 dark:text-white">{{ verifiedTracker()?.imei || imeiInput() }}</strong>.
+              Confirmation has been sent to {{ form.get('riderEmail')?.value }}.
             </p>
           </div>
 
           <button
             type="button"
             (click)="navigateToDashboard()"
-            class="w-full py-3.5 px-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white font-bold text-sm transition cursor-pointer shadow-xs active:scale-95"
+            class="w-full py-3.5 px-6 rounded-xl bg-[#1e1b4b] hover:bg-[#2e2a72] text-white font-bold text-xs transition cursor-pointer shadow-xs active:scale-95"
           >
             Go to Dashboard &rarr;
           </button>
         </div>
       }
+
     </div>
 
-    <!-- Clean Footer -->
-    <div class="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 text-center">
-      <p class="text-xs text-zinc-500 dark:text-zinc-400">
-        Already have an account?
-        <a routerLink="/login" class="text-zinc-900 dark:text-white font-bold hover:underline ml-1 cursor-pointer">
-          Sign in
-        </a>
+    <!-- Bottom Action Row (Matching reference buttons & disclaimer) -->
+    <div class="w-full max-w-2xl mx-auto pt-6 border-t border-zinc-100 dark:border-zinc-800">
+      <div class="flex items-center gap-3">
+        @if (currentStep() === 'DETAILS') {
+          <button
+            type="button"
+            (click)="backToStep('SCAN')"
+            class="px-6 py-3.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer"
+          >
+            Back
+          </button>
+
+          <button
+            type="button"
+            (click)="goToPreview()"
+            class="flex-1 py-3.5 px-8 rounded-xl bg-[#1e1b4b] hover:bg-[#2e2a72] text-white text-xs font-bold transition cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span>Next Step &rarr;</span>
+          </button>
+        } @else if (currentStep() === 'PREVIEW') {
+          <button
+            type="button"
+            (click)="backToStep('DETAILS')"
+            [disabled]="isSubmitting()"
+            class="px-6 py-3.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer disabled:opacity-50"
+          >
+            Back
+          </button>
+
+          <button
+            type="button"
+            (click)="confirmAndComplete()"
+            [disabled]="isSubmitting()"
+            class="flex-1 py-3.5 px-8 rounded-xl bg-[#1e1b4b] hover:bg-[#2e2a72] text-white text-xs font-bold transition cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            @if (isSubmitting()) {
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span>{{ submissionStep() || 'Activating...' }}</span>
+            } @else {
+              <span>Send &amp; Activate &rarr;</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Legal Disclaimer (Matching reference bottom text) -->
+      <p class="text-[11px] text-zinc-400 dark:text-zinc-500 mt-4 text-center sm:text-left">
+        Please make sure you agree with our <a routerLink="/terms" class="underline hover:text-zinc-600 dark:hover:text-zinc-300">Terms</a> and <a routerLink="/privacy" class="underline hover:text-zinc-600 dark:hover:text-zinc-300">Privacy Policy</a>.
       </p>
     </div>
+
   </div>
 </div>
