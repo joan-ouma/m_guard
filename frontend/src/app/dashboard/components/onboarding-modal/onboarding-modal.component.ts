@@ -19,6 +19,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import Swal from 'sweetalert2';
 import { BikeService } from '../../../core/services/bike.service';
 import { AuthService } from '../../../core/services/auth.service';
 import {
@@ -289,10 +290,24 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
     }
   }
 
+  private showImeiErrorToast(title: string, text: string): void {
+    Swal.fire({
+      toast: true,
+      position: 'top',
+      icon: 'error',
+      title,
+      text,
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true,
+    });
+  }
+
   handleScannedCode(raw: string): void {
     const extracted = this.extractIMEIFromRaw(raw);
     if (!extracted) {
       this.verifyError.set(`Scanned code "${raw.slice(0, 30)}" does not contain a valid 15-digit tracker ID.`);
+      this.showImeiErrorToast('Invalid QR Code', 'No 15-digit IMEI found.');
       return;
     }
 
@@ -333,21 +348,25 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
     const code = (imei || this.imeiInput()).trim();
     if (!code) {
       this.verifyError.set('Please enter a 15-digit tracker IMEI code.');
+      this.showImeiErrorToast('Invalid IMEI', 'Please enter a 15-digit IMEI.');
       return;
     }
 
     if (!/^\d{15}$/.test(code)) {
       this.verifyError.set('Invalid tracker code. IMEI must be exactly 15 numeric digits.');
+      this.showImeiErrorToast('Invalid IMEI', 'Must be exactly 15 digits.');
       return;
     }
 
     if (this.cooldownSeconds() > 0) {
       this.verifyError.set(`Rate limited. Please wait ${this.cooldownSeconds()}s before next attempt.`);
+      this.showImeiErrorToast('Rate Limited', `Wait ${this.cooldownSeconds()}s before next attempt.`);
       return;
     }
 
     if (this.isLockedOut()) {
       this.verifyError.set('Your IP address is locked out due to excessive failed attempts. Please contact support.');
+      this.showImeiErrorToast('Access Blocked', 'IP locked out due to repeated abuse.');
       return;
     }
 
@@ -388,8 +407,10 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
       if (isLockedHeader || err.error?.detail?.toLowerCase().includes('locked out')) {
         this.isLockedOut.set(true);
         this.verifyError.set('Access Blocked: IP locked out due to repeated abuse. Contact support.');
+        this.showImeiErrorToast('Access Blocked', 'IP locked out due to repeated abuse.');
       } else {
         this.verifyError.set(err.error?.detail || `Rate limit exceeded. Please wait ${this.cooldownSeconds()}s before trying again.`);
+        this.showImeiErrorToast('Rate Limited', 'Too many attempts. Please wait.');
       }
       return;
     }
@@ -397,17 +418,20 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
     // 2. Already Claimed 409
     if (status === 409) {
       this.verifyError.set(err.error?.detail || 'This tracker is already claimed by another motorcycle.');
+      this.showImeiErrorToast('IMEI Exists', 'Tracker is already registered.');
       return;
     }
 
     // 3. Not Found 404
     if (status === 404) {
       this.verifyError.set(err.error?.detail || 'Tracker hardware does not exist in MotoGuard database.');
+      this.showImeiErrorToast('IMEI Not Found', 'Tracker does not exist.');
       return;
     }
 
     // Generic error
     this.verifyError.set(err.error?.detail || 'Failed to verify tracker hardware. Please try again.');
+    this.showImeiErrorToast('Verification Failed', 'Could not verify tracker IMEI.');
   }
 
   private startCooldown(seconds: number): void {
