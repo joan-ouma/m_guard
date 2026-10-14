@@ -10,8 +10,21 @@ import { BikesComponent } from './bikes/bikes.component';
 import { HistoryComponent } from './history/history.component';
 import { AlertsComponent } from './alerts/alerts.component';
 import { SettingsComponent } from './settings/settings.component';
+import { LegalComponent } from './legal/legal.component';
 
 export const routes: Routes = [
+  {
+    path: 'terms',
+    component: LegalComponent,
+  },
+  {
+    path: 'privacy',
+    component: LegalComponent,
+  },
+  {
+    path: 'legal',
+    component: LegalComponent,
+  },
   {
     path: 'alerts',
     component: AlertsComponent,
