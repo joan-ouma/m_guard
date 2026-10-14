@@ -6,44 +6,30 @@
   <div class="w-full max-w-[1100px] min-h-[640px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 dark:border-slate-800 p-3 sm:p-4 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
 
     <!-- =============================================================== -->
-    <!-- LEFT PANEL: "Lunar Surface" Aura Gradient with Rounded Frame   -->
+    <!-- LEFT PANEL: "Mono Grid" Aura Gradient with Rounded Frame        -->
     <!-- =============================================================== -->
     <div class="md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full bg-[#100e0b] shrink-0">
       
-      <!-- Layer 1 - Linear gradient, normal blend -->
+      <!-- Layer 1 - normal: Grid pattern -->
       <div
         class="absolute inset-0 pointer-events-none"
-        style="background: linear-gradient(150deg, #090a0c 0%, #27272a 40%, #52525b 68%, #71717a 100%); mix-blend-mode: normal; transform: translateZ(0); will-change: transform;"
+        style="background: linear-gradient(rgba(148,163,184,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.1) 1px, transparent 1px); background-size: 50px 50px; mix-blend-mode: normal; transform: translateZ(0); will-change: transform;"
         aria-hidden="true"
       ></div>
 
-      <!-- Layer 2 - Radial gradient, screen blend, blur -->
+      <!-- Layer 2 - screen: Radial center blur -->
       <div
         class="absolute inset-0 pointer-events-none"
-        style="background: radial-gradient(ellipse 45% 50% at 60% 38%, rgba(212,212,216,0.18) 0%, transparent 68%); mix-blend-mode: screen; filter: blur(140px); transform: translateZ(0); will-change: transform;"
+        style="background: radial-gradient(circle at 50% 50%, rgba(148,163,184,0.3) 0%, transparent 50%); mix-blend-mode: screen; filter: blur(200px); transform: translateZ(0); will-change: transform;"
         aria-hidden="true"
       ></div>
 
-      <!-- Film-grain overlay (SVG feTurbulence) -->
+      <!-- Layer 3 - screen: Radial accent blur -->
       <div
-        aria-hidden="true"
         class="absolute inset-0 pointer-events-none"
-        style="mix-blend-mode: overlay; opacity: 0.85;"
-      >
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <filter id="grain">
-            <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4" stitchTiles="stitch" />
-            <feColorMatrix
-              type="matrix"
-              values="0.181 0.608 0.061 0 0.075
-                      0.181 0.608 0.061 0 0.075
-                      0.181 0.608 0.061 0 0.075
-                      0     0     0     1 0"
-            />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#grain)" />
-        </svg>
-      </div>
+        style="background: radial-gradient(circle at 25% 75%, rgba(203,213,225,0.2) 0%, transparent 40%); mix-blend-mode: screen; filter: blur(150px); transform: translateZ(0); will-change: transform;"
+        aria-hidden="true"
+      ></div>
 
       <!-- Left Panel Content (sitting above layers) -->
       <div class="relative z-10 flex flex-col justify-between h-full flex-1">
