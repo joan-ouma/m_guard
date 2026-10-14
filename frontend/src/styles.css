@@ -5,16 +5,17 @@
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
 html, body {
-  height: 100%;
-  height: 100dvh;
+  min-height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
-  overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+}
+
+app-root {
+  display: block;
+  min-height: 100%;
+  width: 100%;
 }
 
 .leaflet-control-attribution {
