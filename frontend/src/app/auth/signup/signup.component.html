@@ -187,7 +187,7 @@
               routerLink="/login"
               class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition shadow-none cursor-pointer"
             >
-              <span>Sign in</span>
+              <span>Sign In</span>
               <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -337,7 +337,7 @@
                     @if (isVerifying()) {
                       <span>Verifying...</span>
                     } @else {
-                      <span>Verify Tracker &rarr;</span>
+                      <span>Continue</span>
                     }
                   </button>
                 </div>
@@ -710,7 +710,7 @@
               (click)="navigateToDashboard()"
               class="w-full py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 font-semibold text-sm shadow-none border-0 active:scale-[0.99] transition cursor-pointer"
             >
-              Go to Dashboard &rarr;
+              Finish
             </button>
           </div>
         }
@@ -733,7 +733,7 @@
               (click)="goToPreview()"
               class="flex-1 py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white active:scale-[0.99] text-white dark:text-slate-900 text-sm font-semibold shadow-none border-0 transition cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>Next Step &rarr;</span>
+              <span>Continue</span>
             </button>
           </div>
         } @else if (currentStep() === 'PREVIEW') {
@@ -760,7 +760,7 @@
                 </svg>
                 <span>Activating...</span>
               } @else {
-                <span>Activate Tracker &rarr;</span>
+                <span>Continue</span>
               }
             </button>
           </div>
@@ -773,7 +773,7 @@
             routerLink="/login"
             class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-none transition cursor-pointer"
           >
-            Sign in
+            Sign In
           </a>
         </div>
       </div>
