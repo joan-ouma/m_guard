@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { NotificationService } from '../core/services/notification.service';
+import { PwaService } from '../core/services/pwa.service';
 import { BikeDTO, BreadcrumbDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
 import Swal from 'sweetalert2';
@@ -55,6 +56,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly authService = inject(AuthService);
   readonly bikeService = inject(BikeService);
   readonly notificationService = inject(NotificationService);
+  readonly pwa = inject(PwaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -211,9 +213,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         localStorage.removeItem('motorguard_onboarding_dismissed');
       } catch {}
 
-      setTimeout(() => {
-        this.showOnboardingModal.set(true);
-      }, 700);
+      const isInstalled =
+        this.pwa.isInstalled() ||
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+
+      const notifsEnabled =
+        this.notificationService.isSupported() &&
+        (this.notificationService.permission() === 'granted' || this.notificationService.isSnsSubscribed());
+
+      // Modal should not show when app is already installed or when notifications already enabled
+      if (!isInstalled && !notifsEnabled) {
+        setTimeout(() => {
+          this.showOnboardingModal.set(true);
+        }, 700);
+      }
     }
   }
 

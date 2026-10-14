@@ -46,6 +46,15 @@ export class PwaService {
       this.isInstallable.set(false);
     }
 
+    if ('getInstalledRelatedApps' in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
+        if (apps && apps.length > 0) {
+          this.isInstalled.set(true);
+          this.isInstallable.set(false);
+        }
+      }).catch(() => {});
+    }
+
     window.addEventListener('beforeinstallprompt', (e: Event) => {
       e.preventDefault();
       this.deferredPrompt = e as BeforeInstallPromptEvent;

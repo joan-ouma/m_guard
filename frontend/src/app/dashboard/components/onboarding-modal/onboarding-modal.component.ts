@@ -32,7 +32,7 @@ export class OnboardingModalComponent {
     return !isGranted && !isSubscribed && !this.notificationsEnabled();
   });
 
-  // Dynamically compute ONLY steps that are actually needed, with fallback so modal always shows
+  // Dynamically compute ONLY steps that are actually needed
   readonly activeSteps = computed<OnboardingStep[]>(() => {
     const steps: OnboardingStep[] = [];
     if (this.needsInstall()) {
@@ -41,7 +41,7 @@ export class OnboardingModalComponent {
     if (this.needsNotifications()) {
       steps.push('NOTIFICATIONS');
     }
-    return steps.length > 0 ? steps : ['INSTALL', 'NOTIFICATIONS'];
+    return steps;
   });
 
   readonly activeStepIndex = signal<number>(0);
