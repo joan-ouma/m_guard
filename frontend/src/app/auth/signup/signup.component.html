@@ -2,8 +2,9 @@
 
   <!-- ================================================================= -->
   <!-- LEFT COLUMN: DARK HERO PANEL with "Lunar Surface" Aura Gradient   -->
+  <!-- Responsive: Compact top banner on mobile, full hero column on lg+ -->
   <!-- ================================================================= -->
-  <div class="w-full lg:w-[42%] xl:w-[38%] min-h-[300px] lg:min-h-screen bg-[#100e0b] text-white shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 relative overflow-hidden flex flex-col justify-between">
+  <div class="w-full lg:w-[42%] xl:w-[38%] bg-[#100e0b] text-white shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 relative overflow-hidden flex flex-col justify-between">
     
     <!-- Layer 1 - Linear gradient, normal blend -->
     <div
@@ -12,10 +13,10 @@
       aria-hidden="true"
     ></div>
 
-    <!-- Layer 2 - Radial gradient, screen blend, blur -->
+    <!-- Layer 2 - Radial gradient, screen blend, blur: 113px mobile / 162px desktop -->
     <div
       class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 45% 50% at 60% 38%, rgba(212,212,216,0.18) 0%, transparent 68%); mix-blend-mode: screen; filter: blur(140px); transform: translateZ(0); will-change: transform;"
+      style="background: radial-gradient(ellipse 45% 50% at 60% 38%, rgba(212,212,216,0.18) 0%, transparent 68%); mix-blend-mode: screen; filter: blur(120px); transform: translateZ(0); will-change: transform;"
       aria-hidden="true"
     ></div>
 
@@ -41,17 +42,24 @@
     </div>
 
     <!-- Content Sitting Above Layers (z-index: 10) -->
-    <div class="relative z-10 p-8 sm:p-12 lg:p-16 flex flex-col justify-between h-full flex-1">
-      <!-- Brand Header -->
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-white text-zinc-950 flex items-center justify-center font-black text-xs tracking-wider shadow-sm">
-          MG
+    <div class="relative z-10 p-5 sm:p-8 lg:p-16 flex flex-col justify-between h-full flex-1">
+      <!-- Top Brand Header: On mobile includes quick Sign In link -->
+      <div class="flex items-center justify-between lg:justify-start gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-white text-zinc-950 flex items-center justify-center font-black text-xs tracking-wider shadow-sm">
+            MG
+          </div>
+          <span class="font-bold text-base tracking-tight text-white">MotoGuard</span>
         </div>
-        <span class="font-bold text-base tracking-tight text-white">MotoGuard</span>
+
+        <!-- Mobile-only Sign In Shortcut -->
+        <a routerLink="/login" class="lg:hidden text-xs font-semibold text-zinc-300 hover:text-white transition-colors">
+          Sign in &rarr;
+        </a>
       </div>
 
-      <!-- Center Hero Copy -->
-      <div class="my-auto py-10 lg:py-0 max-w-md">
+      <!-- Center Hero Copy: Visible on Desktop, condensed on Mobile -->
+      <div class="hidden lg:block my-auto py-10 max-w-md">
         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.15]">
           Let's get you started!
         </h1>
@@ -59,7 +67,7 @@
           Please fill in a few details so we can get your motorcycle online. Pair your hardware tracker and configure anti-theft telemetry.
         </p>
 
-        <!-- Video / Feature Pill (From reference screenshot) -->
+        <!-- Video / Feature Pill -->
         <div class="mt-8 inline-flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs text-zinc-200 backdrop-blur-sm">
           <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0">
             <svg class="w-3.5 h-3.5 fill-current ml-0.5" viewBox="0 0 24 24">
@@ -70,8 +78,8 @@
         </div>
       </div>
 
-      <!-- Bottom Links -->
-      <div class="pt-6 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <!-- Bottom Links (Desktop Only, mobile has sign in at top) -->
+      <div class="hidden lg:flex pt-6 border-t border-white/10 text-xs text-zinc-400 flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <p>
           Already have an account?
           <a routerLink="/login" class="text-white font-bold hover:underline ml-1 cursor-pointer">
@@ -88,21 +96,21 @@
   <!-- ================================================================= -->
   <!-- RIGHT COLUMN: FULL-PAGE WORK AREA (No cards!)                     -->
   <!-- ================================================================= -->
-  <div class="flex-1 bg-white dark:bg-zinc-900 min-h-screen flex flex-col justify-between p-6 sm:p-12 lg:p-16 overflow-y-auto">
+  <div class="flex-1 bg-white dark:bg-zinc-900 min-h-screen lg:min-h-0 flex flex-col justify-between p-4 sm:p-8 lg:p-16 overflow-y-auto">
 
     <!-- Top Row: Section Title + Stepper Node Indicators -->
-    <div class="w-full max-w-2xl mx-auto flex items-center justify-between pb-8 border-b border-zinc-100 dark:border-zinc-800">
-      <div>
-        <h2 class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white tracking-tight">
+    <div class="w-full max-w-2xl mx-auto flex items-center justify-between gap-3 pb-6 sm:pb-8 border-b border-zinc-100 dark:border-zinc-800">
+      <div class="min-w-0">
+        <h2 class="text-base sm:text-xl font-bold text-zinc-900 dark:text-white tracking-tight truncate">
           {{ stepTitle() }}
         </h2>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
           {{ stepSubtitle() }}
         </p>
       </div>
 
-      <!-- Node Connected Stepper (Exact match to reference top-right) -->
-      <div class="flex items-center gap-2 shrink-0">
+      <!-- Node Connected Stepper (Responsive line width) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <!-- Node 1 -->
         <div class="flex items-center justify-center">
           <div
@@ -118,7 +126,7 @@
             }
           </div>
         </div>
-        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 1 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+        <div class="w-4 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 1 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
 
         <!-- Node 2 -->
         <div class="flex items-center justify-center">
@@ -135,7 +143,7 @@
             }
           </div>
         </div>
-        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 2 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+        <div class="w-4 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 2 ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
 
         <!-- Node 3 -->
         <div class="flex items-center justify-center">
@@ -152,7 +160,7 @@
             }
           </div>
         </div>
-        <div class="w-6 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
+        <div class="w-4 sm:w-8 h-0.5" [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
 
         <!-- Node 4 -->
         <div class="flex items-center justify-center">
@@ -219,7 +227,7 @@
           <!-- TAB 1: Live Camera Scanner -->
           @if (activeInputTab() === 'CAMERA') {
             <div class="space-y-4">
-              <div class="relative w-full aspect-video max-w-xl rounded-2xl bg-zinc-950 overflow-hidden flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-inner">
+              <div class="relative w-full aspect-4/3 sm:aspect-video max-w-xl rounded-2xl bg-zinc-950 overflow-hidden flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-inner">
                 <video
                   #scannerVideo
                   playsinline
