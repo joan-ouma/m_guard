@@ -50,7 +50,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(refreshedReq);
           }),
           catchError((refreshErr) => {
-            authService.logout();
+            authService.logout().subscribe();
             return throwError(() => refreshErr);
           })
         );

@@ -40,17 +40,17 @@ func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream htt
 		pr.Use(auth)
 		pr.Get("/stream", sseStream)
 
-		r.Get("/", h.List)
-		r.Post("/", h.Create)
-		r.Post("/attach", h.Attach)
+		pr.Get("/", h.List)
+		pr.Post("/", h.Create)
+		pr.Post("/attach", h.Attach)
 
-		r.Get("/{id}", h.GetByID)
-		r.Put("/{id}", h.Update)
-		r.Patch("/{id}", h.Update)
-		r.Delete("/{id}", h.Delete)
-		r.Get("/{id}/breadcrumbs", h.GetBreadcrumbs)
-		r.Get("/{id}/events", h.GetEvents)
-		r.Post("/{id}/immobilize", h.Immobilize)
+		pr.Get("/{id}", h.GetByID)
+		pr.Put("/{id}", h.Update)
+		pr.Patch("/{id}", h.Update)
+		pr.Delete("/{id}", h.Delete)
+		pr.Get("/{id}/breadcrumbs", h.GetBreadcrumbs)
+		pr.Get("/{id}/events", h.GetEvents)
+		pr.Post("/{id}/immobilize", h.Immobilize)
 	})
 
 	return r
