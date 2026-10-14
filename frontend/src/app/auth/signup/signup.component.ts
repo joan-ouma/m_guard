@@ -68,7 +68,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   readonly stepTitle = computed<string>(() => {
     switch (this.currentStep()) {
       case 'SCAN':
-        return 'Tracker Hardware';
+        return 'Pair your tracker';
       case 'DETAILS':
         return 'Account & Motorcycle';
       case 'PREVIEW':
