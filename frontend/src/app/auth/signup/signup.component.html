@@ -6,36 +6,36 @@
   <div class="w-full max-w-[1100px] min-h-screen md:min-h-[640px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
 
     <!-- =============================================================== -->
-    <!-- LEFT PANEL: "Mono Grid" Aura Gradient (Hidden on Mobile)        -->
+    <!-- LEFT PANEL: "Sage Smoke" Aura Gradient (Hidden on Mobile)       -->
     <!-- =============================================================== -->
-    <div class="hidden md:flex md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full bg-[#100e0b] shrink-0">
+    <div class="hidden md:flex md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-zinc-900 min-h-[360px] md:min-h-full bg-[#faf8f2] shrink-0 border border-emerald-900/5">
       
-      <!-- Layer 1 - normal: Grid pattern -->
+      <!-- Layer 1 - normal: Lime/sage radial -->
       <div
         class="absolute inset-0 pointer-events-none"
-        style="background: linear-gradient(rgba(148,163,184,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.1) 1px, transparent 1px); background-size: 50px 50px; mix-blend-mode: normal; transform: translateZ(0); will-change: transform;"
+        style="background: radial-gradient(ellipse 55% 48% at 30% 48%, rgba(132,204,22,0.34) 0%, rgba(101,163,13,0.08) 48%, transparent 72%); mix-blend-mode: normal; filter: blur(120px); transform: translateZ(0); will-change: transform;"
         aria-hidden="true"
       ></div>
 
-      <!-- Layer 2 - screen: Radial center blur -->
+      <!-- Layer 2 - normal: Teal radial -->
       <div
         class="absolute inset-0 pointer-events-none"
-        style="background: radial-gradient(circle at 50% 50%, rgba(148,163,184,0.3) 0%, transparent 50%); mix-blend-mode: screen; filter: blur(200px); transform: translateZ(0); will-change: transform;"
+        style="background: radial-gradient(ellipse 46% 52% at 68% 42%, rgba(45,212,191,0.28) 0%, rgba(20,184,166,0.06) 50%, transparent 74%); mix-blend-mode: normal; filter: blur(90px); transform: translateZ(0); will-change: transform;"
         aria-hidden="true"
       ></div>
 
-      <!-- Layer 3 - screen: Radial accent blur -->
+      <!-- Layer 3 - multiply: White soft radial -->
       <div
         class="absolute inset-0 pointer-events-none"
-        style="background: radial-gradient(circle at 25% 75%, rgba(203,213,225,0.2) 0%, transparent 40%); mix-blend-mode: screen; filter: blur(150px); transform: translateZ(0); will-change: transform;"
+        style="background: radial-gradient(ellipse 32% 30% at 52% 70%, rgba(255,255,255,0.50) 0%, transparent 68%); mix-blend-mode: multiply; filter: blur(90px); transform: translateZ(0); will-change: transform;"
         aria-hidden="true"
       ></div>
 
       <!-- Left Panel Content (sitting above layers) -->
       <div class="relative z-10 flex flex-col justify-between h-full flex-1">
-        <!-- Top-Left: Clean standalone white asterisk symbol -->
+        <!-- Top-Left: Clean standalone dark asterisk symbol -->
         <div class="pt-1">
-          <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <svg class="w-8 h-8 text-zinc-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="12" y1="2" x2="12" y2="22" />
             <line x1="2" y1="12" x2="22" y2="12" />
             <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
@@ -45,10 +45,10 @@
 
         <!-- Bottom-Left: Brand Description -->
         <div class="pt-20 md:pt-0">
-          <p class="text-sm font-normal text-slate-300 mb-2">
+          <p class="text-sm font-semibold text-emerald-800/80 mb-2">
             MotoGuard
           </p>
-          <h2 class="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
+          <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 leading-tight tracking-tight">
             Real-time GPS tracking and anti-theft security for your motorcycle.
           </h2>
         </div>
