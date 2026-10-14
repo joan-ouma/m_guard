@@ -62,34 +62,34 @@
         }
       </div>
 
-      <!-- AWS SNS Push Notification Subscription Banner -->
+      <!-- Push Notification Subscription Banner -->
       @if (notificationService.isSupported()) {
         @if (!notificationService.isSnsSubscribed()) {
-          <div class="px-4 py-3 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border-b border-amber-200/60 flex flex-col gap-2">
+          <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span class="text-[11px] font-bold text-zinc-900">AWS SNS Push Alerts</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
               </div>
               <button
                 type="button"
                 id="enableSnsPushBtn"
                 (click)="onEnableSns()"
                 [disabled]="notificationService.isRegistering()"
-                class="text-[11px] px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
               </button>
             </div>
-            <p class="text-[11px] text-zinc-600 leading-tight">
-              Get instant OS lockscreen & background alerts when bikes are tampered with or breached.
+            <p class="text-[11px] text-zinc-500 leading-tight">
+              Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
             </p>
           </div>
         } @else {
-          <div class="px-4 py-2.5 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between gap-2">
+          <div class="px-4 py-2.5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[11px] font-bold text-emerald-900">AWS SNS Active</span>
+              <span class="text-xs font-bold text-zinc-900">Push Alerts Active</span>
             </div>
             <div class="flex items-center gap-1.5">
               <button
@@ -97,15 +97,15 @@
                 id="testSnsPushBtn"
                 (click)="onSendTestSns()"
                 [disabled]="isSendingTest()"
-                class="text-[10px] px-2 py-0.5 bg-white hover:bg-emerald-100 text-emerald-800 font-semibold rounded border border-emerald-200 transition-colors cursor-pointer disabled:opacity-50"
+                class="text-[11px] px-2.5 py-1 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold rounded-lg border border-zinc-300 transition-colors cursor-pointer disabled:opacity-50"
               >
-                {{ testSent() ? '✓ Sent!' : isSendingTest() ? 'Sending...' : 'Test' }}
+                {{ testSent() ? '✓ Sent' : isSendingTest() ? 'Sending...' : 'Test' }}
               </button>
               <button
                 type="button"
                 (click)="onDisableSns()"
-                class="text-[10px] px-2 py-0.5 text-zinc-400 hover:text-rose-600 font-medium transition-colors cursor-pointer"
-                title="Disable SNS alerts"
+                class="text-[11px] px-2 py-1 text-zinc-400 hover:text-rose-600 font-medium transition-colors cursor-pointer"
+                title="Disable notifications"
               >
                 Turn off
               </button>

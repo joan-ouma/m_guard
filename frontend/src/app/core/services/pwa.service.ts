@@ -25,7 +25,7 @@ export class PwaService {
     if (typeof window === 'undefined') return;
 
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const registerSW = () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then((reg) => {
@@ -34,7 +34,13 @@ export class PwaService {
           .catch((err) => {
             console.warn('PWA ServiceWorker registration failed:', err);
           });
-      });
+      };
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        registerSW();
+      } else {
+        window.addEventListener('load', registerSW);
+      }
     }
 
     const isStandalone =

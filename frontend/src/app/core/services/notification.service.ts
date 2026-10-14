@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 
 const STORAGE_KEY_SNS_ENDPOINT = 'motorguard_sns_endpoint_arn';
 
@@ -53,17 +54,41 @@ export class NotificationService {
   }
 
   /**
-   * Registers the browser / PWA Service Worker with backend AWS SNS
+   * Registers the browser / PWA Service Worker with backend notification service
    */
   async registerWithSNS(phoneNumber?: string): Promise<boolean> {
-    if (!this.isSupported()) return false;
+    if (!this.isSupported()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Not Supported',
+        text: 'Push notifications are not supported on this browser or platform.',
+        confirmButtonColor: '#09090b',
+      });
+      return false;
+    }
+
+    if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Blocked',
+        text: 'Notifications are blocked in your browser. Click the lock/settings icon in the address bar to set Notifications to "Allow", then try again.',
+        confirmButtonColor: '#09090b',
+      });
+      return false;
+    }
+
     this.isRegistering.set(true);
     this.statusMessage.set('Requesting permission...');
 
     try {
       const granted = await this.requestPermission();
       if (!granted) {
-        this.statusMessage.set('Notification permission was denied');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Permission Required',
+          text: 'Notification permission was not granted. Please allow notifications when prompted.',
+          confirmButtonColor: '#09090b',
+        });
         return false;
       }
 
@@ -71,28 +96,41 @@ export class NotificationService {
       let pushToken = '';
 
       if ('serviceWorker' in navigator) {
-        const reg = await navigator.serviceWorker.ready;
-        // Check for existing or new PushManager subscription
-        if ('pushManager' in reg) {
-          let sub = await reg.pushManager.getSubscription();
-          if (!sub) {
-            // Subscribe using public key or anonymous browser push
-            try {
-              sub = await reg.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: this.urlBase64ToUint8Array(
-                  // Fallback public VAPID key for browser push registration
-                  'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
-                ) as unknown as BufferSource,
-              });
-            } catch (subErr) {
-              console.warn('PushManager subscription warning, generating device token:', subErr);
-            }
+        try {
+          let reg = await navigator.serviceWorker.getRegistration();
+          if (!reg) {
+            reg = await navigator.serviceWorker.register('/sw.js').catch(() => undefined);
           }
 
-          if (sub) {
-            pushToken = JSON.stringify(sub);
+          // Timeout in 2 seconds so it never hangs indefinitely
+          const activeReg = await Promise.race([
+            navigator.serviceWorker.ready,
+            new Promise<ServiceWorkerRegistration | null>((resolve) =>
+              setTimeout(() => resolve(reg || null), 2000)
+            ),
+          ]);
+
+          if (activeReg && 'pushManager' in activeReg) {
+            let sub = await activeReg.pushManager.getSubscription().catch(() => null);
+            if (!sub) {
+              try {
+                sub = await activeReg.pushManager.subscribe({
+                  userVisibleOnly: true,
+                  applicationServerKey: this.urlBase64ToUint8Array(
+                    'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
+                  ) as unknown as BufferSource,
+                });
+              } catch (subErr) {
+                console.warn('PushManager subscription warning:', subErr);
+              }
+            }
+
+            if (sub) {
+              pushToken = JSON.stringify(sub);
+            }
           }
+        } catch (swErr) {
+          console.warn('Service worker check warning:', swErr);
         }
       }
 
@@ -106,7 +144,7 @@ export class NotificationService {
         pushToken = clientID;
       }
 
-      this.statusMessage.set('Registering with AWS SNS...');
+      this.statusMessage.set('Enabling push notifications...');
       const response = await firstValueFrom(
         this.http.post<SnsRegisterResponse>(`${this.apiBase}/v1/notifications/sns-endpoint`, {
           token: pushToken,
@@ -120,7 +158,17 @@ export class NotificationService {
         localStorage.setItem(STORAGE_KEY_SNS_ENDPOINT, endpointArn);
         this.snsEndpointArn.set(endpointArn);
         this.isSnsSubscribed.set(true);
-        this.statusMessage.set('SNS alerts enabled!');
+        this.statusMessage.set('Push alerts enabled!');
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Push Notifications Enabled',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
 
         // Display confirmation push notification
         await this.notify(
@@ -132,8 +180,15 @@ export class NotificationService {
 
       return false;
     } catch (err: any) {
-      console.error('SNS registration failed:', err);
-      this.statusMessage.set(err?.error?.message || 'Failed to connect with AWS SNS');
+      console.error('Notification registration failed:', err);
+      const detail = err?.error?.detail || err?.error?.message || 'Failed to enable push notifications';
+      this.statusMessage.set(detail);
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: detail,
+        confirmButtonColor: '#09090b',
+      });
       return false;
     } finally {
       this.isRegistering.set(false);
@@ -141,7 +196,7 @@ export class NotificationService {
   }
 
   /**
-   * Unregisters device endpoint from AWS SNS
+   * Unregisters device endpoint from backend notification service
    */
   async unregisterFromSNS(): Promise<void> {
     const endpointArn = this.snsEndpointArn();
@@ -153,25 +208,25 @@ export class NotificationService {
           })
         );
       } catch (err) {
-        console.warn('Error during SNS unregister:', err);
+        console.warn('Error during notification unregister:', err);
       }
     }
 
     localStorage.removeItem(STORAGE_KEY_SNS_ENDPOINT);
     this.snsEndpointArn.set(null);
     this.isSnsSubscribed.set(false);
-    this.statusMessage.set('SNS notifications disabled');
+    this.statusMessage.set('Push notifications disabled');
   }
 
   /**
-   * Triggers a test push and SMS alert via AWS SNS backend
+   * Triggers a test push notification
    */
   async sendTestSNSAlert(phoneNumber?: string, bikeId?: string): Promise<boolean> {
     try {
       await firstValueFrom(
         this.http.post(`${this.apiBase}/v1/notifications/test`, {
           title: '🚨 MotorGuard Test Alert',
-          body: 'Security dispatch verified via AWS SNS. All alert channels active.',
+          body: 'Security dispatch verified. Push notification channels active.',
           phone_number: phoneNumber || '',
           bike_id: bikeId || '',
         })

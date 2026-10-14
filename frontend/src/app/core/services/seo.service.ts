@@ -14,7 +14,7 @@ export interface SeoData {
 }
 
 const DEFAULT_SEO: Required<SeoData> = {
-  title: 'MotoGuard',
+  title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
   description:
     'Real-time IoT motorcycle tracking, intelligent geofencing, remote starter immobilization, and automated theft prevention for riders and fleet operators.',
   keywords:
