@@ -410,3 +410,88 @@ body {
   opacity: 0.85;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   PRINT STYLES FOR EVIDENCE REPORTS & PDF EXPORTS
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    min-height: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+    position: static !important;
+    inset: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #09090b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide screen chrome & navigation */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Unclip printable report modal across multi-page document flow */
+  .printable-report-modal {
+    position: static !important;
+    inset: auto !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    display: block !important;
+    z-index: auto !important;
+    padding: 0 !important;
+  }
+
+  .printable-report-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Table multi-page flow & break prevention */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  tbody tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  td, th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
