@@ -3,12 +3,12 @@
   <!-- ================================================================= -->
   <!-- ELEVATED FLOATING CARD (Matches exact screenshot layout)          -->
   <!-- ================================================================= -->
-  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[640px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
+  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[680px] md:h-[680px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
 
     <!-- =============================================================== -->
     <!-- LEFT PANEL: "Void Serpent" Aura Gradient (Hidden on Mobile)     -->
     <!-- =============================================================== -->
-    <div class="hidden md:flex md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full bg-[#100e0b] shrink-0">
+    <div class="hidden md:flex md:w-[42%] md:h-full relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white bg-[#100e0b] shrink-0">
       
       <!-- Layer 1 - screen: Linear 154deg -->
       <div
@@ -100,7 +100,7 @@
     <!-- =============================================================== -->
     <!-- RIGHT PANEL: ONBOARDING FLOW (Full width on mobile)             -->
     <!-- =============================================================== -->
-    <div class="w-full md:w-[58%] flex flex-col justify-between px-5 sm:px-8 md:px-12 py-6 md:py-8 overflow-y-auto">
+    <div class="w-full md:w-[58%] md:h-full flex flex-col justify-between px-5 sm:px-8 md:px-12 py-6 md:py-8 overflow-y-auto">
       <div>
         <!-- Top Row: Asterisk Icon + Stepper Node Indicators -->
         <div class="flex items-center justify-between mb-5">
@@ -234,90 +234,95 @@
               </button>
             </div>
 
-            <!-- TAB 1: Live Camera Scanner -->
-            @if (activeInputTab() === 'CAMERA') {
-              <div class="space-y-3">
-                <div class="relative w-full aspect-4/3 sm:aspect-video rounded-2xl bg-black overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-inner">
-                  <video
-                    #scannerVideo
-                    playsinline
-                    muted
-                    class="w-full h-full object-cover"
-                  ></video>
+            <!-- Tab Content Container with locked height so card never shifts/changes height -->
+            <div class="h-[320px] flex flex-col justify-between">
+              <!-- TAB 1: Live Camera Scanner -->
+              @if (activeInputTab() === 'CAMERA') {
+                <div class="h-full flex flex-col justify-between">
+                  <div class="relative w-full h-[270px] rounded-2xl bg-black overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-inner">
+                    <video
+                      #scannerVideo
+                      playsinline
+                      muted
+                      class="w-full h-full object-cover"
+                    ></video>
 
-                  @if (!isCameraActive()) {
-                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 text-white gap-3">
-                      <p class="text-xs text-slate-400 max-w-xs">
-                        Initializing camera... Please allow camera access in your browser.
-                      </p>
-                      <button
-                        type="button"
-                        (click)="startCamera()"
-                        class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold cursor-pointer"
-                      >
-                        Retry Camera
-                      </button>
-                    </div>
-                  }
+                    @if (!isCameraActive()) {
+                      <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 text-white gap-3">
+                        <p class="text-xs text-slate-400 max-w-xs">
+                          Initializing camera... Please allow camera access in your browser.
+                        </p>
+                        <button
+                          type="button"
+                          (click)="startCamera()"
+                          class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold cursor-pointer"
+                        >
+                          Retry Camera
+                        </button>
+                      </div>
+                    }
+                  </div>
+
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Point camera at the QR code on your hardware unit or packaging.
+                  </p>
                 </div>
+              }
 
-                <p class="text-xs text-slate-500 dark:text-slate-400">
-                  Point camera at the QR code on your hardware unit or packaging.
-                </p>
-              </div>
-            }
-
-            <!-- TAB 2: Manual IMEI Entry -->
-            @if (activeInputTab() === 'MANUAL') {
-              <div class="space-y-4">
-                <div>
-                  <label for="imeiInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    15-Digit Hardware IMEI
-                  </label>
-                  <div class="relative">
-                    <input
-                      id="imeiInput"
-                      type="text"
-                      inputmode="numeric"
-                      placeholder="Enter 15-digit IMEI"
-                      [value]="imeiInput()"
-                      (input)="onImeiInputChange($event)"
-                      maxlength="15"
-                      class="w-full px-4 py-3.5 font-mono text-sm font-semibold rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    />
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">
-                      {{ imeiInput().length }}/15
+              <!-- TAB 2: Manual IMEI Entry -->
+              @if (activeInputTab() === 'MANUAL') {
+                <div class="h-full flex flex-col justify-between">
+                  <div class="space-y-4">
+                    <div>
+                      <label for="imeiInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        15-Digit Hardware IMEI
+                      </label>
+                      <div class="relative">
+                        <input
+                          id="imeiInput"
+                          type="text"
+                          inputmode="numeric"
+                          placeholder="Enter 15-digit IMEI"
+                          [value]="imeiInput()"
+                          (input)="onImeiInputChange($event)"
+                          maxlength="15"
+                          class="w-full px-4 py-3.5 font-mono text-sm font-semibold rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                        />
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">
+                          {{ imeiInput().length }}/15
+                        </div>
+                      </div>
                     </div>
+
+                    @if (cooldownSeconds() > 0) {
+                      <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400 text-xs flex justify-between items-center">
+                        <span>Cooldown active. Please wait.</span>
+                        <span class="font-mono font-bold">{{ formatCooldown() }}</span>
+                      </div>
+                    }
+
+                    @if (verifyError()) {
+                      <div class="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-xs">
+                        {{ verifyError() }}
+                      </div>
+                    }
                   </div>
+
+                  <button
+                    type="button"
+                    (click)="verifyTrackerCode()"
+                    [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
+                    class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 hover:from-blue-700 hover:via-indigo-700 hover:to-violet-800 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer flex items-center justify-center gap-2 mt-auto"
+                  >
+                    @if (isVerifying()) {
+                      <span>Verifying...</span>
+                    } @else {
+                      <span>Verify Tracker &rarr;</span>
+                    }
+                  </button>
                 </div>
-
-                @if (cooldownSeconds() > 0) {
-                  <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400 text-xs flex justify-between items-center">
-                    <span>Cooldown active. Please wait.</span>
-                    <span class="font-mono font-bold">{{ formatCooldown() }}</span>
-                  </div>
-                }
-
-                @if (verifyError()) {
-                  <div class="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-xs">
-                    {{ verifyError() }}
-                  </div>
-                }
-
-                <button
-                  type="button"
-                  (click)="verifyTrackerCode()"
-                  [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
-                  class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 hover:from-blue-700 hover:via-indigo-700 hover:to-violet-800 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer flex items-center justify-center gap-2"
-                >
-                  @if (isVerifying()) {
-                    <span>Verifying...</span>
-                  } @else {
-                    <span>Verify Tracker &rarr;</span>
-                  }
-                </button>
-              </div>
-            }
+              }
+            </div>
           </div>
         }
 

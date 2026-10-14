@@ -61,13 +61,7 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 
 	_, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err == nil {
-		return nil, domain.ProblemDetails{
-			Type:     "https://motoguard.co.ke/errors/conflict",
-			Title:    "Conflict",
-			Status:   409,
-			Detail:   "A user with this email already exists",
-			Instance: instance,
-		}
+		return nil, domain.NewConflictError("A user with this email already exists", instance)
 	} else if !errors.Is(err, repository.ErrNotFound) {
 		return nil, domain.NewInternalServerError(instance)
 	}

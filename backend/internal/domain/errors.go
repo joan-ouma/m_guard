@@ -36,7 +36,7 @@ func NewMethodNotAllowedError(detail string, instance string) ProblemDetails {
 		detail = "Method not allowed"
 	}
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/method-not-allowed",
+		Type:     "about:blank",
 		Title:    "Method Not Allowed",
 		Status:   http.StatusMethodNotAllowed,
 		Detail:   detail,
@@ -46,7 +46,7 @@ func NewMethodNotAllowedError(detail string, instance string) ProblemDetails {
 
 func NewUnauthorizedError(detail string, instance string) ProblemDetails {
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/unauthorized",
+		Type:     "about:blank",
 		Title:    "Unauthorized",
 		Status:   http.StatusUnauthorized,
 		Detail:   detail,
@@ -56,7 +56,7 @@ func NewUnauthorizedError(detail string, instance string) ProblemDetails {
 
 func NewBadRequestError(detail string, instance string, errors map[string][]string) ProblemDetails {
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/bad-request",
+		Type:     "about:blank",
 		Title:    "Bad Request",
 		Status:   http.StatusBadRequest,
 		Detail:   detail,
@@ -67,7 +67,7 @@ func NewBadRequestError(detail string, instance string, errors map[string][]stri
 
 func NewNotFoundError(detail string, instance string) ProblemDetails {
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/not-found",
+		Type:     "about:blank",
 		Title:    "Not Found",
 		Status:   http.StatusNotFound,
 		Detail:   detail,
@@ -77,7 +77,7 @@ func NewNotFoundError(detail string, instance string) ProblemDetails {
 
 func NewTooManyRequestsError(detail string, instance string) ProblemDetails {
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/too-many-requests",
+		Type:     "about:blank",
 		Title:    "Too Many Requests",
 		Status:   http.StatusTooManyRequests,
 		Detail:   detail,
@@ -94,7 +94,7 @@ func NewInternalServerErrorWithDetail(detail, instance string) ProblemDetails {
 		detail = "Internal server error"
 	}
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/internal-server-error",
+		Type:     "about:blank",
 		Title:    "Internal Server Error",
 		Status:   http.StatusInternalServerError,
 		Detail:   detail,
@@ -104,10 +104,21 @@ func NewInternalServerErrorWithDetail(detail, instance string) ProblemDetails {
 
 func NewForbiddenError(detail string, instance string) ProblemDetails {
 	return ProblemDetails{
-		Type:     "https://motoguard.co.ke/errors/forbidden",
+		Type:     "about:blank",
 		Title:    "Forbidden",
 		Status:   http.StatusForbidden,
 		Detail:   detail,
 		Instance: instance,
 	}
 }
+
+func NewConflictError(detail string, instance string) ProblemDetails {
+	return ProblemDetails{
+		Type:     "about:blank",
+		Title:    "Conflict",
+		Status:   http.StatusConflict,
+		Detail:   detail,
+		Instance: instance,
+	}
+}
+
