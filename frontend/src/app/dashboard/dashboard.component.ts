@@ -31,7 +31,6 @@ import {
 } from './components/geofence-modal/geofence-modal.component';
 import { RegisterBikeModalComponent } from './components/register-bike-modal/register-bike-modal.component';
 import { DuressModalComponent } from './components/duress-modal/duress-modal.component';
-import { OnboardingModalComponent } from './components/onboarding-modal/onboarding-modal.component';
 
 export type { FleetBike, NotificationItem };
 
@@ -46,7 +45,6 @@ export type { FleetBike, NotificationItem };
     GeofenceModalComponent,
     RegisterBikeModalComponent,
     DuressModalComponent,
-    OnboardingModalComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -82,7 +80,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly showRegisterModal = signal<boolean>(false);
   readonly registrationError = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
-  readonly showOnboardingModal = signal<boolean>(false);
 
   private tickerInterval?: ReturnType<typeof setInterval>;
   private duressInterval?: ReturnType<typeof setInterval>;
@@ -214,22 +211,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       try {
         localStorage.removeItem('motorguard_onboarding_dismissed');
       } catch {}
-
-      const isInstalled =
-        this.pwa.isInstalled() ||
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
-
-      const notifsEnabled =
-        this.notificationService.isSupported() &&
-        (this.notificationService.permission() === 'granted' || this.notificationService.isSnsSubscribed());
-
-      // Modal should not show when app is already installed or when notifications already enabled
-      if (!isInstalled && !notifsEnabled) {
-        setTimeout(() => {
-          this.showOnboardingModal.set(true);
-        }, 700);
-      }
     }
   }
 
@@ -636,16 +617,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openRegisterModal(): void {
-    this.showOnboardingModal.set(true);
-  }
-
-  onBikeAttached(bike: BikeDTO): void {
-    this.showOnboardingModal.set(false);
-    if (bike && bike.id) {
-      setTimeout(() => {
-        this.selectBike(bike.id);
-      }, 300);
-    }
+    this.showRegisterModal.set(true);
   }
 
   closeRegisterModal(): void {
@@ -1026,10 +998,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     });
-  }
-
-  closeOnboardingModal(): void {
-    this.showOnboardingModal.set(false);
   }
 
   private mapToFleetBike(b: BikeDTO): FleetBike {

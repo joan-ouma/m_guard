@@ -23,8 +23,8 @@ export class RegisterBikeModalComponent {
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}\s?[0-9]{3}[A-Z]$/i)]],
     model: ['', [Validators.required]],
     imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
-    county: ['Nairobi County', [Validators.required]],
-    subCounty: ['Westlands', [Validators.required]],
+    county: ['', [Validators.required]],
+    subCounty: ['', [Validators.required]],
     isSelfRider: [false],
     riderName: ['', [Validators.required, Validators.minLength(2)]],
     riderNationalId: ['', [Validators.required, Validators.pattern(/^[0-9]{6,10}$/)]],
@@ -35,8 +35,11 @@ export class RegisterBikeModalComponent {
     effect(() => {
       if (this.isOpen()) {
         this.form.reset({
-          county: 'Nairobi County',
-          subCounty: 'Westlands',
+          plate: '',
+          model: '',
+          imei: '',
+          county: '',
+          subCounty: '',
           isSelfRider: false,
           riderName: '',
           riderNationalId: '',

@@ -30,24 +30,28 @@ func NewBikeHandler(s *service.BikeService) *BikeHandler {
 
 func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream http.HandlerFunc) chi.Router {
 	r := chi.NewRouter()
-	r.Use(auth)
-	r.Get("/stream", sseStream)
 
-	r.Get("/", h.List)
-	r.Post("/", h.Create)
-
-	// Tracker verification & onboarding attachment
+	// Public tracker verification (rate-limited per IP) so unauthenticated users during signup can verify trackers
 	r.Get("/verify-tracker", h.VerifyTracker)
 	r.Post("/verify-tracker", h.VerifyTracker)
-	r.Post("/attach", h.Attach)
 
-	r.Get("/{id}", h.GetByID)
-	r.Put("/{id}", h.Update)
-	r.Patch("/{id}", h.Update)
-	r.Delete("/{id}", h.Delete)
-	r.Get("/{id}/breadcrumbs", h.GetBreadcrumbs)
-	r.Get("/{id}/events", h.GetEvents)
-	r.Post("/{id}/immobilize", h.Immobilize)
+	// Protected routes below
+	r.Group(func(pr chi.Router) {
+		pr.Use(auth)
+		pr.Get("/stream", sseStream)
+
+		r.Get("/", h.List)
+		r.Post("/", h.Create)
+		r.Post("/attach", h.Attach)
+
+		r.Get("/{id}", h.GetByID)
+		r.Put("/{id}", h.Update)
+		r.Patch("/{id}", h.Update)
+		r.Delete("/{id}", h.Delete)
+		r.Get("/{id}/breadcrumbs", h.GetBreadcrumbs)
+		r.Get("/{id}/events", h.GetEvents)
+		r.Post("/{id}/immobilize", h.Immobilize)
+	})
 
 	return r
 }

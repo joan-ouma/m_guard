@@ -68,8 +68,8 @@ export class BikesComponent implements OnInit {
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}\s?[0-9]{3}[A-Z]$/i)]],
     model: ['', [Validators.required]],
     imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
-    county: ['Nairobi County', [Validators.required]],
-    subCounty: ['Westlands', [Validators.required]],
+    county: ['', [Validators.required]],
+    subCounty: ['', [Validators.required]],
   });
 
   readonly filteredBikes = computed(() => {
@@ -155,8 +155,11 @@ export class BikesComponent implements OnInit {
   openRegisterModal(): void {
     this.registrationError.set(null);
     this.registerForm.reset({
-      county: 'Nairobi County',
-      subCounty: 'Westlands',
+      plate: '',
+      model: '',
+      imei: '',
+      county: '',
+      subCounty: '',
     });
     this.showRegisterModal.set(true);
   }

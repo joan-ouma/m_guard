@@ -76,12 +76,12 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
   // Rider & Motorcycle Form
   readonly detailsForm: FormGroup = this.fb.group({
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{3,4}\s?[0-9]{3}[A-Z]$/i)]],
-    make: ['Honda', [Validators.required]],
+    make: ['', [Validators.required]],
     model: ['', [Validators.required, Validators.minLength(2)]],
-    year: [new Date().getFullYear(), [Validators.required, Validators.min(1990), Validators.max(2030)]],
-    color: ['Black', [Validators.required]],
-    county: ['Nairobi County', [Validators.required]],
-    subCounty: ['Westlands', [Validators.required]],
+    year: ['', [Validators.required, Validators.min(1990), Validators.max(2030)]],
+    color: ['', [Validators.required]],
+    county: ['', [Validators.required]],
+    subCounty: ['', [Validators.required]],
     isSelfRider: [false],
     riderName: ['', [Validators.required, Validators.minLength(2)]],
     riderNationalId: ['', [Validators.required, Validators.pattern(/^[0-9]{6,10}$/)]],
@@ -138,11 +138,13 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
     this.isVerifying.set(false);
 
     this.detailsForm.reset({
-      make: 'Honda',
-      year: new Date().getFullYear(),
-      color: 'Black',
-      county: 'Nairobi County',
-      subCounty: 'Westlands',
+      plate: '',
+      make: '',
+      model: '',
+      year: '',
+      color: '',
+      county: '',
+      subCounty: '',
       isSelfRider: false,
       riderName: '',
       riderNationalId: '',
