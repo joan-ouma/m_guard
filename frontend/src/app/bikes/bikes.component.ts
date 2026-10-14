@@ -7,6 +7,7 @@ import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
 import Swal from 'sweetalert2';
 import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
+import { OnboardingModalComponent } from '../dashboard/components/onboarding-modal/onboarding-modal.component';
 
 export interface MotorcycleAsset {
   id: string;
@@ -31,7 +32,14 @@ export interface MotorcycleAsset {
 @Component({
   selector: 'app-bikes',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ReactiveFormsModule, MobileNavComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    ReactiveFormsModule,
+    MobileNavComponent,
+    OnboardingModalComponent,
+  ],
   templateUrl: './bikes.component.html',
 })
 export class BikesComponent implements OnInit {
@@ -156,6 +164,11 @@ export class BikesComponent implements OnInit {
   closeRegisterModal(): void {
     this.showRegisterModal.set(false);
     this.registrationError.set(null);
+  }
+
+  onBikeAttached(bike: BikeDTO): void {
+    this.closeRegisterModal();
+    this.bikeService.loadBikes().subscribe();
   }
 
   registerBike(): void {
@@ -301,8 +314,8 @@ export class BikesComponent implements OnInit {
       subCounty: b.sub_county ? b.sub_county : 'Calculating...',
       lat: b.latitude || 0,
       lng: b.longitude || 0,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Ongata Rongai Zone',
-      fenceRadius: 2500,
+      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Not configured',
+      fenceRadius: b.geofence_id ? 2500 : 0,
       batteryPercent: b.battery_percent ?? 100,
       signalQuality: b.signal_quality_csq ?? 20,
       lastPing: lastPing,

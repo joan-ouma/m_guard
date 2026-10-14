@@ -115,3 +115,26 @@ export interface BikeEventDTO {
   recorded_at: string;
 }
 
+export interface TrackerStatusDTO {
+  imei: string;
+  model: string;
+  status: string;
+  is_claimed: boolean;
+}
+
+export interface AttachBikePayload {
+  registration_number: string;
+  label?: string;
+  make: string;
+  model: string;
+  year?: number;
+  color?: string;
+  imei: string;
+  county: string;
+  sub_county: string;
+  rider_name: string;
+  rider_national_id: string;
+  rider_phone: string;
+  rider_email: string;
+}
+

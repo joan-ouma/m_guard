@@ -10,7 +10,7 @@ import { NotificationBellComponent } from '../notification-bell/notification-bel
   templateUrl: './dashboard-header.component.html',
 })
 export class DashboardHeaderComponent {
-  readonly selectedBike = input.required<FleetBike>();
+  readonly selectedBike = input<FleetBike | null>(null);
   readonly hasBikes = input.required<boolean>();
   readonly isBreachActive = input<boolean>(false);
   readonly alertBannerText = input<string>('');

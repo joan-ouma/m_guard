@@ -10,7 +10,7 @@ import { FleetBike } from '../../models/dashboard.models';
 })
 export class BikeInspectorComponent {
   readonly bikeList = input.required<FleetBike[]>();
-  readonly selectedBike = input.required<FleetBike>();
+  readonly selectedBike = input<FleetBike | null>(null);
   readonly currentTime = input<number>(Date.now());
   readonly copiedCoordinates = input<boolean>(false);
   readonly mobileSheetExpanded = input<boolean>(false);

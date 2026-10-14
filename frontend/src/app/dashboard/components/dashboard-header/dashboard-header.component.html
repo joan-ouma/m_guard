@@ -20,13 +20,9 @@
     </button>
 
     <div class="flex items-center gap-2 lg:gap-2.5 min-w-0">
-      <span class="text-xs lg:text-sm font-semibold text-zinc-400 uppercase tracking-wider shrink-0">My Ride</span>
-      @if (hasBikes()) {
-        <span class="text-zinc-300 font-bold shrink-0">/</span>
-        <span id="headerPlateLabel" class="text-sm lg:text-base font-bold text-zinc-900 truncate">
-          {{ selectedBike().plate }} <span class="hidden sm:inline">({{ selectedBike().model }})</span>
-        </span>
-      }
+      <span id="headerPlateLabel" class="text-base lg:text-lg font-bold tracking-tight text-zinc-950 font-display">
+        MotoGuard
+      </span>
     </div>
 
     @if (isBreachActive()) {

@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"motoguard-backend/internal/domain"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -599,4 +601,155 @@ func (r *BikeRepository) GetEvents(
 	}
 
 	return events, meta, nil
+}
+
+func (r *BikeRepository) VerifyTracker(ctx context.Context, imei string) (*domain.TrackerStatusDTO, error) {
+	queryTracker := `
+		SELECT id, imei, COALESCE(model, 'MGuard-T100 GPS'), COALESCE(status, 'AVAILABLE')
+		FROM trackers
+		WHERE imei = $1
+		LIMIT 1
+	`
+	var trkID, trkIMEI, model, status string
+	err := r.pool.QueryRow(ctx, queryTracker, imei).Scan(&trkID, &trkIMEI, &model, &status)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	// Check if claimed in bikes
+	var bikeID string
+	queryBike := `SELECT id FROM bikes WHERE imei = $1 LIMIT 1`
+	err = r.pool.QueryRow(ctx, queryBike, imei).Scan(&bikeID)
+	if err == nil {
+		return &domain.TrackerStatusDTO{
+			IMEI:      trkIMEI,
+			Model:     model,
+			Status:    "CLAIMED",
+			IsClaimed: true,
+		}, nil
+	}
+
+	// Check if assigned in active tracker_assignments
+	var assignID string
+	queryAssignment := `
+		SELECT id FROM tracker_assignments
+		WHERE tracker_id = $1 AND unassigned_at IS NULL
+		LIMIT 1
+	`
+	err = r.pool.QueryRow(ctx, queryAssignment, trkID).Scan(&assignID)
+	if err == nil {
+		return &domain.TrackerStatusDTO{
+			IMEI:      trkIMEI,
+			Model:     model,
+			Status:    "CLAIMED",
+			IsClaimed: true,
+		}, nil
+	}
+
+	return &domain.TrackerStatusDTO{
+		IMEI:      trkIMEI,
+		Model:     model,
+		Status:    "AVAILABLE",
+		IsClaimed: false,
+	}, nil
+}
+
+func (r *BikeRepository) AttachBikeWithRider(ctx context.Context, userID string, req domain.AttachBikeRequest) (*domain.Bike, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	// 1. Find tracker
+	queryTracker := `SELECT id, COALESCE(model, 'MGuard-T100 GPS') FROM trackers WHERE imei = $1 LIMIT 1`
+	var trackerID, trackerModel string
+	err = tx.QueryRow(ctx, queryTracker, req.IMEI).Scan(&trackerID, &trackerModel)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	// 2. Insert driver contact
+	driverContactID := uuid.New().String()
+	insertDriverQuery := `
+		INSERT INTO driver_contacts (id, user_id, name, phone, email, national_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+	`
+	_, err = tx.Exec(ctx, insertDriverQuery, driverContactID, userID, req.RiderName, req.RiderPhone, req.RiderEmail, req.RiderNationalID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save driver contact: %w", err)
+	}
+
+	// 3. Create Bike
+	bikeID := uuid.New().String()
+	now := time.Now().UTC()
+	year := req.Year
+	if year <= 0 {
+		year = now.Year()
+	}
+
+	label := req.Label
+	if label == "" {
+		label = fmt.Sprintf("%s %s", req.Make, req.Model)
+	}
+
+	bike := domain.Bike{
+		ID:                 bikeID,
+		UserID:             userID,
+		RegistrationNumber: req.RegistrationNumber,
+		Label:              label,
+		Make:               req.Make,
+		Model:              req.Model,
+		Year:               year,
+		Color:              req.Color,
+		IMEI:               req.IMEI,
+		Status:             "STOPPED",
+		Ignition:           false,
+		SpeedKMH:           0.0,
+		HeadingDeg:         0.0,
+		Latitude:           -1.2921,
+		Longitude:          36.8219,
+		CurrentAddress:     "Nairobi, Kenya",
+		SubCounty:          req.SubCounty,
+		County:             req.County,
+		BatteryPercent:     100,
+		SignalQualityCSQ:   20,
+		LastTelemetryAt:    nil,
+		DriverContactID:    driverContactID,
+		IsImmobilized:      false,
+		CreatedAt:          now,
+		UpdatedAt:          now,
+	}
+
+	if err := r.Create(ctx, tx, &bike); err != nil {
+		return nil, fmt.Errorf("failed to create bike: %w", err)
+	}
+
+	// 4. Create tracker assignment
+	assignmentID := uuid.New().String()
+	insertAssignmentQuery := `
+		INSERT INTO tracker_assignments (id, tracker_id, bike_id, assigned_at, created_at)
+		VALUES ($1, $2, $3, NOW(), NOW())
+	`
+	if _, err := tx.Exec(ctx, insertAssignmentQuery, assignmentID, trackerID, bikeID); err != nil {
+		return nil, fmt.Errorf("failed to assign tracker: %w", err)
+	}
+
+	// 5. Update tracker status
+	updateTrackerQuery := `UPDATE trackers SET status = 'ACTIVE', updated_at = NOW() WHERE id = $1`
+	if _, err := tx.Exec(ctx, updateTrackerQuery, trackerID); err != nil {
+		return nil, fmt.Errorf("failed to update tracker status: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return &bike, nil
 }

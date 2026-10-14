@@ -37,11 +37,24 @@ type BikeTouchedAlertData struct {
 	DashboardURL     string
 }
 
+type TrackerAttachedEmailData struct {
+	RiderName        string
+	RiderEmail       string
+	BikeRegistration string
+	BikeMake         string
+	BikeModel        string
+	IMEI             string
+	AttachedAt       string
+	DashboardURL     string
+	ReplyToEmail     string
+}
+
 type Mailer interface {
 	SendPasswordResetEmail(ctx context.Context, toEmail, toName, resetURL string) error
 	SendPasswordChangedEmail(ctx context.Context, toEmail, toName string) error
 	SendGeofenceBreachAlertEmail(ctx context.Context, toEmail, toName string, data GeofenceAlertData) error
 	SendBikeTouchedAlertEmail(ctx context.Context, toEmail, toName string, data BikeTouchedAlertData) error
+	SendTrackerAttachedEmail(ctx context.Context, toEmail, toName string, data TrackerAttachedEmailData) error
 }
 
 type MailjetMailer struct {
@@ -329,6 +342,42 @@ MotoGuard &bull; Fleet Tracking & Security`,
 	return m.send(ctx, toEmail, displayName, subject, textPart, htmlPart)
 }
 
+func (m *MailjetMailer) SendTrackerAttachedEmail(ctx context.Context, toEmail, toName string, data TrackerAttachedEmailData) error {
+	displayName := toName
+	if displayName == "" {
+		displayName = "Rider"
+	}
+
+	subject := fmt.Sprintf("Tracker Attached to %s - MotoGuard", data.BikeRegistration)
+
+	textPart := fmt.Sprintf(`Hello %s,
+
+A GPS tracker has been attached to your motorcycle (%s - %s %s).
+
+Details:
+- Number Plate: %s
+- Motorcycle: %s %s
+- Tracker IMEI: %s
+- Attached On: %s
+
+You can track your motorcycle in MotoGuard here:
+%s
+
+If you did not authorize this, reply to %s.
+
+MotoGuard`,
+		displayName, data.BikeRegistration, data.BikeMake, data.BikeModel,
+		data.BikeRegistration, data.BikeMake, data.BikeModel, data.IMEI, data.AttachedAt,
+		data.DashboardURL, data.ReplyToEmail)
+
+	htmlPart, err := m.renderTemplate("tracker_attached.html", data)
+	if err != nil {
+		return err
+	}
+
+	return m.send(ctx, toEmail, displayName, subject, textPart, htmlPart)
+}
+
 type NoopMailer struct{}
 
 func (n *NoopMailer) SendPasswordResetEmail(ctx context.Context, toEmail, toName, resetURL string) error {
@@ -348,5 +397,10 @@ func (n *NoopMailer) SendGeofenceBreachAlertEmail(ctx context.Context, toEmail, 
 
 func (n *NoopMailer) SendBikeTouchedAlertEmail(ctx context.Context, toEmail, toName string, data BikeTouchedAlertData) error {
 	slog.Info("NoopMailer bike touched alert email", "bike", data.BikeRegistration)
+	return nil
+}
+
+func (n *NoopMailer) SendTrackerAttachedEmail(ctx context.Context, toEmail, toName string, data TrackerAttachedEmailData) error {
+	slog.Info("NoopMailer tracker attached email", "to_name", toName, "to_email", toEmail, "bike", data.BikeRegistration, "imei", data.IMEI)
 	return nil
 }

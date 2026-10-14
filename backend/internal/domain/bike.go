@@ -117,8 +117,36 @@ type DriverContact struct {
 	OrganizationID string
 	Name           string
 	Phone          string
+	Email          string
 	IDNumber       string
 	LicenseNumber  string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type VerifyTrackerRequest struct {
+	IMEI string `json:"imei"`
+}
+
+type TrackerStatusDTO struct {
+	IMEI      string `json:"imei"`
+	Model     string `json:"model"`
+	Status    string `json:"status"`
+	IsClaimed bool   `json:"is_claimed"`
+}
+
+type AttachBikeRequest struct {
+	RegistrationNumber string `json:"registration_number"`
+	Label              string `json:"label"`
+	Make               string `json:"make"`
+	Model              string `json:"model"`
+	Year               int    `json:"year"`
+	Color              string `json:"color"`
+	IMEI               string `json:"imei"`
+	County             string `json:"county"`
+	SubCounty          string `json:"sub_county"`
+	RiderName          string `json:"rider_name"`
+	RiderNationalID    string `json:"rider_national_id"`
+	RiderPhone         string `json:"rider_phone"`
+	RiderEmail         string `json:"rider_email"`
 }

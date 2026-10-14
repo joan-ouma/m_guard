@@ -20,7 +20,6 @@ import Swal from 'sweetalert2';
 
 import {
   FleetBike,
-  DEFAULT_BIKE,
   NotificationItem,
 } from './models/dashboard.models';
 import { DashboardSidebarComponent } from './components/dashboard-sidebar/dashboard-sidebar.component';
@@ -34,7 +33,6 @@ import { RegisterBikeModalComponent } from './components/register-bike-modal/reg
 import { DuressModalComponent } from './components/duress-modal/duress-modal.component';
 import { OnboardingModalComponent } from './components/onboarding-modal/onboarding-modal.component';
 
-export { DEFAULT_BIKE };
 export type { FleetBike, NotificationItem };
 
 @Component({
@@ -115,7 +113,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         for (const b of bikes) {
           const currentBike = prev[b.id];
           const mapped = this.mapToFleetBike(b);
-          if (currentBike && currentBike.fenceRadius) {
+          if (currentBike && currentBike.hasGeofence) {
+            mapped.hasGeofence = currentBike.hasGeofence;
+            mapped.fenceCenterLat = currentBike.fenceCenterLat;
+            mapped.fenceCenterLng = currentBike.fenceCenterLng;
             mapped.fenceName = currentBike.fenceName;
             mapped.fenceRadius = currentBike.fenceRadius;
             mapped.triggerCondition = currentBike.triggerCondition;
@@ -147,7 +148,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly bikeList = computed<FleetBike[]>(() => Object.values(this.fleet()));
 
-  readonly selectedBike = computed<FleetBike>(() => {
+  readonly selectedBike = computed<FleetBike | null>(() => {
     const f = this.fleet();
     const key = this.activeKey();
     if (key && f[key]) {
@@ -157,11 +158,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (keys.length > 0) {
       return f[keys[keys.length - 1]];
     }
-    return DEFAULT_BIKE;
+    return null;
   });
 
-  readonly currentGeofenceData = computed<GeofenceData>(() => {
+  readonly currentGeofenceData = computed<GeofenceData | null>(() => {
     const bike = this.selectedBike();
+    if (!bike) return null;
     return {
       fenceName: bike.fenceName,
       fenceRadius: bike.fenceRadius,
@@ -261,9 +263,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const mapEl = document.getElementById('map');
     if (!mapEl) return;
 
+    const centerLat = bike ? bike.lat : -1.286389;
+    const centerLng = bike ? bike.lng : 36.817223;
+    const zoomLevel = bike ? 13 : 11;
+
     this.map = L.map('map', {
       zoomControl: false,
-    }).setView([bike.lat, bike.lng], 13);
+    }).setView([centerLat, centerLng], zoomLevel);
 
     // Custom Dark Basemap: Esri World Dark Gray Canvas
     L.tileLayer(
@@ -284,26 +290,49 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     ).addTo(this.map);
 
-    this.bikeMarker = L.marker([bike.lat, bike.lng], {
-      icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
-    }).addTo(this.map);
+    if (bike) {
+      this.bikeMarker = L.marker([bike.lat, bike.lng], {
+        icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
+      }).addTo(this.map);
 
-    this.geofenceLayer = L.circle([bike.lat, bike.lng], {
-      color: '#0EA5E9',
-      fillColor: '#0EA5E9',
-      fillOpacity: 0.08,
-      weight: 2,
-      dashArray: '6, 6',
-      radius: bike.fenceRadius,
-    }).addTo(this.map);
+      if (bike.hasGeofence && bike.fenceRadius > 0 && bike.fenceCenterLat !== undefined && bike.fenceCenterLng !== undefined) {
+        this.geofenceLayer = L.circle([bike.fenceCenterLat, bike.fenceCenterLng], {
+          color: '#0EA5E9',
+          fillColor: '#0EA5E9',
+          fillOpacity: 0.08,
+          weight: 2,
+          dashArray: '6, 6',
+          radius: bike.fenceRadius,
+        }).addTo(this.map);
+      } else {
+        this.geofenceLayer = null;
+      }
 
-    this.loadAndDrawPath(bike);
+      this.loadAndDrawPath(bike);
+    } else {
+      this.bikeMarker = null;
+      this.geofenceLayer = null;
+    }
+
     this.map.invalidateSize();
   }
 
   private updateMapForCurrentBike(recenter: boolean = false): void {
     if (!this.map) return;
     const bike = this.selectedBike();
+
+    if (!bike) {
+      if (this.bikeMarker) {
+        this.bikeMarker.remove();
+        this.bikeMarker = null;
+      }
+      if (this.geofenceLayer) {
+        this.geofenceLayer.remove();
+        this.geofenceLayer = null;
+      }
+      this.clearPathLayers();
+      return;
+    }
 
     if (!this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
@@ -314,26 +343,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false));
     }
 
-    if (!this.geofenceLayer) {
-      this.geofenceLayer = L.circle([bike.lat, bike.lng], {
-        color: '#0EA5E9',
-        fillColor: '#0EA5E9',
-        fillOpacity: 0.08,
-        weight: 2,
-        dashArray: '6, 6',
-        radius: bike.fenceRadius,
-      }).addTo(this.map);
-    } else {
-      this.geofenceLayer
-        .setLatLng([bike.lat, bike.lng])
-        .setRadius(bike.fenceRadius)
-        .setStyle({
+    if (bike.hasGeofence && bike.fenceRadius > 0 && bike.fenceCenterLat !== undefined && bike.fenceCenterLng !== undefined) {
+      if (!this.geofenceLayer) {
+        this.geofenceLayer = L.circle([bike.fenceCenterLat, bike.fenceCenterLng], {
           color: '#0EA5E9',
           fillColor: '#0EA5E9',
           fillOpacity: 0.08,
           weight: 2,
           dashArray: '6, 6',
-        });
+          radius: bike.fenceRadius,
+        }).addTo(this.map);
+      } else {
+        // FIXED CENTER: Never move geofence when bike moves!
+        this.geofenceLayer
+          .setLatLng([bike.fenceCenterLat, bike.fenceCenterLng])
+          .setRadius(bike.fenceRadius)
+          .setStyle({
+            color: '#0EA5E9',
+            fillColor: '#0EA5E9',
+            fillOpacity: 0.08,
+            weight: 2,
+            dashArray: '6, 6',
+          });
+      }
+    } else {
+      // User didn't set geofence -> do NOT show it!
+      if (this.geofenceLayer) {
+        this.geofenceLayer.remove();
+        this.geofenceLayer = null;
+      }
     }
 
     if (recenter) {
@@ -493,41 +531,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activeKey.set(key);
     this.isBreachActive.set(false);
     this.alertBannerText.set('');
-
-    const bike = this.selectedBike();
-
-    if (this.map && this.bikeMarker && this.geofenceLayer) {
-      this.bikeMarker.setIcon(
-        this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false)
-      );
-      this.bikeMarker.setLatLng([bike.lat, bike.lng]);
-
-      this.geofenceLayer
-        .setLatLng([bike.lat, bike.lng])
-        .setRadius(bike.fenceRadius)
-        .setStyle({
-          color: '#0EA5E9',
-          fillColor: '#0EA5E9',
-          fillOpacity: 0.08,
-          weight: 2,
-          dashArray: '6, 6',
-        });
-
-      const currentZoom = this.map.getZoom() || 13;
-      this.map.setView([bike.lat, bike.lng], currentZoom);
-      this.map.invalidateSize();
-      this.loadAndDrawPath(bike);
-    }
+    this.updateMapForCurrentBike(true);
   }
 
   recenterMap(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
+    if (!bike) return;
     this.map.panTo([bike.lat, bike.lng]);
   }
 
   copyCoordinates(): void {
     const bike = this.selectedBike();
+    if (!bike) return;
     const text = `${bike.lat.toFixed(6)}, ${bike.lng.toFixed(6)}`;
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text);
@@ -550,6 +566,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   saveGeofence(data: GeofenceData): void {
     const key = this.activeKey();
+    const bike = this.selectedBike();
+    if (!bike) {
+      this.toggleGeofenceModal(false);
+      return;
+    }
+    const centerLat = bike.fenceCenterLat ?? bike.lat;
+    const centerLng = bike.fenceCenterLng ?? bike.lng;
 
     this.fleet.update((prev) => {
       const current = prev[key];
@@ -558,6 +581,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         ...prev,
         [key]: {
           ...current,
+          hasGeofence: true,
+          fenceCenterLat: centerLat,
+          fenceCenterLng: centerLng,
           fenceName: data.fenceName,
           fenceRadius: data.fenceRadius,
           triggerCondition: data.fenceTrigger,
@@ -566,8 +592,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       };
     });
 
-    if (this.geofenceLayer) {
-      this.geofenceLayer.setRadius(data.fenceRadius);
+    if (this.map) {
+      if (!this.geofenceLayer) {
+        this.geofenceLayer = L.circle([centerLat, centerLng], {
+          color: '#0EA5E9',
+          fillColor: '#0EA5E9',
+          fillOpacity: 0.08,
+          weight: 2,
+          dashArray: '6, 6',
+          radius: data.fenceRadius,
+        }).addTo(this.map);
+      } else {
+        this.geofenceLayer
+          .setLatLng([centerLat, centerLng])
+          .setRadius(data.fenceRadius)
+          .setStyle({
+            color: '#0EA5E9',
+            fillColor: '#0EA5E9',
+            fillOpacity: 0.08,
+            weight: 2,
+            dashArray: '6, 6',
+          });
+      }
     }
 
     this.toggleGeofenceModal(false);
@@ -589,8 +635,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openRegisterModal(): void {
-    this.registrationError.set(null);
-    this.showRegisterModal.set(true);
+    this.showOnboardingModal.set(true);
+  }
+
+  onBikeAttached(bike: BikeDTO): void {
+    this.showOnboardingModal.set(false);
+    if (bike && bike.id) {
+      setTimeout(() => {
+        this.selectBike(bike.id);
+      }, 300);
+    }
   }
 
   closeRegisterModal(): void {
@@ -643,8 +697,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   simulateBreach(): void {
     const bike = this.selectedBike();
-    const exitLat = bike.lat + 0.036;
-    const exitLng = bike.lng + 0.024;
+    if (!bike) return;
+    const centerLat = bike.fenceCenterLat ?? bike.lat;
+    const centerLng = bike.fenceCenterLng ?? bike.lng;
+    const radius = bike.fenceRadius > 0 ? bike.fenceRadius : 2500;
+    const exitLat = centerLat + 0.036;
+    const exitLng = centerLng + 0.024;
     const nowIso = new Date().toISOString();
 
     this.fleet.update((prev) => {
@@ -654,6 +712,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         ...prev,
         [key]: {
           ...prev[key],
+          hasGeofence: true,
+          fenceCenterLat: centerLat,
+          fenceCenterLng: centerLng,
+          fenceName: bike.fenceName || 'Safe Operational Zone',
+          fenceRadius: radius,
           lat: exitLat,
           lng: exitLng,
           lastSeenAt: nowIso,
@@ -668,14 +731,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       );
     }
 
-    if (this.geofenceLayer) {
-      this.geofenceLayer.setStyle({
-        color: '#F43F5E',
-        fillColor: '#F43F5E',
-        fillOpacity: 0.16,
-        weight: 2.5,
-        dashArray: '4, 4',
-      });
+    if (this.map) {
+      if (!this.geofenceLayer) {
+        this.geofenceLayer = L.circle([centerLat, centerLng], {
+          color: '#F43F5E',
+          fillColor: '#F43F5E',
+          fillOpacity: 0.16,
+          weight: 2.5,
+          dashArray: '4, 4',
+          radius: radius,
+        }).addTo(this.map);
+      } else {
+        this.geofenceLayer
+          .setLatLng([centerLat, centerLng])
+          .setRadius(radius)
+          .setStyle({
+            color: '#F43F5E',
+            fillColor: '#F43F5E',
+            fillOpacity: 0.16,
+            weight: 2.5,
+            dashArray: '4, 4',
+          });
+      }
     }
 
     if (this.pathPolyline) {
@@ -708,10 +785,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   simulateSuddenStop(): void {
     if (this.showDuressPrompt()) return;
+    const bike = this.selectedBike();
+    if (!bike) return;
     this.showDuressPrompt.set(true);
     this.duressCountdown.set(30);
-
-    const bike = this.selectedBike();
     this.addNotification({
       id: `stop-${Date.now()}`,
       title: `${bike.plate} • Sudden Stop`,
@@ -957,6 +1034,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
     const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
     const movementStatus = b.status === 'RUNNING' || b.speed_kmh > 0 ? 'Moving' : 'Stationary';
+    const hasGeofence = !!b.geofence_id;
 
     return {
       id: b.id,
@@ -971,8 +1049,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       subCounty: b.sub_county || 'Starehe',
       lat: b.latitude || -1.286389,
       lng: b.longitude || 36.817223,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Nairobi Delivery Zone',
-      fenceRadius: 3000,
+      hasGeofence: hasGeofence,
+      fenceCenterLat: hasGeofence ? b.latitude || -1.286389 : undefined,
+      fenceCenterLng: hasGeofence ? b.longitude || 36.817223 : undefined,
+      fenceName: hasGeofence ? 'Assigned Geofence' : '',
+      fenceRadius: hasGeofence ? 2500 : 0,
       triggerCondition: 'Alert on Exit',
       email: this.authService.currentUser()?.email || '',
       lastSeenAt: timestamp,

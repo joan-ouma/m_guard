@@ -2,6 +2,7 @@ import { Injectable, inject, signal, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import {
+  AttachBikePayload,
   BikeDTO,
   BikeEventDTO,
   BikeListResponse,
@@ -9,6 +10,7 @@ import {
   CreateBikePayload,
   PaginatedBreadcrumbsResponse,
   PaginatedEventsResponse,
+  TrackerStatusDTO,
   UpdateBikePayload,
 } from '../models/bike.models';
 import { AuthService } from './auth.service';
@@ -240,6 +242,26 @@ export class BikeService {
           this.bikes.update((current) =>
             current.map((b) => (b.id === id ? res.data : b))
           );
+        },
+      })
+    );
+  }
+
+  verifyTracker(imei: string): Observable<{ data: TrackerStatusDTO }> {
+    return this.http.post<{ data: TrackerStatusDTO }>(`${environment.apiBaseUrl}/v1/bikes/verify-tracker`, { imei });
+  }
+
+  attachBike(payload: AttachBikePayload): Observable<{ data: BikeDTO; message?: string }> {
+    this.isLoading.set(true);
+    return this.http.post<{ data: BikeDTO; message?: string }>(`${environment.apiBaseUrl}/v1/bikes/attach`, payload).pipe(
+      tap({
+        next: (res) => {
+          this.bikes.update((current) => [res.data, ...current]);
+          this.defaultSelectedBikeId.set(res.data.id);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
         },
       })
     );

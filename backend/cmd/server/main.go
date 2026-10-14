@@ -79,6 +79,8 @@ func main() {
 	bikeRepo := repository.NewBikeRepository(pool)
 	bikeService := service.NewBikeService(pool, bikeRepo)
 	bikeService.SetSSEBroker(sseBroker)
+	bikeService.SetMailer(mailClient)
+	bikeService.SetFrontendURL(cfg.FrontendURL)
 	bikeHandler := handler.NewBikeHandler(bikeService)
 
 	telemetryRepo := repository.NewTelemetryRepository(pool)

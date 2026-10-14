@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- 001. Database Extensions (UUID, PostGIS) -->
+    <include file="changesets/001-extensions.xml" relativeToChangelogFile="true"/>
+
+    <!-- 002. User Accounts -->
+    <include file="changesets/002-create-users.xml" relativeToChangelogFile="true"/>
+
+    <!-- 003. User Sessions -->
+    <include file="changesets/003-create-sessions.xml" relativeToChangelogFile="true"/>
+
+    <!-- 004. Password Reset Tokens -->
+    <include file="changesets/004-create-password-resets.xml" relativeToChangelogFile="true"/>
+
+    <!-- 005. Hardware Trackers Inventory -->
+    <include file="changesets/005-create-trackers.xml" relativeToChangelogFile="true"/>
+
+    <!-- 006. Driver & Rider Contacts -->
+    <include file="changesets/006-create-driver-contacts.xml" relativeToChangelogFile="true"/>
+
+    <!-- 007. Geofences -->
+    <include file="changesets/007-create-geofences.xml" relativeToChangelogFile="true"/>
+
+    <!-- 008. Motorcycles (Bikes) Asset Registry -->
+    <include file="changesets/008-create-bikes.xml" relativeToChangelogFile="true"/>
+
+    <!-- 009. Tracker Assignments & Pairing History -->
+    <include file="changesets/009-create-tracker-assignments.xml" relativeToChangelogFile="true"/>
+
+    <!-- 010. Live Telemetry Breadcrumbs -->
+    <include file="changesets/010-create-bike-breadcrumbs.xml" relativeToChangelogFile="true"/>
+
+    <!-- 011. Security Alerts & Health Events -->
+    <include file="changesets/011-create-bike-events.xml" relativeToChangelogFile="true"/>
+
+    <!-- 012. Push Notification Endpoints -->
+    <include file="changesets/012-create-user-notification-endpoints.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/middleware"
@@ -15,11 +17,15 @@ import (
 )
 
 type BikeHandler struct {
-	service *service.BikeService
+	service       *service.BikeService
+	verifyLimiter *middleware.TrackerRateLimiter
 }
 
 func NewBikeHandler(s *service.BikeService) *BikeHandler {
-	return &BikeHandler{service: s}
+	return &BikeHandler{
+		service:       s,
+		verifyLimiter: middleware.NewTrackerRateLimiter(1*time.Minute, 5, 24*time.Hour),
+	}
 }
 
 func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream http.HandlerFunc) chi.Router {
@@ -29,6 +35,11 @@ func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream htt
 
 	r.Get("/", h.List)
 	r.Post("/", h.Create)
+
+	// Tracker verification & onboarding attachment
+	r.Get("/verify-tracker", h.VerifyTracker)
+	r.Post("/verify-tracker", h.VerifyTracker)
+	r.Post("/attach", h.Attach)
 
 	r.Get("/{id}", h.GetByID)
 	r.Put("/{id}", h.Update)
@@ -331,4 +342,95 @@ func (h *BikeHandler) Immobilize(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": bike})
+}
+
+func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
+	ip := middleware.GetClientIP(r)
+
+	// Check rate limit per IP
+	allowed, retryAfter, lockedOut := h.verifyLimiter.CheckAllowed(ip)
+	if !allowed {
+		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
+		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
+
+		msg := fmt.Sprintf("Rate limited. Please wait %d seconds before attempting another tracker lookup.", retryAfter)
+		if lockedOut {
+			msg = "Excessive verification failures. Your IP address has been temporarily locked out from manual tracker lookups."
+		}
+		domain.NewTooManyRequestsError(msg, r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	var imei string
+	if r.Method == http.MethodGet {
+		imei = strings.TrimSpace(r.URL.Query().Get("imei"))
+	} else {
+		var req domain.VerifyTrackerRequest
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		imei = strings.TrimSpace(req.IMEI)
+		if imei == "" {
+			imei = strings.TrimSpace(r.URL.Query().Get("imei"))
+		}
+	}
+
+	if imei == "" {
+		retryAfter, lockedOut := h.verifyLimiter.RecordFailure(ip)
+		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
+		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
+		domain.NewBadRequestError("Tracker IMEI code is required", r.URL.Path, map[string][]string{
+			"imei": {"Please provide a valid 15-digit IMEI code"},
+		}).WriteJSON(w)
+		return
+	}
+
+	dto, err := h.service.VerifyTracker(r.Context(), imei)
+	if err != nil {
+		retryAfter, lockedOut := h.verifyLimiter.RecordFailure(ip)
+		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
+		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
+		if pd, ok := err.(domain.ProblemDetails); ok {
+			pd.WriteJSON(w)
+			return
+		}
+		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	// Success: record success and enforce baseline 1 request per min
+	h.verifyLimiter.RecordSuccess(ip)
+	w.Header().Set("Retry-After", "60")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]any{"data": dto})
+}
+
+func (h *BikeHandler) Attach(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value(middleware.UserClaimsKey).(*security.JWTClaims)
+	if !ok || claims == nil {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	var req domain.AttachBikeRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		domain.NewBadRequestError("Invalid request payload", r.URL.Path, nil).WriteJSON(w)
+		return
+	}
+
+	dto, err := h.service.AttachBike(r.Context(), claims, req)
+	if err != nil {
+		if pd, ok := err.(domain.ProblemDetails); ok {
+			pd.WriteJSON(w)
+			return
+		}
+		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"data":    dto,
+		"message": "Motorcycle attached to tracker successfully",
+	})
 }

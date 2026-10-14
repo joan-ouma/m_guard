@@ -41,3 +41,11 @@ stop:
 clean: stop
 	@rm -f backend/server
 	@rm -rf frontend/dist
+
+migrate:
+	@echo "==> Running Liquibase migrations..."
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=postgres --password=postgres update
+
+migrate-status:
+	@echo "==> Checking Liquibase migration status..."
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=postgres --password=postgres status

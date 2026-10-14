@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"motoguard-backend/internal/domain"
+	"motoguard-backend/internal/mailer"
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 
@@ -26,10 +27,12 @@ type SSEBroker interface {
 }
 
 type BikeService struct {
-	pool      *pgxpool.Pool
-	repo      *repository.BikeRepository
-	cmdPub    CommandPublisher
-	sseBroker SSEBroker
+	pool        *pgxpool.Pool
+	repo        *repository.BikeRepository
+	cmdPub      CommandPublisher
+	sseBroker   SSEBroker
+	mailer      mailer.Mailer
+	frontendURL string
 }
 
 func NewBikeService(pool *pgxpool.Pool, repo *repository.BikeRepository) *BikeService {
@@ -45,6 +48,14 @@ func (s *BikeService) SetCommandPublisher(pub CommandPublisher) {
 
 func (s *BikeService) SetSSEBroker(broker SSEBroker) {
 	s.sseBroker = broker
+}
+
+func (s *BikeService) SetMailer(m mailer.Mailer) {
+	s.mailer = m
+}
+
+func (s *BikeService) SetFrontendURL(url string) {
+	s.frontendURL = url
 }
 
 func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims, req domain.CreateBikeRequest) (*domain.BikeDTO, error) {
@@ -469,4 +480,139 @@ func ToBikeDTO(b *domain.Bike) domain.BikeDTO {
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,
 	}
+}
+
+func (s *BikeService) VerifyTracker(ctx context.Context, imei string) (*domain.TrackerStatusDTO, error) {
+	instance := "/v1/bikes/verify-tracker"
+	cleanIMEI := strings.TrimSpace(imei)
+	if cleanIMEI == "" {
+		return nil, domain.NewBadRequestError("Tracker IMEI is required", instance, map[string][]string{
+			"imei": {"IMEI code is required"},
+		})
+	}
+
+	dto, err := s.repo.VerifyTracker(ctx, cleanIMEI)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s does not exist in MotoGuard database", cleanIMEI), instance)
+		}
+		slog.Error("VerifyTracker repo error", "error", err, "imei", cleanIMEI)
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	if dto.IsClaimed {
+		return dto, domain.NewConflictError(fmt.Sprintf("Tracker with IMEI %s is already assigned to an active motorcycle and cannot be claimed", cleanIMEI), instance)
+	}
+
+	return dto, nil
+}
+
+func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims, req domain.AttachBikeRequest) (*domain.BikeDTO, error) {
+	instance := "/v1/bikes/attach"
+
+	if claims == nil || claims.UserID == "" {
+		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
+	}
+
+	regNumber := strings.ToUpper(strings.TrimSpace(req.RegistrationNumber))
+	imei := strings.TrimSpace(req.IMEI)
+	riderName := strings.TrimSpace(req.RiderName)
+	riderPhone := strings.TrimSpace(req.RiderPhone)
+	riderEmail := strings.TrimSpace(req.RiderEmail)
+
+	validationErrors := make(map[string][]string)
+	if regNumber == "" {
+		validationErrors["registration_number"] = []string{"Registration number is required"}
+	}
+	if imei == "" {
+		validationErrors["imei"] = []string{"Tracker IMEI is required"}
+	}
+	if riderName == "" {
+		validationErrors["rider_name"] = []string{"Rider name is required"}
+	}
+	if riderPhone == "" {
+		validationErrors["rider_phone"] = []string{"Rider phone is required"}
+	}
+	if riderEmail == "" {
+		validationErrors["rider_email"] = []string{"Rider email is required for tracking notifications"}
+	}
+	if len(validationErrors) > 0 {
+		return nil, domain.NewBadRequestError("Validation failed", instance, validationErrors)
+	}
+
+	// Verify tracker is available
+	trackerStatus, err := s.repo.VerifyTracker(ctx, imei)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s not found", imei), instance)
+		}
+		slog.Error("AttachBike VerifyTracker error", "error", err)
+		return nil, domain.NewInternalServerError(instance)
+	}
+	if trackerStatus.IsClaimed {
+		return nil, domain.NewConflictError(fmt.Sprintf("Tracker %s is already claimed by another motorcycle", imei), instance)
+	}
+
+	// Check if user already has this registration number
+	regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, "")
+	if err != nil {
+		slog.Error("AttachBike ExistsRegistrationNumber error", "error", err)
+		return nil, domain.NewInternalServerError(instance)
+	}
+	if regExists {
+		return nil, domain.NewBadRequestError("Validation failed", instance, map[string][]string{
+			"registration_number": {"Registration number is already registered under your account"},
+		})
+	}
+
+	req.RegistrationNumber = regNumber
+	req.IMEI = imei
+	req.RiderName = riderName
+	req.RiderPhone = riderPhone
+	req.RiderEmail = riderEmail
+
+	bike, err := s.repo.AttachBikeWithRider(ctx, claims.UserID, req)
+	if err != nil {
+		slog.Error("AttachBike AttachBikeWithRider error", "error", err)
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	dto := ToBikeDTO(bike)
+
+	// Send email notification to rider asynchronously
+	if s.mailer != nil && riderEmail != "" {
+		go func(recipientEmail, recipientName string, bDTO domain.BikeDTO) {
+			ctxEmail, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+
+			dashURL := s.frontendURL
+			if dashURL == "" {
+				dashURL = "https://mxguard.jullie.tech"
+			}
+
+			emailErr := s.mailer.SendTrackerAttachedEmail(ctxEmail, recipientEmail, recipientName, mailer.TrackerAttachedEmailData{
+				RiderName:        recipientName,
+				RiderEmail:       recipientEmail,
+				BikeRegistration: bDTO.RegistrationNumber,
+				BikeMake:         bDTO.Make,
+				BikeModel:        bDTO.Model,
+				IMEI:             bDTO.IMEI,
+				AttachedAt:       time.Now().UTC().Format(time.RFC1123),
+				DashboardURL:     dashURL,
+				ReplyToEmail:     "hello@jullie.tech",
+			})
+			if emailErr != nil {
+				slog.Warn("Failed to send tracker attached email to rider", "email", recipientEmail, "error", emailErr)
+			} else {
+				slog.Info("Sent tracker attached email to rider", "email", recipientEmail, "bike", bDTO.RegistrationNumber)
+			}
+		}(riderEmail, riderName, dto)
+	}
+
+	// Broadcast over SSE
+	if s.sseBroker != nil {
+		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
+	}
+
+	return &dto, nil
 }
