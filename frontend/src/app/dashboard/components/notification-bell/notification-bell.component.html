@@ -62,56 +62,28 @@
         }
       </div>
 
-      <!-- Push Notification Subscription Banner -->
-      @if (notificationService.isSupported()) {
-        @if (!notificationService.isSnsSubscribed()) {
-          <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
-              </div>
-              <button
-                type="button"
-                id="enableSnsPushBtn"
-                (click)="onEnableSns()"
-                [disabled]="notificationService.isRegistering()"
-                class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
-              >
-                {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
-              </button>
-            </div>
-            <p class="text-[11px] text-zinc-500 leading-tight">
-              Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
-            </p>
-          </div>
-        } @else {
-          <div class="px-4 py-2.5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-xs font-bold text-zinc-900">Push Alerts Active</span>
-            </div>
+      <!-- Push Notification Subscription Banner (only shown if not yet enabled) -->
+      @if (notificationService.isSupported() && !notificationService.isSnsSubscribed()) {
+        <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                id="testSnsPushBtn"
-                (click)="onSendTestSns()"
-                [disabled]="isSendingTest()"
-                class="text-[11px] px-2.5 py-1 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold rounded-lg border border-zinc-300 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {{ testSent() ? '✓ Sent' : isSendingTest() ? 'Sending...' : 'Test' }}
-              </button>
-              <button
-                type="button"
-                (click)="onDisableSns()"
-                class="text-[11px] px-2 py-1 text-zinc-400 hover:text-rose-600 font-medium transition-colors cursor-pointer"
-                title="Disable notifications"
-              >
-                Turn off
-              </button>
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
             </div>
+            <button
+              type="button"
+              id="enableSnsPushBtn"
+              (click)="onEnableSns()"
+              [disabled]="notificationService.isRegistering()"
+              class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+            >
+              {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
+            </button>
           </div>
-        }
+          <p class="text-[11px] text-zinc-500 leading-tight">
+            Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
+          </p>
+        </div>
       }
 
       <div class="max-h-80 overflow-y-auto divide-y divide-zinc-100">
