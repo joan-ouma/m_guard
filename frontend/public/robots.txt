@@ -1,0 +1,17 @@
+# MotoGuard - Web Crawler Rules
+User-agent: *
+Allow: /
+Allow: /bikes
+Allow: /history
+Allow: /alerts
+Allow: /login
+Allow: /signup
+Allow: /terms
+Allow: /privacy
+Allow: /legal
+
+# Disallow sensitive token-based reset routes from being indexed
+Disallow: /reset-password/
+
+# XML Sitemap Location
+Sitemap: https://mxguard.jullie.tech/sitemap.xml
