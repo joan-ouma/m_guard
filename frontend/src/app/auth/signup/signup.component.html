@@ -1,14 +1,14 @@
-<div class="min-h-screen w-full flex items-center justify-center p-3 sm:p-6 lg:p-10 bg-slate-50 dark:bg-slate-950 font-sans">
+<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-white md:bg-slate-50 dark:bg-slate-950 font-sans">
 
   <!-- ================================================================= -->
   <!-- ELEVATED FLOATING CARD (Matches exact screenshot layout)          -->
   <!-- ================================================================= -->
-  <div class="w-full max-w-[1100px] min-h-[640px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 dark:border-slate-800 p-3 sm:p-4 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
+  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[640px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
 
     <!-- =============================================================== -->
-    <!-- LEFT PANEL: "Mono Grid" Aura Gradient with Rounded Frame        -->
+    <!-- LEFT PANEL: "Mono Grid" Aura Gradient (Hidden on Mobile)        -->
     <!-- =============================================================== -->
-    <div class="md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full bg-[#100e0b] shrink-0">
+    <div class="hidden md:flex md:w-[42%] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full bg-[#100e0b] shrink-0">
       
       <!-- Layer 1 - normal: Grid pattern -->
       <div
@@ -56,9 +56,9 @@
     </div>
 
     <!-- =============================================================== -->
-    <!-- RIGHT PANEL: ONBOARDING FLOW                                    -->
+    <!-- RIGHT PANEL: ONBOARDING FLOW (Full width on mobile)             -->
     <!-- =============================================================== -->
-    <div class="md:w-[58%] flex flex-col justify-between px-6 sm:px-10 md:px-12 py-6 md:py-8 overflow-y-auto">
+    <div class="w-full md:w-[58%] flex flex-col justify-between px-5 sm:px-8 md:px-12 py-6 md:py-8 overflow-y-auto">
       <div>
         <!-- Top Row: Asterisk Icon + Stepper Node Indicators -->
         <div class="flex items-center justify-between mb-5">
