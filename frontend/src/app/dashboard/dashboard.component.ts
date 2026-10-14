@@ -462,6 +462,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private updateMarkerSize(): void {
     if (!this.bikeMarker || !this.map) return;
     const bike = this.selectedBike();
+    if (!bike) return;
     this.bikeMarker.setIcon(
       this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, this.isBreachActive())
     );
@@ -836,6 +837,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.alertBannerText.set(`DURESS ESCALATED: Alert sent to Sacco & Emergency Contacts`);
 
     const bike = this.selectedBike();
+    if (!bike) return;
+
     this.addNotification({
       id: `duress-${Date.now()}`,
       title: `${bike.plate} • Duress Escalated`,

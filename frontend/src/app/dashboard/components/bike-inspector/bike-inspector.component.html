@@ -13,15 +13,15 @@
               id="cardBikeTitle"
               class="font-plate text-3xl font-black text-zinc-950 tracking-wider leading-none truncate"
             >
-              {{ selectedBike().plate }}
+              {{ bike.plate }}
             </h2>
             <p class="font-sans text-base font-medium text-zinc-400 mt-1 truncate">
-              {{ selectedBike().model }}
+              {{ bike.model }}
             </p>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
-            @if (selectedBike().isImmobilized) {
+            @if (bike.isImmobilized) {
               <span
                 id="statusPill"
                 class="h-10 px-4 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold inline-flex items-center gap-2.5 shrink-0"
@@ -39,7 +39,7 @@
                 id="statusPill"
                 class="h-10 px-4 rounded-full border text-sm font-bold inline-flex items-center gap-2.5 shrink-0"
                 [ngClass]="
-                  selectedBike().movementStatus === 'Moving'
+                  bike.movementStatus === 'Moving'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                     : 'bg-zinc-100 border-zinc-200 text-zinc-900'
                 "
@@ -48,7 +48,7 @@
                   <span
                     class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                     [ngClass]="
-                      selectedBike().movementStatus === 'Moving'
+                      bike.movementStatus === 'Moving'
                         ? 'bg-emerald-400'
                         : 'bg-zinc-400'
                     "
@@ -57,13 +57,13 @@
                     id="statusDot"
                     class="relative inline-flex rounded-full h-3 w-3 status-dot-pulse"
                     [ngClass]="
-                      selectedBike().movementStatus === 'Moving'
+                      bike.movementStatus === 'Moving'
                         ? 'bg-emerald-500'
                         : 'bg-zinc-500'
                     "
                   ></span>
                 </span>
-                <span id="statusText">{{ selectedBike().movementStatus | uppercase }}</span>
+                <span id="statusText">{{ bike.movementStatus | uppercase }}</span>
               </span>
             }
           </div>
@@ -76,7 +76,7 @@
           <div
             class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
             [ngClass]="
-              selectedBike().status === 'RUNNING' ? 'text-emerald-600' : 'text-amber-600'
+              bike.status === 'RUNNING' ? 'text-emerald-600' : 'text-amber-600'
             "
           >
             <svg
@@ -99,7 +99,7 @@
               >CURRENT SPEED</span
             >
             <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
-              {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }}
+              {{ bike.speedText.split('•')[0].trim() || bike.speedText }}
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@
         <div
           class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
           [ngClass]="
-            selectedBike().speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'
+            bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'
           "
         >
           <svg
@@ -136,12 +136,12 @@
             <span
               class="font-black tracking-wide"
               [ngClass]="
-                selectedBike().speedText.includes('ON')
+                bike.speedText.includes('ON')
                   ? 'text-emerald-600'
                   : 'text-amber-600'
               "
             >
-              {{ selectedBike().speedText.includes('ON') ? 'ON' : 'OFF' }}
+              {{ bike.speedText.includes('ON') ? 'ON' : 'OFF' }}
             </span>
           </p>
         </div>
@@ -168,7 +168,7 @@
             >LAST SEEN</span
           >
           <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
-            {{ formatLastSeen(selectedBike().lastSeenAt) }}
+            {{ formatLastSeen(bike.lastSeenAt) }}
           </p>
         </div>
       </div>
@@ -204,9 +204,9 @@
           <p
             id="cardAddress"
             class="font-sans text-xl font-bold text-zinc-950 leading-snug mt-1 truncate"
-            [title]="selectedBike().address"
+            [title]="bike.address"
           >
-            {{ selectedBike().address }}
+            {{ bike.address }}
           </p>
           <button
             type="button"
@@ -255,13 +255,13 @@
             >COUNTY & SUB-COUNTY</span
           >
           <p id="cardCounty" class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
-            {{ selectedBike().county }}
+            {{ bike.county }}
           </p>
           <p
             id="cardSubCounty"
             class="font-sans text-base font-medium text-zinc-500 mt-0.5 truncate"
           >
-            {{ selectedBike().subCounty }}
+            {{ bike.subCounty }}
           </p>
         </div>
       </div>
@@ -292,8 +292,8 @@
               >GPS COORDINATES</span
             >
             <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
-              <span id="cardLat">{{ selectedBike().lat.toFixed(6) }}</span
-              >, <span id="cardLng">{{ selectedBike().lng.toFixed(6) }}</span>
+              <span id="cardLat">{{ bike.lat.toFixed(6) }}</span
+              >, <span id="cardLng">{{ bike.lng.toFixed(6) }}</span>
             </p>
           </div>
           <button
@@ -352,26 +352,26 @@
             >ASSIGNED RIDER</span
           >
           <p id="cardRiderName" class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
-            {{ selectedBike().riderName }}
+            {{ bike.riderName }}
           </p>
           <div class="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 font-semibold">
-            <span title="National ID">ID: {{ selectedBike().riderNationalId }}</span>
+            <span title="National ID">ID: {{ bike.riderNationalId }}</span>
             <span>•</span>
             <a
-              *ngIf="selectedBike().riderPhone && selectedBike().riderPhone !== 'N/A'"
-              [href]="'tel:' + selectedBike().riderPhone"
+              *ngIf="bike.riderPhone && bike.riderPhone !== 'N/A'"
+              [href]="'tel:' + bike.riderPhone"
               class="text-indigo-600 hover:underline"
               title="Call Rider"
             >
-              {{ selectedBike().riderPhone }}
+              {{ bike.riderPhone }}
             </a>
-            <span *ngIf="!selectedBike().riderPhone || selectedBike().riderPhone === 'N/A'">N/A</span>
+            <span *ngIf="!bike.riderPhone || bike.riderPhone === 'N/A'">N/A</span>
           </div>
         </div>
       </div>
 
       <!-- Section 8 — Immobilize Action -->
-      @if (selectedBike().id) {
+      @if (bike.id) {
         <div class="py-3.5">
           <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3"
             >Security Controls</span
@@ -379,27 +379,27 @@
 
           <button
             type="button"
-            (click)="toggleImmobilize.emit(selectedBike())"
+            (click)="toggleImmobilize.emit(bike)"
             class="w-full relative overflow-hidden rounded-2xl p-4 text-left flex items-center justify-between transition-all group cursor-pointer"
             [ngClass]="{
               'bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_16px_-6px_rgba(225,29,72,0.4)]':
-                !selectedBike().isImmobilized &&
-                selectedBike().movementStatus === 'Stationary',
+                !bike.isImmobilized &&
+                bike.movementStatus === 'Stationary',
               'bg-amber-500 hover:bg-amber-600 text-white shadow-[0_8px_16px_-6px_rgba(245,158,11,0.4)]':
-                !selectedBike().isImmobilized && selectedBike().movementStatus === 'Moving',
+                !bike.isImmobilized && bike.movementStatus === 'Moving',
               'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_8px_16px_-6px_rgba(16,185,129,0.4)]':
-                selectedBike().isImmobilized,
+                bike.isImmobilized,
             }"
           >
             <!-- Label & Description -->
             <div class="pr-4">
               <h3 class="font-black text-xl tracking-tight">
-                {{ selectedBike().isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
+                {{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
               </h3>
               <p class="font-medium text-sm text-white/80 mt-1">
-                @if (selectedBike().isImmobilized) {
+                @if (bike.isImmobilized) {
                   Bike is currently disabled. Tap to restore.
-                } @else if (selectedBike().movementStatus === 'Moving') {
+                } @else if (bike.movementStatus === 'Moving') {
                   Will apply once the bike stops moving.
                 } @else {
                   Immediately disable the starter motor.
@@ -411,7 +411,7 @@
             <div
               class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
             >
-              @if (selectedBike().isImmobilized) {
+              @if (bike.isImmobilized) {
                 <svg
                   class="w-6 h-6 text-white"
                   fill="none"
@@ -502,15 +502,15 @@
       <div class="w-full flex items-center justify-between gap-3">
         <div class="min-w-0">
           <h2 class="text-2xl font-black text-zinc-950 tracking-wider leading-none truncate font-plate">
-            {{ selectedBike().plate }}
+            {{ bike.plate }}
           </h2>
           <p class="text-xs font-semibold text-zinc-500 mt-1 truncate">
-            {{ selectedBike().speedText.split('•')[0].trim() || selectedBike().speedText }} • {{ formatLastSeen(selectedBike().lastSeenAt) }}
+            {{ bike.speedText.split('•')[0].trim() || bike.speedText }} • {{ formatLastSeen(bike.lastSeenAt) }}
           </p>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-          @if (selectedBike().isImmobilized) {
+          @if (bike.isImmobilized) {
             <span class="h-8 px-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0">
               <span class="relative flex h-2 w-2">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"></span>
@@ -521,19 +521,19 @@
           } @else {
             <span
               class="h-8 px-3 rounded-full border text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
-              [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-zinc-100 border-zinc-200 text-zinc-900'"
+              [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-zinc-100 border-zinc-200 text-zinc-900'"
             >
               <span class="relative flex h-2 w-2">
                 <span
                   class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-400' : 'bg-zinc-400'"
+                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-400' : 'bg-zinc-400'"
                 ></span>
                 <span
                   class="relative inline-flex rounded-full h-2 w-2"
-                  [ngClass]="selectedBike().movementStatus === 'Moving' ? 'bg-emerald-500' : 'bg-zinc-500'"
+                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-500' : 'bg-zinc-500'"
                 ></span>
               </span>
-              {{ selectedBike().movementStatus | uppercase }}
+              {{ bike.movementStatus | uppercase }}
             </span>
           }
 
@@ -566,40 +566,40 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           <p class="text-xs font-bold text-zinc-800 truncate">
-            {{ selectedBike().address || 'Nairobi' }}
+            {{ bike.address || 'Nairobi' }}
           </p>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
           <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
             <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
-            <p class="text-xs font-bold mt-0.5" [ngClass]="selectedBike().speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
-              {{ selectedBike().speedText.includes('ON') ? 'Engine ON' : 'Engine OFF' }}
+            <p class="text-xs font-bold mt-0.5" [ngClass]="bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
+              {{ bike.speedText.includes('ON') ? 'Engine ON' : 'Engine OFF' }}
             </p>
           </div>
           <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
             <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Speed</span>
             <p class="text-xs font-bold text-zinc-900 mt-0.5">
-              {{ selectedBike().speedText.split('•')[0].trim() || '0.0 km/h' }}
+              {{ bike.speedText.split('•')[0].trim() || '0.0 km/h' }}
             </p>
           </div>
         </div>
 
-        @if (selectedBike().id) {
+        @if (bike.id) {
           <button
             type="button"
-            (click)="toggleImmobilize.emit(selectedBike())"
+            (click)="toggleImmobilize.emit(bike)"
             class="w-full h-11 rounded-xl text-center font-bold text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
             [ngClass]="{
-              'bg-rose-600 hover:bg-rose-700': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Stationary',
-              'bg-amber-500 hover:bg-amber-600': !selectedBike().isImmobilized && selectedBike().movementStatus === 'Moving',
-              'bg-emerald-600 hover:bg-emerald-700': selectedBike().isImmobilized
+              'bg-rose-600 hover:bg-rose-700': !bike.isImmobilized && bike.movementStatus === 'Stationary',
+              'bg-amber-500 hover:bg-amber-600': !bike.isImmobilized && bike.movementStatus === 'Moving',
+              'bg-emerald-600 hover:bg-emerald-700': bike.isImmobilized
             }"
           >
             <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <span>{{ selectedBike().isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}</span>
+            <span>{{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}</span>
           </button>
         }
       </div>
