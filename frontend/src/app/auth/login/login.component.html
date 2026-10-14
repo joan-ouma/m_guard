@@ -97,8 +97,6 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <span>Signing in...</span>
-        } @else if (cooldownSeconds() > 0) {
-          <span>Retry in {{ cooldownSeconds() }}s</span>
         } @else {
           <span>Sign In</span>
         }
@@ -111,18 +109,19 @@
     Forgot your password?
     <a
       routerLink="/forgot-password"
-      class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline ml-1 cursor-pointer"
+      class="text-slate-900 dark:text-white font-semibold hover:underline ml-1 cursor-pointer"
     >
       Reset password
     </a>
   </p>
-  <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
-    Don't have an account?
+
+  <div class="mt-4 flex items-center justify-center gap-2">
+    <span class="text-xs text-slate-500 dark:text-slate-400">Don't have an account?</span>
     <a
       routerLink="/signup"
-      class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline ml-1 cursor-pointer"
+      class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-none transition cursor-pointer"
     >
-      Get started
+      Sign up
     </a>
-  </p>
+  </div>
 </app-auth-layout>
