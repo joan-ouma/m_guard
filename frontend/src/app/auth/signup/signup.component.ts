@@ -63,7 +63,34 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   // Wizard Step State
   readonly currentStep = signal<OnboardingStep>('SCAN');
-  readonly activeInputTab = signal<'SCAN' | 'MANUAL'>('SCAN');
+  readonly showCamera = signal<boolean>(false);
+
+  // Computed Title & Subtitle for Single Title layout
+  readonly stepTitle = computed<string>(() => {
+    switch (this.currentStep()) {
+      case 'SCAN':
+        return 'Connect Tracker';
+      case 'DETAILS':
+        return 'Account & Vehicle';
+      case 'PREVIEW':
+        return 'Review Details';
+      case 'ATTACHED':
+        return 'Tracker Activated';
+    }
+  });
+
+  readonly stepSubtitle = computed<string>(() => {
+    switch (this.currentStep()) {
+      case 'SCAN':
+        return 'Enter your 15-digit hardware IMEI';
+      case 'DETAILS':
+        return 'Enter your account and motorcycle details';
+      case 'PREVIEW':
+        return 'Verify your information before activating';
+      case 'ATTACHED':
+        return 'Your motorcycle is online and ready';
+    }
+  });
 
   // Scanner & Hardware Verification State
   readonly imeiInput = signal<string>('');
@@ -137,11 +164,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
   });
 
-  ngOnInit(): void {
-    if (this.activeInputTab() === 'SCAN') {
-      setTimeout(() => this.startCamera(), 300);
-    }
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.stopCamera();
@@ -156,13 +179,13 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.showConfirmPassword.update((prev) => !prev);
   }
 
-  setTab(tab: 'SCAN' | 'MANUAL'): void {
-    this.activeInputTab.set(tab);
-    this.verifyError.set(null);
-    if (tab === 'SCAN') {
-      setTimeout(() => this.startCamera(), 100);
-    } else {
+  toggleCamera(): void {
+    if (this.showCamera()) {
       this.stopCamera();
+      this.showCamera.set(false);
+    } else {
+      this.showCamera.set(true);
+      setTimeout(() => this.startCamera(), 50);
     }
   }
 
@@ -176,8 +199,8 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   async startCamera(): Promise<void> {
     if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      this.cameraError.set('Camera is not supported on this browser. Please enter IMEI manually.');
-      this.activeInputTab.set('MANUAL');
+      this.cameraError.set('Camera is not supported on this device. Please enter IMEI manually.');
+      this.showCamera.set(false);
       return;
     }
 
@@ -202,9 +225,9 @@ export class SignupComponent implements OnInit, OnDestroy {
     } catch (err: any) {
       this.isCameraActive.set(false);
       this.cameraError.set(
-        'Camera permission denied or camera unavailable. Please enter IMEI manually.'
+        'Camera permission was denied or camera is unavailable.'
       );
-      this.activeInputTab.set('MANUAL');
+      this.showCamera.set(false);
     }
   }
 
@@ -294,13 +317,14 @@ export class SignupComponent implements OnInit, OnDestroy {
     const extracted = this.extractIMEIFromRaw(raw);
     if (!extracted) {
       this.verifyError.set(
-        `Scanned code "${raw.slice(0, 30)}" does not contain a valid 15-digit tracker ID.`
+        `Scanned code does not contain a valid 15-digit tracker ID.`
       );
       return;
     }
 
     this.imeiInput.set(extracted);
     this.stopCamera();
+    this.showCamera.set(false);
     this.verifyTrackerCode(extracted);
   }
 
@@ -471,9 +495,8 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   backToStep(step: OnboardingStep): void {
     this.currentStep.set(step);
-    if (step === 'SCAN' && this.activeInputTab() === 'SCAN') {
-      setTimeout(() => this.startCamera(), 100);
-    }
+    this.stopCamera();
+    this.showCamera.set(false);
   }
 
   // --- Step 3 & 4: Account Creation + Attachment + Activation ---
