@@ -112,16 +112,16 @@ export class NotificationService {
 
           if (activeReg && 'pushManager' in activeReg) {
             let sub = await activeReg.pushManager.getSubscription().catch(() => null);
-            if (!sub) {
+            const vapidKey = environment.vapidPublicKey?.trim();
+
+            if (!sub && vapidKey) {
               try {
                 sub = await activeReg.pushManager.subscribe({
                   userVisibleOnly: true,
-                  applicationServerKey: this.urlBase64ToUint8Array(
-                    'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
-                  ) as unknown as BufferSource,
+                  applicationServerKey: this.urlBase64ToUint8Array(vapidKey) as unknown as BufferSource,
                 });
               } catch (subErr) {
-                console.warn('PushManager subscription warning:', subErr);
+                console.warn('PushManager subscription error:', subErr);
               }
             }
 

@@ -32,6 +32,7 @@ yarn-error.log*
 # Helper scripts & temporary working files
 scripts/
 **/scripts/
+!frontend/scripts/
 scratch/
 **/scratch/
 tmp/
@@ -67,6 +68,9 @@ node_modules/
 **/.angular/
 dist/
 **/dist/
+frontend/src/environments/environment.ts
+frontend/src/environments/environment.prod.ts
+!frontend/src/environments/environment.example.ts
 
 # Backend binaries & build artifacts
 backend/server

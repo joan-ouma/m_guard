@@ -3,8 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "set-env": "node scripts/set-env.js",
+    "prestart": "node scripts/set-env.js development",
     "start": "ng serve --configuration development",
+    "prebuild": "node scripts/set-env.js production",
     "build": "ng build --configuration production",
+    "prewatch": "node scripts/set-env.js development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
