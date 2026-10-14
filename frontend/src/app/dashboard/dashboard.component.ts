@@ -471,7 +471,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; items-center gap: 8px; white-space: nowrap; margin-bottom: 8px;">
+          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 13.5px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 14px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; items-center gap: 8px; white-space: nowrap; margin-bottom: 8px;">
             <span style="display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: ${dotColor}; flex-shrink: 0;"></span>
             <span>${plate}</span>
           </div>

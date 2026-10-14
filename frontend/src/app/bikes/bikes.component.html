@@ -35,7 +35,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
           </svg>
           Bikes
-          <span class="ml-auto bg-zinc-800 text-zinc-200 text-sm font-mono font-bold px-3 py-1 rounded-full">
+          <span class="ml-auto bg-zinc-800 text-zinc-200 text-xs font-bold px-2.5 py-1 rounded-full">
             {{ bikes().length }}
           </span>
         </a>
@@ -262,7 +262,7 @@
               >
                 <!-- Plate -->
                 <div class="col-span-4 flex items-center min-w-0 pr-2">
-                  <span class="font-mono font-bold text-xs sm:text-sm tracking-tight text-zinc-900 px-2.5 py-1 rounded-lg bg-zinc-100 border border-zinc-200/90 group-hover:bg-zinc-200/70 transition-colors truncate">
+                  <span class="plate-badge font-black text-xs sm:text-sm tracking-wider text-zinc-950 px-2.5 py-1 rounded-lg bg-zinc-100 border border-zinc-300/80 group-hover:bg-zinc-200/90 group-hover:border-zinc-400 transition-all truncate shadow-2xs">
                     {{ bike.plate }}
                   </span>
                 </div>
@@ -371,7 +371,7 @@
           <button
             type="button"
             (click)="closeRegisterModal()"
-            class="text-zinc-400 hover:text-zinc-800 text-xs font-mono cursor-pointer"
+            class="text-zinc-400 hover:text-zinc-800 text-xs font-semibold cursor-pointer"
           >
             ✕
           </button>
@@ -395,7 +395,7 @@
               type="text"
               formControlName="plate"
               placeholder="e.g. KMDH 102M"
-              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm font-mono uppercase text-zinc-900 focus:outline-none focus:border-zinc-900"
+              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm font-plate font-black uppercase tracking-wider text-zinc-950 focus:outline-none focus:border-zinc-900"
             />
           </div>
 
@@ -419,7 +419,7 @@
               type="text"
               formControlName="imei"
               placeholder="e.g. 359632101234567"
-              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm font-mono text-zinc-900 focus:outline-none focus:border-zinc-900"
+              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-zinc-900"
             />
           </div>
 
@@ -486,7 +486,7 @@
         <div class="px-6 pt-5 pb-4 border-b border-zinc-100 flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex items-center gap-2.5">
-              <h2 class="text-xl font-bold font-mono tracking-tight text-zinc-900">
+              <h2 class="text-2xl font-black font-plate tracking-wider text-zinc-950">
                 {{ bike.plate }}
               </h2>
               @if (bike.isImmobilized) {
@@ -535,8 +535,8 @@
             <div class="pb-3 flex items-start justify-between gap-4">
               <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Telemetry</dt>
               <dd class="text-right min-w-0">
-                <span class="font-mono font-bold text-zinc-900">{{ bike.speedText }}</span>
-                <span class="text-[11px] text-zinc-400 block font-mono mt-0.5">Pinged {{ bike.lastPing }}</span>
+                <span class="font-bold text-zinc-900">{{ bike.speedText }}</span>
+                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">Pinged {{ bike.lastPing }}</span>
               </dd>
             </div>
 
@@ -544,9 +544,9 @@
             <div class="py-3 flex items-start justify-between gap-4">
               <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Location</dt>
               <dd class="text-right min-w-0">
-                <span class="font-medium text-zinc-900 block truncate">{{ bike.address }}</span>
-                <span class="text-[11px] text-zinc-500 block mt-0.5">{{ bike.county }} • {{ bike.subCounty }}</span>
-                <span class="text-[10px] text-zinc-400 font-mono block mt-0.5">{{ bike.lat.toFixed(5) }}, {{ bike.lng.toFixed(5) }}</span>
+                <span class="font-semibold text-zinc-900 block truncate">{{ bike.address }}</span>
+                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">{{ bike.county }} • {{ bike.subCounty }}</span>
+                <span class="text-[11px] text-zinc-400 font-medium block mt-0.5">{{ bike.lat.toFixed(5) }}, {{ bike.lng.toFixed(5) }}</span>
               </dd>
             </div>
 
@@ -554,8 +554,8 @@
             <div class="py-3 flex items-start justify-between gap-4">
               <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Geofence</dt>
               <dd class="text-right min-w-0">
-                <span class="font-medium text-zinc-900 block truncate">{{ bike.fenceName }}</span>
-                <span class="text-[11px] text-zinc-500 font-mono block mt-0.5">{{ (bike.fenceRadius / 1000).toFixed(1) }} km safe radius</span>
+                <span class="font-semibold text-zinc-900 block truncate">{{ bike.fenceName }}</span>
+                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">{{ (bike.fenceRadius / 1000).toFixed(1) }} km safe radius</span>
               </dd>
             </div>
 
@@ -563,8 +563,8 @@
             <div class="py-3 flex items-start justify-between gap-4">
               <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Hardware</dt>
               <dd class="text-right min-w-0">
-                <span class="font-mono text-zinc-800 font-medium block">IMEI {{ bike.imei }}</span>
-                <span class="text-[11px] text-zinc-500 font-mono block mt-0.5">Battery {{ bike.batteryPercent }}% • Signal CSQ {{ bike.signalQuality }}/31</span>
+                <span class="text-zinc-900 font-bold block">IMEI {{ bike.imei }}</span>
+                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">Battery {{ bike.batteryPercent }}% • Signal CSQ {{ bike.signalQuality }}/31</span>
               </dd>
             </div>
           </dl>

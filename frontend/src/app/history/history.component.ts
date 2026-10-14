@@ -282,11 +282,21 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   readonly currentPage = signal<number>(1);
-  readonly pageSize = signal<number>(25);
+  readonly pageSize = signal<number>(10);
   readonly pageSizes = [10, 25, 50, 100];
 
   readonly totalPages = computed(() => {
     return Math.max(1, Math.ceil(this.filteredTrailEvents().length / this.pageSize()));
+  });
+
+  readonly pages = computed<number[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const start = Math.max(1, Math.min(current - 2, total - 4));
+    return Array.from({ length: 5 }, (_, i) => start + i);
   });
 
   readonly paginatedTrailEvents = computed(() => {
@@ -314,9 +324,18 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  setPageSize(size: number): void {
-    this.pageSize.set(size);
-    this.currentPage.set(1);
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  setPageSize(size: number | string): void {
+    const num = typeof size === 'string' ? parseInt(size, 10) : size;
+    if (!isNaN(num) && num > 0) {
+      this.pageSize.set(num);
+      this.currentPage.set(1);
+    }
   }
 
   onPageSizeChange(event: Event): void {
@@ -516,6 +535,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   clearIncidentFilter(): void {
     this.filterIncidentsOnly.set(false);
+    this.currentPage.set(1);
   }
 
   prevDay(): void {

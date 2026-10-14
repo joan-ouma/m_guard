@@ -105,7 +105,7 @@
           </button>
 
           <div class="flex items-center gap-2 truncate">
-            <span class="text-sm sm:text-base font-black text-zinc-900 tracking-tight font-mono">{{ selectedBike()?.registration_number }}</span>
+            <span class="text-sm sm:text-base font-black text-zinc-950 tracking-wider font-plate">{{ selectedBike()?.registration_number }}</span>
             <span class="text-xs text-zinc-300">•</span>
             <span class="text-xs sm:text-sm font-semibold text-zinc-600 truncate">{{ formatReadableDate(selectedStartDate()) }}</span>
           </div>
@@ -136,7 +136,7 @@
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-mono font-black text-sm sm:text-base text-zinc-900 tracking-tight">
+              <span class="font-plate font-black text-sm sm:text-base text-zinc-950 tracking-wider">
                 {{ selectedBike()?.registration_number || 'Select Bike' }}
               </span>
               <span
@@ -203,8 +203,8 @@
         <!-- Distance Card -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 shadow-2xs">
           <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Distance</p>
-          <p class="text-sm sm:text-lg font-black text-zinc-900 font-mono mt-0.5">
-            {{ totalDistanceKm() }} <span class="text-xs font-bold text-zinc-400 font-sans">km</span>
+          <p class="text-sm sm:text-lg font-black text-zinc-950 mt-0.5">
+            {{ totalDistanceKm() }} <span class="text-xs font-bold text-zinc-400">km</span>
           </p>
         </div>
 
@@ -314,12 +314,12 @@
             <div class="relative inline-flex items-center">
               <select
                 id="historyPageSizeSelect"
-                [value]="pageSize()"
-                (change)="onPageSizeChange($event)"
+                [ngModel]="pageSize()"
+                (ngModelChange)="setPageSize($event)"
                 class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
               >
                 @for (size of pageSizes; track size) {
-                  <option [value]="size">{{ size }}</option>
+                  <option [ngValue]="size">{{ size }}</option>
                 }
               </select>
               <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
@@ -329,17 +329,6 @@
               </div>
             </div>
             <span class="text-zinc-400 hidden sm:inline">entries</span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-zinc-900"></span>
-              <span class="text-xs font-bold text-zinc-700 uppercase tracking-wider">Activity Trail</span>
-            </div>
-            <span class="text-zinc-300">|</span>
-            <div class="text-xs font-medium text-zinc-500">
-              <span class="text-zinc-900 font-bold">{{ filteredTrailEvents().length }}</span> {{ filteredTrailEvents().length === 1 ? 'event' : 'events' }}
-            </div>
           </div>
         </div>
 
@@ -417,20 +406,20 @@
 
           <!-- Right: Timestamp & Status -->
           <div class="text-right shrink-0">
-            <p class="text-xs sm:text-sm font-mono font-bold text-zinc-900">{{ formatTime(ev.time) }}</p>
-            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED' && ev.type !== 'THEFT' && ev.type !== 'TAMPER' && ev.type !== 'DURESS'" class="text-[11px] font-mono text-zinc-400 mt-0.5">
+            <p class="text-xs sm:text-sm font-bold text-zinc-950">{{ formatTime(ev.time) }}</p>
+            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED' && ev.type !== 'THEFT' && ev.type !== 'TAMPER' && ev.type !== 'DURESS'" class="text-[11px] font-bold text-zinc-500 mt-0.5">
               Bat: {{ ev.battery }}%
             </p>
-            <p *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'DURESS'" class="text-[11px] font-mono font-black text-red-600 mt-0.5 animate-pulse">
+            <p *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'DURESS'" class="text-[11px] font-black uppercase tracking-wider text-red-600 mt-0.5 animate-pulse">
               EMERGENCY
             </p>
-            <p *ngIf="ev.type === 'TAMPER'" class="text-[11px] font-mono font-black text-amber-600 mt-0.5 animate-pulse">
+            <p *ngIf="ev.type === 'TAMPER'" class="text-[11px] font-black uppercase tracking-wider text-amber-600 mt-0.5 animate-pulse">
               CRITICAL
             </p>
-            <p *ngIf="ev.type === 'BIKE_TOUCHED'" class="text-[11px] font-mono font-bold text-rose-600 mt-0.5">
+            <p *ngIf="ev.type === 'BIKE_TOUCHED'" class="text-[11px] font-bold uppercase tracking-wider text-rose-600 mt-0.5">
               Alert
             </p>
-            <p *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="text-[11px] font-mono font-bold text-violet-600 mt-0.5">
+            <p *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="text-[11px] font-bold uppercase tracking-wider text-violet-600 mt-0.5">
               Border
             </p>
           </div>
@@ -439,17 +428,18 @@
         </div>
 
         <!-- Bottom Pagination Bar (Clean, Minimal, Uniform with Bike List) -->
-        <div class="p-3.5 sm:px-6 bg-zinc-50/70 border-t border-zinc-200/80 flex items-center justify-between gap-3 text-xs">
+        <div class="p-3.5 sm:px-6 bg-zinc-50/70 border-t border-zinc-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           <span class="text-zinc-500 font-medium">
             Page <strong class="text-zinc-900 font-bold">{{ currentPage() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
           </span>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <!-- Prev Button -->
             <button
               type="button"
               (click)="prevPage()"
               [disabled]="currentPage() <= 1"
-              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs active:scale-95"
             >
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -457,11 +447,28 @@
               <span>Prev</span>
             </button>
 
+            <!-- Page Number buttons -->
+            @if (totalPages() > 1) {
+              <div class="flex items-center gap-1">
+                @for (p of pages(); track p) {
+                  <button
+                    type="button"
+                    (click)="goToPage(p)"
+                    class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center shadow-2xs"
+                    [ngClass]="currentPage() === p ? 'bg-zinc-900 text-white' : 'bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200'"
+                  >
+                    {{ p }}
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Next Button -->
             <button
               type="button"
               (click)="nextPage()"
               [disabled]="currentPage() >= totalPages()"
-              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs active:scale-95"
             >
               <span>Next</span>
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -524,7 +531,7 @@
             [ngModel]="tempBikeId()"
             (ngModelChange)="tempBikeId.set($event)"
             name="tempBike"
-            class="w-full h-11 px-3.5 pr-10 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 font-mono font-bold text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 appearance-none transition-colors cursor-pointer"
+            class="w-full h-11 px-3.5 pr-10 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 font-plate font-black tracking-wider text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-900 appearance-none transition-colors cursor-pointer"
           >
             <option *ngFor="let b of bikes()" [value]="b.id">
               {{ b.registration_number }} - {{ b.model }}
@@ -727,7 +734,7 @@
       </div>
       <div class="text-right">
         <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase">Generated On</p>
-        <p class="font-mono text-zinc-900 font-semibold text-xs sm:text-sm">
+        <p class="text-zinc-900 font-bold text-xs sm:text-sm">
           {{ formatReadableDate(selectedEndDate()) }}
         </p>
         <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase mt-2 sm:mt-4">Issued To</p>
@@ -740,8 +747,8 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-8 print-avoid-break">
       <div>
         <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Vehicle Details</p>
-        <p class="font-bold text-lg sm:text-xl">{{ selectedBike()?.registration_number }}</p>
-        <p class="text-zinc-600 text-sm">Total distance in window: {{ totalDistanceKm() }} km</p>
+        <p class="font-plate font-black text-xl sm:text-2xl tracking-wider text-zinc-950">{{ selectedBike()?.registration_number }}</p>
+        <p class="text-zinc-600 text-sm font-medium">Total distance in window: {{ totalDistanceKm() }} km</p>
       </div>
       <div>
         <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Time Window</p>
@@ -782,7 +789,7 @@
         </thead>
         <tbody class="divide-y divide-zinc-200">
           <tr *ngFor="let ev of trailEvents()" class="hover:bg-zinc-50 print:break-inside-avoid">
-            <td class="py-3 pr-4 font-mono whitespace-nowrap">{{ formatReadableDate(ev.time.split('T')[0]) }}<br>{{ formatTime(ev.time) }}</td>
+            <td class="py-3 pr-4 font-semibold whitespace-nowrap">{{ formatReadableDate(ev.time.split('T')[0]) }}<br>{{ formatTime(ev.time) }}</td>
             <td class="py-3 pr-4 font-bold"
                 [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
                 [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
@@ -791,7 +798,7 @@
               {{ ev.title }}
             </td>
             <td class="py-3 pr-4 text-zinc-600">{{ ev.address }}</td>
-            <td class="py-3 text-right font-mono text-xs text-zinc-500">
+            <td class="py-3 text-right font-semibold text-xs text-zinc-600">
               Lat: {{ ev.lat | number:'1.5-5' }}<br>
               Lng: {{ ev.lng | number:'1.5-5' }}
             </td>
