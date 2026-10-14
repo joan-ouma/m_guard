@@ -92,57 +92,13 @@ export class NotificationService {
         return false;
       }
 
-      this.statusMessage.set('Obtaining device push token...');
-      let pushToken = '';
-
-      if ('serviceWorker' in navigator) {
-        try {
-          let reg = await navigator.serviceWorker.getRegistration();
-          if (!reg) {
-            reg = await navigator.serviceWorker.register('/sw.js').catch(() => undefined);
-          }
-
-          // Timeout in 2 seconds so it never hangs indefinitely
-          const activeReg = await Promise.race([
-            navigator.serviceWorker.ready,
-            new Promise<ServiceWorkerRegistration | null>((resolve) =>
-              setTimeout(() => resolve(reg || null), 2000)
-            ),
-          ]);
-
-          if (activeReg && 'pushManager' in activeReg) {
-            let sub = await activeReg.pushManager.getSubscription().catch(() => null);
-            const vapidKey = environment.vapidPublicKey?.trim();
-
-            if (!sub && vapidKey) {
-              try {
-                sub = await activeReg.pushManager.subscribe({
-                  userVisibleOnly: true,
-                  applicationServerKey: this.urlBase64ToUint8Array(vapidKey) as unknown as BufferSource,
-                });
-              } catch (subErr) {
-                console.warn('PushManager subscription error:', subErr);
-              }
-            }
-
-            if (sub) {
-              pushToken = JSON.stringify(sub);
-            }
-          }
-        } catch (swErr) {
-          console.warn('Service worker check warning:', swErr);
-        }
+      this.statusMessage.set('Obtaining device token...');
+      let clientID = localStorage.getItem('motorguard_client_device_id');
+      if (!clientID) {
+        clientID = 'web_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        localStorage.setItem('motorguard_client_device_id', clientID);
       }
-
-      // If browser push subscription couldn't be generated, generate unique browser device token
-      if (!pushToken) {
-        let clientID = localStorage.getItem('motorguard_client_device_id');
-        if (!clientID) {
-          clientID = 'web_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-          localStorage.setItem('motorguard_client_device_id', clientID);
-        }
-        pushToken = clientID;
-      }
+      const pushToken = clientID;
 
       this.statusMessage.set('Enabling push notifications...');
       const response = await firstValueFrom(
@@ -271,16 +227,5 @@ export class NotificationService {
     } catch (e) {
       console.warn('Could not display system notification:', e);
     }
-  }
-
-  private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
   }
 }
