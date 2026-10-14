@@ -100,6 +100,8 @@ export class SignupComponent implements OnInit, OnDestroy {
   // Rate Limiting & Cooldown State
   readonly cooldownSeconds = signal<number>(0);
   readonly isLockedOut = signal<boolean>(false);
+  readonly attemptsUsed = signal<number>(0);
+  readonly maxAttempts = signal<number>(5);
   private cooldownTimer?: ReturnType<typeof setInterval>;
 
   // Camera Scanner State
@@ -280,6 +282,8 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   handleScannedCode(raw: string): void {
+    if (this.cooldownSeconds() > 0 || this.isLockedOut() || this.isVerifying()) return;
+
     const extracted = this.extractIMEIFromRaw(raw);
     if (!extracted) {
       this.verifyError.set(
@@ -315,10 +319,13 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   verifyTrackerCode(codeToVerify?: string): void {
     const imei = (codeToVerify || this.imeiInput()).trim();
-    if (this.cooldownSeconds() > 0 || this.isLockedOut()) return;
+    // Strictly refuse to make API calls if in cooldown, locked out, or already verifying
+    if (this.cooldownSeconds() > 0 || this.isLockedOut() || this.isVerifying()) {
+      return;
+    }
 
     if (!/^\d{15}$/.test(imei)) {
-      this.verifyError.set('Please provide a valid 15-digit IMEI number.');
+      this.verifyError.set('Please enter a valid 15-digit IMEI.');
       return;
     }
 
@@ -332,45 +339,62 @@ export class SignupComponent implements OnInit, OnDestroy {
 
         if (tracker.status === 'CLAIMED' || tracker.is_claimed) {
           this.verifyError.set(
-            `Tracker #${tracker.imei} is already registered to another fleet. If you purchased this device, contact support.`
+            `Tracker #${tracker.imei} is already registered.`
           );
           return;
         }
 
+        // When tracker is found, clear errors & cooldown and transition to DETAILS
         this.verifiedTracker.set(tracker);
         this.stopCamera();
+        this.verifyError.set(null);
+        this.clearCooldown();
 
         this.currentStep.set('DETAILS');
       },
       error: (err: HttpErrorResponse) => {
         this.isVerifying.set(false);
+        this.attemptsUsed.update((prev) => prev + 1);
+
         this.handleRateLimitHeaders(err);
 
-        if (err.status === 429) {
-          return;
+        // Calculate exponential cooldown if not already started:
+        // Attempt 1: 60s, Attempt 2: 120s, Attempt 3: 240s, Attempt 4: 480s
+        if (this.cooldownSeconds() <= 0 && !this.isLockedOut()) {
+          const expSeconds = 60 * Math.pow(2, Math.max(0, this.attemptsUsed() - 1));
+          this.startCooldown(expSeconds);
         }
 
         if (err.status === 404) {
-          this.verifyError.set(
-            `Tracker with IMEI "${imei}" was not found in MotoGuard inventory. Please verify the code on your box.`
-          );
+          this.verifyError.set(`Tracker with IMEI "${imei}" not found.`);
         } else {
-          this.verifyError.set(
-            err.error?.detail ||
-              'Unable to verify tracker hardware at this time. Please try again.'
-          );
+          this.verifyError.set(err.error?.detail || 'Unable to verify tracker. Please check IMEI.');
         }
       },
     });
   }
 
   private handleRateLimitHeaders(err: HttpErrorResponse): void {
+    const remainingHeader = err.headers.get('X-RateLimit-Remaining');
+    const limitHeader = err.headers.get('X-RateLimit-Limit');
+
+    if (limitHeader) {
+      const parsedLimit = parseInt(limitHeader, 10);
+      if (!isNaN(parsedLimit) && parsedLimit > 0) {
+        this.maxAttempts.set(parsedLimit);
+      }
+    }
+
+    if (remainingHeader) {
+      const parsedRemaining = parseInt(remainingHeader, 10);
+      if (!isNaN(parsedRemaining) && parsedRemaining >= 0) {
+        this.attemptsUsed.set(Math.max(0, this.maxAttempts() - parsedRemaining));
+      }
+    }
+
     const lockedHeader = err.headers.get('X-RateLimit-Locked');
-    if (lockedHeader === 'true') {
+    if (lockedHeader === 'true' || this.attemptsUsed() >= this.maxAttempts()) {
       this.isLockedOut.set(true);
-      this.verifyError.set(
-        'Excessive verification attempts detected. This IP address is temporarily blocked for security.'
-      );
       return;
     }
 
@@ -379,9 +403,6 @@ export class SignupComponent implements OnInit, OnDestroy {
       const seconds = parseInt(retryAfter, 10);
       if (!isNaN(seconds) && seconds > 0) {
         this.startCooldown(seconds);
-        this.verifyError.set(
-          `Security rate limit active. Please wait ${seconds}s before attempting another tracker lookup.`
-        );
       }
     }
   }

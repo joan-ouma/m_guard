@@ -351,15 +351,21 @@ func (h *BikeHandler) Immobilize(w http.ResponseWriter, r *http.Request) {
 func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 	ip := middleware.GetClientIP(r)
 
+	// Always expose rate limit headers to frontend clients
+	w.Header().Set("Access-Control-Expose-Headers", "Retry-After, X-RateLimit-Locked, X-RateLimit-Remaining, X-RateLimit-Limit")
+
 	// Check rate limit per IP
-	allowed, retryAfter, lockedOut := h.verifyLimiter.CheckAllowed(ip)
+	allowed, retryAfter, lockedOut, remaining, maxAttempts := h.verifyLimiter.CheckAllowed(ip)
+	w.Header().Set("X-RateLimit-Limit", strconv.Itoa(maxAttempts))
+	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
+
 	if !allowed {
 		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
 		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
 
-		msg := fmt.Sprintf("Rate limited. Please wait %d seconds before attempting another tracker lookup.", retryAfter)
+		msg := fmt.Sprintf("Rate limited. Please wait %d seconds before attempting another tracker lookup (%d/%d attempts remaining).", retryAfter, remaining, maxAttempts)
 		if lockedOut {
-			msg = "Excessive verification failures. Your IP address has been temporarily locked out from manual tracker lookups."
+			msg = fmt.Sprintf("Excessive verification failures (%d attempts reached). Your IP address is temporarily locked out.", maxAttempts)
 		}
 		domain.NewTooManyRequestsError(msg, r.URL.Path).WriteJSON(w)
 		return
@@ -378,10 +384,11 @@ func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if imei == "" {
-		retryAfter, lockedOut := h.verifyLimiter.RecordFailure(ip)
+		retryAfter, lockedOut, rem, maxA := h.verifyLimiter.RecordFailure(ip)
 		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
 		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
-		domain.NewBadRequestError("Tracker IMEI code is required", r.URL.Path, map[string][]string{
+		w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(rem))
+		domain.NewBadRequestError(fmt.Sprintf("Tracker IMEI code is required (%d/%d attempts remaining)", rem, maxA), r.URL.Path, map[string][]string{
 			"imei": {"Please provide a valid 15-digit IMEI code"},
 		}).WriteJSON(w)
 		return
@@ -389,10 +396,12 @@ func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 
 	dto, err := h.service.VerifyTracker(r.Context(), imei)
 	if err != nil {
-		retryAfter, lockedOut := h.verifyLimiter.RecordFailure(ip)
+		retryAfter, lockedOut, rem, maxA := h.verifyLimiter.RecordFailure(ip)
 		w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
 		w.Header().Set("X-RateLimit-Locked", strconv.FormatBool(lockedOut))
+		w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(rem))
 		if pd, ok := err.(domain.ProblemDetails); ok {
+			pd.Detail = fmt.Sprintf("%s (%d of %d attempts remaining)", pd.Detail, rem, maxA)
 			pd.WriteJSON(w)
 			return
 		}
@@ -403,6 +412,7 @@ func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 	// Success: record success and enforce baseline 1 request per min
 	h.verifyLimiter.RecordSuccess(ip)
 	w.Header().Set("Retry-After", "60")
+	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(maxAttempts))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]any{"data": dto})
