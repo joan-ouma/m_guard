@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  font-family: var(--font-sans);
+}
+
 /* Emergency Map Container */
 #emergencyMap {
   position: absolute;
