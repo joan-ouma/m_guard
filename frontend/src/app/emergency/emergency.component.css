@@ -8,6 +8,12 @@
   background: #f4f4f5 !important;
 }
 
+/* Clean, modern, muted tiles without loud cartoon colors (NO API KEY REQUIRED) */
+#emergencyMap .leaflet-tile,
+.emergency-osm-tiles {
+  filter: grayscale(70%) contrast(92%) brightness(102%) !important;
+}
+
 /* Emergency Map Container */
 #emergencyMap {
   position: absolute;

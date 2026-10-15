@@ -195,15 +195,12 @@ export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
         zoomControl: false,
       }).setView([initialLat, initialLng], 12);
 
-      // Clean, muted light basemap: CartoDB Positron (worldwide street coverage without cartoon colors)
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        {
-          maxZoom: 19,
-          subdomains: 'abcd',
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        }
-      ).addTo(this.map);
+      // Free OpenStreetMap tiles with custom muted filter (NO API KEY REQUIRED)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        className: 'emergency-osm-tiles',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(this.map);
 
       this.markersLayer = L.layerGroup().addTo(this.map);
     }

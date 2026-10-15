@@ -225,10 +225,22 @@
                   {{ contact.subCounty }}, {{ contact.county }}
                 </p>
                 <div class="flex items-center gap-2 mt-1 text-xs">
-                  <span class="font-mono font-medium text-zinc-900">{{ contact.phone }}</span>
+                  <a
+                    [href]="'tel:' + contact.phone"
+                    (click)="$event.stopPropagation()"
+                    class="font-mono font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    {{ contact.phone }}
+                  </a>
                   @if (contact.altPhone) {
-                    <span class="text-zinc-400">/</span>
-                    <a [href]="'tel:' + contact.altPhone" (click)="$event.stopPropagation()" class="font-mono text-zinc-500 hover:text-zinc-900 text-[11px]">{{ contact.altPhone }}</a>
+                    <span class="text-zinc-300">/</span>
+                    <a
+                      [href]="'tel:' + contact.altPhone"
+                      (click)="$event.stopPropagation()"
+                      class="font-mono font-medium text-blue-600/75 hover:text-blue-800 text-[11px] transition-colors"
+                    >
+                      {{ contact.altPhone }}
+                    </a>
                   }
                 </div>
               </div>
@@ -264,11 +276,11 @@
 
         <!-- Map Legend -->
         <div class="absolute top-3 left-3 z-10">
-          <div class="px-3 py-1.5 rounded-lg bg-white/95 border border-zinc-200 shadow-2xs text-xs text-zinc-700 flex items-center gap-3.5">
-            <span class="flex items-center gap-1.5 font-medium"><img src="/siren.png" class="w-4 h-4 object-contain" alt="" /> Police</span>
-            <span class="flex items-center gap-1.5 font-medium"><img src="/ambulance.png" class="w-4 h-4 object-contain" alt="" /> Ambulance</span>
-            <span class="flex items-center gap-1.5 font-medium"><img src="/emergency-phone.png" class="w-4 h-4 object-contain" alt="" /> Hotline</span>
-            <span class="flex items-center gap-1.5 font-medium"><img src="/motorbike.png" class="w-4 h-4 object-contain" alt="" /> Bike</span>
+          <div class="px-3.5 py-2 rounded-xl bg-white/95 border border-zinc-200/90 shadow-sm text-xs sm:text-sm font-semibold text-zinc-800 flex items-center gap-4">
+            <span class="flex items-center gap-2"><img src="/siren.png" class="w-6 h-6 object-contain" alt="" /> Police</span>
+            <span class="flex items-center gap-2"><img src="/ambulance.png" class="w-6 h-6 object-contain" alt="" /> Ambulance</span>
+            <span class="flex items-center gap-2"><img src="/emergency-phone.png" class="w-6 h-6 object-contain" alt="" /> Hotline</span>
+            <span class="flex items-center gap-2"><img src="/motorbike.png" class="w-6 h-6 object-contain" alt="" /> Bike</span>
           </div>
         </div>
       </div>
