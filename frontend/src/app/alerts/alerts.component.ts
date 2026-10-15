@@ -13,14 +13,12 @@ export interface DisplayAlert {
   plate: string;
   model: string;
   eventType: string;
-  displayType: string;
   title: string;
   description: string;
   severity: 'critical' | 'warning' | 'info';
   latitude: number;
   longitude: number;
   timestamp: string;
-  count?: number;
 }
 
 @Component({
@@ -62,36 +60,15 @@ export class AlertsComponent implements OnInit {
         plate: plate,
         model: live.model || '',
         eventType: evType,
-        displayType: this.formatDisplayType(evType),
-        title: live.title && !live.title.toLowerCase().includes('security event:') ? live.title : this.formatTitle(evType, plate),
-        description: live.body || live.description || this.formatDescription(evType, plate),
+        title: this.formatTitle(evType),
+        description: this.formatDescription(evType, plate),
         severity: this.classifySeverity(evType),
         latitude: Number(live.latitude) || 0,
         longitude: Number(live.longitude) || 0,
         timestamp: live.recorded_at || live.recordedAt || new Date().toISOString(),
-        count: 1,
       };
 
-      this.alerts.update((prev) => {
-        const existingIdx = prev.findIndex(
-          (p) =>
-            p.bikeId === newAlert.bikeId &&
-            p.eventType.toUpperCase() === newAlert.eventType.toUpperCase() &&
-            Math.abs(new Date(p.timestamp).getTime() - new Date(newAlert.timestamp).getTime()) < 30 * 60 * 1000
-        );
-        if (existingIdx !== -1) {
-          const updated = [...prev];
-          updated[existingIdx] = {
-            ...updated[existingIdx],
-            count: (updated[existingIdx].count || 1) + 1,
-            timestamp: newAlert.timestamp,
-            latitude: newAlert.latitude || updated[existingIdx].latitude,
-            longitude: newAlert.longitude || updated[existingIdx].longitude,
-          };
-          return updated;
-        }
-        return [newAlert, ...prev];
-      });
+      this.alerts.update((prev) => [newAlert, ...prev]);
     });
   }
 
@@ -135,38 +112,19 @@ export class AlertsComponent implements OnInit {
                   plate: bike.registration_number,
                   model: bike.model || bike.label || '',
                   eventType: ev.event_type,
-                  displayType: this.formatDisplayType(ev.event_type),
-                  title: this.formatTitle(ev.event_type, bike.registration_number),
+                  title: this.formatTitle(ev.event_type),
                   description: this.formatDescription(ev.event_type, bike.registration_number),
                   severity: this.classifySeverity(ev.event_type),
                   latitude: ev.latitude,
                   longitude: ev.longitude,
                   timestamp: ev.recorded_at,
-                  count: 1,
                 });
               });
             });
 
             // Sort newest first
             all.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-            // Group repetitive alerts (same bike & same eventType within 30 min)
-            const deduplicated: DisplayAlert[] = [];
-            all.forEach((item) => {
-              const existing = deduplicated.find(
-                (g) =>
-                  g.bikeId === item.bikeId &&
-                  g.eventType.toUpperCase() === item.eventType.toUpperCase() &&
-                  Math.abs(new Date(g.timestamp).getTime() - new Date(item.timestamp).getTime()) < 30 * 60 * 1000
-              );
-              if (existing) {
-                existing.count = (existing.count || 1) + 1;
-              } else {
-                deduplicated.push({ ...item, count: 1 });
-              }
-            });
-
-            this.alerts.set(deduplicated);
+            this.alerts.set(all);
             this.isLoading.set(false);
           },
           error: () => {
@@ -191,58 +149,40 @@ export class AlertsComponent implements OnInit {
     return 'info';
   }
 
-  formatDisplayType(type?: string): string {
+  private formatTitle(type: string): string {
     const t = (type || '').toUpperCase();
-    if (t.includes('TILT') || t.includes('LIFT')) return 'Tilt & Lift';
-    if (t.includes('BURGLARY') || t.includes('THEFT')) return 'Theft Attempt';
-    if (t.includes('BREACH') || t.includes('EXIT')) return 'Geofence Breach';
-    if (t.includes('ENTER') || t.includes('ENTRY')) return 'Geofence Entry';
-    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return 'Tampering';
-    if (t.includes('ACCIDENT') || t.includes('CRASH')) return 'Impact / Crash';
-    if (t.includes('DURESS') || t.includes('SOS')) return 'SOS Emergency';
-    if (t.includes('SPEED')) return 'Overspeed';
-    if (t.includes('POWER') || t.includes('BATTERY')) return 'Power Alert';
-    if (t.includes('ON') || t.includes('IGNITION_ON')) return 'Ignition On';
-    if (t.includes('OFF') || t.includes('IGNITION_OFF')) return 'Ignition Off';
-    if (t.includes('IMMOBILIZ')) return 'Immobilized';
-    if (t.includes('REACTIVAT')) return 'Reactivated';
-    return type ? type.replace(/_/g, ' ') : 'Security Event';
-  }
-
-  private formatTitle(type: string, plate: string): string {
-    const t = type.toUpperCase();
-    if (t.includes('TILT') || t.includes('LIFT')) return `Vehicle Tilt & Lift Detected`;
-    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Potential Theft / Break-in Detected`;
-    if (t.includes('BREACH')) return `Geofence Perimeter Breached`;
-    if (t.includes('ENTER') || t.includes('ENTRY')) return `Geofence Safe Zone Entered`;
-    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `Accident / Crash Detected`;
-    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Tampering / Vibration Detected`;
-    if (t.includes('DURESS') || t.includes('SOS')) return `Emergency Driver SOS Signal`;
-    if (t.includes('SPEED')) return `Speed Threshold Exceeded`;
-    if (t.includes('POWER') || t.includes('BATTERY')) return `Tracker Power Cut / Low Battery`;
+    if (t.includes('TILT') || t.includes('LIFT')) return `Bike Tilted or Moved`;
+    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Theft Alert`;
+    if (t.includes('BREACH') || t.includes('EXIT')) return `Left Safe Area`;
+    if (t.includes('ENTER') || t.includes('ENTRY')) return `Entered Safe Area`;
+    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `Possible Crash Detected`;
+    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Tampering Detected`;
+    if (t.includes('DURESS') || t.includes('SOS')) return `Emergency SOS Alert`;
+    if (t.includes('SPEED')) return `High Speed Warning`;
+    if (t.includes('POWER') || t.includes('BATTERY')) return `Low Battery Warning`;
     if (t.includes('ON') || t.includes('IGNITION_ON')) return `Engine Started`;
-    if (t.includes('OFF') || t.includes('IGNITION_OFF')) return `Engine Switched Off`;
-    if (t.includes('IMMOBILIZ')) return `Starter Immobilized Remotely`;
-    if (t.includes('REACTIVAT')) return `Starter Reactivated`;
-    return `Security Event: ${type ? type.replace(/_/g, ' ') : 'Alert'}`;
+    if (t.includes('OFF') || t.includes('IGNITION_OFF')) return `Engine Turned Off`;
+    if (t.includes('IMMOBILIZ')) return `Engine Locked`;
+    if (t.includes('REACTIVAT')) return `Engine Unlocked`;
+    return `Security Alert`;
   }
 
   private formatDescription(type: string, plate: string): string {
-    const t = type.toUpperCase();
-    if (t.includes('TILT') || t.includes('LIFT')) return `Gyro sensor detected unauthorized tilting or physical lifting while stationary.`;
-    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Suspicious movement and intrusion sensors triggered while parked.`;
-    if (t.includes('BREACH')) return `Motorcycle ${plate} has exited its assigned safety geofence boundary.`;
-    if (t.includes('ENTER') || t.includes('ENTRY')) return `Motorcycle ${plate} has entered the designated boundary.`;
-    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `Impact sensor triggered rapid deceleration. Immediate check advised.`;
-    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Motion sensor detected unauthorized handling, vibration, or tampering.`;
-    if (t.includes('DURESS') || t.includes('SOS')) return `Emergency assistance button engaged by rider on ${plate}.`;
-    if (t.includes('SPEED')) return `Telemetry reported speed higher than established maximum safety limit.`;
-    if (t.includes('POWER') || t.includes('BATTERY')) return `Tracker external power supply disconnected or battery level is critically low.`;
-    if (t.includes('ON')) return `Electrical starter engaged for ${plate}.`;
-    if (t.includes('OFF')) return `Engine turned off for ${plate}.`;
-    if (t.includes('IMMOBILIZ')) return `Starter relay cut-off engaged remotely. Engine cannot be started.`;
-    if (t.includes('REACTIVAT')) return `Starter cut-off relay restored. Motorcycle ready for normal operation.`;
-    return `Security event logged for ${plate}. Verify live coordinates and vehicle status.`;
+    const t = (type || '').toUpperCase();
+    if (t.includes('TILT') || t.includes('LIFT')) return `Your motorcycle was moved or tilted while parked.`;
+    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Suspicious movement detected while your motorcycle is parked and locked.`;
+    if (t.includes('BREACH')) return `Your motorcycle has moved outside of your safe boundary.`;
+    if (t.includes('ENTER') || t.includes('ENTRY')) return `Your motorcycle has returned inside your safe boundary.`;
+    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `A sudden heavy impact was detected. Please verify rider safety.`;
+    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Someone may be touching, shaking, or tampering with your motorcycle.`;
+    if (t.includes('DURESS') || t.includes('SOS')) return `The emergency SOS button was pressed on your motorcycle.`;
+    if (t.includes('SPEED')) return `Your motorcycle exceeded the maximum speed limit.`;
+    if (t.includes('POWER') || t.includes('BATTERY')) return `Your motorcycle tracker battery is critically low.`;
+    if (t.includes('ON')) return `The motorcycle ignition was switched on.`;
+    if (t.includes('OFF')) return `The motorcycle engine was shut down.`;
+    if (t.includes('IMMOBILIZ')) return `Engine locked remotely. Starter cannot be turned on.`;
+    if (t.includes('REACTIVAT')) return `Engine unlocked. Your motorcycle is ready to ride.`;
+    return `New security activity recorded for your motorcycle.`;
   }
 
   formatTimestamp(iso: string): string {

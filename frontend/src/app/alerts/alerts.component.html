@@ -194,44 +194,25 @@
 
                     <!-- Texts -->
                     <div class="min-w-0 flex-1">
-                      <!-- Meta row -->
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="px-2.5 py-0.5 rounded-md bg-zinc-900 text-white font-mono text-xs font-bold tracking-wider">
-                          {{ alert.plate }}
-                        </span>
-                        @if (alert.model) {
-                          <span class="text-xs font-medium text-zinc-400">
-                            {{ alert.model }}
-                          </span>
-                        }
-                        <span
-                          class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                          [class.bg-rose-50]="alert.severity === 'critical'"
-                          [class.text-rose-700]="alert.severity === 'critical'"
-                          [class.bg-amber-50]="alert.severity === 'warning'"
-                          [class.text-amber-800]="alert.severity === 'warning'"
-                          [class.bg-zinc-100]="alert.severity === 'info'"
-                          [class.text-zinc-600]="alert.severity === 'info'"
-                        >
-                          {{ alert.displayType }}
-                        </span>
-                        @if (alert.count && alert.count > 1) {
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 ring-1 ring-amber-300/60">
-                            Triggered {{ alert.count }}×
-                          </span>
-                        }
-                      </div>
-
-                      <!-- Title & Description -->
-                      <h4 class="text-sm sm:text-base font-bold text-zinc-900 mt-1.5 tracking-tight">
+                      <!-- Title & Description (Clear, consumer friendly) -->
+                      <h4 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight">
                         {{ alert.title }}
                       </h4>
-                      <p class="text-xs sm:text-sm text-zinc-500 mt-0.5 leading-relaxed">
+                      <p class="text-xs sm:text-sm text-zinc-500 mt-1 leading-relaxed">
                         {{ alert.description }}
                       </p>
 
-                      <!-- Timestamp & Coordinates -->
-                      <div class="flex items-center gap-3 mt-3 text-xs text-zinc-400">
+                      <!-- Meta row: Plate, Model, Timestamp, Coordinates -->
+                      <div class="flex items-center gap-2 flex-wrap mt-3 text-xs text-zinc-400">
+                        <span class="px-2 py-0.5 rounded-md bg-zinc-900 text-white font-mono text-xs font-bold tracking-wider">
+                          {{ alert.plate }}
+                        </span>
+                        @if (alert.model) {
+                          <span class="font-medium text-zinc-500">
+                            {{ alert.model }}
+                          </span>
+                          <span>•</span>
+                        }
                         <span class="font-medium text-zinc-500">{{ formatTimestamp(alert.timestamp) }}</span>
                         @if (alert.latitude && alert.longitude) {
                           <span>•</span>
