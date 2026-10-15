@@ -1027,6 +1027,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       riderName: this.authService.currentUser()?.name || 'Primary Rider',
       riderNationalId: this.authService.currentUser()?.national_id || 'N/A',
       riderPhone: this.authService.currentUser()?.phone_number || 'N/A',
+      signalQuality: b.signal_quality_csq,
+      batteryPercent: b.battery_percent ?? 100,
     };
   }
 }

@@ -32,4 +32,6 @@ export interface FleetBike {
   riderName: string;
   riderNationalId: string;
   riderPhone: string;
+  signalQuality?: number;
+  batteryPercent?: number;
 }

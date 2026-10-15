@@ -35,4 +35,40 @@ export class BikeInspectorComponent {
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${Math.floor(diffHours / 24)}d ago`;
   }
+
+  isOffline(bike?: FleetBike | null): boolean {
+    if (!bike) return true;
+    if (bike.signalQuality === 0 || bike.signalQuality === 99) return true;
+    if (bike.lastSeenAt) {
+      const timestamp = new Date(bike.lastSeenAt).getTime();
+      if (!isNaN(timestamp)) {
+        const diffSec = (this.currentTime() - timestamp) / 1000;
+        // If device has not communicated for over 2 hours, consider offline
+        if (diffSec > 7200) return true;
+      }
+    }
+    return false;
+  }
+
+  getSignalBars(bike?: FleetBike | null): number {
+    if (!bike || this.isOffline(bike)) return 0;
+    const csq = bike.signalQuality ?? 20;
+    if (csq >= 26) return 5;
+    if (csq >= 20) return 4;
+    if (csq >= 14) return 3;
+    if (csq >= 8) return 2;
+    if (csq >= 1) return 1;
+    return 0;
+  }
+
+  getSignalLabel(bike?: FleetBike | null): string {
+    if (!bike || this.isOffline(bike)) return 'Offline';
+    const bars = this.getSignalBars(bike);
+    if (bars === 5) return 'Full Signal (5/5)';
+    if (bars === 4) return 'Strong (4/5)';
+    if (bars === 3) return 'Moderate (3/5)';
+    if (bars === 2) return 'Fair (2/5)';
+    if (bars === 1) return 'Weak (1/5)';
+    return 'No Signal';
+  }
 }
