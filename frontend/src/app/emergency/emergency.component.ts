@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -13,6 +13,8 @@ import * as L from 'leaflet';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, MobileNavComponent],
   templateUrl: './emergency.component.html',
+  styleUrl: './emergency.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class EmergencyComponent implements OnInit, OnDestroy {
   private readonly bikeService = inject(BikeService);
@@ -77,6 +79,7 @@ export class EmergencyComponent implements OnInit, OnDestroy {
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
   private bikeMarker: L.Marker | null = null;
+  private contactMarkers = new Map<string, L.Marker>();
 
   ngOnInit(): void {
     // Load user bikes for nearest station calculation and report generator
@@ -138,7 +141,11 @@ export class EmergencyComponent implements OnInit, OnDestroy {
 
   flyToContact(c: EmergencyContact): void {
     if (!this.map) return;
-    this.map.flyTo([c.latitude, c.longitude], 15, { duration: 1 });
+    this.map.flyTo([c.latitude, c.longitude], 15, { duration: 0.8 });
+    const marker = this.contactMarkers.get(c.id);
+    if (marker) {
+      setTimeout(() => marker.openPopup(), 800);
+    }
   }
 
   getDistanceToBike(c: EmergencyContact): string | null {
@@ -232,26 +239,43 @@ export class EmergencyComponent implements OnInit, OnDestroy {
   private updateMapMarkers(): void {
     if (!this.map || !this.markersLayer) return;
     this.markersLayer.clearLayers();
+    this.contactMarkers.clear();
 
     const bike = this.selectedBike();
     // Plot user bike if present
     if (bike && bike.latitude && bike.longitude) {
       const bikeIcon = L.divIcon({
-        className: 'custom-bike-marker',
+        className: 'map-bike-icon',
         html: `
-          <div style="background:#09090b; color:white; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3); border:2px solid white; cursor:pointer;">
-            <svg style="width:18px; height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            </svg>
+          <div class="map-marker-pin map-marker-bike">
+            <div class="pin-body">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5" cy="16" r="3"/>
+                <circle cx="19" cy="16" r="3"/>
+                <path d="M5 16h4l3-6h5l2 3"/>
+                <path d="M12 10V6h2"/>
+              </svg>
+            </div>
+            <div class="pin-tip"></div>
           </div>
         `,
-        iconSize: [34, 34],
-        iconAnchor: [17, 34],
+        iconSize: [32, 38],
+        iconAnchor: [16, 38],
+        popupAnchor: [0, -36],
       });
 
       this.bikeMarker = L.marker([bike.latitude, bike.longitude], { icon: bikeIcon })
         .addTo(this.markersLayer)
-        .bindPopup(`<strong>Your Motorcycle: ${bike.registration_number}</strong><br>${bike.current_address || 'Current Position'}`);
+        .bindPopup(`
+          <div style="min-width: 190px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 12px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #10b981; margin-bottom: 2px;">Your Motorcycle</div>
+            <div style="font-size: 14px; font-weight: 700; color: #18181b; margin-bottom: 4px;">${bike.registration_number}</div>
+            <div style="font-size: 12px; color: #71717a;">${bike.current_address || 'Current GPS position'}</div>
+          </div>
+        `, {
+          autoClose: true,
+          closeOnClick: true,
+        });
     }
 
     // Plot station markers
@@ -261,40 +285,90 @@ export class EmergencyComponent implements OnInit, OnDestroy {
 
       const isPolice = c.type === 'police';
       const isAmbulance = c.type === 'ambulance';
-      const bg = isPolice ? '#2563eb' : isAmbulance ? '#dc2626' : '#4f46e5';
+      const typeClass = isPolice ? 'map-marker-police' : isAmbulance ? 'map-marker-ambulance' : 'map-marker-national';
+      const typeLabel = isPolice ? 'Police Station' : isAmbulance ? 'Ambulance Dispatch' : 'National Hotline';
+      const typeColor = isPolice ? '#1d4ed8' : isAmbulance ? '#dc2626' : '#4338ca';
+
+      // Utilitarian icon based on service type
+      let iconSvg = '';
+      if (isPolice) {
+        // Police Siren
+        iconSvg = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v2"/>
+            <path d="M4.93 4.93l1.41 1.41"/>
+            <path d="M19.07 4.93l-1.41 1.41"/>
+            <path d="M7 11a5 5 0 0 1 10 0v5H7v-5z"/>
+            <rect x="5" y="16" width="14" height="4" rx="1"/>
+          </svg>
+        `;
+      } else if (isAmbulance) {
+        // Ambulance Vehicle
+        iconSvg = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="14" height="10" rx="1"/>
+            <path d="M16 10h4l2 3v4h-6v-7z"/>
+            <circle cx="6" cy="18" r="2"/>
+            <circle cx="18" cy="18" r="2"/>
+            <path d="M9 10v4"/>
+            <path d="M7 12h4"/>
+          </svg>
+        `;
+      } else {
+        // Emergency Phone
+        iconSvg = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        `;
+      }
 
       const icon = L.divIcon({
-        className: 'station-marker',
+        className: 'map-contact-icon',
         html: `
-          <div style="background:${bg}; color:white; width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.25); border:2px solid white; cursor:pointer;">
-            ${
-              isPolice
-                ? `<svg style="width:17px; height:17px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`
-                : `<svg style="width:17px; height:17px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>`
-            }
+          <div class="map-marker-pin ${typeClass}">
+            <div class="pin-body">
+              ${iconSvg}
+            </div>
+            <div class="pin-tip"></div>
           </div>
         `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        iconSize: [32, 38],
+        iconAnchor: [16, 38],
+        popupAnchor: [0, -36],
       });
 
       const dist = this.getDistanceToBike(c);
-      const distHtml = dist ? `<div style="font-size:11px; color:#2563eb; font-weight:bold; margin-top:3px;">📍 ${dist}</div>` : '';
+      const distHtml = dist
+        ? `<span style="font-size: 11px; font-weight: 700; color: #1d4ed8; background: #eff6ff; padding: 2px 6px; border-radius: 4px;">${dist}</span>`
+        : '';
 
       const popupContent = `
-        <div style="min-width:200px; font-family:sans-serif;">
-          <h4 style="margin:0 0 4px 0; font-size:14px; font-weight:800; color:#09090b;">${c.name}</h4>
-          <p style="margin:0; font-size:12px; color:#52525b;">${c.address}</p>
-          ${distHtml}
-          <div style="margin-top:10px; display:flex; gap:6px;">
-            <a href="tel:${c.phone}" style="background:#09090b; color:white; padding:6px 12px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:bold; display:inline-block;">Call: ${c.phone}</a>
+        <div style="min-width: 210px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${typeColor};">${typeLabel}</span>
+            ${distHtml}
           </div>
+          <div style="font-size: 14px; font-weight: 700; color: #18181b; margin-bottom: 2px;">${c.name}</div>
+          <div style="font-size: 12px; color: #71717a; margin-bottom: 10px;">${c.address} (${c.subCounty})</div>
+          <a href="tel:${c.phone}" style="display: block; width: 100%; text-align: center; background-color: #059669; color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; box-sizing: border-box;">
+            Call ${c.phone}
+          </a>
         </div>
       `;
 
-      L.marker([c.latitude, c.longitude], { icon })
+      const marker = L.marker([c.latitude, c.longitude], { icon })
         .addTo(this.markersLayer!)
-        .bindPopup(popupContent);
+        .bindPopup(popupContent, {
+          autoClose: true,
+          closeOnClick: true,
+        });
+
+      marker.on('click', () => {
+        this.selectedContact.set(c);
+      });
+
+      this.contactMarkers.set(c.id, marker);
     });
   }
 }

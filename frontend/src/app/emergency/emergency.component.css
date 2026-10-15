@@ -1,0 +1,78 @@
+/* Map Pin Base */
+.map-marker-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.map-marker-pin .pin-body {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.map-marker-pin .pin-tip {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  margin-top: -1px;
+}
+
+/* Police: Solid Blue Siren */
+.map-marker-police .pin-body {
+  background-color: #1d4ed8;
+}
+
+.map-marker-police .pin-tip {
+  border-top: 6px solid #1d4ed8;
+}
+
+/* Ambulance: Solid Red Vehicle */
+.map-marker-ambulance .pin-body {
+  background-color: #dc2626;
+}
+
+.map-marker-ambulance .pin-tip {
+  border-top: 6px solid #dc2626;
+}
+
+/* National Hotline: Solid Indigo Phone */
+.map-marker-national .pin-body {
+  background-color: #4338ca;
+}
+
+.map-marker-national .pin-tip {
+  border-top: 6px solid #4338ca;
+}
+
+/* Motorcycle: Dark Zinc */
+.map-marker-bike .pin-body {
+  background-color: #18181b;
+  border: 2px solid #10b981;
+}
+
+.map-marker-bike .pin-tip {
+  border-top: 6px solid #18181b;
+}
+
+/* Utilitarian Leaflet Popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #e4e4e7 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
