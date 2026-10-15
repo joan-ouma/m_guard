@@ -3,6 +3,11 @@
   font-family: var(--font-sans);
 }
 
+/* Light Map Container */
+.leaflet-container {
+  background: #f4f4f5 !important;
+}
+
 /* Emergency Map Container */
 #emergencyMap {
   position: absolute;

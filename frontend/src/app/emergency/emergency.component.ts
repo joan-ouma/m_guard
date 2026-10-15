@@ -195,22 +195,13 @@ export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
         zoomControl: false,
       }).setView([initialLat, initialLng], 12);
 
-      // Custom Dark Basemap matching Dashboard & History
+      // Clean, muted light basemap: CartoDB Positron (worldwide street coverage without cartoon colors)
       L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         {
-          maxZoom: 16,
-          attribution: '&copy; Esri',
-        }
-      ).addTo(this.map);
-
-      // Muted Reference Labels Layer
-      L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-        {
-          maxZoom: 16,
-          opacity: 0.45,
-          attribution: '',
+          maxZoom: 19,
+          subdomains: 'abcd',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
         }
       ).addTo(this.map);
 
@@ -234,9 +225,9 @@ export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (bike && bike.latitude && bike.longitude) {
       const bikeIcon = L.icon({
         iconUrl: '/motorbike.png',
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -18],
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+        popupAnchor: [0, -21],
       });
 
       this.bikeMarker = L.marker([bike.latitude, bike.longitude], { icon: bikeIcon })
@@ -255,23 +246,23 @@ export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const policeIcon = L.icon({
       iconUrl: '/siren.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16],
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -19],
     });
 
     const ambulanceIcon = L.icon({
       iconUrl: '/ambulance.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16],
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -19],
     });
 
     const hotlineIcon = L.icon({
       iconUrl: '/emergency-phone.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      popupAnchor: [0, -16],
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -19],
     });
 
     // Plot station markers
