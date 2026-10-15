@@ -126,15 +126,14 @@
               [class.text-zinc-600]="selectedType() !== 'police'"
               class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 18v-6a5 5 0 1 1 10 0v6" />
-                <path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
-                <path d="M21 12h1" />
-                <path d="M2 12h1" />
-                <path d="M12 2v1" />
-                <path d="m4.93 4.93.71.71" />
-                <path d="m19.07 4.93-.71.71" />
-                <path d="M12 12v6" />
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 17V11a6 6 0 1 1 12 0v6" />
+                <path d="M4 17h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" fill="currentColor" fill-opacity="0.2" />
+                <path d="M12 8v5" stroke-width="2" />
+                <circle cx="12" cy="7.5" r="0.9" fill="currentColor" />
+                <path d="M2.5 10a7 7 0 0 0 0 4" />
+                <path d="M21.5 10a7 7 0 0 1 0 4" />
+                <line x1="12" y1="2" x2="12" y2="4" />
               </svg>
               Police
             </button>
@@ -147,13 +146,12 @@
               [class.text-zinc-600]="selectedType() !== 'ambulance'"
               class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 10H6" />
-                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                <path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.68-.95l-1.93-.64a1 1 0 0 1-.58-.5l-1.54-3.08A1 1 0 0 0 16.38 7H14" />
-                <path d="M8 8v4" />
-                <circle cx="17" cy="18" r="2" />
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 8a1 1 0 0 1 1-1h9v11H4a1 1 0 0 1-1-1V8z" fill="currentColor" fill-opacity="0.1" />
+                <path d="M13 10h4.5a1 1 0 0 1 .8.4l2.5 3.3a1 1 0 0 1 .2.6V17a1 1 0 0 1-1 1h-7V10z" fill="currentColor" fill-opacity="0.1" />
+                <path d="M8 10v4m-2-2h4" stroke-width="2" />
                 <circle cx="7" cy="18" r="2" />
+                <circle cx="17" cy="18" r="2" />
               </svg>
               Ambulance
             </button>
@@ -166,8 +164,9 @@
               [class.text-zinc-600]="selectedType() !== 'national'"
               class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                <path d="M14 3a7 7 0 0 1 7 7" />
               </svg>
               Hotlines
             </button>
@@ -183,30 +182,29 @@
               [class.bg-zinc-50]="selectedContact()?.id === contact.id"
             >
               <!-- Icon -->
-              <div class="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-600 shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-zinc-100/90 border border-zinc-200/60 flex items-center justify-center text-zinc-700 shrink-0 shadow-2xs">
                 @if (contact.type === 'police') {
-                  <svg class="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 18v-6a5 5 0 1 1 10 0v6" />
-                    <path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
-                    <path d="M21 12h1" />
-                    <path d="M2 12h1" />
-                    <path d="M12 2v1" />
-                    <path d="m4.93 4.93.71.71" />
-                    <path d="m19.07 4.93-.71.71" />
-                    <path d="M12 12v6" />
+                  <svg class="w-5 h-5 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 17V11a6 6 0 1 1 12 0v6" />
+                    <path d="M4 17h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" fill="currentColor" fill-opacity="0.2" />
+                    <path d="M12 8v5" stroke-width="2" />
+                    <circle cx="12" cy="7.5" r="0.9" fill="currentColor" />
+                    <path d="M2.5 10a7 7 0 0 0 0 4" />
+                    <path d="M21.5 10a7 7 0 0 1 0 4" />
+                    <line x1="12" y1="2" x2="12" y2="4" />
                   </svg>
                 } @else if (contact.type === 'ambulance') {
-                  <svg class="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 10H6" />
-                    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                    <path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.68-.95l-1.93-.64a1 1 0 0 1-.58-.5l-1.54-3.08A1 1 0 0 0 16.38 7H14" />
-                    <path d="M8 8v4" />
-                    <circle cx="17" cy="18" r="2" />
+                  <svg class="w-5 h-5 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 8a1 1 0 0 1 1-1h9v11H4a1 1 0 0 1-1-1V8z" fill="currentColor" fill-opacity="0.1" />
+                    <path d="M13 10h4.5a1 1 0 0 1 .8.4l2.5 3.3a1 1 0 0 1 .2.6V17a1 1 0 0 1-1 1h-7V10z" fill="currentColor" fill-opacity="0.1" />
+                    <path d="M8 10v4m-2-2h4" stroke-width="2" />
                     <circle cx="7" cy="18" r="2" />
+                    <circle cx="17" cy="18" r="2" />
                   </svg>
                 } @else {
-                  <svg class="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <svg class="w-5 h-5 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    <path d="M14 3a7 7 0 0 1 7 7" />
                   </svg>
                 }
               </div>
