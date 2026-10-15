@@ -123,7 +123,7 @@
               type="text"
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
-              placeholder="Search station (e.g. Kilimani, Kasarani, Red Cross)..."
+              placeholder="Search station (e.g. Kilimani, Rongai, Juja, Thika Rd, Kibera, Kayole)..."
               class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-zinc-200 text-xs sm:text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-2xs"
             />
           </div>
@@ -196,8 +196,16 @@
             </div>
           </div>
 
+          <!-- RESULTS COUNT -->
+          <div class="flex items-center justify-between text-xs font-bold text-zinc-500 px-1 pt-1">
+            <span>{{ filteredContacts().length }} Stations &amp; Emergency Desks</span>
+            @if (selectedCounty() !== 'ALL') {
+              <span class="text-blue-600 font-semibold">{{ selectedCounty() }}</span>
+            }
+          </div>
+
           <!-- CONTACTS LIST -->
-          <div class="space-y-2.5 pt-1">
+          <div class="space-y-2.5 pt-0.5">
             @for (contact of filteredContacts(); track contact.id) {
               <div
                 (click)="selectContact(contact)"
