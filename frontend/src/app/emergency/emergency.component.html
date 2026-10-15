@@ -1,0 +1,278 @@
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
+
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
+    <div>
+      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
+        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> Home
+        </a>
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg> Bikes
+        </a>
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> History
+        </a>
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg> Geofence
+        </a>
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
+        </a>
+        <!-- EMERGENCY POLICE & AMBULANCE ITEM -->
+        <a routerLink="/emergency" routerLinkActive="bg-rose-600 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <!-- Top Mobile Header -->
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center justify-between shrink-0 z-20 relative">
+      <div class="flex items-center gap-3">
+        <app-mobile-nav></app-mobile-nav>
+        <span class="font-bold text-base text-zinc-900">Police &amp; Emergency</span>
+      </div>
+      <!-- Mobile View Switcher -->
+      <div class="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 text-xs">
+        <button
+          type="button"
+          (click)="setView('list')"
+          [class.bg-white]="activeView() === 'list'"
+          [class.font-bold]="activeView() === 'list'"
+          [class.shadow-xs]="activeView() === 'list'"
+          class="px-2.5 py-1 rounded-md transition-all cursor-pointer"
+        >
+          Directory
+        </button>
+        <button
+          type="button"
+          (click)="setView('map')"
+          [class.bg-white]="activeView() === 'map'"
+          [class.font-bold]="activeView() === 'map'"
+          [class.shadow-xs]="activeView() === 'map'"
+          class="px-2.5 py-1 rounded-md transition-all cursor-pointer"
+        >
+          Map
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="flex-1 flex overflow-hidden">
+
+      <!-- LEFT COLUMN: DIRECTORY & SEARCH -->
+      <div
+        class="w-full lg:w-[480px] xl:w-[540px] flex flex-col border-r border-zinc-200 bg-zinc-50 overflow-y-auto"
+        [class.hidden]="activeView() === 'map' && activeView() !== 'split'"
+      >
+        <div class="p-4 sm:p-6 space-y-4">
+
+          <!-- Title Header -->
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">Police &amp; Ambulance Numbers</h1>
+            <p class="text-xs sm:text-sm text-zinc-500 mt-0.5">Find nearest police stations and ambulance desks in Kenya.</p>
+          </div>
+
+          <!-- RAPID COPY POLICE INCIDENT CARD -->
+          <div class="p-3.5 sm:p-4 rounded-2xl bg-zinc-900 text-white shadow-xs">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-rose-400 block">Fast Reporting Tool</span>
+                <h3 class="text-sm sm:text-base font-bold text-white mt-0.5">Report Incident to Police</h3>
+                <p class="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                  Copy your motorcycle's live coordinates, plate, and IMEI to read or send directly to the officer.
+                </p>
+              </div>
+              <button
+                type="button"
+                (click)="copyPoliceReport()"
+                class="px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-100 text-zinc-900 font-bold text-xs shrink-0 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
+              >
+                <svg class="w-4 h-4 text-zinc-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>{{ copiedReport() ? 'Copied Details!' : 'Copy Details' }}</span>
+              </button>
+            </div>
+            @if (selectedBike()) {
+              <div class="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400 font-mono">
+                <span>{{ selectedBike()?.registration_number }} • {{ selectedBike()?.model }}</span>
+                <span>{{ selectedBike()?.current_address || 'Position tracked' }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- SEARCH BAR -->
+          <div class="relative">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              placeholder="Search station (e.g. Kilimani, Kasarani, Red Cross)..."
+              class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-zinc-200 text-xs sm:text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-2xs"
+            />
+          </div>
+
+          <!-- FILTERS: CATEGORIES & COUNTY DROPDOWN -->
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <!-- Category Pills -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                (click)="setTypeFilter('ALL')"
+                [class.bg-zinc-900]="selectedType() === 'ALL'"
+                [class.text-white]="selectedType() === 'ALL'"
+                [class.bg-white]="selectedType() !== 'ALL'"
+                [class.text-zinc-600]="selectedType() !== 'ALL'"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 transition-colors cursor-pointer"
+              >
+                All
+              </button>
+              <button
+                type="button"
+                (click)="setTypeFilter('police')"
+                [class.bg-blue-600]="selectedType() === 'police'"
+                [class.text-white]="selectedType() === 'police'"
+                [class.bg-white]="selectedType() !== 'police'"
+                [class.text-blue-700]="selectedType() !== 'police'"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 transition-colors cursor-pointer"
+              >
+                Police
+              </button>
+              <button
+                type="button"
+                (click)="setTypeFilter('ambulance')"
+                [class.bg-rose-600]="selectedType() === 'ambulance'"
+                [class.text-white]="selectedType() === 'ambulance'"
+                [class.bg-white]="selectedType() !== 'ambulance'"
+                [class.text-rose-700]="selectedType() !== 'ambulance'"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 transition-colors cursor-pointer"
+              >
+                Ambulance
+              </button>
+              <button
+                type="button"
+                (click)="setTypeFilter('national')"
+                [class.bg-indigo-600]="selectedType() === 'national'"
+                [class.text-white]="selectedType() === 'national'"
+                [class.bg-white]="selectedType() !== 'national'"
+                [class.text-indigo-700]="selectedType() !== 'national'"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 transition-colors cursor-pointer"
+              >
+                Hotlines (999)
+              </button>
+            </div>
+
+            <!-- County Selector -->
+            <div class="relative">
+              <select
+                [ngModel]="selectedCounty()"
+                (ngModelChange)="setCountyFilter($event)"
+                class="appearance-none bg-white hover:bg-zinc-50 border border-zinc-200 rounded-xl pl-3 pr-8 py-1.5 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">All Counties</option>
+                @for (county of counties(); track county) {
+                  <option [value]="county">{{ county }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTACTS LIST -->
+          <div class="space-y-2.5 pt-1">
+            @for (contact of filteredContacts(); track contact.id) {
+              <div
+                (click)="selectContact(contact)"
+                class="p-4 rounded-2xl bg-white border border-zinc-200/80 hover:border-zinc-300 transition-all shadow-xs hover:shadow-sm cursor-pointer"
+                [class.ring-2]="selectedContact()?.id === contact.id"
+                [class.ring-zinc-900]="selectedContact()?.id === contact.id"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <!-- Left Details -->
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight truncate">
+                        {{ contact.name }}
+                      </h4>
+                      @if (getDistanceToBike(contact)) {
+                        <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold shrink-0">
+                          📍 {{ getDistanceToBike(contact) }}
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-zinc-500 mt-0.5 truncate">{{ contact.address }}</p>
+                    <p class="text-[11px] font-medium text-zinc-400 mt-0.5">
+                      {{ contact.county }} • {{ contact.subCounty }}
+                    </p>
+                  </div>
+
+                  <!-- Call Action Button (Big & Obvious for Consumers) -->
+                  <a
+                    [href]="'tel:' + contact.phone"
+                    (click)="$event.stopPropagation()"
+                    class="h-10 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs shrink-0 transition-colors"
+                  >
+                    <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span>Call Now</span>
+                  </a>
+                </div>
+
+                <!-- Secondary number if present -->
+                @if (contact.altPhone) {
+                  <div class="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
+                    <span>Main: <strong class="text-zinc-900 font-mono font-bold">{{ contact.phone }}</strong></span>
+                    <a [href]="'tel:' + contact.altPhone" (click)="$event.stopPropagation()" class="text-blue-600 hover:underline font-mono font-semibold">Alt: {{ contact.altPhone }}</a>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (filteredContacts().length === 0) {
+              <div class="p-8 bg-white rounded-2xl border border-zinc-200 text-center text-zinc-400 text-xs">
+                No police stations or emergency services match your search in this county.
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: INTERACTIVE LEAFLET MAP -->
+      <div
+        class="flex-1 h-full bg-zinc-100 relative"
+        [class.hidden]="activeView() === 'list' && activeView() !== 'split'"
+      >
+        <div id="emergencyMap" class="w-full h-full z-0"></div>
+
+        <!-- Float Map Legend / Back to list on mobile -->
+        <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+          <div class="p-2.5 rounded-xl bg-white/90 backdrop-blur-sm border border-zinc-200 shadow-sm text-xs font-semibold text-zinc-700 flex items-center gap-3">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600"></span> Police</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-600"></span> Ambulance</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-zinc-900"></span> Your Bike</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

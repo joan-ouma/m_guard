@@ -11,6 +11,7 @@ import { HistoryComponent } from './history/history.component';
 import { AlertsComponent } from './alerts/alerts.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LegalComponent } from './legal/legal.component';
+import { EmergencyComponent } from './emergency/emergency.component';
 
 export const routes: Routes = [
   {
@@ -55,6 +56,17 @@ export const routes: Routes = [
       description:
         'View critical motorcycle safety alerts including tilt tamper warnings, geofence breaches, duress escalation, and emergency accident notifications.',
       keywords: 'motorcycle security alerts, bike theft notification, tamper alarm, geofence breach, duress alert',
+    },
+  },
+  {
+    path: 'emergency',
+    component: EmergencyComponent,
+    canActivate: [authGuard],
+    title: 'Emergency Contacts & Police | MotoGuard',
+    data: {
+      description:
+        'Quickly access police station hotlines, desk numbers, ambulance emergency services, and live motorcycle incident reporting across Kenya.',
+      keywords: 'police stations Kenya, motorcycle theft report, emergency contacts, ambulance dispatch, Nairobi police numbers',
     },
   },
   {
