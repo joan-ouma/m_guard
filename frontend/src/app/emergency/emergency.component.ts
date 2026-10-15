@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, computed, inject, signal, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -16,7 +16,7 @@ import * as L from 'leaflet';
   styleUrl: './emergency.component.css',
   encapsulation: ViewEncapsulation.None,
 })
-export class EmergencyComponent implements OnInit, OnDestroy {
+export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly bikeService = inject(BikeService);
 
   readonly contacts = signal<EmergencyContact[]>(EMERGENCY_CONTACTS);
@@ -25,9 +25,8 @@ export class EmergencyComponent implements OnInit, OnDestroy {
   readonly selectedCounty = signal<string>('ALL');
   readonly activeView = signal<'split' | 'list' | 'map'>('list');
   readonly selectedContact = signal<EmergencyContact | null>(null);
-  readonly copiedReport = signal<boolean>(false);
 
-  // User bikes for location proximity and incident report
+  // User bikes for location proximity
   readonly bikes = signal<BikeDTO[]>([]);
   readonly selectedBike = signal<BikeDTO | null>(null);
 
@@ -48,21 +47,16 @@ export class EmergencyComponent implements OnInit, OnDestroy {
     const bike = this.selectedBike();
 
     let list = this.contacts().filter((c) => {
-      // Type filter
       if (type !== 'ALL' && c.type !== type) return false;
-      // County filter
       if (county !== 'ALL' && c.county !== county && c.county !== 'National') return false;
 
-      // Text search
       if (!q) return true;
       const haystack = `${c.name} ${c.county} ${c.subCounty} ${c.address} ${c.phone} ${c.altPhone || ''}`.toLowerCase();
       return haystack.includes(q);
     });
 
-    // If bike location is known, sort by distance
     if (bike && bike.latitude && bike.longitude) {
       list = [...list].sort((a, b) => {
-        // Keep national hotlines at top
         if (a.type === 'national' && b.type !== 'national') return -1;
         if (b.type === 'national' && a.type !== 'national') return 1;
 
@@ -82,21 +76,30 @@ export class EmergencyComponent implements OnInit, OnDestroy {
   private contactMarkers = new Map<string, L.Marker>();
 
   ngOnInit(): void {
-    // Load user bikes for nearest station calculation and report generator
     this.bikeService.loadBikes().subscribe({
       next: (res: BikeListResponse) => {
         const list = res.data || [];
         this.bikes.set(list);
         if (list.length > 0) {
           this.selectedBike.set(list[0]);
+          if (this.map && list[0].latitude && list[0].longitude) {
+            this.map.setView([list[0].latitude, list[0].longitude], 12);
+          }
+          this.updateMapMarkers();
         }
       },
     });
 
-    // Check screen width to default to split on desktop
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
       this.activeView.set('split');
     }
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.initMapIfNeeded();
+      this.map?.invalidateSize();
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -174,54 +177,18 @@ export class EmergencyComponent implements OnInit, OnDestroy {
     return R * c;
   }
 
-  copyPoliceReport(): void {
-    const bike = this.selectedBike();
-    const now = new Date().toLocaleString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    let text = `🚨 MOTOGUARD EMERGENCY POLICE REPORT\n`;
-    text += `Time: ${now}\n`;
-
-    if (bike) {
-      text += `Motorcycle: ${bike.registration_number} (${bike.model || 'Motorcycle'})\n`;
-      text += `Color: ${bike.color || 'N/A'} | Year: ${bike.year || 'N/A'}\n`;
-      text += `Tracker IMEI: ${bike.imei}\n`;
-      if (bike.latitude && bike.longitude) {
-        text += `Last GPS Coordinates: ${bike.latitude.toFixed(5)}, ${bike.longitude.toFixed(5)}\n`;
-        text += `Google Maps Link: https://maps.google.com/?q=${bike.latitude},${bike.longitude}\n`;
-      }
-      if (bike.current_address) {
-        text += `Last Known Landmark: ${bike.current_address}\n`;
-      }
-      text += `Engine Starter: ${bike.is_immobilized ? 'IMMOBILIZED (LOCKED)' : 'ACTIVE'}\n`;
-    } else {
-      text += `Motorcycle details not selected.\n`;
-    }
-
-    navigator.clipboard.writeText(text).then(() => {
-      this.copiedReport.set(true);
-      setTimeout(() => this.copiedReport.set(false), 3000);
-    });
-  }
-
   private initMapIfNeeded(): void {
     const el = document.getElementById('emergencyMap');
     if (!el) return;
 
     if (!this.map) {
-      // Center default on Nairobi CBD or user bike
       const bike = this.selectedBike();
       const initialLat = bike && bike.latitude ? bike.latitude : -1.2864;
       const initialLng = bike && bike.longitude ? bike.longitude : 36.8172;
 
       this.map = L.map('emergencyMap', {
         zoomControl: true,
-      }).setView([initialLat, initialLng], 13);
+      }).setView([initialLat, initialLng], 12);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -229,9 +196,11 @@ export class EmergencyComponent implements OnInit, OnDestroy {
       }).addTo(this.map);
 
       this.markersLayer = L.layerGroup().addTo(this.map);
-    } else {
-      this.map.invalidateSize();
     }
+
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 100);
 
     this.updateMapMarkers();
   }
@@ -268,7 +237,7 @@ export class EmergencyComponent implements OnInit, OnDestroy {
         .addTo(this.markersLayer)
         .bindPopup(`
           <div style="min-width: 190px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 12px;">
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #10b981; margin-bottom: 2px;">Your Motorcycle</div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #52525b; margin-bottom: 2px;">Your Motorcycle</div>
             <div style="font-size: 14px; font-weight: 700; color: #18181b; margin-bottom: 4px;">${bike.registration_number}</div>
             <div style="font-size: 12px; color: #71717a;">${bike.current_address || 'Current GPS position'}</div>
           </div>
@@ -287,9 +256,8 @@ export class EmergencyComponent implements OnInit, OnDestroy {
       const isAmbulance = c.type === 'ambulance';
       const typeClass = isPolice ? 'map-marker-police' : isAmbulance ? 'map-marker-ambulance' : 'map-marker-national';
       const typeLabel = isPolice ? 'Police Station' : isAmbulance ? 'Ambulance Dispatch' : 'National Hotline';
-      const typeColor = isPolice ? '#1d4ed8' : isAmbulance ? '#dc2626' : '#4338ca';
+      const typeColor = isPolice ? '#1e40af' : isAmbulance ? '#b91c1c' : '#475569';
 
-      // Utilitarian icon based on service type
       let iconSvg = '';
       if (isPolice) {
         // Police Siren
@@ -333,14 +301,14 @@ export class EmergencyComponent implements OnInit, OnDestroy {
             <div class="pin-tip"></div>
           </div>
         `,
-        iconSize: [32, 38],
-        iconAnchor: [16, 38],
-        popupAnchor: [0, -36],
+        iconSize: [30, 36],
+        iconAnchor: [15, 36],
+        popupAnchor: [0, -34],
       });
 
       const dist = this.getDistanceToBike(c);
       const distHtml = dist
-        ? `<span style="font-size: 11px; font-weight: 700; color: #1d4ed8; background: #eff6ff; padding: 2px 6px; border-radius: 4px;">${dist}</span>`
+        ? `<span style="font-size: 11px; font-weight: 600; color: #52525b; background: #f4f4f5; padding: 2px 6px; border-radius: 4px;">${dist}</span>`
         : '';
 
       const popupContent = `
@@ -351,7 +319,7 @@ export class EmergencyComponent implements OnInit, OnDestroy {
           </div>
           <div style="font-size: 14px; font-weight: 700; color: #18181b; margin-bottom: 2px;">${c.name}</div>
           <div style="font-size: 12px; color: #71717a; margin-bottom: 10px;">${c.address} (${c.subCounty})</div>
-          <a href="tel:${c.phone}" style="display: block; width: 100%; text-align: center; background-color: #059669; color: #ffffff; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; box-sizing: border-box;">
+          <a href="tel:${c.phone}" style="display: block; width: 100%; text-align: center; background-color: #18181b; color: #ffffff; padding: 7px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; box-sizing: border-box;">
             Call ${c.phone}
           </a>
         </div>
