@@ -620,9 +620,9 @@ func (r *BikeRepository) GetAllEvents(
 	countsQuery := `
 		SELECT 
 			COUNT(*),
-			COUNT(*) FILTER (WHERE be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%'),
-			COUNT(*) FILTER (WHERE be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%'),
-			COUNT(*) FILTER (WHERE be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%')
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%IMPACT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%' OR be.event_type ILIKE '%CUT%'),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%' OR be.event_type ILIKE '%UNAUTHOR%' OR (be.event_type ILIKE '%RFID%' AND be.event_type NOT ILIKE '%DISARM%' AND be.event_type NOT ILIKE '%ARM%')),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%' OR be.event_type ILIKE '%DISARM%' OR be.event_type ILIKE '%ARM%')
 		FROM bike_events be
 		JOIN bikes b ON b.id = be.bike_id
 		WHERE b.user_id = $1
@@ -637,11 +637,11 @@ func (r *BikeRepository) GetAllEvents(
 	sev := strings.ToUpper(strings.TrimSpace(severity))
 	switch sev {
 	case "CRITICAL":
-		whereClause += " AND (be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%')"
+		whereClause += " AND (be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%IMPACT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%' OR be.event_type ILIKE '%CUT%')"
 	case "WARNING":
-		whereClause += " AND (be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%')"
+		whereClause += " AND (be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%' OR be.event_type ILIKE '%UNAUTHOR%' OR (be.event_type ILIKE '%RFID%' AND be.event_type NOT ILIKE '%DISARM%' AND be.event_type NOT ILIKE '%ARM%'))"
 	case "INFO":
-		whereClause += " AND (be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%')"
+		whereClause += " AND (be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%' OR be.event_type ILIKE '%DISARM%' OR be.event_type ILIKE '%ARM%')"
 	}
 
 	filteredTotal := total

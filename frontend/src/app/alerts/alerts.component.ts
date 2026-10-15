@@ -177,49 +177,139 @@ export class AlertsComponent implements OnInit {
 
   private classifySeverity(type?: string): 'critical' | 'warning' | 'info' {
     const t = (type || '').toUpperCase();
-    if (t.includes('BREACH') || t.includes('THEFT') || t.includes('CRASH') || t.includes('ACCIDENT') || t.includes('DURESS') || t.includes('SOS')) {
+    if (
+      t.includes('IMPACT') ||
+      t.includes('CRASH') ||
+      t.includes('ACCIDENT') ||
+      t.includes('BREACH') ||
+      t.includes('THEFT') ||
+      t.includes('DURESS') ||
+      t.includes('SOS') ||
+      t.includes('CUT')
+    ) {
       return 'critical';
     }
-    if (t.includes('TOUCH') || t.includes('TAMPER') || t.includes('TILT') || t.includes('LIFT') || t.includes('SHOCK') || t.includes('VIBRAT') || t.includes('BURGLARY')) {
+    if (
+      t.includes('UNAUTHOR') ||
+      (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN'))) ||
+      t.includes('TOUCH') ||
+      t.includes('TAMPER') ||
+      t.includes('TILT') ||
+      t.includes('LIFT') ||
+      t.includes('SHOCK') ||
+      t.includes('VIBRAT') ||
+      t.includes('BURGLARY')
+    ) {
       return 'warning';
     }
     return 'info';
   }
 
-  private formatTitle(type: string): string {
-    const t = (type || '').toUpperCase();
+  formatTitle(type: string): string {
+    const raw = (type || '').trim();
+    const t = raw.toUpperCase();
+
+    if (t.includes('IMPACT') || t.includes('CRASH') || t.includes('ACCIDENT')) return `Crash / Heavy Impact Detected`;
+    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN')))) {
+      return `Unauthorized Key Scanned`;
+    }
+    if (t.includes('DISARM')) return `Disarmed via Key Card`;
+    if (t.includes('ARM')) return `Armed via Key Card`;
     if (t.includes('TILT') || t.includes('LIFT')) return `Bike Tilted or Moved`;
-    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Theft Alert`;
+    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Theft Attempt`;
     if (t.includes('BREACH') || t.includes('EXIT')) return `Left Safe Area`;
     if (t.includes('ENTER') || t.includes('ENTRY')) return `Entered Safe Area`;
-    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `Possible Crash Detected`;
     if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Tampering Detected`;
     if (t.includes('DURESS') || t.includes('SOS')) return `Emergency SOS Alert`;
-    if (t.includes('SPEED')) return `High Speed Warning`;
-    if (t.includes('POWER') || t.includes('BATTERY')) return `Low Battery Warning`;
-    if (t.includes('ON') || t.includes('IGNITION_ON')) return `Engine Started`;
-    if (t.includes('OFF') || t.includes('IGNITION_OFF')) return `Engine Turned Off`;
+    if (t.includes('SPEED') || t.includes('OVERSPEED')) return `High Speed Warning`;
+    if (t.includes('POWER_CUT') || t.includes('WIRE_CUT') || t.includes('CUT')) return `Tracker Power Disconnected`;
+    if (t.includes('POWER') || t.includes('BATTERY') || t.includes('BAT')) return `Low Battery Warning`;
+    if (t.includes('IGNITION_ON') || t.includes('BIKE_ON') || (t.startsWith('ON') && !t.includes('DISARM'))) return `Engine Started`;
+    if (t.includes('IGNITION_OFF') || t.includes('BIKE_OFF') || t.startsWith('OFF')) return `Engine Turned Off`;
     if (t.includes('IMMOBILIZ')) return `Engine Locked`;
     if (t.includes('REACTIVAT')) return `Engine Unlocked`;
-    return `Security Alert`;
+
+    // Smart fallback: capitalize raw string like "rfid_unauthorized_scan" -> "Rfid Unauthorized Scan"
+    if (raw.length > 0) {
+      return raw.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return `Security Event`;
   }
 
-  private formatDescription(type: string, plate: string): string {
-    const t = (type || '').toUpperCase();
-    if (t.includes('TILT') || t.includes('LIFT')) return `Your motorcycle was moved or tilted while parked.`;
-    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Suspicious movement detected while your motorcycle is parked and locked.`;
-    if (t.includes('BREACH')) return `Your motorcycle has moved outside of your safe boundary.`;
-    if (t.includes('ENTER') || t.includes('ENTRY')) return `Your motorcycle has returned inside your safe boundary.`;
-    if (t.includes('ACCIDENT') || t.includes('CRASH')) return `A sudden heavy impact was detected. Please verify rider safety.`;
-    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Someone may be touching, shaking, or tampering with your motorcycle.`;
-    if (t.includes('DURESS') || t.includes('SOS')) return `The emergency SOS button was pressed on your motorcycle.`;
-    if (t.includes('SPEED')) return `Your motorcycle exceeded the maximum speed limit.`;
-    if (t.includes('POWER') || t.includes('BATTERY')) return `Your motorcycle tracker battery is critically low.`;
-    if (t.includes('ON')) return `The motorcycle ignition was switched on.`;
-    if (t.includes('OFF')) return `The motorcycle engine was shut down.`;
-    if (t.includes('IMMOBILIZ')) return `Engine locked remotely. Starter cannot be turned on.`;
-    if (t.includes('REACTIVAT')) return `Engine unlocked. Your motorcycle is ready to ride.`;
-    return `New security activity recorded for your motorcycle.`;
+  formatDescription(type: string, plate: string): string {
+    const raw = (type || '').trim();
+    const t = raw.toUpperCase();
+
+    if (t.includes('IMPACT') || t.includes('CRASH') || t.includes('ACCIDENT')) {
+      return `A sudden heavy impact or collision was detected on your motorcycle.`;
+    }
+    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN')))) {
+      return `An unrecognized RFID key card attempted to scan or access your motorcycle.`;
+    }
+    if (t.includes('DISARM')) {
+      return `Your motorcycle security system was disarmed using an authorized key card.`;
+    }
+    if (t.includes('ARM')) {
+      return `Your motorcycle security system was armed using an authorized key card.`;
+    }
+    if (t.includes('TILT') || t.includes('LIFT')) {
+      return `Your motorcycle was moved, tilted, or lifted while parked.`;
+    }
+    if (t.includes('BURGLARY') || t.includes('THEFT')) {
+      return `Suspicious movement detected while your motorcycle is parked and locked.`;
+    }
+    if (t.includes('BREACH')) {
+      return `Your motorcycle has moved outside of your safe boundary.`;
+    }
+    if (t.includes('ENTER') || t.includes('ENTRY')) {
+      return `Your motorcycle has returned inside your safe boundary.`;
+    }
+    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) {
+      return `Someone may be touching, shaking, or tampering with your motorcycle.`;
+    }
+    if (t.includes('DURESS') || t.includes('SOS')) {
+      return `The emergency SOS button was pressed on your motorcycle.`;
+    }
+    if (t.includes('SPEED') || t.includes('OVERSPEED')) {
+      return `Your motorcycle exceeded the maximum speed threshold.`;
+    }
+    if (t.includes('POWER_CUT') || t.includes('WIRE_CUT') || t.includes('CUT')) {
+      return `Main power to the motorcycle tracker was disconnected.`;
+    }
+    if (t.includes('POWER') || t.includes('BATTERY')) {
+      return `Your motorcycle tracker battery is critically low.`;
+    }
+    if (t.includes('IGNITION_ON') || t.includes('BIKE_ON') || (t.startsWith('ON') && !t.includes('DISARM'))) {
+      return `The motorcycle ignition was switched on.`;
+    }
+    if (t.includes('IGNITION_OFF') || t.includes('BIKE_OFF') || t.startsWith('OFF')) {
+      return `The motorcycle engine was shut down.`;
+    }
+    if (t.includes('IMMOBILIZ')) {
+      return `Engine locked remotely. Starter cannot be turned on.`;
+    }
+    if (t.includes('REACTIVAT')) {
+      return `Engine unlocked. Your motorcycle is ready to ride.`;
+    }
+
+    return `Hardware trigger recorded: ${raw.replace(/[-_]/g, ' ')}.`;
+  }
+
+  formatEventBadge(type: string): string {
+    const raw = (type || '').trim();
+    const t = raw.toUpperCase();
+    if (t.includes('IMPACT')) return 'IMPACT';
+    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('SCAN')))) return 'RFID UNAUTHORIZED';
+    if (t.includes('DISARM')) return 'RFID DISARMED';
+    if (t.includes('ARM')) return 'RFID ARMED';
+    if (t.includes('TILT') || t.includes('LIFT')) return 'TILT & LIFT';
+    if (t.includes('BREACH')) return 'GEOFENCE BREACH';
+    if (t.includes('CRASH') || t.includes('ACCIDENT')) return 'CRASH';
+    if (t.includes('TAMPER')) return 'TAMPER';
+    if (t.includes('THEFT')) return 'THEFT';
+    if (t.includes('IGNITION_ON') || t === 'ON') return 'IGNITION ON';
+    if (t.includes('IGNITION_OFF') || t === 'OFF') return 'IGNITION OFF';
+    return raw.replace(/[-_]/g, ' ').toUpperCase();
   }
 
   formatTimestamp(iso: string): string {
