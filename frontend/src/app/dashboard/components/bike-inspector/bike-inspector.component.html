@@ -27,18 +27,18 @@
               [title]="getSignalLabel(bike)"
             >
               <svg
-                class="w-5 h-4 shrink-0 overflow-visible"
-                viewBox="0 0 20 16"
+                class="w-5.5 h-4 shrink-0 overflow-visible"
+                viewBox="0 0 24 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <rect x="0" y="12" width="2.5" height="4" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#D4D4D8'" />
-                <rect x="4" y="9" width="2.5" height="7" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#D4D4D8'" />
-                <rect x="8" y="6" width="2.5" height="10" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#D4D4D8'" />
-                <rect x="12" y="3" width="2.5" height="13" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#D4D4D8'" />
-                <rect x="16" y="0" width="2.5" height="16" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#D4D4D8'" />
+                <rect x="0" y="12" width="3.2" height="4" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#A1A1AA'" />
+                <rect x="5.2" y="9" width="3.2" height="7" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#A1A1AA'" />
+                <rect x="10.4" y="6" width="3.2" height="10" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#A1A1AA'" />
+                <rect x="15.6" y="3" width="3.2" height="13" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#A1A1AA'" />
+                <rect x="20.8" y="0" width="3.2" height="16" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#A1A1AA'" />
                 @if (isOffline(bike)) {
-                  <line x1="-1" y1="17" x2="21" y2="-1" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" />
+                  <line x1="-1" y1="17" x2="25" y2="-1" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" />
                 }
               </svg>
             </div>
@@ -537,22 +537,22 @@
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <!-- 5-bar Network Strength (Self-explanatory Icon Only) -->
           <div
-            class="h-8 px-2 rounded-full border border-zinc-200/90 bg-zinc-100 flex items-center justify-center shrink-0"
+            class="h-8 px-2.5 rounded-full border border-zinc-200/90 bg-zinc-100 flex items-center justify-center shrink-0"
             [title]="getSignalLabel(bike)"
           >
             <svg
-              class="w-4 h-3.5 shrink-0 overflow-visible"
-              viewBox="0 0 20 16"
+              class="w-5 h-3.5 shrink-0 overflow-visible"
+              viewBox="0 0 24 16"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <rect x="0" y="12" width="2.5" height="4" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#D4D4D8'" />
-              <rect x="4" y="9" width="2.5" height="7" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#D4D4D8'" />
-              <rect x="8" y="6" width="2.5" height="10" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#D4D4D8'" />
-              <rect x="12" y="3" width="2.5" height="13" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#D4D4D8'" />
-              <rect x="16" y="0" width="2.5" height="16" rx="0.75" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#D4D4D8'" />
+              <rect x="0" y="12" width="3.2" height="4" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#A1A1AA'" />
+              <rect x="5.2" y="9" width="3.2" height="7" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#A1A1AA'" />
+              <rect x="10.4" y="6" width="3.2" height="10" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#A1A1AA'" />
+              <rect x="15.6" y="3" width="3.2" height="13" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#A1A1AA'" />
+              <rect x="20.8" y="0" width="3.2" height="16" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#A1A1AA'" />
               @if (isOffline(bike)) {
-                <line x1="-1" y1="17" x2="21" y2="-1" stroke="#EF4444" stroke-width="2" stroke-linecap="round" />
+                <line x1="-1" y1="17" x2="25" y2="-1" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" />
               }
             </svg>
           </div>
