@@ -44,6 +44,8 @@ func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream htt
 		pr.Post("/", h.Create)
 		pr.Post("/attach", h.Attach)
 
+		pr.Get("/events", h.GetAllEvents)
+
 		pr.Get("/{id}", h.GetByID)
 		pr.Put("/{id}", h.Update)
 		pr.Patch("/{id}", h.Update)
@@ -299,6 +301,44 @@ func (h *BikeHandler) GetEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, err := h.service.GetEvents(r.Context(), claims, bikeID, startDate, endDate, cursor, limit)
+	if err != nil {
+		if pd, ok := err.(domain.ProblemDetails); ok {
+			pd.WriteJSON(w)
+			return
+		}
+		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (h *BikeHandler) GetAllEvents(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value(middleware.UserClaimsKey).(*security.JWTClaims)
+	if !ok || claims == nil {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	var cursor int64
+	if c := r.URL.Query().Get("cursor"); c != "" {
+		if parsed, err := strconv.ParseInt(c, 10, 64); err == nil && parsed > 0 {
+			cursor = parsed
+		}
+	}
+
+	limit := 10
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	severity := strings.TrimSpace(r.URL.Query().Get("severity"))
+
+	resp, err := h.service.GetAllEvents(r.Context(), claims, severity, cursor, limit)
 	if err != nil {
 		if pd, ok := err.(domain.ProblemDetails); ok {
 			pd.WriteJSON(w)

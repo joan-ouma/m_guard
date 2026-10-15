@@ -173,10 +173,12 @@ type BreadcrumbDTO struct {
 }
 
 type BikeEventDTO struct {
-	ID         int64     `json:"id"`
-	BikeID     string    `json:"bike_id"`
-	EventType  string    `json:"event_type"`
-	Latitude   float64   `json:"latitude"`
-	Longitude  float64   `json:"longitude"`
-	RecordedAt time.Time `json:"recorded_at"`
+	ID                 int64     `json:"id"`
+	BikeID             string    `json:"bike_id"`
+	RegistrationNumber string    `json:"registration_number,omitempty"`
+	Model              string    `json:"model,omitempty"`
+	EventType          string    `json:"event_type"`
+	Latitude           float64   `json:"latitude"`
+	Longitude          float64   `json:"longitude"`
+	RecordedAt         time.Time `json:"recorded_at"`
 }

@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { BikeService } from '../core/services/bike.service';
-import { BikeDTO, BikeEventDTO, BikeListResponse, PaginatedEventsResponse } from '../core/models/bike.models';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BikeEventDTO, PaginatedEventsResponse } from '../core/models/bike.models';
 
 export interface DisplayAlert {
   id: string | number;
@@ -31,19 +29,28 @@ export class AlertsComponent implements OnInit {
   private readonly bikeService = inject(BikeService);
 
   readonly isLoading = signal<boolean>(true);
-  readonly bikes = signal<BikeDTO[]>([]);
   readonly alerts = signal<DisplayAlert[]>([]);
   readonly selectedSeverity = signal<'ALL' | 'critical' | 'warning' | 'info'>('ALL');
 
-  readonly criticalCount = computed(() => this.alerts().filter((a) => a.severity === 'critical').length);
-  readonly warningCount = computed(() => this.alerts().filter((a) => a.severity === 'warning').length);
-  readonly infoCount = computed(() => this.alerts().filter((a) => a.severity === 'info').length);
+  // Aggregate metrics from backend
+  readonly totalEvents = signal<number>(0);
+  readonly criticalCount = signal<number>(0);
+  readonly warningCount = signal<number>(0);
+  readonly infoCount = signal<number>(0);
+  readonly activeBikesCount = signal<number>(0);
 
-  readonly filteredAlerts = computed(() => {
-    const sev = this.selectedSeverity();
-    const list = this.alerts();
-    if (sev === 'ALL') return list;
-    return list.filter((a) => a.severity === sev);
+  // Cursor pagination state
+  readonly pageSize = signal<number>(10);
+  readonly pageSizes = [10, 25, 50, 100];
+  readonly cursorStack = signal<string[]>([]);
+  readonly nextCursor = signal<string | null>(null);
+  readonly hasMore = signal<boolean>(false);
+
+  readonly currentPage = computed<number>(() => this.cursorStack().length + 1);
+  readonly hasPrev = computed<boolean>(() => this.cursorStack().length > 0);
+  readonly hasNext = computed<boolean>(() => this.hasMore());
+  readonly totalPages = computed<number>(() => {
+    return Math.max(1, Math.ceil(this.totalEvents() / this.pageSize()));
   });
 
   constructor() {
@@ -54,6 +61,8 @@ export class AlertsComponent implements OnInit {
 
       const evType = live.event_type || live.eventType || 'ALERT';
       const plate = live.plate || live.registration_number || 'Motorcycle';
+      const sev = this.classifySeverity(evType);
+
       const newAlert: DisplayAlert = {
         id: 'live_' + Date.now(),
         bikeId: live.bike_id || live.bikeId || '',
@@ -62,80 +71,108 @@ export class AlertsComponent implements OnInit {
         eventType: evType,
         title: this.formatTitle(evType),
         description: this.formatDescription(evType, plate),
-        severity: this.classifySeverity(evType),
+        severity: sev,
         latitude: Number(live.latitude) || 0,
         longitude: Number(live.longitude) || 0,
         timestamp: live.recorded_at || live.recordedAt || new Date().toISOString(),
       };
 
-      this.alerts.update((prev) => [newAlert, ...prev]);
+      // If user is on page 1, prepend immediately
+      if (this.cursorStack().length === 0) {
+        const curSev = this.selectedSeverity();
+        if (curSev === 'ALL' || curSev === sev) {
+          this.alerts.update((prev) => [newAlert, ...prev]);
+        }
+      }
+
+      this.totalEvents.update((n) => n + 1);
+      if (sev === 'critical') this.criticalCount.update((c) => c + 1);
+      else if (sev === 'warning') this.warningCount.update((c) => c + 1);
+      else if (sev === 'info') this.infoCount.update((c) => c + 1);
     });
   }
 
   ngOnInit(): void {
+    // Load bikes count for top metric card
+    this.bikeService.loadBikes().subscribe({
+      next: (res) => this.activeBikesCount.set(res.data?.length || 0),
+    });
+
     this.loadAlerts();
   }
 
   loadAlerts(): void {
     this.isLoading.set(true);
 
-    this.bikeService.loadBikes().subscribe({
-      next: (res: BikeListResponse) => {
-        const bikeList: BikeDTO[] = res.data || [];
-        this.bikes.set(bikeList);
+    const cursor = this.cursorStack().length > 0 
+      ? this.cursorStack()[this.cursorStack().length - 1] 
+      : undefined;
 
-        if (bikeList.length === 0) {
-          this.alerts.set([]);
-          this.isLoading.set(false);
-          return;
-        }
+    this.bikeService.getAllEvents(this.pageSize(), cursor, this.selectedSeverity()).subscribe({
+      next: (res: PaginatedEventsResponse) => {
+        const list: DisplayAlert[] = (res.data || []).map((ev: BikeEventDTO) => ({
+          id: ev.id,
+          bikeId: ev.bike_id,
+          plate: ev.registration_number || 'Motorcycle',
+          model: ev.model || '',
+          eventType: ev.event_type,
+          title: this.formatTitle(ev.event_type),
+          description: this.formatDescription(ev.event_type, ev.registration_number || 'Motorcycle'),
+          severity: this.classifySeverity(ev.event_type),
+          latitude: ev.latitude,
+          longitude: ev.longitude,
+          timestamp: ev.recorded_at,
+        }));
 
-        // Query events across all bikes
-        const reqs: Observable<PaginatedEventsResponse>[] = bikeList.map((bike: BikeDTO) =>
-          this.bikeService.getBikeEvents(bike.id, 100).pipe(
-            catchError(() => of({ data: [] as BikeEventDTO[], pagination: { total: 0, limit: 100, has_more: false } }))
-          )
-        );
+        this.alerts.set(list);
+        this.nextCursor.set(res.pagination?.next_cursor || null);
+        this.hasMore.set(res.pagination?.has_more || false);
+        this.totalEvents.set(res.pagination?.total || 0);
 
-        forkJoin(reqs).subscribe({
-          next: (results: PaginatedEventsResponse[]) => {
-            const all: DisplayAlert[] = [];
+        if (res.critical_count !== undefined) this.criticalCount.set(res.critical_count);
+        if (res.warning_count !== undefined) this.warningCount.set(res.warning_count);
+        if (res.info_count !== undefined) this.infoCount.set(res.info_count);
 
-            results.forEach((evRes: PaginatedEventsResponse, index: number) => {
-              const bike = bikeList[index];
-              const evs: BikeEventDTO[] = evRes.data || [];
-
-              evs.forEach((ev: BikeEventDTO) => {
-                all.push({
-                  id: ev.id,
-                  bikeId: bike.id,
-                  plate: bike.registration_number,
-                  model: bike.model || bike.label || '',
-                  eventType: ev.event_type,
-                  title: this.formatTitle(ev.event_type),
-                  description: this.formatDescription(ev.event_type, bike.registration_number),
-                  severity: this.classifySeverity(ev.event_type),
-                  latitude: ev.latitude,
-                  longitude: ev.longitude,
-                  timestamp: ev.recorded_at,
-                });
-              });
-            });
-
-            // Sort newest first
-            all.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-            this.alerts.set(all);
-            this.isLoading.set(false);
-          },
-          error: () => {
-            this.isLoading.set(false);
-          },
-        });
+        this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
       },
     });
+  }
+
+  prevPage(): void {
+    if (this.cursorStack().length > 0) {
+      this.cursorStack.update((stack) => stack.slice(0, -1));
+      this.loadAlerts();
+    }
+  }
+
+  nextPage(): void {
+    const next = this.nextCursor();
+    if (next && this.hasMore()) {
+      this.cursorStack.update((stack) => [...stack, next]);
+      this.loadAlerts();
+    }
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.cursorStack.set([]);
+    this.loadAlerts();
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = parseInt((event.target as HTMLSelectElement).value, 10);
+    if (!isNaN(val) && val > 0) {
+      this.setPageSize(val);
+    }
+  }
+
+  setSeverity(sev: 'ALL' | 'critical' | 'warning' | 'info'): void {
+    this.selectedSeverity.set(sev);
+    this.cursorStack.set([]);
+    this.loadAlerts();
   }
 
   private classifySeverity(type?: string): 'critical' | 'warning' | 'info' {

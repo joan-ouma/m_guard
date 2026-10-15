@@ -57,6 +57,9 @@ export interface PaginatedBreadcrumbsResponse {
 export interface PaginatedEventsResponse {
   data: BikeEventDTO[];
   pagination: PaginationMeta;
+  critical_count?: number;
+  warning_count?: number;
+  info_count?: number;
 }
 
 export interface CreateBikePayload {
@@ -109,6 +112,8 @@ export interface BreadcrumbDTO {
 export interface BikeEventDTO {
   id: number;
   bike_id: string;
+  registration_number?: string;
+  model?: string;
   event_type: 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'IGNITION_ON' | 'IGNITION_OFF' | string;
   latitude: number;
   longitude: number;

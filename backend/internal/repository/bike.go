@@ -546,7 +546,7 @@ func (r *BikeRepository) GetEvents(
 	}
 
 	query := fmt.Sprintf(`
-		SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
+		SELECT be.id, be.bike_id, b.registration_number, COALESCE(b.model, ''), be.event_type, be.latitude, be.longitude, be.recorded_at
 		FROM bike_events be
 		JOIN bikes b ON b.id = be.bike_id
 		WHERE %s
@@ -565,7 +565,7 @@ func (r *BikeRepository) GetEvents(
 	for rows.Next() {
 		var e domain.BikeEventDTO
 		err := rows.Scan(
-			&e.ID, &e.BikeID, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
+			&e.ID, &e.BikeID, &e.RegistrationNumber, &e.Model, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
 		)
 		if err != nil {
 			return nil, domain.PaginationMeta{}, err
@@ -601,6 +601,119 @@ func (r *BikeRepository) GetEvents(
 	}
 
 	return events, meta, nil
+}
+
+func (r *BikeRepository) GetAllEvents(
+	ctx context.Context,
+	userID string,
+	severity string,
+	cursor int64,
+	limit int,
+) ([]domain.BikeEventDTO, domain.PaginationMeta, int, int, int, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 10
+	}
+
+	// 1. Fetch aggregate counts for the user across all bikes
+	var total, criticalCount, warningCount, infoCount int
+	countsQuery := `
+		SELECT 
+			COUNT(*),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%'),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%'),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%')
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE b.user_id = $1
+	`
+	_ = r.pool.QueryRow(ctx, countsQuery, userID).Scan(&total, &criticalCount, &warningCount, &infoCount)
+
+	// 2. Build where clause
+	whereClause := "b.user_id = $1"
+	args := []any{userID}
+	argIdx := 2
+
+	sev := strings.ToUpper(strings.TrimSpace(severity))
+	switch sev {
+	case "CRITICAL":
+		whereClause += " AND (be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%')"
+	case "WARNING":
+		whereClause += " AND (be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%')"
+	case "INFO":
+		whereClause += " AND (be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%')"
+	}
+
+	filteredTotal := total
+	if sev == "CRITICAL" {
+		filteredTotal = criticalCount
+	} else if sev == "WARNING" {
+		filteredTotal = warningCount
+	} else if sev == "INFO" {
+		filteredTotal = infoCount
+	}
+
+	if cursor > 0 {
+		whereClause += fmt.Sprintf(" AND be.id < $%d", argIdx)
+		args = append(args, cursor)
+		argIdx++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT be.id, be.bike_id, b.registration_number, COALESCE(b.model, ''), be.event_type, be.latitude, be.longitude, be.recorded_at
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE %s
+		ORDER BY be.id DESC
+		LIMIT $%d
+	`, whereClause, argIdx)
+	args = append(args, limit+1)
+
+	rows, err := r.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, domain.PaginationMeta{}, 0, 0, 0, err
+	}
+	defer rows.Close()
+
+	var events []domain.BikeEventDTO
+	for rows.Next() {
+		var e domain.BikeEventDTO
+		err := rows.Scan(
+			&e.ID, &e.BikeID, &e.RegistrationNumber, &e.Model, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
+		)
+		if err != nil {
+			return nil, domain.PaginationMeta{}, 0, 0, 0, err
+		}
+		events = append(events, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, domain.PaginationMeta{}, 0, 0, 0, err
+	}
+
+	hasMore := len(events) > limit
+	var nextCursor int64
+	if hasMore {
+		nextCursor = events[limit-1].ID
+		events = events[:limit]
+	}
+
+	cursorStr := ""
+	if cursor > 0 {
+		cursorStr = strconv.FormatInt(cursor, 10)
+	}
+	nextCursorStr := ""
+	if nextCursor > 0 {
+		nextCursorStr = strconv.FormatInt(nextCursor, 10)
+	}
+
+	meta := domain.PaginationMeta{
+		Total:      filteredTotal,
+		Limit:      limit,
+		Cursor:     cursorStr,
+		NextCursor: nextCursorStr,
+		HasMore:    hasMore,
+	}
+
+	return events, meta, criticalCount, warningCount, infoCount, nil
 }
 
 func (r *BikeRepository) VerifyTracker(ctx context.Context, imei string) (*domain.TrackerStatusDTO, error) {

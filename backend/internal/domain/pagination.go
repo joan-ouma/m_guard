@@ -14,6 +14,9 @@ type PaginatedBreadcrumbsResponse struct {
 }
 
 type PaginatedEventsResponse struct {
-	Data       []BikeEventDTO `json:"data"`
-	Pagination PaginationMeta `json:"pagination"`
+	Data          []BikeEventDTO `json:"data"`
+	Pagination    PaginationMeta `json:"pagination"`
+	CriticalCount int            `json:"critical_count,omitempty"`
+	WarningCount  int            `json:"warning_count,omitempty"`
+	InfoCount     int            `json:"info_count,omitempty"`
 }

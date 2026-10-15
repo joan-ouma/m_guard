@@ -414,6 +414,38 @@ func (s *BikeService) GetEvents(
 	}, nil
 }
 
+func (s *BikeService) GetAllEvents(
+	ctx context.Context,
+	claims *security.JWTClaims,
+	severity string,
+	cursor int64,
+	limit int,
+) (*domain.PaginatedEventsResponse, error) {
+	instance := "/v1/bikes/events"
+
+	if claims == nil || claims.UserID == "" {
+		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
+	}
+
+	events, pagination, critCount, warnCount, infoCount, err := s.repo.GetAllEvents(ctx, claims.UserID, severity, cursor, limit)
+	if err != nil {
+		slog.Error("GetAllEvents repo.GetAllEvents error", "user_id", claims.UserID, "error", err)
+		return nil, domain.NewInternalServerError(instance)
+	}
+
+	if events == nil {
+		events = []domain.BikeEventDTO{}
+	}
+
+	return &domain.PaginatedEventsResponse{
+		Data:          events,
+		Pagination:    pagination,
+		CriticalCount: critCount,
+		WarningCount:  warnCount,
+		InfoCount:     infoCount,
+	}, nil
+}
+
 func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTClaims, bikeID string, immobilize bool) (*domain.BikeDTO, error) {
 	instance := fmt.Sprintf("/v1/bikes/%s/immobilize", bikeID)
 

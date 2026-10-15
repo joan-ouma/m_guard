@@ -197,6 +197,21 @@ export class BikeService {
     return this.http.get<PaginatedEventsResponse>(url);
   }
 
+  getAllEvents(
+    limit = 10,
+    cursor?: string,
+    severity?: string
+  ): Observable<PaginatedEventsResponse> {
+    let url = `${environment.apiBaseUrl}/v1/bikes/events?limit=${limit}`;
+    if (cursor) {
+      url += `&cursor=${encodeURIComponent(cursor)}`;
+    }
+    if (severity && severity !== 'ALL') {
+      url += `&severity=${encodeURIComponent(severity)}`;
+    }
+    return this.http.get<PaginatedEventsResponse>(url);
+  }
+
   createBike(payload: CreateBikePayload): Observable<{ data: BikeDTO }> {
     this.isLoading.set(true);
     return this.http.post<{ data: BikeDTO }>(`${environment.apiBaseUrl}/v1/bikes`, payload).pipe(
