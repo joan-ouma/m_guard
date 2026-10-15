@@ -235,18 +235,18 @@
 
       <!-- RIGHT COLUMN: MAP -->
       <div
-        class="flex-1 h-full w-full relative bg-zinc-100 overflow-hidden"
+        class="flex-1 h-full w-full relative bg-zinc-900 overflow-hidden"
         [class.hidden]="activeView() === 'list' && activeView() !== 'split'"
       >
         <div id="emergencyMap"></div>
 
         <!-- Map Legend -->
         <div class="absolute top-3 left-3 z-10">
-          <div class="px-2.5 py-1.5 rounded-md bg-white/95 border border-zinc-200 shadow-2xs text-[11px] text-zinc-700 flex items-center gap-2.5">
-            <span class="flex items-center gap-1"><img src="/siren.png" class="w-3.5 h-3.5 object-contain" alt="" /> Police</span>
-            <span class="flex items-center gap-1"><img src="/ambulance.png" class="w-3.5 h-3.5 object-contain" alt="" /> Ambulance</span>
-            <span class="flex items-center gap-1"><img src="/emergency-phone.png" class="w-3.5 h-3.5 object-contain" alt="" /> Hotline</span>
-            <span class="flex items-center gap-1"><img src="/motorbike.png" class="w-3.5 h-3.5 object-contain" alt="" /> Bike</span>
+          <div class="px-3 py-1.5 rounded-lg bg-zinc-900/90 border border-zinc-800 shadow-md backdrop-blur-xs text-[11px] text-zinc-300 flex items-center gap-3">
+            <span class="flex items-center gap-1.5 font-medium"><img src="/siren.png" class="w-3.5 h-3.5 object-contain" alt="" /> Police</span>
+            <span class="flex items-center gap-1.5 font-medium"><img src="/ambulance.png" class="w-3.5 h-3.5 object-contain" alt="" /> Ambulance</span>
+            <span class="flex items-center gap-1.5 font-medium"><img src="/emergency-phone.png" class="w-3.5 h-3.5 object-contain" alt="" /> Hotline</span>
+            <span class="flex items-center gap-1.5 font-medium"><img src="/motorbike.png" class="w-3.5 h-3.5 object-contain" alt="" /> Bike</span>
           </div>
         </div>
       </div>

@@ -192,13 +192,27 @@ export class EmergencyComponent implements OnInit, AfterViewInit, OnDestroy {
       const initialLng = bike && bike.longitude ? bike.longitude : 36.8172;
 
       this.map = L.map('emergencyMap', {
-        zoomControl: true,
+        zoomControl: false,
       }).setView([initialLat, initialLng], 12);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(this.map);
+      // Custom Dark Basemap matching Dashboard & History
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 16,
+          attribution: '&copy; Esri',
+        }
+      ).addTo(this.map);
+
+      // Muted Reference Labels Layer
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 16,
+          opacity: 0.45,
+          attribution: '',
+        }
+      ).addTo(this.map);
 
       this.markersLayer = L.layerGroup().addTo(this.map);
     }
