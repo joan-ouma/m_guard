@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { BikeService } from '../core/services/bike.service';
-import { BikeDTO, BikeEventDTO } from '../core/models/bike.models';
-import { forkJoin, of } from 'rxjs';
+import { BikeDTO, BikeEventDTO, BikeListResponse, PaginatedEventsResponse } from '../core/models/bike.models';
+import { Observable, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 export interface DisplayAlert {
@@ -327,9 +327,9 @@ export class AlertsComponent implements OnInit {
   loadAlerts(): void {
     this.isLoading.set(true);
 
-    this.bikeService.getBikes().subscribe({
-      next: (res) => {
-        const bikeList = res.data || [];
+    this.bikeService.loadBikes().subscribe({
+      next: (res: BikeListResponse) => {
+        const bikeList: BikeDTO[] = res.data || [];
         this.bikes.set(bikeList);
 
         if (bikeList.length === 0) {
@@ -339,21 +339,21 @@ export class AlertsComponent implements OnInit {
         }
 
         // Query events across all bikes
-        const reqs = bikeList.map((bike) =>
+        const reqs: Observable<PaginatedEventsResponse>[] = bikeList.map((bike: BikeDTO) =>
           this.bikeService.getBikeEvents(bike.id, 100).pipe(
             catchError(() => of({ data: [] as BikeEventDTO[], pagination: { total: 0, limit: 100, has_more: false } }))
           )
         );
 
         forkJoin(reqs).subscribe({
-          next: (results) => {
+          next: (results: PaginatedEventsResponse[]) => {
             const all: DisplayAlert[] = [];
 
-            results.forEach((evRes, index) => {
+            results.forEach((evRes: PaginatedEventsResponse, index: number) => {
               const bike = bikeList[index];
-              const evs = evRes.data || [];
+              const evs: BikeEventDTO[] = evRes.data || [];
 
-              evs.forEach((ev) => {
+              evs.forEach((ev: BikeEventDTO) => {
                 all.push({
                   id: ev.id,
                   bikeId: bike.id,
