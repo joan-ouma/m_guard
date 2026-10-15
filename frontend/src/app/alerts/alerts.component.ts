@@ -295,23 +295,6 @@ export class AlertsComponent implements OnInit {
     return `Hardware trigger recorded: ${raw.replace(/[-_]/g, ' ')}.`;
   }
 
-  formatEventBadge(type: string): string {
-    const raw = (type || '').trim();
-    const t = raw.toUpperCase();
-    if (t.includes('IMPACT')) return 'IMPACT';
-    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('SCAN')))) return 'RFID UNAUTHORIZED';
-    if (t.includes('DISARM')) return 'RFID DISARMED';
-    if (t.includes('ARM')) return 'RFID ARMED';
-    if (t.includes('TILT') || t.includes('LIFT')) return 'TILT & LIFT';
-    if (t.includes('BREACH')) return 'GEOFENCE BREACH';
-    if (t.includes('CRASH') || t.includes('ACCIDENT')) return 'CRASH';
-    if (t.includes('TAMPER')) return 'TAMPER';
-    if (t.includes('THEFT')) return 'THEFT';
-    if (t.includes('IGNITION_ON') || t === 'ON') return 'IGNITION ON';
-    if (t.includes('IGNITION_OFF') || t === 'OFF') return 'IGNITION OFF';
-    return raw.replace(/[-_]/g, ' ').toUpperCase();
-  }
-
   formatTimestamp(iso: string): string {
     if (!iso) return '';
     try {

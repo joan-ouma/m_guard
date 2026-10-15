@@ -266,21 +266,6 @@
                     <span class="font-medium text-zinc-600">{{ alert.model }}</span>
                     <span class="text-zinc-300">•</span>
                   }
-                  <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase shrink-0 ring-1"
-                    [class.bg-rose-50]="alert.severity === 'critical'"
-                    [class.text-rose-700]="alert.severity === 'critical'"
-                    [class.ring-rose-200]="alert.severity === 'critical'"
-                    [class.bg-amber-50]="alert.severity === 'warning'"
-                    [class.text-amber-700]="alert.severity === 'warning'"
-                    [class.ring-amber-200]="alert.severity === 'warning'"
-                    [class.bg-zinc-100]="alert.severity === 'info'"
-                    [class.text-zinc-700]="alert.severity === 'info'"
-                    [class.ring-zinc-200]="alert.severity === 'info'"
-                  >
-                    {{ formatEventBadge(alert.eventType) }}
-                  </span>
-                  <span class="text-zinc-300">•</span>
                   <span class="font-medium text-zinc-500">{{ formatTimestamp(alert.timestamp) }}</span>
                   @if (alert.latitude && alert.longitude) {
                     <span class="text-zinc-300">•</span>
