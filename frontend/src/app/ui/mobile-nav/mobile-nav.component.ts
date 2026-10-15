@@ -67,10 +67,8 @@ import { AuthService } from '../../core/services/auth.service';
               Alerts
             </a>
 
-            <a routerLink="/emergency" routerLinkActive="!bg-rose-600 !text-white" [routerLinkActiveOptions]="{exact:true}" (click)="close()" class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
-              <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
+            <a routerLink="/emergency" routerLinkActive="!bg-zinc-900 !text-white" [routerLinkActiveOptions]="{exact:true}" (click)="close()" class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
+              <img src="/siren.png" class="w-5 h-5 object-contain shrink-0" alt="" />
               Police / Help
             </a>
 

@@ -26,8 +26,8 @@
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
         </a>
         <!-- EMERGENCY POLICE & AMBULANCE ITEM -->
-        <a routerLink="/emergency" routerLinkActive="bg-rose-600 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        <a routerLink="/emergency" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <img src="/siren.png" class="w-6 h-6 object-contain shrink-0" alt="" /> Police / Help
         </a>
         <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
@@ -39,216 +39,200 @@
   <!-- MAIN VIEW -->
   <div class="flex-1 flex flex-col h-full overflow-hidden">
     <!-- Top Mobile Header -->
-    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center justify-between shrink-0 z-20 relative">
-      <div class="flex items-center gap-3">
-        <app-mobile-nav></app-mobile-nav>
-        <span class="font-bold text-base text-zinc-900">Police &amp; Emergency</span>
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+      <app-mobile-nav></app-mobile-nav>
+      <div class="flex items-center gap-2">
+        <img src="/siren.png" class="w-5 h-5 object-contain" alt="" />
+        <span class="font-bold text-base text-zinc-900">Emergency &amp; Police</span>
       </div>
-      <!-- Mobile View Switcher -->
-      <div class="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 text-xs">
-        <button
-          type="button"
-          (click)="setView('list')"
-          [class.bg-white]="activeView() === 'list'"
-          [class.font-bold]="activeView() === 'list'"
-          [class.shadow-xs]="activeView() === 'list'"
-          class="px-2.5 py-1 rounded-md transition-all cursor-pointer"
-        >
-          Directory
-        </button>
+    </header>
+
+    <!-- In-Page Mobile Tab Bar (Map 1st, Directory 2nd) -->
+    <div class="lg:hidden p-2.5 bg-white border-b border-zinc-200 shrink-0">
+      <div class="grid grid-cols-2 p-1 bg-zinc-100 rounded-lg text-xs font-semibold">
         <button
           type="button"
           (click)="setView('map')"
           [class.bg-white]="activeView() === 'map'"
-          [class.font-bold]="activeView() === 'map'"
-          [class.shadow-xs]="activeView() === 'map'"
-          class="px-2.5 py-1 rounded-md transition-all cursor-pointer"
+          [class.text-zinc-900]="activeView() === 'map'"
+          [class.shadow-2xs]="activeView() === 'map'"
+          [class.text-zinc-500]="activeView() !== 'map'"
+          class="py-2 rounded-md transition-all text-center cursor-pointer"
         >
           Map
         </button>
+        <button
+          type="button"
+          (click)="setView('list')"
+          [class.bg-white]="activeView() === 'list'"
+          [class.text-zinc-900]="activeView() === 'list'"
+          [class.shadow-2xs]="activeView() === 'list'"
+          [class.text-zinc-500]="activeView() !== 'list'"
+          class="py-2 rounded-md transition-all text-center cursor-pointer"
+        >
+          Directory
+        </button>
       </div>
-    </header>
+    </div>
 
     <!-- CONTENT WRAPPER -->
     <div class="flex-1 flex overflow-hidden">
 
       <!-- LEFT COLUMN: DIRECTORY & SEARCH -->
       <div
-        class="w-full lg:w-[480px] xl:w-[540px] flex flex-col border-r border-zinc-200 bg-zinc-50 overflow-y-auto"
+        class="w-full lg:w-[420px] xl:w-[460px] flex flex-col border-r border-zinc-200 bg-white overflow-hidden shrink-0"
         [class.hidden]="activeView() === 'map' && activeView() !== 'split'"
       >
-        <div class="p-4 sm:p-6 space-y-4">
-
-          <!-- Title Header -->
+        <!-- Search & Filter Header -->
+        <div class="p-4 border-b border-zinc-100 space-y-3">
           <div>
-            <h1 class="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">Police &amp; Ambulance Numbers</h1>
-            <p class="text-xs sm:text-sm text-zinc-500 mt-0.5">Direct contacts for emergency desks and police stations across Kenya.</p>
+            <h1 class="text-lg font-bold text-zinc-900">Emergency Numbers</h1>
+            <p class="text-xs text-zinc-500">Quick dial police stations and ambulances in Kenya</p>
           </div>
 
-          <!-- SEARCH BAR -->
+          <!-- Simple Search Bar -->
           <div class="relative">
-            <svg class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
-              placeholder="Search station (e.g. Kilimani, Rongai, Juja, Thika Rd, Kibera, Kayole)..."
-              class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-zinc-200 text-xs sm:text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-2xs"
+              placeholder="Search station or area (e.g. Kilimani, Rongai, Juja)..."
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
             />
           </div>
 
-          <!-- FILTERS: CATEGORIES & COUNTY DROPDOWN -->
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <!-- Category Pills (Clean Neutral) -->
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <button
-                type="button"
-                (click)="setTypeFilter('ALL')"
-                [class.bg-zinc-900]="selectedType() === 'ALL'"
-                [class.text-white]="selectedType() === 'ALL'"
-                [class.bg-white]="selectedType() !== 'ALL'"
-                [class.text-zinc-700]="selectedType() !== 'ALL'"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-zinc-200 transition-colors cursor-pointer"
-              >
-                All
-              </button>
-              <button
-                type="button"
-                (click)="setTypeFilter('police')"
-                [class.bg-zinc-900]="selectedType() === 'police'"
-                [class.text-white]="selectedType() === 'police'"
-                [class.bg-white]="selectedType() !== 'police'"
-                [class.text-zinc-700]="selectedType() !== 'police'"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-zinc-200 transition-colors cursor-pointer"
-              >
-                Police
-              </button>
-              <button
-                type="button"
-                (click)="setTypeFilter('ambulance')"
-                [class.bg-zinc-900]="selectedType() === 'ambulance'"
-                [class.text-white]="selectedType() === 'ambulance'"
-                [class.bg-white]="selectedType() !== 'ambulance'"
-                [class.text-zinc-700]="selectedType() !== 'ambulance'"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-zinc-200 transition-colors cursor-pointer"
-              >
-                Ambulance
-              </button>
-              <button
-                type="button"
-                (click)="setTypeFilter('national')"
-                [class.bg-zinc-900]="selectedType() === 'national'"
-                [class.text-white]="selectedType() === 'national'"
-                [class.bg-white]="selectedType() !== 'national'"
-                [class.text-zinc-700]="selectedType() !== 'national'"
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-zinc-200 transition-colors cursor-pointer"
-              >
-                Hotlines
-              </button>
-            </div>
+          <!-- Simple Filter Tabs (All / Police / Ambulance / Hotlines) -->
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              (click)="setTypeFilter('ALL')"
+              [class.bg-zinc-900]="selectedType() === 'ALL'"
+              [class.text-white]="selectedType() === 'ALL'"
+              [class.bg-zinc-100]="selectedType() !== 'ALL'"
+              [class.text-zinc-600]="selectedType() !== 'ALL'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer text-center"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('police')"
+              [class.bg-zinc-900]="selectedType() === 'police'"
+              [class.text-white]="selectedType() === 'police'"
+              [class.bg-zinc-100]="selectedType() !== 'police'"
+              [class.text-zinc-600]="selectedType() !== 'police'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1"
+            >
+              <img src="/siren.png" class="w-3.5 h-3.5 object-contain" alt="" />
+              Police
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('ambulance')"
+              [class.bg-zinc-900]="selectedType() === 'ambulance'"
+              [class.text-white]="selectedType() === 'ambulance'"
+              [class.bg-zinc-100]="selectedType() !== 'ambulance'"
+              [class.text-zinc-600]="selectedType() !== 'ambulance'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1"
+            >
+              <img src="/ambulance.png" class="w-3.5 h-3.5 object-contain" alt="" />
+              Ambulance
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('national')"
+              [class.bg-zinc-900]="selectedType() === 'national'"
+              [class.text-white]="selectedType() === 'national'"
+              [class.bg-zinc-100]="selectedType() !== 'national'"
+              [class.text-zinc-600]="selectedType() !== 'national'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1"
+            >
+              <img src="/emergency-phone.png" class="w-3.5 h-3.5 object-contain" alt="" />
+              Hotlines
+            </button>
+          </div>
+        </div>
 
-            <!-- County Selector -->
-            <div class="relative">
-              <select
-                [ngModel]="selectedCounty()"
-                (ngModelChange)="setCountyFilter($event)"
-                class="appearance-none bg-white hover:bg-zinc-50 border border-zinc-200 rounded-xl pl-3 pr-8 py-1.5 text-xs font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer shadow-2xs"
-              >
-                <option value="ALL">All Counties</option>
-                @for (county of counties(); track county) {
-                  <option [value]="county">{{ county }}</option>
+        <!-- CONTACTS LIST -->
+        <div class="flex-1 overflow-y-auto divide-y divide-zinc-100">
+          @for (contact of filteredContacts(); track contact.id) {
+            <div
+              (click)="selectContact(contact)"
+              class="p-3.5 hover:bg-zinc-50 transition-colors cursor-pointer flex items-center justify-between gap-3"
+              [class.bg-zinc-50]="selectedContact()?.id === contact.id"
+            >
+              <!-- Icon -->
+              <div class="w-9 h-9 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+                @if (contact.type === 'police') {
+                  <img src="/siren.png" class="w-5 h-5 object-contain" alt="Police" />
+                } @else if (contact.type === 'ambulance') {
+                  <img src="/ambulance.png" class="w-5 h-5 object-contain" alt="Ambulance" />
+                } @else {
+                  <img src="/emergency-phone.png" class="w-5 h-5 object-contain" alt="Hotline" />
                 }
-              </select>
-              <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </div>
-            </div>
-          </div>
 
-          <!-- RESULTS COUNT -->
-          <div class="flex items-center justify-between text-xs font-medium text-zinc-500 px-1 pt-1">
-            <span>{{ filteredContacts().length }} Stations &amp; Emergency Desks</span>
-            @if (selectedCounty() !== 'ALL') {
-              <span class="text-zinc-700 font-semibold">{{ selectedCounty() }}</span>
-            }
-          </div>
-
-          <!-- CONTACTS LIST -->
-          <div class="space-y-2.5 pt-0.5">
-            @for (contact of filteredContacts(); track contact.id) {
-              <div
-                (click)="selectContact(contact)"
-                class="p-4 rounded-xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all shadow-2xs cursor-pointer"
-                [class.ring-2]="selectedContact()?.id === contact.id"
-                [class.ring-zinc-900]="selectedContact()?.id === contact.id"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <!-- Left Details -->
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <h4 class="text-sm sm:text-base font-bold text-zinc-900 tracking-tight truncate">
-                        {{ contact.name }}
-                      </h4>
-                      @if (getDistanceToBike(contact)) {
-                        <span class="px-2 py-0.5 rounded bg-zinc-100 text-zinc-600 text-[11px] font-medium shrink-0">
-                          {{ getDistanceToBike(contact) }}
-                        </span>
-                      }
-                    </div>
-                    <p class="text-xs text-zinc-500 mt-0.5 truncate">{{ contact.address }}</p>
-                    <p class="text-[11px] font-medium text-zinc-400 mt-0.5">
-                      {{ contact.county }} • {{ contact.subCounty }}
-                    </p>
-                  </div>
-
-                  <!-- Call Action Button (Utilitarian) -->
-                  <a
-                    [href]="'tel:' + contact.phone"
-                    (click)="$event.stopPropagation()"
-                    class="h-9 px-3.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs flex items-center gap-1.5 shadow-2xs shrink-0 transition-colors"
-                  >
-                    <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span>Call</span>
-                  </a>
+              <!-- Info -->
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <h3 class="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
+                    {{ contact.name }}
+                  </h3>
+                  @if (getDistanceToBike(contact)) {
+                    <span class="text-[11px] text-zinc-500 shrink-0">
+                      • {{ getDistanceToBike(contact) }}
+                    </span>
+                  }
                 </div>
-
-                <!-- Secondary number if present -->
-                @if (contact.altPhone) {
-                  <div class="mt-2 pt-2 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
-                    <span>Main: <strong class="text-zinc-900 font-mono font-medium">{{ contact.phone }}</strong></span>
-                    <a [href]="'tel:' + contact.altPhone" (click)="$event.stopPropagation()" class="text-zinc-600 hover:text-zinc-900 hover:underline font-mono">Alt: {{ contact.altPhone }}</a>
-                  </div>
-                }
+                <p class="text-[11px] text-zinc-500 truncate mt-0.5">
+                  {{ contact.subCounty }}, {{ contact.county }}
+                </p>
+                <div class="flex items-center gap-2 mt-1 text-xs">
+                  <span class="font-mono font-medium text-zinc-900">{{ contact.phone }}</span>
+                  @if (contact.altPhone) {
+                    <span class="text-zinc-400">/</span>
+                    <a [href]="'tel:' + contact.altPhone" (click)="$event.stopPropagation()" class="font-mono text-zinc-500 hover:text-zinc-900 text-[11px]">{{ contact.altPhone }}</a>
+                  }
+                </div>
               </div>
-            }
 
-            @if (filteredContacts().length === 0) {
-              <div class="p-8 bg-white rounded-xl border border-zinc-200 text-center text-zinc-400 text-xs">
-                No police stations or emergency services match your search in this county.
-              </div>
-            }
-          </div>
+              <!-- Call Button -->
+              <a
+                [href]="'tel:' + contact.phone"
+                (click)="$event.stopPropagation()"
+                class="h-8 px-3 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs flex items-center gap-1.5 shrink-0 transition-colors"
+              >
+                <img src="/emergency-phone.png" class="w-3.5 h-3.5 object-contain" alt="" />
+                Call
+              </a>
+            </div>
+          }
+
+          @if (filteredContacts().length === 0) {
+            <div class="p-8 text-center text-zinc-400 text-xs">
+              No contacts match "{{ searchQuery() }}"
+            </div>
+          }
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: INTERACTIVE LEAFLET MAP -->
+      <!-- RIGHT COLUMN: MAP -->
       <div
         class="flex-1 h-full w-full relative bg-zinc-100 overflow-hidden"
         [class.hidden]="activeView() === 'list' && activeView() !== 'split'"
       >
         <div id="emergencyMap"></div>
 
-        <!-- Float Map Legend -->
-        <div class="absolute top-4 left-4 z-10">
-          <div class="px-3 py-1.5 rounded-lg bg-white/95 border border-zinc-200 shadow-xs text-xs font-medium text-zinc-600 flex items-center gap-3">
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-700"></span> Police</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-700"></span> Ambulance</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Hotline</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900"></span> Your Bike</span>
+        <!-- Map Legend -->
+        <div class="absolute top-3 left-3 z-10">
+          <div class="px-2.5 py-1.5 rounded-md bg-white/95 border border-zinc-200 shadow-2xs text-[11px] text-zinc-700 flex items-center gap-2.5">
+            <span class="flex items-center gap-1"><img src="/siren.png" class="w-3.5 h-3.5 object-contain" alt="" /> Police</span>
+            <span class="flex items-center gap-1"><img src="/ambulance.png" class="w-3.5 h-3.5 object-contain" alt="" /> Ambulance</span>
+            <span class="flex items-center gap-1"><img src="/emergency-phone.png" class="w-3.5 h-3.5 object-contain" alt="" /> Hotline</span>
+            <span class="flex items-center gap-1"><img src="/motorbike.png" class="w-3.5 h-3.5 object-contain" alt="" /> Bike</span>
           </div>
         </div>
       </div>
