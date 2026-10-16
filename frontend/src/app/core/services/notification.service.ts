@@ -35,10 +35,14 @@ export class NotificationService {
     typeof window !== 'undefined' && 'Notification' in window
   );
   readonly permission = signal<NotificationPermission>(this.getInitialPermission());
-  readonly isSnsSubscribed = signal<boolean>(this.getStoredEndpoint() !== null);
+  readonly isSnsSubscribed = signal<boolean>(this.getInitialSubscriptionStatus());
   readonly snsEndpointArn = signal<string | null>(this.getStoredEndpoint());
   readonly isRegistering = signal<boolean>(false);
   readonly statusMessage = signal<string | null>(null);
+
+  constructor() {
+    this.initPermissionWatcher();
+  }
 
   private getInitialPermission(): NotificationPermission {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -47,17 +51,88 @@ export class NotificationService {
     return 'denied';
   }
 
+  private getInitialSubscriptionStatus(): boolean {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return false;
+    }
+    if (Notification.permission !== 'granted') {
+      return false;
+    }
+    return this.getStoredEndpoint() !== null;
+  }
+
   private getStoredEndpoint(): string | null {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined') {
+      return null;
+    }
     return localStorage.getItem(STORAGE_KEY_SNS_ENDPOINT);
   }
 
+  private initPermissionWatcher(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // 1. Re-check permissions when returning to the tab / window
+    window.addEventListener('focus', () => {
+      this.syncPermissionStatus();
+    });
+
+    // 2. Browser Permissions API live change event
+    if ('permissions' in navigator) {
+      navigator.permissions
+        .query({ name: 'notifications' as PermissionName })
+        .then((status) => {
+          status.onchange = () => {
+            this.syncPermissionStatus();
+          };
+        })
+        .catch(() => {});
+    }
+  }
+
+  syncPermissionStatus(): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return;
+    }
+
+    const currentPerm = Notification.permission;
+    this.permission.set(currentPerm);
+
+    if (currentPerm !== 'granted') {
+      const storedArn = this.getStoredEndpoint();
+      if (storedArn) {
+        localStorage.removeItem(STORAGE_KEY_SNS_ENDPOINT);
+        this.snsEndpointArn.set(null);
+        this.unregisterEndpointOnBackend(storedArn);
+      }
+      this.isSnsSubscribed.set(false);
+      return;
+    }
+
+    const hasStored = this.getStoredEndpoint() !== null;
+    this.isSnsSubscribed.set(hasStored);
+  }
+
+  private unregisterEndpointOnBackend(endpointArn: string): void {
+    firstValueFrom(
+      this.http.delete(`${this.apiBase}/v1/notifications/sns-endpoint`, {
+        params: { endpoint_arn: endpointArn },
+      })
+    ).catch((err) => {
+      console.warn('Backend endpoint unregister warning:', err);
+    });
+  }
+
   async requestPermission(): Promise<boolean> {
-    if (!this.isSupported()) return false;
+    if (!this.isSupported()) {
+      return false;
+    }
 
     try {
       const result = await Notification.requestPermission();
       this.permission.set(result);
+      this.syncPermissionStatus();
       return result === 'granted';
     } catch {
       return false;
@@ -120,7 +195,6 @@ export class NotificationService {
           }
 
           if (sub) {
-            // Chrome / Edge FCM endpoint: https://fcm.googleapis.com/fcm/send/<DEVICE_TOKEN>
             const endpointParts = sub.endpoint.split('/');
             pushToken = endpointParts[endpointParts.length - 1];
           }
@@ -208,32 +282,16 @@ export class NotificationService {
     this.statusMessage.set('Push notifications disabled');
   }
 
-  /**
-   * Triggers a test push notification
-   */
-  async sendTestSNSAlert(phoneNumber?: string, bikeId?: string): Promise<boolean> {
-    try {
-      await firstValueFrom(
-        this.http.post(`${this.apiBase}/v1/notifications/test`, {
-          title: '🚨 MotorGuard Test Alert',
-          body: 'Security dispatch verified. Push notification channels active.',
-          phone_number: phoneNumber || '',
-          bike_id: bikeId || '',
-        })
-      );
-      return true;
-    } catch (err) {
-      console.error('Failed to trigger test SNS alert:', err);
-      return false;
-    }
-  }
-
   async notify(title: string, body?: string, url?: string): Promise<void> {
-    if (!this.isSupported()) return;
+    if (!this.isSupported()) {
+      return;
+    }
 
     if (this.permission() !== 'granted') {
       const granted = await this.requestPermission();
-      if (!granted) return;
+      if (!granted) {
+        return;
+      }
     }
 
     const options: NotificationOptions = {
@@ -244,17 +302,15 @@ export class NotificationService {
       data: { url: url || '/' },
     };
 
-    // 1. Direct browser Notification constructor (instant on desktop)
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       try {
         new Notification(title, options);
         return;
       } catch {
-        // Mobile browsers may require ServiceWorker showNotification
+        // Fall through to Service Worker showNotification if constructor fails
       }
     }
 
-    // 2. Service Worker fallback (Mobile PWA)
     if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
       try {
         const reg = await Promise.race([

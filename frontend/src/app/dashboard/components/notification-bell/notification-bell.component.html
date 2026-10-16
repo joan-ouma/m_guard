@@ -62,33 +62,52 @@
         }
       </div>
 
-      <!-- Push Notification Subscription Banner (only shown if not yet enabled) -->
-      @if (notificationService.isSupported() && !notificationService.isSnsSubscribed()) {
-        <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
-          <div class="flex items-center justify-between gap-2">
+      <!-- Push Notification Subscription Banner -->
+      @if (notificationService.isSupported()) {
+        @if (notificationService.permission() === 'denied') {
+          <div class="px-4 py-2.5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between gap-2 text-xs text-zinc-600">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <span class="font-medium truncate">Notifications off in browser</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-zinc-200 text-zinc-700 font-medium shrink-0">Disabled</span>
+          </div>
+        } @else if (notificationService.isSnsSubscribed()) {
+          <div class="px-4 py-2 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between text-xs text-emerald-800 font-semibold">
             <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Alerts Active</span>
             </div>
             <button
               type="button"
-              id="enableSnsPushBtn"
-              (click)="onEnableSns()"
-              [disabled]="notificationService.isRegistering()"
-              class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+              (click)="onDisableSns()"
+              class="text-[11px] font-medium text-emerald-700 hover:text-rose-600 transition-colors cursor-pointer"
             >
-              {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
+              Turn off
             </button>
           </div>
-          <p class="text-[11px] text-zinc-500 leading-tight">
-            Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
-          </p>
-        </div>
-      } @else if (notificationService.isSupported() && notificationService.isSnsSubscribed()) {
-        <div class="px-4 py-2 bg-emerald-50/70 border-b border-emerald-100 flex items-center gap-1.5 text-xs text-emerald-800 font-semibold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Alerts Active</span>
-        </div>
+        } @else {
+          <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
+              </div>
+              <button
+                type="button"
+                id="enableSnsPushBtn"
+                (click)="onEnableSns()"
+                [disabled]="notificationService.isRegistering()"
+                class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+              >
+                {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
+              </button>
+            </div>
+            <p class="text-[11px] text-zinc-500 leading-tight">
+              Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
+            </p>
+          </div>
+        }
       }
 
       <div class="max-h-80 overflow-y-auto divide-y divide-zinc-100">

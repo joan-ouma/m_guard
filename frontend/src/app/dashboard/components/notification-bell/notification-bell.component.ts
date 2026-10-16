@@ -21,7 +21,11 @@ export class NotificationBellComponent {
   readonly isOpen = signal<boolean>(false);
 
   togglePopover(): void {
-    this.isOpen.update((v) => !v);
+    const next = !this.isOpen();
+    this.isOpen.set(next);
+    if (next) {
+      this.notificationService.syncPermissionStatus();
+    }
   }
 
   onView(item: NotificationItem): void {
