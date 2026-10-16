@@ -300,3 +300,164 @@ func (r *USSDRepository) RecordEmergencySOS(ctx context.Context, bikeID, userID 
 	_, err := r.pool.Exec(ctx, query, bikeID, lat, lng, details)
 	return err
 }
+
+type RegisterBikeParams struct {
+	Phone              string
+	RegistrationNumber string
+	IMEI               string
+	Make               string
+	Model              string
+}
+
+// RegisterBike creates a new motorcycle record linked to the caller's phone number.
+func (r *USSDRepository) RegisterBike(ctx context.Context, params RegisterBikeParams) (*domain.RiderBikeInfo, error) {
+	normPhone, last9 := NormalizePhoneNumber(params.Phone)
+	regNumber := strings.ToUpper(strings.TrimSpace(params.RegistrationNumber))
+	imei := strings.TrimSpace(params.IMEI)
+
+	if regNumber == "" {
+		return nil, errors.New("registration number is required")
+	}
+	if imei == "" {
+		return nil, errors.New("tracker IMEI is required")
+	}
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("transaction begin error: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	// Check if registration number already registered
+	var existingReg string
+	err = tx.QueryRow(ctx, "SELECT registration_number FROM bikes WHERE LOWER(registration_number) = LOWER($1)", regNumber).Scan(&existingReg)
+	if err == nil {
+		return nil, fmt.Errorf("motorcycle %s is already registered in the system", regNumber)
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("check registration error: %w", err)
+	}
+
+	// Check if IMEI already registered
+	var existingIMEI string
+	err = tx.QueryRow(ctx, "SELECT imei FROM bikes WHERE imei = $1", imei).Scan(&existingIMEI)
+	if err == nil {
+		return nil, fmt.Errorf("tracker IMEI %s is already registered to another motorcycle", imei)
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("check imei error: %w", err)
+	}
+
+	// Find or create user
+	var userID string
+	var userName string
+	userQuery := `
+		SELECT id::text, COALESCE(name, 'Rider')
+		FROM users
+		WHERE phone_number = $1 OR phone_number = $2 OR phone_number LIKE '%' || $3
+		LIMIT 1
+	`
+	err = tx.QueryRow(ctx, userQuery, params.Phone, normPhone, last9).Scan(&userID, &userName)
+	if errors.Is(err, pgx.ErrNoRows) {
+		riderName := "Rider " + regNumber
+		userName = riderName
+		digits := ""
+		for _, ch := range normPhone {
+			if ch >= '0' && ch <= '9' {
+				digits += string(ch)
+			}
+		}
+		email := digits + "@mguard.ke"
+		insertUserQuery := `
+			INSERT INTO users (id, email, password_hash, name, phone_number, created_at, updated_at)
+			VALUES (gen_random_uuid(), $1, '$2a$10$temporaryHashForUSSDAccount', $2, $3, NOW(), NOW())
+			RETURNING id::text
+		`
+		if err := tx.QueryRow(ctx, insertUserQuery, email, riderName, normPhone).Scan(&userID); err != nil {
+			return nil, fmt.Errorf("create rider user error: %w", err)
+		}
+	} else if err != nil {
+		return nil, fmt.Errorf("lookup rider user error: %w", err)
+	}
+
+	// Find or create driver_contact
+	var driverContactID string
+	dcQuery := `
+		SELECT id::text
+		FROM driver_contacts
+		WHERE user_id = $1::uuid AND (phone = $2 OR phone = $3 OR phone LIKE '%' || $4)
+		LIMIT 1
+	`
+	err = tx.QueryRow(ctx, dcQuery, userID, params.Phone, normPhone, last9).Scan(&driverContactID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		insertDCQuery := `
+			INSERT INTO driver_contacts (id, user_id, name, phone, created_at, updated_at)
+			VALUES (gen_random_uuid(), $1::uuid, $2, $3, NOW(), NOW())
+			RETURNING id::text
+		`
+		if err := tx.QueryRow(ctx, insertDCQuery, userID, userName, normPhone).Scan(&driverContactID); err != nil {
+			return nil, fmt.Errorf("create driver contact error: %w", err)
+		}
+	} else if err != nil {
+		return nil, fmt.Errorf("lookup driver contact error: %w", err)
+	}
+
+	// Ensure tracker exists in trackers table
+	_, _ = tx.Exec(ctx, `
+		INSERT INTO trackers (id, imei, model, status, created_at, updated_at)
+		VALUES (gen_random_uuid(), $1, 'MGuard GPS', 'ACTIVE', NOW(), NOW())
+		ON CONFLICT (imei) DO NOTHING
+	`, imei)
+
+	// Determine make and model
+	bikeMake := params.Make
+	if bikeMake == "" {
+		bikeMake = "Bajaj"
+	}
+	bikeModel := params.Model
+	if bikeModel == "" {
+		bikeModel = "Boxer 150"
+	}
+	label := bikeMake + " " + bikeModel
+
+	var bikeID string
+	insertBikeQuery := `
+		INSERT INTO bikes (
+			id, user_id, registration_number, label, make, model, year,
+			imei, status, ignition, speed_kmh, latitude, longitude,
+			current_address, driver_contact_id, is_immobilized, battery_percent,
+			created_at, updated_at
+		)
+		VALUES (
+			gen_random_uuid(), $1::uuid, $2, $3, $4, $5, 2024,
+			$6, 'PARKED', false, 0.0, -1.2921, 36.8219,
+			'Registered via MGuard USSD', $7::uuid, false, 100,
+			NOW(), NOW()
+		)
+		RETURNING id::text
+	`
+	err = tx.QueryRow(ctx, insertBikeQuery, userID, regNumber, label, bikeMake, bikeModel, imei, driverContactID).Scan(&bikeID)
+	if err != nil {
+		return nil, fmt.Errorf("insert bike error: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("commit error: %w", err)
+	}
+
+	return &domain.RiderBikeInfo{
+		ID:                 bikeID,
+		UserID:             userID,
+		RegistrationNumber: regNumber,
+		Label:              label,
+		Make:               bikeMake,
+		Model:              bikeModel,
+		Status:             "PARKED",
+		Ignition:           false,
+		SpeedKMH:           0,
+		Latitude:           -1.2921,
+		Longitude:          36.8219,
+		CurrentAddress:     "Registered via MGuard USSD",
+		BatteryPercent:     100,
+		IsImmobilized:      false,
+		IMEI:               imei,
+	}, nil
+}

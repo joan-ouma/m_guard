@@ -170,7 +170,7 @@ func (s *Service) dispatchEmergencySMS(ctx context.Context, ep DeviceEndpoint, a
 	}
 
 	sentPhones[ep.PhoneNumber] = struct{}{}
-	smsMsg := fmt.Sprintf("🚨 MOTORGUARD ALERT: %s. %s", alert.Title, alert.Body)
+	smsMsg := fmt.Sprintf("🚨 MGUARD ALERT: %s. %s", alert.Title, alert.Body)
 
 	if s.atClient != nil {
 		_, err := s.atClient.SendSMS(ctx, []string{ep.PhoneNumber}, smsMsg, "")
@@ -210,7 +210,7 @@ func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlert
 	}
 
 	if params.PhoneNumber != "" {
-		smsMsg := fmt.Sprintf("MotorGuard Alert Test: %s. SMS delivery verified.", body)
+		smsMsg := fmt.Sprintf("MGuard Alert Test: %s. SMS delivery verified.", body)
 		if s.atClient != nil {
 			_, _ = s.atClient.SendSMS(ctx, []string{params.PhoneNumber}, smsMsg, "")
 		} else {

@@ -5,7 +5,7 @@ const simulatorHTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MotoGuard — Africa's Talking USSD & SMS Simulator</title>
+  <title>MGuard — Africa's Talking USSD & SMS Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -696,7 +696,7 @@ const simulatorHTML = `<!DOCTYPE html>
             <!-- USSD Live Modal Overlay -->
             <div class="ussd-modal" id="ussdModal">
               <div class="ussd-box">
-                <div class="ussd-text" id="ussdModalText">Connecting to MotoGuard...</div>
+                <div class="ussd-text" id="ussdModalText">Connecting to MGuard...</div>
                 <div id="ussdInputWrapper">
                   <input type="text" class="ussd-input" id="ussdModalInput" placeholder="Enter choice or PIN" autocomplete="off" onkeydown="if(event.key==='Enter') submitUSSDStep()">
                 </div>
@@ -712,11 +712,11 @@ const simulatorHTML = `<!DOCTYPE html>
           <div class="screen-body" id="smsPane" style="display:none;">
             <div class="sms-thread">
               <div style="font-size: 0.72rem; color: #94a3b8; text-align: center; margin-bottom: 8px;">
-                MotoGuard Fleet Shortcode: <strong style="color:#38bdf8;">20880</strong>
+                MGuard Fleet Shortcode: <strong style="color:#38bdf8;">20880</strong>
               </div>
               <div class="sms-messages" id="smsMessagesList">
                 <div class="chat-bubble bubble-in">
-                  Welcome to MotoGuard 2-Way SMS. Send <strong>STATUS</strong>, <strong>LOCK [PIN]</strong>, <strong>UNLOCK [PIN]</strong>, or <strong>SOS</strong>.
+                  Welcome to MGuard 2-Way SMS. Send <strong>STATUS</strong>, <strong>LOCK [PIN]</strong>, <strong>UNLOCK [PIN]</strong>, <strong>REG [PLATE] [IMEI] [PIN]</strong>, or <strong>SOS</strong>.
                   <div class="bubble-meta">System</div>
                 </div>
               </div>
@@ -725,6 +725,7 @@ const simulatorHTML = `<!DOCTYPE html>
                 <span class="chip" onclick="quickSMS('STATUS')">STATUS</span>
                 <span class="chip" onclick="quickSMS('LOCK 1234')">LOCK 1234</span>
                 <span class="chip" onclick="quickSMS('UNLOCK 1234')">UNLOCK 1234</span>
+                <span class="chip" onclick="quickSMS('REG KMDF123X 862000000000001 1234')">REGISTER</span>
                 <span class="chip" onclick="quickSMS('SOS')">SOS</span>
                 <span class="chip" onclick="quickSMS('HELP')">HELP</span>
               </div>
@@ -987,7 +988,7 @@ const simulatorHTML = `<!DOCTYPE html>
         logDebug('SMS Webhook Response', data);
 
         if (data.reply) {
-          appendSMSBubble(data.reply, 'in', 'MotoGuard 20880');
+          appendSMSBubble(data.reply, 'in', 'MGuard 20880');
         }
 
         setTimeout(fetchOutbox, 500);
