@@ -42,16 +42,8 @@ func TestNewRouter(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusNoContent {
-		t.Fatalf("expected status 204 for OPTIONS preflight, got %d", rr.Code)
-	}
-
-	reqTrace := httptest.NewRequest(http.MethodTrace, "/v1/sessions", nil)
-	rrTrace := httptest.NewRecorder()
-	router.ServeHTTP(rrTrace, reqTrace)
-
-	if rrTrace.Code != http.StatusMethodNotAllowed {
-		t.Fatalf("expected status 405 for unhandled method on defined route, got %d", rrTrace.Code)
+	if rr.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected status 405 for unhandled method on defined route, got %d", rr.Code)
 	}
 
 	req404 := httptest.NewRequest(http.MethodGet, "/v1/nonexistent", nil)

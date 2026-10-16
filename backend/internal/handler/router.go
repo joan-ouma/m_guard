@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"motoguard-backend/internal/domain"
-	"motoguard-backend/internal/middleware"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -23,7 +22,6 @@ type RouterConfig struct {
 func NewRouter(cfg RouterConfig) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(middleware.CorsMiddleware)
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.RealIP)
 	r.Use(chimiddleware.Recoverer)
