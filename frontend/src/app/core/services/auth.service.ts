@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, of } from 'rxjs';
 import {
   AuthResponse,
+  JwtClaims,
   LoginCredentials,
   RegisterCredentials,
   SessionData,
@@ -26,12 +27,56 @@ export class AuthService {
   readonly currentUser = signal<User | null>(this.getStoredUser());
   readonly isLoading = signal<boolean>(false);
 
-  readonly isAuthenticated = computed(() => !!this.accessToken());
+  readonly isAuthenticated = computed(() => {
+    const token = this.accessToken();
+    return !!token && !this.isTokenExpired(token);
+  });
 
   constructor() {
     if (this.accessToken()) {
       this.verifySession();
     }
+  }
+
+  getClaims(token?: string | null): JwtClaims | null {
+    const rawToken = token ?? this.accessToken();
+    if (!rawToken) {
+      return null;
+    }
+
+    try {
+      const parts = rawToken.split('.');
+      if (parts.length < 2) {
+        return null;
+      }
+
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
+
+  isTokenExpired(token?: string | null, skewSeconds = 0): boolean {
+    const rawToken = token ?? this.accessToken();
+    if (!rawToken) {
+      return true;
+    }
+
+    const claims = this.getClaims(rawToken);
+    if (!claims || typeof claims.exp !== 'number') {
+      return false;
+    }
+
+    const nowInSec = Math.floor(Date.now() / 1000);
+    return claims.exp <= nowInSec + skewSeconds;
   }
 
   private getStoredToken(): string | null {

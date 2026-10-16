@@ -109,4 +109,16 @@ describe('AuthService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null, { status: 204, statusText: 'No Content' });
   });
+
+  it('should parse JWT claims and check expiration accurately', () => {
+    const validFutureToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ1c3JfMTIzIiwiZXhwIjoyNTAwMDAwMDAwfQ.mock_sig';
+    const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ1c3JfMTIzIiwiZXhwIjoxMDAwfQ.mock_sig';
+
+    const claims = service.getClaims(validFutureToken);
+    expect(claims?.['uid']).toBe('usr_123');
+    expect(claims?.exp).toBe(2500000000);
+
+    expect(service.isTokenExpired(validFutureToken)).toBe(false);
+    expect(service.isTokenExpired(expiredToken)).toBe(true);
+  });
 });
