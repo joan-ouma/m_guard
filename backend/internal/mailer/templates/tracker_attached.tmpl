@@ -1,0 +1,16 @@
+Hello {{.RiderName}},
+
+A GPS tracker has been attached to your motorcycle ({{.BikeRegistration}} - {{.BikeMake}} {{.BikeModel}}).
+
+Details:
+- Number Plate: {{.BikeRegistration}}
+- Motorcycle: {{.BikeMake}} {{.BikeModel}}
+- Tracker IMEI: {{.IMEI}}
+- Attached On: {{.AttachedAt}}
+
+You can track your motorcycle in MotoGuard here:
+{{.DashboardURL}}
+
+If you did not authorize this, reply to {{.ReplyToEmail}}.
+
+MotoGuard
