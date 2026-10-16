@@ -144,13 +144,17 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		signal = 0
 	}
 
-	breached, _, err := s.telemetry.CheckGeofenceBreach(ctx, repository.CheckGeofenceParams{
-		GeofenceID: geofenceID,
-		Latitude:   payload.Latitude,
-		Longitude:  payload.Longitude,
-	})
-	if err != nil {
-		return err
+	breached := false
+	if geofenceID != "" && (payload.Latitude != 0 || payload.Longitude != 0) {
+		var breachErr error
+		breached, _, breachErr = s.telemetry.CheckGeofenceBreach(ctx, repository.CheckGeofenceParams{
+			GeofenceID: geofenceID,
+			Latitude:   payload.Latitude,
+			Longitude:  payload.Longitude,
+		})
+		if breachErr != nil {
+			return breachErr
+		}
 	}
 
 	// Network call happens before the transaction, so no DB connection is held while waiting.

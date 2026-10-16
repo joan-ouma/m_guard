@@ -99,7 +99,6 @@ func (s *Service) DispatchSecurityAlert(ctx context.Context, userID string, aler
 
 	fcmPayload := s.buildFCMPayload(alert)
 	s.broadcastToUserDevices(ctx, userID, alert, fcmPayload)
-	s.publishGlobalTopic(ctx, alert, fcmPayload)
 
 	return nil
 }

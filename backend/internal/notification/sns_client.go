@@ -8,7 +8,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"

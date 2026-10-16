@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -41,6 +42,20 @@ func NewCellResolver() *CellResolver {
 	}
 }
 
+func buildCellCacheKey(mcc, mnc int, cells []domain.CellTower) string {
+	if len(cells) == 1 {
+		return fmt.Sprintf("single:%d:%d:%d:%d", mcc, mnc, cells[0].LAC, cells[0].CID)
+	}
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("multi:%d:%d", mcc, mnc))
+	for _, c := range cells {
+		if c.LAC > 0 && c.CID > 0 {
+			sb.WriteString(fmt.Sprintf("|%d:%d", c.LAC, c.CID))
+		}
+	}
+	return sb.String()
+}
+
 // Resolve single serving cell
 func (r *CellResolver) Resolve(ctx context.Context, mcc, mnc, lac, cid int) (float64, float64, bool) {
 	lat, lng, _, ok := r.ResolveMulti(ctx, mcc, mnc, []domain.CellTower{
@@ -60,14 +75,17 @@ func (r *CellResolver) ResolveMulti(ctx context.Context, mcc, mnc int, cells []d
 		return 0, 0, 0, false
 	}
 
-	primaryKey := fmt.Sprintf("%d:%d:%d:%d", mcc, mnc, primary.LAC, primary.CID)
+	cacheKey := buildCellCacheKey(mcc, mnc, cells)
 
 	r.cacheMu.RLock()
-	cached, exists := r.cache[primaryKey]
+	cached, exists := r.cache[cacheKey]
 	r.cacheMu.RUnlock()
 
 	now := time.Now()
-	if exists && now.Before(cached.ExpiresAt) && cached.Found {
+	if exists && now.Before(cached.ExpiresAt) {
+		if !cached.Found {
+			return 0, 0, 0, false
+		}
 		return cached.Latitude, cached.Longitude, cached.Accuracy, true
 	}
 
@@ -76,18 +94,29 @@ func (r *CellResolver) ResolveMulti(ctx context.Context, mcc, mnc int, cells []d
 	if ok {
 		slog.Info("LBS Multi-cell resolved", "towers", len(cells), "lat", lat, "lng", lng, "accuracy", accuracy)
 		r.cacheMu.Lock()
-		r.cache[primaryKey] = Coordinates{
+		r.cache[cacheKey] = Coordinates{
 			Latitude:  lat,
 			Longitude: lng,
 			Accuracy:  accuracy,
 			Found:     true,
 			ExpiresAt: now.Add(r.cacheTTL),
 		}
+		// When resolving a single tower, also cache its specific tower position
+		if len(cells) == 1 {
+			singleKey := fmt.Sprintf("single:%d:%d:%d:%d", mcc, mnc, primary.LAC, primary.CID)
+			r.cache[singleKey] = Coordinates{
+				Latitude:  lat,
+				Longitude: lng,
+				Accuracy:  accuracy,
+				Found:     true,
+				ExpiresAt: now.Add(r.cacheTTL),
+			}
+		}
 		r.cacheMu.Unlock()
 		return lat, lng, accuracy, true
 	}
 
-	// 2. Multilateration fallback from cached towers if available
+	// 2. Multilateration fallback from known cached individual towers if available
 	lat, lng, accuracy, ok = r.triangulateKnownCells(mcc, mnc, cells)
 	if ok {
 		slog.Info("LBS Multilateration computed from local cell cache", "towers", len(cells), "lat", lat, "lng", lng, "accuracy", accuracy)
@@ -95,7 +124,7 @@ func (r *CellResolver) ResolveMulti(ctx context.Context, mcc, mnc int, cells []d
 	}
 
 	r.cacheMu.Lock()
-	r.cache[primaryKey] = Coordinates{Found: false, ExpiresAt: now.Add(10 * time.Minute)}
+	r.cache[cacheKey] = Coordinates{Found: false, ExpiresAt: now.Add(10 * time.Minute)}
 	r.cacheMu.Unlock()
 	return 0, 0, 0, false
 }
@@ -112,8 +141,12 @@ func (r *CellResolver) triangulateKnownCells(mcc, mnc int, cells []domain.CellTo
 
 	var points []resolvedPoint
 	for _, c := range cells {
-		k := fmt.Sprintf("%d:%d:%d:%d", mcc, mnc, c.LAC, c.CID)
-		coord, exists := r.cache[k]
+		kSingle := fmt.Sprintf("single:%d:%d:%d:%d", mcc, mnc, c.LAC, c.CID)
+		coord, exists := r.cache[kSingle]
+		if !exists || !coord.Found {
+			kLegacy := fmt.Sprintf("%d:%d:%d:%d", mcc, mnc, c.LAC, c.CID)
+			coord, exists = r.cache[kLegacy]
+		}
 		if !exists || !coord.Found {
 			continue
 		}
@@ -235,13 +268,17 @@ func (r *CellResolver) fromMultiCellCloud(ctx context.Context, mcc, mnc int, cel
 		return 0, 0, 0, false
 	}
 
-	if geoResp.Fallback != "" || (geoResp.Location.Lat == 0 && geoResp.Location.Lng == 0) {
+	if geoResp.Location.Lat == 0 && geoResp.Location.Lng == 0 {
 		return 0, 0, 0, false
 	}
 
 	accuracy := geoResp.Accuracy
 	if accuracy <= 0 {
-		accuracy = 250.0
+		if geoResp.Fallback != "" {
+			accuracy = 2500.0
+		} else {
+			accuracy = 350.0
+		}
 	}
 
 	return geoResp.Location.Lat, geoResp.Location.Lng, accuracy, true

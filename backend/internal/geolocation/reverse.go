@@ -18,16 +18,18 @@ type AddressInfo struct {
 }
 
 type ReverseGeocoder struct {
-	client   *http.Client
-	cacheMu  sync.RWMutex
-	cache    map[string]AddressInfo
-	cacheTTL time.Duration
+	client     *http.Client
+	cacheMu    sync.RWMutex
+	cache      map[string]AddressInfo
+	cacheTTL   time.Duration
+	lastNomMu  sync.Mutex
+	lastNomReq time.Time
 }
 
 func NewReverseGeocoder() *ReverseGeocoder {
 	return &ReverseGeocoder{
 		client: &http.Client{
-			Timeout: 4 * time.Second,
+			Timeout: 3 * time.Second,
 		},
 		cache:    make(map[string]AddressInfo),
 		cacheTTL: 24 * time.Hour,
@@ -52,7 +54,8 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		return cached
 	}
 
-	info, err := g.fromNominatim(ctx, lat, lng)
+	// 1. Primary: BigDataCloud (designed for mobile/device reverse geocoding)
+	info, err := g.fromBigDataCloud(ctx, lat, lng)
 	if err == nil && info.FormattedAddress != "" {
 		g.cacheMu.Lock()
 		g.cache[key] = info
@@ -60,19 +63,37 @@ func (g *ReverseGeocoder) ReverseGeocode(ctx context.Context, lat, lng float64) 
 		return info
 	}
 
-	info, err = g.fromBigDataCloud(ctx, lat, lng)
-	if err == nil && info.FormattedAddress != "" {
-		g.cacheMu.Lock()
-		g.cache[key] = info
-		g.cacheMu.Unlock()
-		return info
+	// 2. Throttled Fallback: Nominatim (strict 1.5s throttle to comply with OSM policy)
+	if g.canCallNominatim() {
+		info, err = g.fromNominatim(ctx, lat, lng)
+		if err == nil && info.FormattedAddress != "" {
+			g.cacheMu.Lock()
+			g.cache[key] = info
+			g.cacheMu.Unlock()
+			return info
+		}
 	}
 
-	return AddressInfo{
+	empty := AddressInfo{
 		FormattedAddress: "",
 		SubCounty:        "",
 		County:           "",
 	}
+	g.cacheMu.Lock()
+	g.cache[key] = empty
+	g.cacheMu.Unlock()
+	return empty
+}
+
+func (g *ReverseGeocoder) canCallNominatim() bool {
+	g.lastNomMu.Lock()
+	defer g.lastNomMu.Unlock()
+	now := time.Now()
+	if now.Sub(g.lastNomReq) < 1500*time.Millisecond {
+		return false
+	}
+	g.lastNomReq = now
+	return true
 }
 
 func (g *ReverseGeocoder) fromNominatim(ctx context.Context, lat, lng float64) (AddressInfo, error) {

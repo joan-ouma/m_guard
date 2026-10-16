@@ -117,7 +117,7 @@ func (r *TelemetryRepository) GetBikeLastPosition(ctx context.Context, bikeID st
 }
 
 func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, params CheckGeofenceParams) (bool, string, error) {
-	if params.GeofenceID == "" {
+	if params.GeofenceID == "" || (params.Latitude == 0 && params.Longitude == 0) {
 		return false, "", nil
 	}
 
@@ -144,6 +144,8 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, params Ch
 
 	breach := false
 	if alertOnExit && isOutside {
+		breach = true
+	} else if alertOnEntry && !isOutside {
 		breach = true
 	}
 
