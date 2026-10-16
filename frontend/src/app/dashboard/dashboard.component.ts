@@ -252,16 +252,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const mapEl = document.getElementById('map');
     if (!mapEl) return;
 
-    const hasBikeCoords = bike && (bike.lat !== 0 || bike.lng !== 0);
-    const centerLat = hasBikeCoords ? bike.lat : -1.286389;
-    const centerLng = hasBikeCoords ? bike.lng : 36.817223;
-    const zoomLevel = hasBikeCoords ? 14 : 11;
+    const fallbackBike = this.bikeList().find((b) => b.lat !== 0 || b.lng !== 0);
+    const hasBikeCoords = !!(bike && (bike.lat !== 0 || bike.lng !== 0));
+    const centerLat = hasBikeCoords ? bike!.lat : fallbackBike ? fallbackBike.lat : 0;
+    const centerLng = hasBikeCoords ? bike!.lng : fallbackBike ? fallbackBike.lng : 0;
+    const zoomLevel = hasBikeCoords || fallbackBike ? 14 : 2;
 
     this.map = L.map('map', {
       zoomControl: false,
     }).setView([centerLat, centerLng], zoomLevel);
 
-    // Custom Dark Basemap: Esri World Dark Gray Canvas
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
       {
@@ -270,7 +270,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     ).addTo(this.map);
 
-    // Muted Reference Labels Layer
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
       {
@@ -280,10 +279,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     ).addTo(this.map);
 
-    if (hasBikeCoords && bike) {
-      this.bikeMarker = L.marker([bike.lat, bike.lng], {
-        icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
-      }).addTo(this.map);
+    if (bike) {
+      if (hasBikeCoords) {
+        this.bikeMarker = L.marker([bike.lat, bike.lng], {
+          icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
+        }).addTo(this.map);
+      }
 
       if (bike.hasGeofence && bike.fenceRadius > 0 && bike.fenceCenterLat !== undefined && bike.fenceCenterLng !== undefined) {
         this.geofenceLayer = L.circle([bike.fenceCenterLat, bike.fenceCenterLng], {
@@ -294,14 +295,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           dashArray: '6, 6',
           radius: bike.fenceRadius,
         }).addTo(this.map);
-      } else {
-        this.geofenceLayer = null;
       }
 
       this.loadAndDrawPath(bike);
-    } else {
-      this.bikeMarker = null;
-      this.geofenceLayer = null;
     }
 
     this.map.invalidateSize();
@@ -326,16 +322,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const hasCoordinates = bike.lat !== 0 || bike.lng !== 0;
 
-    if (!hasCoordinates) {
-      if (this.bikeMarker) {
-        this.bikeMarker.remove();
-        this.bikeMarker = null;
-      }
-    } else if (!this.bikeMarker) {
+    if (hasCoordinates && !this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
         icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
       }).addTo(this.map);
-    } else {
+    } else if (hasCoordinates && this.bikeMarker) {
       this.bikeMarker.setLatLng([bike.lat, bike.lng]);
       this.bikeMarker.setIcon(this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false));
     }
@@ -351,7 +342,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           radius: bike.fenceRadius,
         }).addTo(this.map);
       } else {
-        // FIXED CENTER: Never move geofence when bike moves!
         this.geofenceLayer
           .setLatLng([bike.fenceCenterLat, bike.fenceCenterLng])
           .setRadius(bike.fenceRadius)
@@ -363,12 +353,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             dashArray: '6, 6',
           });
       }
-    } else {
-      // User didn't set geofence -> do NOT show it!
-      if (this.geofenceLayer) {
-        this.geofenceLayer.remove();
-        this.geofenceLayer = null;
-      }
+    } else if (this.geofenceLayer) {
+      this.geofenceLayer.remove();
+      this.geofenceLayer = null;
     }
 
     if (recenter && hasCoordinates) {
@@ -410,6 +397,24 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (hasBikeCoords && !isLastSame) {
       coords.push([currentBike.lat, currentBike.lng]);
+    }
+
+    const latestPos: [number, number] | null = coords.length > 0
+      ? coords[coords.length - 1]
+      : hasBikeCoords
+      ? [currentBike.lat, currentBike.lng]
+      : null;
+
+    if (latestPos) {
+      if (!this.bikeMarker) {
+        this.bikeMarker = L.marker(latestPos, {
+          icon: this.createBadgeIcon(currentBike.plate, currentBike.status, currentBike.isImmobilized, false),
+        }).addTo(this.map);
+      } else {
+        this.bikeMarker.setLatLng(latestPos);
+        this.bikeMarker.setIcon(this.createBadgeIcon(currentBike.plate, currentBike.status, currentBike.isImmobilized, false));
+      }
+      this.map.panTo(latestPos);
     }
 
     if (coords.length > 1) {
@@ -532,14 +537,24 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   recenterMap(): void {
     if (!this.map) return;
     const bike = this.selectedBike();
-    if (!bike) return;
-    this.map.panTo([bike.lat, bike.lng]);
+    if (bike && (bike.lat !== 0 || bike.lng !== 0)) {
+      this.map.panTo([bike.lat, bike.lng]);
+      return;
+    }
+    if (this.bikeMarker) {
+      this.map.panTo(this.bikeMarker.getLatLng());
+    }
   }
 
   copyCoordinates(): void {
     const bike = this.selectedBike();
-    if (!bike) return;
-    const text = `${bike.lat.toFixed(6)}, ${bike.lng.toFixed(6)}`;
+    const latLng = bike && (bike.lat !== 0 || bike.lng !== 0)
+      ? { lat: bike.lat, lng: bike.lng }
+      : this.bikeMarker
+      ? { lat: this.bikeMarker.getLatLng().lat, lng: this.bikeMarker.getLatLng().lng }
+      : null;
+    if (!latLng) return;
+    const text = `${latLng.lat.toFixed(6)}, ${latLng.lng.toFixed(6)}`;
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text);
       this.copiedCoordinates.set(true);

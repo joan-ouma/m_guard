@@ -94,7 +94,10 @@ func (r *TelemetryRepository) ResolveBikeBySensor(ctx context.Context, sensorID 
 
 func (r *TelemetryRepository) GetBikeLastPosition(ctx context.Context, bikeID string) (float64, float64, time.Time, bool, error) {
 	query := `
-		SELECT latitude, longitude, last_telemetry_at
+		SELECT 
+			COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(last_telemetry_at, (SELECT bb.recorded_at FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id ORDER BY bb.id DESC LIMIT 1))
 		FROM bikes
 		WHERE id = $1
 		LIMIT 1
