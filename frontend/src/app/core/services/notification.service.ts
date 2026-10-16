@@ -165,11 +165,6 @@ export class NotificationService {
           timerProgressBar: true,
         });
 
-        // Display confirmation push notification
-        await this.notify(
-          'MotorGuard Push Alerts Enabled',
-          'You will receive instant lockscreen alerts for geofence breaches, tampering, and theft.'
-        );
         return true;
       }
 

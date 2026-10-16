@@ -48,7 +48,12 @@ func (h *NotificationHandler) RegisterDevice(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	endpointARN, err := h.service.RegisterDevice(r.Context(), claims.UserID, req.Token, req.Platform, req.PhoneNumber)
+	endpointARN, err := h.service.RegisterDevice(r.Context(), notification.RegisterDeviceParams{
+		UserID:      claims.UserID,
+		Token:       req.Token,
+		Platform:    req.Platform,
+		PhoneNumber: req.PhoneNumber,
+	})
 	if err != nil {
 		domain.NewInternalServerErrorWithDetail("Failed to register device endpoint: "+err.Error(), r.URL.Path).WriteJSON(w)
 		return
@@ -90,7 +95,13 @@ func (h *NotificationHandler) SendTestNotification(w http.ResponseWriter, r *htt
 	var req notification.TestNotificationRequest
 	_ = json.NewDecoder(r.Body).Decode(&req)
 
-	err := h.service.SendTestNotification(r.Context(), claims.UserID, req.Title, req.Body, req.PhoneNumber, req.BikeID)
+	err := h.service.SendTestNotification(r.Context(), notification.SendTestAlertParams{
+		UserID:      claims.UserID,
+		Title:       req.Title,
+		Body:        req.Body,
+		PhoneNumber: req.PhoneNumber,
+		BikeID:      req.BikeID,
+	})
 	if err != nil {
 		domain.NewInternalServerErrorWithDetail("Failed to send test alert: "+err.Error(), r.URL.Path).WriteJSON(w)
 		return

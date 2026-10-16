@@ -19,8 +19,6 @@ export class NotificationBellComponent {
   readonly markAllRead = output<void>();
 
   readonly isOpen = signal<boolean>(false);
-  readonly isSendingTest = signal<boolean>(false);
-  readonly testSent = signal<boolean>(false);
 
   togglePopover(): void {
     this.isOpen.update((v) => !v);
@@ -41,19 +39,5 @@ export class NotificationBellComponent {
 
   async onDisableSns(): Promise<void> {
     await this.notificationService.unregisterFromSNS();
-  }
-
-  async onSendTestSns(): Promise<void> {
-    this.isSendingTest.set(true);
-    await this.notificationService.notify(
-      '🚨 MotorGuard Test Alert',
-      'System alert verified! Real-time vehicle notifications are working on this browser.'
-    );
-    const ok = await this.notificationService.sendTestSNSAlert();
-    this.isSendingTest.set(false);
-    if (ok) {
-      this.testSent.set(true);
-      setTimeout(() => this.testSent.set(false), 4000);
-    }
   }
 }

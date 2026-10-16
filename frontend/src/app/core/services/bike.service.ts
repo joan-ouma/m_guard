@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import {
   AttachBikePayload,
@@ -35,16 +35,18 @@ export class BikeService {
   constructor() {
     effect(() => {
       const token = this.authService.accessToken();
-      if (token) {
-        this.connectSSE();
-      } else {
+      if (!token) {
         this.disconnectSSE();
+        return;
       }
+      this.connectSSE();
     });
   }
 
   connectSSE(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     const token = this.authService.accessToken();
     if (!token) {
@@ -52,11 +54,11 @@ export class BikeService {
       return;
     }
 
-    if (
+    const isRunning =
       this.eventSource &&
       (this.eventSource.readyState === EventSource.OPEN ||
-        this.eventSource.readyState === EventSource.CONNECTING)
-    ) {
+        this.eventSource.readyState === EventSource.CONNECTING);
+    if (isRunning) {
       return;
     }
 
@@ -71,46 +73,15 @@ export class BikeService {
     };
 
     es.addEventListener('bikes_init', (event: MessageEvent) => {
-      try {
-        const res: BikeListResponse = JSON.parse(event.data);
-        if (res && Array.isArray(res.data)) {
-          this.bikes.set(res.data);
-          if (res.meta?.default_selected_bike_id) {
-            this.defaultSelectedBikeId.set(res.meta.default_selected_bike_id);
-          }
-          this.isLoading.set(false);
-        }
-      } catch (err) {
-        console.error('Failed to parse bikes_init event:', err);
-      }
+      this.handleBikesInit(event.data);
     });
 
     es.addEventListener('bike_update', (event: MessageEvent) => {
-      try {
-        const bike: BikeDTO = JSON.parse(event.data);
-        if (bike && bike.id) {
-          this.bikes.update((current) => {
-            const index = current.findIndex((b) => b.id === bike.id);
-            if (index >= 0) {
-              const updated = [...current];
-              updated[index] = bike;
-              return updated;
-            }
-            return [bike, ...current];
-          });
-        }
-      } catch (err) {
-        console.error('Failed to parse bike_update event:', err);
-      }
+      this.handleBikeUpdate(event.data);
     });
 
     es.addEventListener('alert', (event: MessageEvent) => {
-      try {
-        const alert = JSON.parse(event.data);
-        this.latestAlert.set(alert);
-      } catch (err) {
-        console.error('Failed to parse alert event:', err);
-      }
+      this.handleAlertEvent(event.data);
     });
 
     es.onerror = () => {
@@ -121,28 +92,75 @@ export class BikeService {
     };
   }
 
-  disconnectSSE(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
-      this.isConnected.set(false);
+  private handleBikesInit(rawData: string): void {
+    try {
+      const res: BikeListResponse = JSON.parse(rawData);
+      if (!res || !Array.isArray(res.data)) {
+        return;
+      }
+
+      this.bikes.set(res.data);
+      this.defaultSelectedBikeId.set(res.meta?.default_selected_bike_id || null);
+      this.isLoading.set(false);
+    } catch (err) {
+      console.error('Failed to parse bikes_init event:', err);
     }
+  }
+
+  private handleBikeUpdate(rawData: string): void {
+    try {
+      const bike: BikeDTO = JSON.parse(rawData);
+      if (!bike?.id) {
+        return;
+      }
+
+      this.bikes.update((current) => {
+        const index = current.findIndex((b) => b.id === bike.id);
+        if (index === -1) {
+          return [bike, ...current];
+        }
+
+        const updated = [...current];
+        updated[index] = bike;
+        return updated;
+      });
+    } catch (err) {
+      console.error('Failed to parse bike_update event:', err);
+    }
+  }
+
+  private handleAlertEvent(rawData: string): void {
+    try {
+      const alert = JSON.parse(rawData);
+      this.latestAlert.set(alert);
+    } catch (err) {
+      console.error('Failed to parse alert event:', err);
+    }
+  }
+
+  disconnectSSE(): void {
+    if (!this.eventSource) {
+      return;
+    }
+    this.eventSource.close();
+    this.eventSource = null;
+    this.isConnected.set(false);
   }
 
   loadBikes(cursor?: string, limit = 25): Observable<BikeListResponse> {
     this.isLoading.set(true);
     this.error.set(null);
 
-    let url = `${environment.apiBaseUrl}/v1/bikes?limit=${limit}`;
+    let params = new HttpParams().set('limit', limit.toString());
     if (cursor) {
-      url += `&cursor=${encodeURIComponent(cursor)}`;
+      params = params.set('cursor', cursor);
     }
 
-    return this.http.get<BikeListResponse>(url).pipe(
+    return this.http.get<BikeListResponse>(`${environment.apiBaseUrl}/v1/bikes`, { params }).pipe(
       tap({
         next: (res) => {
           this.bikes.set(res.data);
-          this.defaultSelectedBikeId.set(res.meta.default_selected_bike_id || null);
+          this.defaultSelectedBikeId.set(res.meta?.default_selected_bike_id || null);
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -165,16 +183,21 @@ export class BikeService {
     endDate?: string,
     cursor?: string
   ): Observable<PaginatedBreadcrumbsResponse> {
-    let url = `${environment.apiBaseUrl}/v1/bikes/${id}/breadcrumbs?limit=${limit}`;
+    let params = new HttpParams().set('limit', limit.toString());
     if (cursor) {
-      url += `&cursor=${encodeURIComponent(cursor)}`;
+      params = params.set('cursor', cursor);
     }
     if (date) {
-      url += `&date=${encodeURIComponent(date)}`;
-    } else if (startDate && endDate) {
-      url += `&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+      params = params.set('date', date);
     }
-    return this.http.get<PaginatedBreadcrumbsResponse>(url);
+    if (!date && startDate && endDate) {
+      params = params.set('startDate', startDate).set('endDate', endDate);
+    }
+
+    return this.http.get<PaginatedBreadcrumbsResponse>(
+      `${environment.apiBaseUrl}/v1/bikes/${id}/breadcrumbs`,
+      { params }
+    );
   }
 
   getBikeEvents(
@@ -185,16 +208,21 @@ export class BikeService {
     endDate?: string,
     cursor?: string
   ): Observable<PaginatedEventsResponse> {
-    let url = `${environment.apiBaseUrl}/v1/bikes/${id}/events?limit=${limit}`;
+    let params = new HttpParams().set('limit', limit.toString());
     if (cursor) {
-      url += `&cursor=${encodeURIComponent(cursor)}`;
+      params = params.set('cursor', cursor);
     }
     if (date) {
-      url += `&date=${encodeURIComponent(date)}`;
-    } else if (startDate && endDate) {
-      url += `&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+      params = params.set('date', date);
     }
-    return this.http.get<PaginatedEventsResponse>(url);
+    if (!date && startDate && endDate) {
+      params = params.set('startDate', startDate).set('endDate', endDate);
+    }
+
+    return this.http.get<PaginatedEventsResponse>(
+      `${environment.apiBaseUrl}/v1/bikes/${id}/events`,
+      { params }
+    );
   }
 
   getAllEvents(
@@ -202,14 +230,18 @@ export class BikeService {
     cursor?: string,
     severity?: string
   ): Observable<PaginatedEventsResponse> {
-    let url = `${environment.apiBaseUrl}/v1/bikes/events?limit=${limit}`;
+    let params = new HttpParams().set('limit', limit.toString());
     if (cursor) {
-      url += `&cursor=${encodeURIComponent(cursor)}`;
+      params = params.set('cursor', cursor);
     }
     if (severity && severity !== 'ALL') {
-      url += `&severity=${encodeURIComponent(severity)}`;
+      params = params.set('severity', severity);
     }
-    return this.http.get<PaginatedEventsResponse>(url);
+
+    return this.http.get<PaginatedEventsResponse>(
+      `${environment.apiBaseUrl}/v1/bikes/events`,
+      { params }
+    );
   }
 
   createBike(payload: CreateBikePayload): Observable<{ data: BikeDTO }> {
@@ -282,4 +314,3 @@ export class BikeService {
     );
   }
 }
-

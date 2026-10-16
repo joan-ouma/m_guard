@@ -11,9 +11,12 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 )
+
+var arnPattern = regexp.MustCompile(`arn:aws:sns:[^\s"'>]+`)
 
 type createPlatformEndpointResponse struct {
 	XMLName xml.Name `xml:"CreatePlatformEndpointResponse"`
@@ -27,6 +30,16 @@ type publishResponse struct {
 	Result  struct {
 		MessageID string `xml:"MessageId"`
 	} `xml:"PublishResult"`
+}
+
+type snsErrorResponse struct {
+	XMLName xml.Name `xml:"ErrorResponse"`
+	Error   struct {
+		Type    string `xml:"Type"`
+		Code    string `xml:"Code"`
+		Message string `xml:"Message"`
+	} `xml:"Error"`
+	RequestID string `xml:"RequestId"`
 }
 
 type AWSSNSClient struct {
@@ -62,6 +75,14 @@ func (c *AWSSNSClient) CreatePlatformEndpoint(ctx context.Context, platformAppAR
 
 	body, err := c.doRequest(ctx, params)
 	if err != nil {
+		existingARN := parseEndpointArnFromError(body)
+		if existingARN != "" {
+			_ = c.SetEndpointAttributes(ctx, existingARN, map[string]string{
+				"Enabled": "true",
+				"Token":   token,
+			})
+			return existingARN, nil
+		}
 		return "", fmt.Errorf("aws sns CreatePlatformEndpoint failed: %w", err)
 	}
 
@@ -71,6 +92,37 @@ func (c *AWSSNSClient) CreatePlatformEndpoint(ctx context.Context, platformAppAR
 	}
 
 	return resp.Result.EndpointArn, nil
+}
+
+func (c *AWSSNSClient) SetEndpointAttributes(ctx context.Context, endpointARN string, attributes map[string]string) error {
+	params := url.Values{}
+	params.Set("Action", "SetEndpointAttributes")
+	params.Set("Version", "2010-03-31")
+	params.Set("EndpointArn", endpointARN)
+
+	i := 1
+	for k, v := range attributes {
+		params.Set(fmt.Sprintf("Attributes.entry.%d.key", i), k)
+		params.Set(fmt.Sprintf("Attributes.entry.%d.value", i), v)
+		i++
+	}
+
+	_, err := c.doRequest(ctx, params)
+	return err
+}
+
+func parseEndpointArnFromError(body []byte) string {
+	if len(body) == 0 {
+		return ""
+	}
+	var errResp snsErrorResponse
+	if err := xml.Unmarshal(body, &errResp); err != nil {
+		return ""
+	}
+	if !strings.Contains(errResp.Error.Message, "already exists with the same token") {
+		return ""
+	}
+	return arnPattern.FindString(errResp.Error.Message)
 }
 
 func (c *AWSSNSClient) DeleteEndpoint(ctx context.Context, endpointARN string) error {
@@ -232,7 +284,11 @@ func (c *AWSSNSClient) doRequest(ctx context.Context, params url.Values) ([]byte
 	}
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		return nil, fmt.Errorf("http error %d: %s", res.StatusCode, string(bodyBytes))
+		var errResp snsErrorResponse
+		if xml.Unmarshal(bodyBytes, &errResp) == nil && errResp.Error.Message != "" {
+			return bodyBytes, fmt.Errorf("aws sns error [%s]: %s", errResp.Error.Code, errResp.Error.Message)
+		}
+		return bodyBytes, fmt.Errorf("http error %d: %s", res.StatusCode, string(bodyBytes))
 	}
 
 	return bodyBytes, nil
