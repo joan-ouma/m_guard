@@ -102,9 +102,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const rawType = (alert.event_type || alert.eventType || '').toUpperCase();
       if (rawType.includes('STOP') || rawType.includes('DURESS') || rawType.includes('CRASH')) {
-        const bike = this.fleet()[notif.bikeId];
-        if (bike) {
-          this.triggerDuress(bike);
+        const bikeId = notif.bikeId;
+        if (bikeId && this.fleet()[bikeId]) {
+          this.triggerDuress(this.fleet()[bikeId]);
         }
       }
     });
@@ -679,6 +679,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.registrationError.set(detail);
         },
       });
+  }
+
   triggerDuress(bike: FleetBike): void {
     if (this.showDuressPrompt()) return;
     this.showDuressPrompt.set(true);
@@ -754,14 +756,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notifications.update((prev) =>
       prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
     );
-    if (item.bikeId) {
-      if (this.fleet()[item.bikeId]) {
-        this.selectBike(item.bikeId);
-      }
-      this.router.navigate(['/history'], { queryParams: { bike: item.bikeId } });
-    } else {
+
+    if (!item.bikeId) {
       this.router.navigate(['/history']);
+      return;
     }
+
+    if (this.fleet()[item.bikeId]) {
+      this.selectBike(item.bikeId);
+    }
+    this.router.navigate(['/history'], { queryParams: { bike: item.bikeId } });
   }
 
   private createNotificationFromAlert(alert: any): NotificationItem {
