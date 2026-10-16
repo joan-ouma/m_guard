@@ -84,6 +84,21 @@
             Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
           </p>
         </div>
+      } @else if (notificationService.isSupported() && notificationService.isSnsSubscribed()) {
+        <div class="px-4 py-2 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-1.5 text-emerald-800 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Alerts Active</span>
+          </div>
+          <button
+            type="button"
+            (click)="onSendTestSns()"
+            [disabled]="isSendingTest()"
+            class="text-[11px] font-bold text-emerald-700 hover:text-emerald-950 underline cursor-pointer disabled:opacity-50"
+          >
+            {{ isSendingTest() ? 'Sending...' : testSent() ? 'Sent!' : 'Test Alert' }}
+          </button>
+        </div>
       }
 
       <div class="max-h-80 overflow-y-auto divide-y divide-zinc-100">

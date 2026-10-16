@@ -89,7 +89,10 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		})
 	}
 
-	regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, "")
+	regExists, err := s.repo.ExistsRegistrationNumber(ctx, repository.ExistsRegParams{
+		UserID:    claims.UserID,
+		RegNumber: regNumber,
+	})
 	if err != nil {
 		slog.Error("CreateBike ExistsRegistrationNumber error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -188,7 +191,11 @@ func (s *BikeService) ListBikes(ctx context.Context, claims *security.JWTClaims,
 		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
 	}
 
-	bikes, meta, err := s.repo.ListByOwner(ctx, claims.UserID, cursor, limit)
+	bikes, meta, err := s.repo.ListByOwner(ctx, repository.ListByOwnerParams{
+		UserID: claims.UserID,
+		Cursor: cursor,
+		Limit:  limit,
+	})
 	if err != nil {
 		slog.Error("ListBikes ListByOwner error", "user_id", claims.UserID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -230,7 +237,11 @@ func (s *BikeService) UpdateBike(ctx context.Context, claims *security.JWTClaims
 
 	regNumber := strings.TrimSpace(req.RegistrationNumber)
 	if regNumber != "" && !strings.EqualFold(regNumber, existing.RegistrationNumber) {
-		regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, bikeID)
+		regExists, err := s.repo.ExistsRegistrationNumber(ctx, repository.ExistsRegParams{
+			UserID:        claims.UserID,
+			RegNumber:     regNumber,
+			ExcludeBikeID: bikeID,
+		})
 		if err != nil {
 			slog.Error("UpdateBike ExistsRegistrationNumber error", "error", err)
 			return nil, domain.NewInternalServerError(instance)
@@ -357,7 +368,14 @@ func (s *BikeService) GetBreadcrumbs(
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	breadcrumbs, pagination, err := s.repo.GetBreadcrumbs(ctx, claims.UserID, bikeID, startDate, endDate, cursor, limit)
+	breadcrumbs, pagination, err := s.repo.GetBreadcrumbs(ctx, repository.GetBreadcrumbsParams{
+		UserID:    claims.UserID,
+		BikeID:    bikeID,
+		StartDate: startDate,
+		EndDate:   endDate,
+		Cursor:    cursor,
+		Limit:     limit,
+	})
 	if err != nil {
 		slog.Error("GetBreadcrumbs repo.GetBreadcrumbs error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -397,7 +415,14 @@ func (s *BikeService) GetEvents(
 		return nil, domain.NewInternalServerError(instance)
 	}
 
-	events, pagination, err := s.repo.GetEvents(ctx, claims.UserID, bikeID, startDate, endDate, cursor, limit)
+	events, pagination, err := s.repo.GetEvents(ctx, repository.GetEventsParams{
+		UserID:    claims.UserID,
+		BikeID:    bikeID,
+		StartDate: startDate,
+		EndDate:   endDate,
+		Cursor:    cursor,
+		Limit:     limit,
+	})
 	if err != nil {
 		slog.Error("GetEvents repo.GetEvents error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -426,7 +451,12 @@ func (s *BikeService) GetAllEvents(
 		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
 	}
 
-	events, pagination, critCount, warnCount, infoCount, err := s.repo.GetAllEvents(ctx, claims.UserID, severity, cursor, limit)
+	events, pagination, critCount, warnCount, infoCount, err := s.repo.GetAllEvents(ctx, repository.GetAllEventsParams{
+		UserID:   claims.UserID,
+		Severity: severity,
+		Cursor:   cursor,
+		Limit:    limit,
+	})
 	if err != nil {
 		slog.Error("GetAllEvents repo.GetAllEvents error", "user_id", claims.UserID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
@@ -452,7 +482,11 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
 	}
 
-	imei, err := s.repo.SetImmobilized(ctx, claims.UserID, bikeID, immobilize)
+	imei, err := s.repo.SetImmobilized(ctx, repository.SetImmobilizedParams{
+		UserID:        claims.UserID,
+		BikeID:        bikeID,
+		IsImmobilized: immobilize,
+	})
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
@@ -585,7 +619,10 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	// Check if user already has this registration number
-	regExists, err := s.repo.ExistsRegistrationNumber(ctx, claims.UserID, regNumber, "")
+	regExists, err := s.repo.ExistsRegistrationNumber(ctx, repository.ExistsRegParams{
+		UserID:    claims.UserID,
+		RegNumber: regNumber,
+	})
 	if err != nil {
 		slog.Error("AttachBike ExistsRegistrationNumber error", "error", err)
 		return nil, domain.NewInternalServerError(instance)

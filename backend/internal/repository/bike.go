@@ -15,6 +15,53 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// --- Parameter Types ---
+
+type ListByOwnerParams struct {
+	UserID string
+	Cursor string
+	Limit  int
+}
+
+type SetImmobilizedParams struct {
+	UserID        string
+	BikeID        string
+	IsImmobilized bool
+}
+
+type ExistsRegParams struct {
+	UserID        string
+	RegNumber     string
+	ExcludeBikeID string
+}
+
+type GetBreadcrumbsParams struct {
+	UserID    string
+	BikeID    string
+	StartDate string
+	EndDate   string
+	Cursor    int64
+	Limit     int
+}
+
+type GetEventsParams struct {
+	UserID    string
+	BikeID    string
+	StartDate string
+	EndDate   string
+	Cursor    int64
+	Limit     int
+}
+
+type GetAllEventsParams struct {
+	UserID   string
+	Severity string
+	Cursor   int64
+	Limit    int
+}
+
+// --- Repository ---
+
 type BikeRepository struct {
 	pool *pgxpool.Pool
 }
@@ -131,18 +178,18 @@ func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*dom
 	return &b, nil
 }
 
-func (r *BikeRepository) ListByOwner(ctx context.Context, userID string, cursor string, limit int) ([]domain.Bike, domain.BikeListMeta, error) {
-	if limit <= 0 || limit > 100 {
-		limit = 25
+func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerParams) ([]domain.Bike, domain.BikeListMeta, error) {
+	if params.Limit <= 0 || params.Limit > 100 {
+		params.Limit = 25
 	}
 
 	var total int
 	countQuery := `SELECT COUNT(*) FROM bikes WHERE user_id = $1`
-	_ = r.pool.QueryRow(ctx, countQuery, userID).Scan(&total)
+	_ = r.pool.QueryRow(ctx, countQuery, params.UserID).Scan(&total)
 
 	var query string
 	var args []any
-	if cursor != "" {
+	if params.Cursor != "" {
 		query = `
 			SELECT 
 				id, user_id, registration_number,
@@ -161,7 +208,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string, cursor 
 			ORDER BY created_at DESC, id DESC
 			LIMIT $3
 		`
-		args = []any{userID, cursor, limit + 1}
+		args = []any{params.UserID, params.Cursor, params.Limit + 1}
 	} else {
 		query = `
 			SELECT 
@@ -178,7 +225,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string, cursor 
 			ORDER BY created_at DESC, id DESC
 			LIMIT $2
 		`
-		args = []any{userID, limit + 1}
+		args = []any{params.UserID, params.Limit + 1}
 	}
 
 	rows, err := r.pool.Query(ctx, query, args...)
@@ -209,17 +256,17 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string, cursor 
 		return nil, domain.BikeListMeta{}, err
 	}
 
-	hasMore := len(bikes) > limit
+	hasMore := len(bikes) > params.Limit
 	nextCursor := ""
 	if hasMore {
-		nextCursor = bikes[limit-1].ID
-		bikes = bikes[:limit]
+		nextCursor = bikes[params.Limit-1].ID
+		bikes = bikes[:params.Limit]
 	}
 
 	meta := domain.BikeListMeta{
 		Total:      total,
-		Limit:      limit,
-		Cursor:     cursor,
+		Limit:      params.Limit,
+		Cursor:     params.Cursor,
 		NextCursor: nextCursor,
 		HasMore:    hasMore,
 	}
@@ -227,7 +274,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, userID string, cursor 
 	return bikes, meta, nil
 }
 
-func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bikeID string, isImmobilized bool) (string, error) {
+func (r *BikeRepository) SetImmobilized(ctx context.Context, params SetImmobilizedParams) (string, error) {
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
 		return "", err
@@ -242,7 +289,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 	`
-	err = tx.QueryRow(ctx, checkQuery, userID, bikeID).Scan(&currentImmobilized, &imei, &lat, &lng)
+	err = tx.QueryRow(ctx, checkQuery, params.UserID, params.BikeID).Scan(&currentImmobilized, &imei, &lat, &lng)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", ErrNotFound
@@ -250,7 +297,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		return "", err
 	}
 
-	if currentImmobilized == isImmobilized {
+	if currentImmobilized == params.IsImmobilized {
 		return imei, nil
 	}
 
@@ -259,12 +306,12 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		SET is_immobilized = $1, updated_at = NOW()
 		WHERE user_id = $2 AND id = $3
 	`
-	if _, err := tx.Exec(ctx, updateQuery, isImmobilized, userID, bikeID); err != nil {
+	if _, err := tx.Exec(ctx, updateQuery, params.IsImmobilized, params.UserID, params.BikeID); err != nil {
 		return "", err
 	}
 
 	eventType := "IMMOBILIZED"
-	if !isImmobilized {
+	if !params.IsImmobilized {
 		eventType = "REACTIVATED"
 	}
 
@@ -272,7 +319,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, NOW())
 	`
-	if _, err := tx.Exec(ctx, eventQuery, bikeID, eventType, lat, lng); err != nil {
+	if _, err := tx.Exec(ctx, eventQuery, params.BikeID, eventType, lat, lng); err != nil {
 		return "", err
 	}
 
@@ -362,14 +409,14 @@ func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBik
 	return true, nil
 }
 
-func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID string, regNumber string, excludeBikeID string) (bool, error) {
+func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, params ExistsRegParams) (bool, error) {
 	var row pgx.Row
-	if excludeBikeID != "" {
+	if params.ExcludeBikeID != "" {
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1`
-		row = r.pool.QueryRow(ctx, query, userID, regNumber, excludeBikeID)
+		row = r.pool.QueryRow(ctx, query, params.UserID, params.RegNumber, params.ExcludeBikeID)
 	} else {
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) LIMIT 1`
-		row = r.pool.QueryRow(ctx, query, userID, regNumber)
+		row = r.pool.QueryRow(ctx, query, params.UserID, params.RegNumber)
 	}
 	var val int
 	err := row.Scan(&val)
@@ -384,15 +431,10 @@ func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID st
 
 func (r *BikeRepository) GetBreadcrumbs(
 	ctx context.Context,
-	userID string,
-	bikeID string,
-	startDate string,
-	endDate string,
-	cursor int64,
-	limit int,
+	params GetBreadcrumbsParams,
 ) ([]domain.BreadcrumbDTO, domain.PaginationMeta, error) {
-	if limit <= 0 || limit > 1000 {
-		limit = 25
+	if params.Limit <= 0 || params.Limit > 1000 {
+		params.Limit = 25
 	}
 
 	var total int
@@ -403,34 +445,34 @@ func (r *BikeRepository) GetBreadcrumbs(
 		WHERE b.user_id = $1 AND bb.bike_id = $2
 	`
 	var countArgs []any
-	if startDate != "" && endDate != "" {
+	if params.StartDate != "" && params.EndDate != "" {
 		countQuery += ` AND bb.recorded_at >= $3 AND bb.recorded_at <= $4`
-		countArgs = []any{userID, bikeID, startDate, endDate}
-	} else if startDate != "" {
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate, params.EndDate}
+	} else if params.StartDate != "" {
 		countQuery += ` AND bb.recorded_at >= $3`
-		countArgs = []any{userID, bikeID, startDate}
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate}
 	} else {
-		countArgs = []any{userID, bikeID}
+		countArgs = []any{params.UserID, params.BikeID}
 	}
 	_ = r.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&total)
 
 	whereClause := "b.user_id = $1 AND bb.bike_id = $2"
-	args := []any{userID, bikeID}
+	args := []any{params.UserID, params.BikeID}
 	argIdx := 3
 
-	if startDate != "" && endDate != "" {
+	if params.StartDate != "" && params.EndDate != "" {
 		whereClause += fmt.Sprintf(" AND bb.recorded_at >= $%d AND bb.recorded_at <= $%d", argIdx, argIdx+1)
-		args = append(args, startDate, endDate)
+		args = append(args, params.StartDate, params.EndDate)
 		argIdx += 2
-	} else if startDate != "" {
+	} else if params.StartDate != "" {
 		whereClause += fmt.Sprintf(" AND bb.recorded_at >= $%d", argIdx)
-		args = append(args, startDate)
+		args = append(args, params.StartDate)
 		argIdx++
 	}
 
-	if cursor > 0 {
+	if params.Cursor > 0 {
 		whereClause += fmt.Sprintf(" AND bb.id > $%d", argIdx)
-		args = append(args, cursor)
+		args = append(args, params.Cursor)
 		argIdx++
 	}
 
@@ -442,7 +484,7 @@ func (r *BikeRepository) GetBreadcrumbs(
 		ORDER BY bb.id ASC
 		LIMIT $%d
 	`, whereClause, argIdx)
-	args = append(args, limit+1)
+	args = append(args, params.Limit+1)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
@@ -467,16 +509,16 @@ func (r *BikeRepository) GetBreadcrumbs(
 		return nil, domain.PaginationMeta{}, err
 	}
 
-	hasMore := len(points) > limit
+	hasMore := len(points) > params.Limit
 	var nextCursor int64
 	if hasMore {
-		nextCursor = points[limit-1].ID
-		points = points[:limit]
+		nextCursor = points[params.Limit-1].ID
+		points = points[:params.Limit]
 	}
 
 	cursorStr := ""
-	if cursor > 0 {
-		cursorStr = strconv.FormatInt(cursor, 10)
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
 	}
 	nextCursorStr := ""
 	if nextCursor > 0 {
@@ -485,7 +527,7 @@ func (r *BikeRepository) GetBreadcrumbs(
 
 	meta := domain.PaginationMeta{
 		Total:      total,
-		Limit:      limit,
+		Limit:      params.Limit,
 		Cursor:     cursorStr,
 		NextCursor: nextCursorStr,
 		HasMore:    hasMore,
@@ -496,15 +538,10 @@ func (r *BikeRepository) GetBreadcrumbs(
 
 func (r *BikeRepository) GetEvents(
 	ctx context.Context,
-	userID string,
-	bikeID string,
-	startDate string,
-	endDate string,
-	cursor int64,
-	limit int,
+	params GetEventsParams,
 ) ([]domain.BikeEventDTO, domain.PaginationMeta, error) {
-	if limit <= 0 || limit > 1000 {
-		limit = 25
+	if params.Limit <= 0 || params.Limit > 1000 {
+		params.Limit = 25
 	}
 
 	var total int
@@ -515,34 +552,34 @@ func (r *BikeRepository) GetEvents(
 		WHERE b.user_id = $1 AND be.bike_id = $2
 	`
 	var countArgs []any
-	if startDate != "" && endDate != "" {
+	if params.StartDate != "" && params.EndDate != "" {
 		countQuery += ` AND be.recorded_at >= $3 AND be.recorded_at <= $4`
-		countArgs = []any{userID, bikeID, startDate, endDate}
-	} else if startDate != "" {
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate, params.EndDate}
+	} else if params.StartDate != "" {
 		countQuery += ` AND be.recorded_at >= $3`
-		countArgs = []any{userID, bikeID, startDate}
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate}
 	} else {
-		countArgs = []any{userID, bikeID}
+		countArgs = []any{params.UserID, params.BikeID}
 	}
 	_ = r.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&total)
 
 	whereClause := "b.user_id = $1 AND be.bike_id = $2"
-	args := []any{userID, bikeID}
+	args := []any{params.UserID, params.BikeID}
 	argIdx := 3
 
-	if startDate != "" && endDate != "" {
+	if params.StartDate != "" && params.EndDate != "" {
 		whereClause += fmt.Sprintf(" AND be.recorded_at >= $%d AND be.recorded_at <= $%d", argIdx, argIdx+1)
-		args = append(args, startDate, endDate)
+		args = append(args, params.StartDate, params.EndDate)
 		argIdx += 2
-	} else if startDate != "" {
+	} else if params.StartDate != "" {
 		whereClause += fmt.Sprintf(" AND be.recorded_at >= $%d", argIdx)
-		args = append(args, startDate)
+		args = append(args, params.StartDate)
 		argIdx++
 	}
 
-	if cursor > 0 {
+	if params.Cursor > 0 {
 		whereClause += fmt.Sprintf(" AND be.id > $%d", argIdx)
-		args = append(args, cursor)
+		args = append(args, params.Cursor)
 		argIdx++
 	}
 
@@ -554,7 +591,7 @@ func (r *BikeRepository) GetEvents(
 		ORDER BY be.id ASC
 		LIMIT $%d
 	`, whereClause, argIdx)
-	args = append(args, limit+1)
+	args = append(args, params.Limit+1)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
@@ -577,16 +614,16 @@ func (r *BikeRepository) GetEvents(
 		return nil, domain.PaginationMeta{}, err
 	}
 
-	hasMore := len(events) > limit
+	hasMore := len(events) > params.Limit
 	var nextCursor int64
 	if hasMore {
-		nextCursor = events[limit-1].ID
-		events = events[:limit]
+		nextCursor = events[params.Limit-1].ID
+		events = events[:params.Limit]
 	}
 
 	cursorStr := ""
-	if cursor > 0 {
-		cursorStr = strconv.FormatInt(cursor, 10)
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
 	}
 	nextCursorStr := ""
 	if nextCursor > 0 {
@@ -595,7 +632,7 @@ func (r *BikeRepository) GetEvents(
 
 	meta := domain.PaginationMeta{
 		Total:      total,
-		Limit:      limit,
+		Limit:      params.Limit,
 		Cursor:     cursorStr,
 		NextCursor: nextCursorStr,
 		HasMore:    hasMore,
@@ -606,13 +643,10 @@ func (r *BikeRepository) GetEvents(
 
 func (r *BikeRepository) GetAllEvents(
 	ctx context.Context,
-	userID string,
-	severity string,
-	cursor int64,
-	limit int,
+	params GetAllEventsParams,
 ) ([]domain.BikeEventDTO, domain.PaginationMeta, int, int, int, error) {
-	if limit <= 0 || limit > 100 {
-		limit = 10
+	if params.Limit <= 0 || params.Limit > 100 {
+		params.Limit = 10
 	}
 
 	// 1. Fetch aggregate counts for the user across all bikes
@@ -627,14 +661,14 @@ func (r *BikeRepository) GetAllEvents(
 		JOIN bikes b ON b.id = be.bike_id
 		WHERE b.user_id = $1
 	`
-	_ = r.pool.QueryRow(ctx, countsQuery, userID).Scan(&total, &criticalCount, &warningCount, &infoCount)
+	_ = r.pool.QueryRow(ctx, countsQuery, params.UserID).Scan(&total, &criticalCount, &warningCount, &infoCount)
 
 	// 2. Build where clause
 	whereClause := "b.user_id = $1"
-	args := []any{userID}
+	args := []any{params.UserID}
 	argIdx := 2
 
-	sev := strings.ToUpper(strings.TrimSpace(severity))
+	sev := strings.ToUpper(strings.TrimSpace(params.Severity))
 	switch sev {
 	case "CRITICAL":
 		whereClause += " AND (be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%IMPACT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%' OR be.event_type ILIKE '%CUT%')"
@@ -653,9 +687,9 @@ func (r *BikeRepository) GetAllEvents(
 		filteredTotal = infoCount
 	}
 
-	if cursor > 0 {
+	if params.Cursor > 0 {
 		whereClause += fmt.Sprintf(" AND be.id < $%d", argIdx)
-		args = append(args, cursor)
+		args = append(args, params.Cursor)
 		argIdx++
 	}
 
@@ -667,7 +701,7 @@ func (r *BikeRepository) GetAllEvents(
 		ORDER BY be.id DESC
 		LIMIT $%d
 	`, whereClause, argIdx)
-	args = append(args, limit+1)
+	args = append(args, params.Limit+1)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
@@ -690,16 +724,16 @@ func (r *BikeRepository) GetAllEvents(
 		return nil, domain.PaginationMeta{}, 0, 0, 0, err
 	}
 
-	hasMore := len(events) > limit
+	hasMore := len(events) > params.Limit
 	var nextCursor int64
 	if hasMore {
-		nextCursor = events[limit-1].ID
-		events = events[:limit]
+		nextCursor = events[params.Limit-1].ID
+		events = events[:params.Limit]
 	}
 
 	cursorStr := ""
-	if cursor > 0 {
-		cursorStr = strconv.FormatInt(cursor, 10)
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
 	}
 	nextCursorStr := ""
 	if nextCursor > 0 {
@@ -708,7 +742,7 @@ func (r *BikeRepository) GetAllEvents(
 
 	meta := domain.PaginationMeta{
 		Total:      filteredTotal,
-		Limit:      limit,
+		Limit:      params.Limit,
 		Cursor:     cursorStr,
 		NextCursor: nextCursorStr,
 		HasMore:    hasMore,

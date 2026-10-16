@@ -57,6 +57,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY_TOKEN, session.access_token);
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(session.user));
+      document.cookie = `motoguard_token=${encodeURIComponent(session.access_token)}; path=/; SameSite=Lax`;
     }
   }
 
@@ -67,6 +68,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY_TOKEN);
       localStorage.removeItem(STORAGE_KEY_USER);
+      document.cookie = 'motoguard_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
   }
 

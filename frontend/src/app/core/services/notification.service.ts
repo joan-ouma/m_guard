@@ -13,6 +13,17 @@ interface SnsRegisterResponse {
   };
 }
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -93,12 +104,40 @@ export class NotificationService {
       }
 
       this.statusMessage.set('Obtaining device token...');
-      let clientID = localStorage.getItem('motorguard_client_device_id');
-      if (!clientID) {
-        clientID = 'web_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-        localStorage.setItem('motorguard_client_device_id', clientID);
+      let pushToken = '';
+
+      // Attempt to obtain genuine browser PushManager subscription
+      if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          let sub = await reg.pushManager.getSubscription();
+
+          if (!sub && environment.vapidPublicKey) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(environment.vapidPublicKey),
+            });
+          }
+
+          if (sub) {
+            // Chrome / Edge FCM endpoint: https://fcm.googleapis.com/fcm/send/<DEVICE_TOKEN>
+            const endpointParts = sub.endpoint.split('/');
+            pushToken = endpointParts[endpointParts.length - 1];
+          }
+        } catch (subErr) {
+          console.warn('Native PushManager subscription failed or VAPID key not configured:', subErr);
+        }
       }
-      const pushToken = clientID;
+
+      // Fallback to client device ID if pushManager is not configured
+      if (!pushToken) {
+        let clientID = localStorage.getItem('motorguard_client_device_id');
+        if (!clientID) {
+          clientID = 'web_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+          localStorage.setItem('motorguard_client_device_id', clientID);
+        }
+        pushToken = clientID;
+      }
 
       this.statusMessage.set('Enabling push notifications...');
       const response = await firstValueFrom(
@@ -210,22 +249,30 @@ export class NotificationService {
       data: { url: url || '/' },
     };
 
-    if ('serviceWorker' in navigator) {
+    // 1. Direct browser Notification constructor (instant on desktop)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       try {
-        const reg = await navigator.serviceWorker.ready;
+        new Notification(title, options);
+        return;
+      } catch {
+        // Mobile browsers may require ServiceWorker showNotification
+      }
+    }
+
+    // 2. Service Worker fallback (Mobile PWA)
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      try {
+        const reg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+        ]);
         if (reg && reg.showNotification) {
           await reg.showNotification(title, options);
           return;
         }
       } catch (err) {
-        console.warn('SW notification fallback to Notification constructor:', err);
+        console.warn('Could not display system notification:', err);
       }
-    }
-
-    try {
-      new Notification(title, options);
-    } catch (e) {
-      console.warn('Could not display system notification:', e);
     }
   }
 }

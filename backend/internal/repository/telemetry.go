@@ -10,6 +10,42 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// --- Parameter Types ---
+
+type CheckGeofenceParams struct {
+	GeofenceID string
+	Latitude   float64
+	Longitude  float64
+}
+
+type SaveTelemetryParams struct {
+	BikeID        string
+	SensorID      string
+	Latitude      float64
+	Longitude     float64
+	Address       string
+	SubCounty     string
+	County        string
+	SpeedKMH      float64
+	HeadingDeg    float64
+	Status        string
+	Ignition      bool
+	Battery       int
+	SignalQuality int
+	Breach        bool
+	RecordedAt    time.Time
+}
+
+type SaveEventParams struct {
+	BikeID     string
+	EventType  string
+	Latitude   float64
+	Longitude  float64
+	RecordedAt time.Time
+}
+
+// --- Repository ---
+
 type TelemetryRepository struct {
 	pool *pgxpool.Pool
 }
@@ -78,8 +114,8 @@ func (r *TelemetryRepository) GetBikeLastPosition(ctx context.Context, bikeID st
 	return lat, lng, *lastTime, true, nil
 }
 
-func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceID string, lat float64, lng float64) (bool, string, error) {
-	if geofenceID == "" {
+func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, params CheckGeofenceParams) (bool, string, error) {
+	if params.GeofenceID == "" {
 		return false, "", nil
 	}
 
@@ -96,7 +132,7 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceI
 	var name string
 	var alertOnExit, alertOnEntry, isOutside bool
 
-	err := r.pool.QueryRow(ctx, query, lng, lat, geofenceID).Scan(&name, &alertOnExit, &alertOnEntry, &isOutside)
+	err := r.pool.QueryRow(ctx, query, params.Longitude, params.Latitude, params.GeofenceID).Scan(&name, &alertOnExit, &alertOnEntry, &isOutside)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return false, "", nil
@@ -115,28 +151,14 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceI
 func (r *TelemetryRepository) SaveTelemetry(
 	ctx context.Context,
 	tx pgx.Tx,
-	bikeID string,
-	sensorID string,
-	lat float64,
-	lng float64,
-	address string,
-	subCounty string,
-	county string,
-	speed float64,
-	heading float64,
-	status string,
-	ignition bool,
-	battery int,
-	signalQuality int,
-	breach bool,
-	recordedAt time.Time,
+	params SaveTelemetryParams,
 ) error {
 	updateTrackerQuery := `
 		UPDATE trackers
 		SET last_online_at = $1, updated_at = $1
 		WHERE imei = $2
 	`
-	_, _ = tx.Exec(ctx, updateTrackerQuery, recordedAt, sensorID)
+	_, _ = tx.Exec(ctx, updateTrackerQuery, params.RecordedAt, params.SensorID)
 
 	updateBikeQuery := `
 		UPDATE bikes
@@ -157,7 +179,9 @@ func (r *TelemetryRepository) SaveTelemetry(
 		WHERE id = $13
 	`
 	_, err := tx.Exec(ctx, updateBikeQuery,
-		lat, lng, address, subCounty, county, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
+		params.Latitude, params.Longitude, params.Address, params.SubCounty, params.County,
+		params.SpeedKMH, params.HeadingDeg, params.Status, params.Ignition,
+		params.Battery, params.SignalQuality, params.RecordedAt, params.BikeID,
 	)
 	if err != nil {
 		return err
@@ -171,7 +195,8 @@ func (r *TelemetryRepository) SaveTelemetry(
 		)
 	`
 	_, err = tx.Exec(ctx, insertBreadcrumbQuery,
-		bikeID, lat, lng, heading, speed, ignition, battery, breach, recordedAt,
+		params.BikeID, params.Latitude, params.Longitude, params.HeadingDeg,
+		params.SpeedKMH, params.Ignition, params.Battery, params.Breach, params.RecordedAt,
 	)
 	return err
 }
@@ -185,16 +210,12 @@ func (r *TelemetryRepository) GetGeofenceIDForBike(ctx context.Context, bikeID s
 
 func (r *TelemetryRepository) SaveEvent(
 	ctx context.Context,
-	bikeID string,
-	eventType string,
-	lat float64,
-	lng float64,
-	recordedAt time.Time,
+	params SaveEventParams,
 ) error {
 	query := `
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err := r.pool.Exec(ctx, query, bikeID, eventType, lat, lng, recordedAt)
+	_, err := r.pool.Exec(ctx, query, params.BikeID, params.EventType, params.Latitude, params.Longitude, params.RecordedAt)
 	return err
 }

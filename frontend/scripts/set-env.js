@@ -10,6 +10,7 @@ fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 const fileContent = `export const environment = {
   production: ${isProd},
   apiBaseUrl: '${process.env.API_BASE_URL || ''}',
+  vapidPublicKey: '${process.env.VAPID_PUBLIC_KEY || ''}',
 };
 `;
 

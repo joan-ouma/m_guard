@@ -45,6 +45,10 @@ export class NotificationBellComponent {
 
   async onSendTestSns(): Promise<void> {
     this.isSendingTest.set(true);
+    await this.notificationService.notify(
+      '🚨 MotorGuard Test Alert',
+      'System alert verified! Real-time vehicle notifications are working on this browser.'
+    );
     const ok = await this.notificationService.sendTestSNSAlert();
     this.isSendingTest.set(false);
     if (ok) {
