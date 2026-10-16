@@ -99,6 +99,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         notif.activity,
         notif.bikeId ? `/history?bike=${notif.bikeId}` : '/history'
       );
+
+      const rawType = (alert.event_type || alert.eventType || '').toUpperCase();
+      if (rawType.includes('STOP') || rawType.includes('DURESS') || rawType.includes('CRASH')) {
+        const bike = this.fleet()[notif.bikeId];
+        if (bike) {
+          this.triggerDuress(bike);
+        }
+      }
     });
 
     effect(() => {
@@ -244,9 +252,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const mapEl = document.getElementById('map');
     if (!mapEl) return;
 
-    const centerLat = bike ? bike.lat : -1.286389;
-    const centerLng = bike ? bike.lng : 36.817223;
-    const zoomLevel = bike ? 13 : 11;
+    const hasBikeCoords = bike && (bike.lat !== 0 || bike.lng !== 0);
+    const centerLat = hasBikeCoords ? bike.lat : -1.286389;
+    const centerLng = hasBikeCoords ? bike.lng : 36.817223;
+    const zoomLevel = hasBikeCoords ? 14 : 11;
 
     this.map = L.map('map', {
       zoomControl: false,
@@ -271,7 +280,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     ).addTo(this.map);
 
-    if (bike) {
+    if (hasBikeCoords && bike) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
         icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
       }).addTo(this.map);
@@ -315,7 +324,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!this.bikeMarker) {
+    const hasCoordinates = bike.lat !== 0 || bike.lng !== 0;
+
+    if (!hasCoordinates) {
+      if (this.bikeMarker) {
+        this.bikeMarker.remove();
+        this.bikeMarker = null;
+      }
+    } else if (!this.bikeMarker) {
       this.bikeMarker = L.marker([bike.lat, bike.lng], {
         icon: this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, false),
       }).addTo(this.map);
@@ -355,8 +371,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (recenter) {
-      const currentZoom = this.map.getZoom() || 13;
+    if (recenter && hasCoordinates) {
+      const currentZoom = this.map.getZoom() || 14;
       this.map.setView([bike.lat, bike.lng], currentZoom);
       this.map.invalidateSize();
     }
@@ -381,16 +397,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.clearPathLayers();
 
-    const coords: [number, number][] = points.map(
-      (p) => [p.latitude, p.longitude] as [number, number]
-    );
+    const coords: [number, number][] = points
+      .filter((p) => p.latitude !== 0 || p.longitude !== 0)
+      .map((p) => [p.latitude, p.longitude] as [number, number]);
 
+    const hasBikeCoords = currentBike.lat !== 0 || currentBike.lng !== 0;
     const isLastSame =
       coords.length > 0 &&
+      hasBikeCoords &&
       Math.abs(coords[coords.length - 1][0] - currentBike.lat) < 0.0001 &&
       Math.abs(coords[coords.length - 1][1] - currentBike.lng) < 0.0001;
 
-    if (!isLastSame) {
+    if (hasBikeCoords && !isLastSame) {
       coords.push([currentBike.lat, currentBike.lng]);
     }
 
@@ -626,9 +644,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isSubmitting.set(true);
     this.registrationError.set(null);
 
-    const parts = (val.model || '').trim().split(' ');
-    const make = parts[0] || 'Bajaj';
-    const model = parts.slice(1).join(' ') || val.model.trim();
+    const parts = (val.model || '').trim().split(/\s+/);
+    const make = parts[0] || '';
+    const model = parts.length > 1 ? parts.slice(1).join(' ') : (val.model || '').trim();
 
     this.bikeService
       .createBike({
@@ -639,9 +657,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         imei: val.imei.trim(),
         county: val.county,
         sub_county: val.subCounty,
-        latitude: -1.286389,
-        longitude: 36.817223,
-        current_address: 'Nairobi CBD Staging Yard',
+        latitude: 0,
+        longitude: 0,
+        current_address: '',
       })
       .subscribe({
         next: (res) => {
@@ -661,117 +679,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.registrationError.set(detail);
         },
       });
-  }
-
-  simulateBreach(): void {
-    const bike = this.selectedBike();
-    if (!bike) return;
-    const centerLat = bike.fenceCenterLat ?? bike.lat;
-    const centerLng = bike.fenceCenterLng ?? bike.lng;
-    const radius = bike.fenceRadius > 0 ? bike.fenceRadius : 2500;
-    const exitLat = centerLat + 0.036;
-    const exitLng = centerLng + 0.024;
-    const nowIso = new Date().toISOString();
-
-    this.fleet.update((prev) => {
-      const key = this.activeKey();
-      if (!prev[key]) return prev;
-      return {
-        ...prev,
-        [key]: {
-          ...prev[key],
-          hasGeofence: true,
-          fenceCenterLat: centerLat,
-          fenceCenterLng: centerLng,
-          fenceName: bike.fenceName || 'Safe Operational Zone',
-          fenceRadius: radius,
-          lat: exitLat,
-          lng: exitLng,
-          lastSeenAt: nowIso,
-        },
-      };
-    });
-
-    if (this.bikeMarker) {
-      this.bikeMarker.setLatLng([exitLat, exitLng]);
-      this.bikeMarker.setIcon(
-        this.createBadgeIcon(bike.plate, bike.status, bike.isImmobilized, true)
-      );
-    }
-
-    if (this.map) {
-      if (!this.geofenceLayer) {
-        this.geofenceLayer = L.circle([centerLat, centerLng], {
-          color: '#F43F5E',
-          fillColor: '#F43F5E',
-          fillOpacity: 0.16,
-          weight: 2.5,
-          dashArray: '4, 4',
-          radius: radius,
-        }).addTo(this.map);
-      } else {
-        this.geofenceLayer
-          .setLatLng([centerLat, centerLng])
-          .setRadius(radius)
-          .setStyle({
-            color: '#F43F5E',
-            fillColor: '#F43F5E',
-            fillOpacity: 0.16,
-            weight: 2.5,
-            dashArray: '4, 4',
-          });
-      }
-    }
-
-    if (this.pathPolyline) {
-      this.pathPolyline.addLatLng([exitLat, exitLng]);
-    }
-    if (this.pathGlow) {
-      this.pathGlow.addLatLng([exitLat, exitLng]);
-    }
-
-    this.isBreachActive.set(true);
-    this.alertBannerText.set(`Breach email sent to ${bike.email}`);
-
-    this.addNotification({
-      id: `breach-${Date.now()}`,
-      title: `${bike.plate} • Geofence Breach`,
-      activity: `Vehicle exited ${bike.fenceName} perimeter`,
-      bikeId: bike.id,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      read: false,
-    });
-
-    this.notificationService.notify(
-      `${bike.plate} • Geofence Breach`,
-      `Vehicle exited ${bike.fenceName} perimeter`,
-      bike.id ? `/history?bike=${bike.id}` : '/history'
-    );
-
-    this.map?.panTo([exitLat, exitLng]);
-  }
-
-  simulateSuddenStop(): void {
+  triggerDuress(bike: FleetBike): void {
     if (this.showDuressPrompt()) return;
-    const bike = this.selectedBike();
-    if (!bike) return;
     this.showDuressPrompt.set(true);
     this.duressCountdown.set(30);
-    this.addNotification({
-      id: `stop-${Date.now()}`,
-      title: `${bike.plate} • Sudden Stop`,
-      activity: 'Rapid deceleration anomaly detected',
-      bikeId: bike.id,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      read: false,
-    });
 
-    this.notificationService.notify(
-      `${bike.plate} • Sudden Stop`,
-      'Rapid deceleration anomaly detected',
-      bike.id ? `/history?bike=${bike.id}` : '/history'
-    );
-
+    if (this.duressInterval) clearInterval(this.duressInterval);
     this.duressInterval = setInterval(() => {
       const current = this.duressCountdown() - 1;
       this.duressCountdown.set(current);
@@ -998,7 +911,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private mapToFleetBike(b: BikeDTO): FleetBike {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
-    const timestamp = b.last_telemetry_at || b.updated_at || b.created_at;
+    const timestamp = b.last_telemetry_at;
     const movementStatus = b.status === 'RUNNING' || b.speed_kmh > 0 ? 'Moving' : 'Stationary';
     const hasGeofence = !!b.geofence_id;
 
@@ -1010,25 +923,27 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       status: b.status,
       movementStatus,
       speedText: speedText,
-      address: b.current_address || 'Depot / Staging Yard',
-      county: b.county || 'Nairobi County',
-      subCounty: b.sub_county || 'Starehe',
-      lat: b.latitude || -1.286389,
-      lng: b.longitude || 36.817223,
+      address: b.current_address || 'Awaiting GPS lock...',
+      county: b.county || '',
+      subCounty: b.sub_county || '',
+      lat: b.latitude,
+      lng: b.longitude,
+      accuracy: b.accuracy ?? 0,
+      locType: b.loc_type || 'gps',
       hasGeofence: hasGeofence,
-      fenceCenterLat: hasGeofence ? b.latitude || -1.286389 : undefined,
-      fenceCenterLng: hasGeofence ? b.longitude || 36.817223 : undefined,
-      fenceName: hasGeofence ? 'Assigned Geofence' : '',
+      fenceCenterLat: hasGeofence && (b.latitude !== 0 || b.longitude !== 0) ? b.latitude : undefined,
+      fenceCenterLng: hasGeofence && (b.latitude !== 0 || b.longitude !== 0) ? b.longitude : undefined,
+      fenceName: hasGeofence ? (b.label ? `${b.label} Geofence` : 'Assigned Geofence') : '',
       fenceRadius: hasGeofence ? 2500 : 0,
       triggerCondition: 'Alert on Exit',
       email: this.authService.currentUser()?.email || '',
-      lastSeenAt: timestamp,
+      lastSeenAt: timestamp || undefined,
       isImmobilized: !!b.is_immobilized,
-      riderName: this.authService.currentUser()?.name || 'Primary Rider',
-      riderNationalId: this.authService.currentUser()?.national_id || 'N/A',
-      riderPhone: this.authService.currentUser()?.phone_number || 'N/A',
-      signalQuality: b.signal_quality_csq,
-      batteryPercent: b.battery_percent ?? 100,
+      riderName: this.authService.currentUser()?.name || '',
+      riderNationalId: this.authService.currentUser()?.national_id || '',
+      riderPhone: this.authService.currentUser()?.phone_number || '',
+      signalQuality: b.signal_quality_csq ?? 0,
+      batteryPercent: b.battery_percent ?? 0,
     };
   }
 }

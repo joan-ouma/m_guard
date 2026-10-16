@@ -184,6 +184,9 @@ export class NotificationService {
       // Attempt to obtain genuine browser PushManager subscription
       if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
         try {
+          if (!navigator.serviceWorker.controller) {
+            await navigator.serviceWorker.register('/sw.js');
+          }
           const reg = await navigator.serviceWorker.ready;
           let sub = await reg.pushManager.getSubscription();
 
@@ -203,14 +206,14 @@ export class NotificationService {
         }
       }
 
-      // Fallback to client device ID if pushManager is not configured
       if (!pushToken) {
-        let clientID = localStorage.getItem('motorguard_client_device_id');
-        if (!clientID) {
-          clientID = 'web_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-          localStorage.setItem('motorguard_client_device_id', clientID);
-        }
-        pushToken = clientID;
+        Swal.fire({
+          icon: 'warning',
+          title: 'Push Service Unavailable',
+          text: 'A browser push subscription could not be established. Please verify that notifications and Service Workers are supported and enabled in your browser.',
+          confirmButtonColor: '#09090b',
+        });
+        return false;
       }
 
       this.statusMessage.set('Enabling push notifications...');

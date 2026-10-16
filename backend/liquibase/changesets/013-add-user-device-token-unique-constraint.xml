@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="013-add-user-device-token-unique-constraint" author="motoguard">
+        <comment>Ensure unique constraint on user_notification_endpoints(user_id, device_token)</comment>
+        <sqlFile path="../sql/013-add-user-device-token-unique-constraint.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+    </changeSet>
+
+</databaseChangeLog>

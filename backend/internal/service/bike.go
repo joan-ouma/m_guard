@@ -130,8 +130,8 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 		CurrentAddress:     strings.TrimSpace(req.CurrentAddress),
 		SubCounty:          strings.TrimSpace(req.SubCounty),
 		County:             strings.TrimSpace(req.County),
-		BatteryPercent:     100,
-		SignalQualityCSQ:   20,
+		BatteryPercent:     0,
+		SignalQualityCSQ:   0,
 		LastTelemetryAt:    nil,
 		GeofenceID:         strings.TrimSpace(req.GeofenceID),
 		DriverContactID:    strings.TrimSpace(req.DriverContactID),
@@ -533,6 +533,8 @@ func ToBikeDTO(b *domain.Bike) domain.BikeDTO {
 		HeadingDeg:         b.HeadingDeg,
 		Latitude:           b.Latitude,
 		Longitude:          b.Longitude,
+		Accuracy:           b.Accuracy,
+		LocType:            b.LocType,
 		CurrentAddress:     b.CurrentAddress,
 		SubCounty:          b.SubCounty,
 		County:             b.County,
@@ -654,9 +656,6 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 			defer cancel()
 
 			dashURL := s.frontendURL
-			if dashURL == "" {
-				dashURL = "https://mxguard.jullie.tech"
-			}
 
 			emailErr := s.mailer.SendTrackerAttachedEmail(ctxEmail, recipientEmail, recipientName, mailer.TrackerAttachedEmailData{
 				RiderName:        recipientName,
@@ -667,13 +666,12 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 				IMEI:             bDTO.IMEI,
 				AttachedAt:       time.Now().UTC().Format(time.RFC1123),
 				DashboardURL:     dashURL,
-				ReplyToEmail:     "hello@jullie.tech",
 			})
 			if emailErr != nil {
 				slog.Warn("Failed to send tracker attached email to rider", "email", recipientEmail, "error", emailErr)
-			} else {
-				slog.Info("Sent tracker attached email to rider", "email", recipientEmail, "bike", bDTO.RegistrationNumber)
+				return
 			}
+			slog.Info("Sent tracker attached email to rider", "email", recipientEmail, "bike", bDTO.RegistrationNumber)
 		}(riderEmail, riderName, dto)
 	}
 

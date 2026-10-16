@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS bike_breadcrumbs (
     speed_kmh DOUBLE PRECISION DEFAULT 0.0,
     heading_deg DOUBLE PRECISION DEFAULT 0.0,
     ignition BOOLEAN DEFAULT FALSE,
-    battery_percent INT DEFAULT 100,
+    battery_percent INT DEFAULT 0,
     address TEXT,
     geofence_breach BOOLEAN DEFAULT FALSE,
     event_type VARCHAR(64) DEFAULT 'ROUTINE',

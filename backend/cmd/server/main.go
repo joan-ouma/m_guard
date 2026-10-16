@@ -49,9 +49,6 @@ func main() {
 			"sender_email", cfg.MailjetSenderEmail,
 		)
 		mailClient = mailer.NewMailjetMailer(cfg.MailjetAPIKey, cfg.MailjetSecretKey, cfg.MailjetSenderEmail, cfg.MailjetSenderName, cfg.MailjetReplyToEmail)
-	} else {
-		slog.Info("Mailjet API credentials not configured, falling back to NoopMailer")
-		mailClient = &mailer.NoopMailer{}
 	}
 
 	jwtManager := security.NewJWTManager(cfg.JWTSecret, 15*time.Minute)
@@ -63,14 +60,8 @@ func main() {
 	defer sseBroker.Stop()
 
 	// Initialize AWS SNS Notification Service
-	var snsClient notification.SNSClient
-	if cfg.AWSAccessKeyID != "" && cfg.AWSSecretAccessKey != "" {
-		slog.Info("Initializing AWS SNS client", "region", cfg.AWSRegion, "platform_app_arn", cfg.AWSSNSPlatformAppARN)
-		snsClient = notification.NewAWSSNSClient(cfg.AWSRegion, cfg.AWSAccessKeyID, cfg.AWSSecretAccessKey)
-	} else {
-		slog.Info("AWS credentials not configured, falling back to NoopSNSClient")
-		snsClient = &notification.NoopSNSClient{}
-	}
+	slog.Info("Initializing AWS SNS client", "region", cfg.AWSRegion, "platform_app_arn", cfg.AWSSNSPlatformAppARN)
+	snsClient := notification.NewAWSSNSClient(cfg.AWSRegion, cfg.AWSAccessKeyID, cfg.AWSSecretAccessKey)
 
 	notificationRepo := notification.NewRepository(pool)
 	notificationService := notification.NewService(snsClient, notificationRepo, cfg.AWSSNSPlatformAppARN, cfg.AWSSNSTopicARN)

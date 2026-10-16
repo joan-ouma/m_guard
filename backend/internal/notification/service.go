@@ -55,7 +55,7 @@ func (s *Service) RegisterDevice(ctx context.Context, params RegisterDeviceParam
 
 	appARN := s.platformAppARN
 	if appARN == "" {
-		appARN = "arn:aws:sns:local:123456789012:app/" + platform + "/motorguard-app"
+		return "", fmt.Errorf("AWS SNS Platform Application ARN is not configured")
 	}
 
 	endpointARN, err := s.snsClient.CreatePlatformEndpoint(ctx, appARN, token, params.UserID)

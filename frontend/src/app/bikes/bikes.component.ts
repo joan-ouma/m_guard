@@ -181,9 +181,10 @@ export class BikesComponent implements OnInit {
     this.registrationError.set(null);
 
     const val = this.registerForm.value;
-    const parts = val.model.trim().split(' ');
-    const make = parts[0] || 'Bajaj';
-    const model = parts.slice(1).join(' ') || val.model.trim();
+    const rawModel = (val.model || '').trim();
+    const parts = rawModel.split(/\s+/);
+    const make = parts[0] || '';
+    const model = parts.length > 1 ? parts.slice(1).join(' ') : rawModel;
 
     this.bikeService
       .createBike({
@@ -295,8 +296,8 @@ export class BikesComponent implements OnInit {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
 
-    let lastPing = '3s ago';
-    const pingTime = b.last_telemetry_at || b.updated_at || b.created_at;
+    let lastPing = 'No signal yet';
+    const pingTime = b.last_telemetry_at;
     if (pingTime) {
       const diffSec = Math.max(0, Math.floor((Date.now() - new Date(pingTime).getTime()) / 1000));
       if (diffSec < 60) lastPing = `${Math.max(1, diffSec)}s ago`;
@@ -312,15 +313,15 @@ export class BikesComponent implements OnInit {
       imei: b.imei,
       status: b.status,
       speedText: speedText,
-      address: b.current_address ? b.current_address : 'Calculating...',
-      county: b.county ? b.county : 'Calculating...',
-      subCounty: b.sub_county ? b.sub_county : 'Calculating...',
+      address: b.current_address ? b.current_address : 'Awaiting GPS lock...',
+      county: b.county ? b.county : '',
+      subCounty: b.sub_county ? b.sub_county : '',
       lat: b.latitude || 0,
       lng: b.longitude || 0,
       fenceName: b.geofence_id ? 'Assigned Geofence' : 'Not configured',
       fenceRadius: b.geofence_id ? 2500 : 0,
-      batteryPercent: b.battery_percent ?? 100,
-      signalQuality: b.signal_quality_csq ?? 20,
+      batteryPercent: b.battery_percent ?? 0,
+      signalQuality: b.signal_quality_csq ?? 0,
       lastPing: lastPing,
       isImmobilized: !!b.is_immobilized,
     };

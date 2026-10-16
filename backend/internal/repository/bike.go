@@ -106,11 +106,12 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	query := `
 		SELECT 
 			id, user_id, registration_number,
-			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
 			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
 			COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+			COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
 			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
-			COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
 			COALESCE(is_immobilized, false), created_at, updated_at
 		FROM bikes
@@ -125,6 +126,7 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
 		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
 		&b.Latitude, &b.Longitude,
+		&b.Accuracy, &b.LocType,
 		&b.CurrentAddress, &b.SubCounty, &b.County,
 		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 		&b.GeofenceID, &b.DriverContactID,
@@ -144,11 +146,12 @@ func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*dom
 	query := `
 		SELECT 
 			id, user_id, registration_number,
-			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
 			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
 			COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+			COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
 			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
-			COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
 			COALESCE(is_immobilized, false), created_at, updated_at
 		FROM bikes
@@ -163,6 +166,7 @@ func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*dom
 		&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
 		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
 		&b.Latitude, &b.Longitude,
+		&b.Accuracy, &b.LocType,
 		&b.CurrentAddress, &b.SubCounty, &b.County,
 		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 		&b.GeofenceID, &b.DriverContactID,
@@ -193,11 +197,12 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 		query = `
 			SELECT 
 				id, user_id, registration_number,
-				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
 				COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
 				COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+				COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
 				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
-				COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
 				COALESCE(is_immobilized, false), created_at, updated_at
 			FROM bikes
@@ -213,11 +218,12 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 		query = `
 			SELECT 
 				id, user_id, registration_number,
-				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 2024), COALESCE(color, ''), imei,
+				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
 				COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
 				COALESCE(latitude, 0.0), COALESCE(longitude, 0.0),
+				COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
 				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
-				COALESCE(battery_percent, 100), COALESCE(signal_quality_csq, 20), last_telemetry_at,
+				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
 				COALESCE(is_immobilized, false), created_at, updated_at
 			FROM bikes
@@ -242,6 +248,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 			&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
 			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
 			&b.Latitude, &b.Longitude,
+			&b.Accuracy, &b.LocType,
 			&b.CurrentAddress, &b.SubCounty, &b.County,
 			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 			&b.GeofenceID, &b.DriverContactID,
@@ -477,7 +484,7 @@ func (r *BikeRepository) GetBreadcrumbs(
 	}
 
 	query := fmt.Sprintf(`
-		SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
+		SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, COALESCE(bb.accuracy, 0.0), COALESCE(bb.loc_type, 'gps'), bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
 		FROM bike_breadcrumbs bb
 		JOIN bikes b ON b.id = bb.bike_id
 		WHERE %s
@@ -497,6 +504,7 @@ func (r *BikeRepository) GetBreadcrumbs(
 		var p domain.BreadcrumbDTO
 		err := rows.Scan(
 			&p.ID, &p.BikeID, &p.Latitude, &p.Longitude,
+			&p.Accuracy, &p.LocType,
 			&p.SpeedKMH, &p.HeadingDeg, &p.Ignition,
 			&p.BatteryPercent, &p.Address, &p.GeofenceBreach, &p.RecordedAt,
 		)
@@ -753,7 +761,7 @@ func (r *BikeRepository) GetAllEvents(
 
 func (r *BikeRepository) VerifyTracker(ctx context.Context, imei string) (*domain.TrackerStatusDTO, error) {
 	queryTracker := `
-		SELECT id, imei, COALESCE(model, 'MGuard-T100 GPS'), COALESCE(status, 'AVAILABLE')
+		SELECT id, imei, COALESCE(model, ''), COALESCE(status, 'AVAILABLE')
 		FROM trackers
 		WHERE imei = $1
 		LIMIT 1
@@ -813,7 +821,7 @@ func (r *BikeRepository) AttachBikeWithRider(ctx context.Context, userID string,
 	defer tx.Rollback(ctx)
 
 	// 1. Find tracker
-	queryTracker := `SELECT id, COALESCE(model, 'MGuard-T100 GPS') FROM trackers WHERE imei = $1 LIMIT 1`
+	queryTracker := `SELECT id, COALESCE(model, '') FROM trackers WHERE imei = $1 LIMIT 1`
 	var trackerID, trackerModel string
 	err = tx.QueryRow(ctx, queryTracker, req.IMEI).Scan(&trackerID, &trackerModel)
 	if err != nil {
@@ -861,9 +869,11 @@ func (r *BikeRepository) AttachBikeWithRider(ctx context.Context, userID string,
 		Ignition:           false,
 		SpeedKMH:           0.0,
 		HeadingDeg:         0.0,
-		Latitude:           -1.2921,
-		Longitude:          36.8219,
-		CurrentAddress:     "Nairobi, Kenya",
+		Latitude:           0.0,
+		Longitude:          0.0,
+		Accuracy:           0.0,
+		LocType:            "gps",
+		CurrentAddress:     "",
 		SubCounty:          req.SubCounty,
 		County:             req.County,
 		BatteryPercent:     100,

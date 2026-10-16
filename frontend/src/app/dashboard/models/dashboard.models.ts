@@ -20,6 +20,8 @@ export interface FleetBike {
   subCounty: string;
   lat: number;
   lng: number;
+  accuracy?: number;
+  locType?: string;
   hasGeofence: boolean;
   fenceCenterLat?: number;
   fenceCenterLng?: number;

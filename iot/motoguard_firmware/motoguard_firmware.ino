@@ -52,9 +52,17 @@ struct CellTowerInfo {
   int16_t  rssiDbm = -115; // Signal strength in dBm
 };
 
+struct CellNeighbor {
+  uint32_t lac = 0;
+  uint32_t cid = 0;
+  int16_t  rssiDbm = -115;
+};
+
 // Global System State
 static ImuData currentImu;
 static CellTowerInfo currentTower;
+static CellNeighbor neighborCells[7];
+static int neighborCellCount = 0;
 static LocationResult cachedLocation;
 
 static float deadReckonHeadingDeg = 0.0;
@@ -298,6 +306,66 @@ void updateServingCellTower(CellTowerInfo &tower) {
   parseSignalStrength(sendAT("AT+CSQ", 500), tower);
 }
 
+void scanNeighborCells() {
+  neighborCellCount = 0;
+  String resp = sendAT("AT+CENG?", 1200);
+  int startIdx = resp.indexOf("+CENG:");
+  if (startIdx == -1) return;
+
+  int searchPos = 0;
+  while (neighborCellCount < 7) {
+    int lineStart = resp.indexOf("+CENG:", searchPos);
+    if (lineStart == -1) break;
+
+    int lineEnd = resp.indexOf('\n', lineStart);
+    if (lineEnd == -1) lineEnd = resp.length();
+    String line = resp.substring(lineStart, lineEnd);
+    searchPos = lineEnd + 1;
+
+    int quoteStart = line.indexOf('\"');
+    int quoteEnd = line.lastIndexOf('\"');
+    if (quoteStart == -1 || quoteEnd <= quoteStart) continue;
+
+    String content = line.substring(quoteStart + 1, quoteEnd);
+    int commaCount = 0;
+    int prevComma = -1;
+    String tokens[12];
+    for (int i = 0; i <= (int)content.length(); i++) {
+      bool isComma = (i < (int)content.length() && content.charAt(i) == ',');
+      bool isEnd = (i == (int)content.length());
+      if (!isComma && !isEnd) continue;
+      if (commaCount < 12) {
+        tokens[commaCount++] = content.substring(prevComma + 1, i);
+      }
+      prevComma = i;
+    }
+
+    if (commaCount < 7) continue;
+
+    int rxlev = tokens[1].toInt();
+    int dbm = (rxlev > 0 && rxlev <= 63) ? (rxlev - 110) : -95;
+    uint32_t lac = 0;
+    uint32_t cid = 0;
+
+    bool isServing = line.startsWith("+CENG: 0");
+    if (isServing && commaCount >= 10) {
+      cid = strtoul(tokens[6].c_str(), NULL, 16);
+      lac = strtoul(tokens[9].c_str(), NULL, 16);
+    }
+    if (!isServing && commaCount >= 7) {
+      cid = strtoul(tokens[3].c_str(), NULL, 16);
+      lac = strtoul(tokens[6].c_str(), NULL, 16);
+    }
+
+    if (cid == 0 || lac == 0) continue;
+
+    neighborCells[neighborCellCount].lac = lac;
+    neighborCells[neighborCellCount].cid = cid;
+    neighborCells[neighborCellCount].rssiDbm = dbm;
+    neighborCellCount++;
+  }
+}
+
 LocationResult resolveBestLocation() {
   LocationResult loc;
 
@@ -313,8 +381,9 @@ LocationResult resolveBestLocation() {
     return loc;
   }
 
-  // Tier 3: Safaricom Cell Tower LAC/CID Lookup
+  // Tier 3: Safaricom Cell Tower LAC/CID Lookup & Multi-Cell Scan
   updateServingCellTower(currentTower);
+  scanNeighborCells();
 
   // Tier 4: Dead Reckoning (if moving and a valid previous fix exists)
   if (deadReckonSpeedMps > 1.0 && cachedLocation.lat != 0.0 && cachedLocation.lon != 0.0) {
@@ -467,7 +536,21 @@ bool mqttPublishPayload(const String &payload) {
 // TELEMETRY SERIALIZATION & DISPATCH
 // ============================================================================
 
+int queryBatteryPercent() {
+  String resp = sendAT("AT+CBC", 500);
+  int idx = resp.indexOf("+CBC: ");
+  if (idx == -1) return 0;
+  int c1 = resp.indexOf(',', idx);
+  if (c1 == -1) return 0;
+  int c2 = resp.indexOf(',', c1 + 1);
+  if (c2 == -1) return 0;
+  return resp.substring(c1 + 1, c2).toInt();
+}
+
 String serializeTelemetry(const LocationResult &loc, const ImuData &imu) {
+  int bat = queryBatteryPercent();
+  bool ign = (deadReckonSpeedMps > 0.3) || (loc.speedKmh > 1.0);
+
   String json = "{";
   json += "\"lat\":" + String(loc.lat, 6) + ",";
   json += "\"lng\":" + String(loc.lon, 6) + ",";
@@ -477,13 +560,21 @@ String serializeTelemetry(const LocationResult &loc, const ImuData &imu) {
   json += "\"lac\":" + String(currentTower.lac) + ",";
   json += "\"cid\":" + String(currentTower.cid) + ",";
   json += "\"csq\":" + String(currentTower.csq) + ",";
-  json += "\"bat\":100,"; // ADDED: Required by backend
+  json += "\"bat\":" + String(bat) + ",";
   json += "\"rssi_dbm\":" + String(currentTower.rssiDbm) + ",";
-  json += "\"spd\":" + String(deadReckonSpeedMps * 3.6, 1) + ","; // FIX: 'spd' instead of 'speed'
-  json += "\"hdg\":" + String(deadReckonHeadingDeg, 1) + ","; // FIX: 'hdg' instead of 'heading'
-  json += "\"ign\":true,";
+  json += "\"spd\":" + String(deadReckonSpeedMps * 3.6, 1) + ",";
+  json += "\"hdg\":" + String(deadReckonHeadingDeg, 1) + ",";
+  json += "\"ign\":" + String(ign ? "true" : "false") + ",";
   json += "\"ax\":" + String(imu.ax) + ",\"ay\":" + String(imu.ay) + ",\"az\":" + String(imu.az) + ",";
   json += "\"gx\":" + String(imu.gx) + ",\"gy\":" + String(imu.gy) + ",\"gz\":" + String(imu.gz);
+  if (neighborCellCount > 0) {
+    json += ",\"cells\":[";
+    for (int i = 0; i < neighborCellCount; i++) {
+      if (i > 0) json += ",";
+      json += "{\"lac\":" + String(neighborCells[i].lac) + ",\"cid\":" + String(neighborCells[i].cid) + ",\"dbm\":" + String(neighborCells[i].rssiDbm) + "}";
+    }
+    json += "]";
+  }
   json += "}";
   return json;
 }

@@ -312,37 +312,3 @@ func getSignatureKey(key, dateStamp, regionName, serviceName string) []byte {
 	kSigning := hmacSHA256(kService, []byte("aws4_request"))
 	return kSigning
 }
-
-// NoopSNSClient logs SNS operations when credentials are not configured
-type NoopSNSClient struct{}
-
-func (n *NoopSNSClient) CreatePlatformEndpoint(ctx context.Context, platformAppARN, token, customUserData string) (string, error) {
-	mockARN := fmt.Sprintf("arn:aws:sns:local:123456789012:endpoint/GCM/mock-app/%x", sha256.Sum256([]byte(token)))
-	slog.Info("NoopSNS: Registered platform endpoint", "app_arn", platformAppARN, "endpoint_arn", mockARN, "user", customUserData)
-	return mockARN, nil
-}
-
-func (n *NoopSNSClient) DeleteEndpoint(ctx context.Context, endpointARN string) error {
-	slog.Info("NoopSNS: Deleted endpoint", "endpoint_arn", endpointARN)
-	return nil
-}
-
-func (n *NoopSNSClient) PublishToEndpoint(ctx context.Context, endpointARN string, subject, rawMessage, gcmPayload string) (string, error) {
-	slog.Info("NoopSNS: Push published to endpoint", "endpoint_arn", endpointARN, "subject", subject, "message", rawMessage)
-	return "mock-msg-" + hex.EncodeToString(sha256HexBytes([]byte(rawMessage))), nil
-}
-
-func (n *NoopSNSClient) PublishSMS(ctx context.Context, phoneNumber, message string) (string, error) {
-	slog.Info("NoopSNS: SMS published", "phone_number", phoneNumber, "message", message)
-	return "mock-sms-id", nil
-}
-
-func (n *NoopSNSClient) PublishToTopic(ctx context.Context, topicARN string, subject, rawMessage, gcmPayload string) (string, error) {
-	slog.Info("NoopSNS: Published to topic", "topic_arn", topicARN, "subject", subject, "message", rawMessage)
-	return "mock-topic-msg-id", nil
-}
-
-func sha256HexBytes(data []byte) []byte {
-	h := sha256.Sum256(data)
-	return h[:]
-}

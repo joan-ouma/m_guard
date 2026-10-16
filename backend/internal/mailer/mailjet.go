@@ -377,30 +377,3 @@ MotoGuard`,
 
 	return m.send(ctx, toEmail, displayName, subject, textPart, htmlPart)
 }
-
-type NoopMailer struct{}
-
-func (n *NoopMailer) SendPasswordResetEmail(ctx context.Context, toEmail, toName, resetURL string) error {
-	slog.Info("NoopMailer password reset email", "to_name", toName, "to_email", toEmail, "reset_url", resetURL)
-	return nil
-}
-
-func (n *NoopMailer) SendPasswordChangedEmail(ctx context.Context, toEmail, toName string) error {
-	slog.Info("NoopMailer password changed confirmation email", "to_name", toName, "to_email", toEmail)
-	return nil
-}
-
-func (n *NoopMailer) SendGeofenceBreachAlertEmail(ctx context.Context, toEmail, toName string, data GeofenceAlertData) error {
-	slog.Info("NoopMailer geofence breach alert email", "bike", data.BikeRegistration, "geofence", data.GeofenceName)
-	return nil
-}
-
-func (n *NoopMailer) SendBikeTouchedAlertEmail(ctx context.Context, toEmail, toName string, data BikeTouchedAlertData) error {
-	slog.Info("NoopMailer bike touched alert email", "bike", data.BikeRegistration)
-	return nil
-}
-
-func (n *NoopMailer) SendTrackerAttachedEmail(ctx context.Context, toEmail, toName string, data TrackerAttachedEmailData) error {
-	slog.Info("NoopMailer tracker attached email", "to_name", toName, "to_email", toEmail, "bike", data.BikeRegistration, "imei", data.IMEI)
-	return nil
-}

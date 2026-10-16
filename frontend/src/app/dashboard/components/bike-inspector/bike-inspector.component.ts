@@ -38,21 +38,19 @@ export class BikeInspectorComponent {
 
   isOffline(bike?: FleetBike | null): boolean {
     if (!bike) return true;
+    if (!bike.lastSeenAt) return true;
+    const timestamp = new Date(bike.lastSeenAt).getTime();
+    if (isNaN(timestamp)) return true;
+    const diffSec = (this.currentTime() - timestamp) / 1000;
+    // When a device was last seen 5 min ago (300s), it's offline!
+    if (diffSec > 300) return true;
     if (bike.signalQuality === 0 || bike.signalQuality === 99) return true;
-    if (bike.lastSeenAt) {
-      const timestamp = new Date(bike.lastSeenAt).getTime();
-      if (!isNaN(timestamp)) {
-        const diffSec = (this.currentTime() - timestamp) / 1000;
-        // If device has not communicated for over 2 hours, consider offline
-        if (diffSec > 7200) return true;
-      }
-    }
     return false;
   }
 
   getSignalBars(bike?: FleetBike | null): number {
     if (!bike || this.isOffline(bike)) return 0;
-    const csq = bike.signalQuality ?? 20;
+    const csq = bike.signalQuality ?? 0;
     if (csq >= 26) return 5;
     if (csq >= 20) return 4;
     if (csq >= 14) return 3;

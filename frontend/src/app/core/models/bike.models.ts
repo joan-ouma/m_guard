@@ -14,6 +14,8 @@ export interface BikeDTO {
   heading_deg: number;
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  loc_type?: string;
   current_address: string;
   sub_county: string;
   county: string;
@@ -99,6 +101,8 @@ export interface BreadcrumbDTO {
   bike_id: string;
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  loc_type?: string;
   speed_kmh: number;
   heading_deg: number;
   ignition: boolean;

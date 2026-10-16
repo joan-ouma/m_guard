@@ -23,6 +23,8 @@ type SaveTelemetryParams struct {
 	SensorID      string
 	Latitude      float64
 	Longitude     float64
+	Accuracy      float64
+	LocType       string
 	Address       string
 	SubCounty     string
 	County        string
@@ -163,23 +165,26 @@ func (r *TelemetryRepository) SaveTelemetry(
 	updateBikeQuery := `
 		UPDATE bikes
 		SET
-			latitude = $1,
-			longitude = $2,
-			current_address = COALESCE(NULLIF($3, ''), current_address),
-			sub_county = COALESCE(NULLIF($4, ''), sub_county),
-			county = COALESCE(NULLIF($5, ''), county),
-			speed_kmh = $6,
-			heading_deg = $7,
-			status = $8,
-			ignition = $9,
-			battery_percent = $10,
-			signal_quality_csq = $11,
-			last_telemetry_at = $12,
-			updated_at = $12
-		WHERE id = $13
+			latitude = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN latitude ELSE $1 END,
+			longitude = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN longitude ELSE $2 END,
+			accuracy = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN accuracy ELSE $3 END,
+			loc_type = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN loc_type ELSE $4 END,
+			current_address = COALESCE(NULLIF($5, ''), current_address),
+			sub_county = COALESCE(NULLIF($6, ''), sub_county),
+			county = COALESCE(NULLIF($7, ''), county),
+			speed_kmh = $8,
+			heading_deg = $9,
+			status = $10,
+			ignition = $11,
+			battery_percent = $12,
+			signal_quality_csq = $13,
+			last_telemetry_at = $14,
+			updated_at = $14
+		WHERE id = $15
 	`
 	_, err := tx.Exec(ctx, updateBikeQuery,
-		params.Latitude, params.Longitude, params.Address, params.SubCounty, params.County,
+		params.Latitude, params.Longitude, params.Accuracy, params.LocType,
+		params.Address, params.SubCounty, params.County,
 		params.SpeedKMH, params.HeadingDeg, params.Status, params.Ignition,
 		params.Battery, params.SignalQuality, params.RecordedAt, params.BikeID,
 	)
@@ -189,14 +194,15 @@ func (r *TelemetryRepository) SaveTelemetry(
 
 	insertBreadcrumbQuery := `
 		INSERT INTO bike_breadcrumbs (
-			bike_id, latitude, longitude, heading_deg, speed_kmh, ignition, battery_percent, geofence_breach, recorded_at
+			bike_id, latitude, longitude, accuracy, loc_type, heading_deg, speed_kmh, ignition, battery_percent, address, geofence_breach, recorded_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 		)
 	`
 	_, err = tx.Exec(ctx, insertBreadcrumbQuery,
-		params.BikeID, params.Latitude, params.Longitude, params.HeadingDeg,
-		params.SpeedKMH, params.Ignition, params.Battery, params.Breach, params.RecordedAt,
+		params.BikeID, params.Latitude, params.Longitude, params.Accuracy, params.LocType,
+		params.HeadingDeg, params.SpeedKMH, params.Ignition, params.Battery, params.Address,
+		params.Breach, params.RecordedAt,
 	)
 	return err
 }

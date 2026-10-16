@@ -23,6 +23,8 @@ type Bike struct {
 	CurrentAddress     string
 	SubCounty          string
 	County             string
+	Accuracy           float64
+	LocType            string
 	BatteryPercent     int
 	SignalQualityCSQ   int
 	LastTelemetryAt    *time.Time
@@ -49,6 +51,8 @@ type BikeDTO struct {
 	HeadingDeg         float64    `json:"heading_deg"`
 	Latitude           float64    `json:"latitude"`
 	Longitude          float64    `json:"longitude"`
+	Accuracy           float64    `json:"accuracy"`
+	LocType            string     `json:"loc_type"`
 	CurrentAddress     string     `json:"current_address"`
 	SubCounty          string     `json:"sub_county"`
 	County             string     `json:"county"`

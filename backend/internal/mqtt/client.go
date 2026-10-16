@@ -23,6 +23,20 @@ type MQTTSubscriber struct {
 	topics           []string
 }
 
+func resolveCellPosition(ctx context.Context, resolver *geolocation.CellResolver, mcc, mnc, lac, cid, rssi int, cells []domain.CellTower) (float64, float64, float64, bool) {
+	if resolver == nil || mcc <= 0 {
+		return 0, 0, 0, false
+	}
+	towers := cells
+	if len(towers) == 0 && lac > 0 && cid > 0 {
+		towers = []domain.CellTower{{LAC: lac, CID: cid, RSSIDBm: rssi}}
+	}
+	if len(towers) == 0 {
+		return 0, 0, 0, false
+	}
+	return resolver.ResolveMulti(ctx, mcc, mnc, towers)
+}
+
 func NewMQTTSubscriber(brokerURL string, clientID string, username string, password string, telemetryService *service.TelemetryService) (*MQTTSubscriber, error) {
 	topics := []string{
 		"motoguard/v1/#",
@@ -67,15 +81,17 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 				return
 			}
 
-			// When GPS is 0,0, resolve location from Cell Tower database
-			if alert.Latitude == 0 && alert.Longitude == 0 && alert.MCC > 0 && alert.LAC > 0 && alert.CID > 0 {
+			// When GPS is 0,0, resolve location from Multi-Cell triangulation or serving cell
+			if alert.Latitude == 0 && alert.Longitude == 0 {
 				geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
-				if lat, lng, ok := cellResolver.Resolve(geoCtx, alert.MCC, alert.MNC, alert.LAC, alert.CID); ok {
+				lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, alert.MCC, alert.MNC, alert.LAC, alert.CID, alert.RSSIDBm, alert.Cells)
+				geoCancel()
+				if ok {
 					alert.Latitude = lat
 					alert.Longitude = lng
+					alert.Accuracy = acc
 					alert.LocType = "lbs"
 				}
-				geoCancel()
 			}
 
 			recTime := time.Now().UTC()
@@ -103,6 +119,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 				SensorID:       sensorID,
 				Latitude:       alert.Latitude,
 				Longitude:      alert.Longitude,
+				Accuracy:       alert.Accuracy,
 				LocType:        alert.LocType,
 				MCC:            alert.MCC,
 				MNC:            alert.MNC,
@@ -133,15 +150,17 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 			payload.SensorID = sensorID
 		}
 
-		// When GPS is 0,0, resolve location from Cell Tower database
-		if payload.Latitude == 0 && payload.Longitude == 0 && payload.MCC > 0 && payload.LAC > 0 && payload.CID > 0 {
+		// When GPS is 0,0, resolve location from Multi-Cell triangulation or serving cell
+		if payload.Latitude == 0 && payload.Longitude == 0 {
 			geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
-			if lat, lng, ok := cellResolver.Resolve(geoCtx, payload.MCC, payload.MNC, payload.LAC, payload.CID); ok {
+			lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, payload.MCC, payload.MNC, payload.LAC, payload.CID, payload.RSSIDBm, payload.Cells)
+			geoCancel()
+			if ok {
 				payload.Latitude = lat
 				payload.Longitude = lng
+				payload.Accuracy = acc
 				payload.LocType = "lbs"
 			}
-			geoCancel()
 		}
 
 		recTime := time.Now().UTC()

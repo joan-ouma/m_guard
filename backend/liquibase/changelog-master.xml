@@ -41,4 +41,10 @@
     <!-- 012. Push Notification Endpoints -->
     <include file="changesets/012-create-user-notification-endpoints.xml" relativeToChangelogFile="true"/>
 
+    <!-- 013. Push Notification Unique Constraints -->
+    <include file="changesets/013-add-user-device-token-unique-constraint.xml" relativeToChangelogFile="true"/>
+
+    <!-- 014. Location Precision & LBS Tracking Type -->
+    <include file="changesets/014-add-accuracy-and-loctype.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

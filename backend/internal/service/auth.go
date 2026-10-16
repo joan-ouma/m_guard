@@ -38,13 +38,7 @@ func NewAuthService(
 	if argonParams == nil {
 		argonParams = security.DefaultArgon2Params
 	}
-	if mailClient == nil {
-		mailClient = &mailer.NoopMailer{}
-	}
 	frontendURL = strings.TrimRight(frontendURL, "/")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:4200"
-	}
 	return &AuthService{
 		pool:                 pool,
 		repo:                 repo,
@@ -341,13 +335,16 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 	userEmail := user.Email
 	userName := user.Name
 
-	go func() {
-		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
-		if err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL); err != nil {
-			slog.Error("failed to send password reset email", "email", userEmail, "error", err)
-		}
-	}()
+	if s.mailer != nil {
+		go func() {
+			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+			err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL)
+			if err != nil {
+				slog.Error("failed to send password reset email", "email", userEmail, "error", err)
+			}
+		}()
+	}
 
 	return nil
 }
@@ -406,17 +403,20 @@ func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPas
 	}
 
 	user, err := s.repo.GetUserByID(ctx, prt.UserID)
-	if err == nil && user != nil {
-		userEmail := user.Email
-		userName := user.Name
-		go func() {
-			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-			defer cancel()
-			if err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName); err != nil {
-				slog.Error("failed to send password changed confirmation email", "email", userEmail, "error", err)
-			}
-		}()
+	if err != nil || user == nil || s.mailer == nil {
+		return nil
 	}
+
+	userEmail := user.Email
+	userName := user.Name
+	go func() {
+		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName)
+		if err != nil {
+			slog.Error("failed to send password changed confirmation email", "email", userEmail, "error", err)
+		}
+	}()
 
 	return nil
 }

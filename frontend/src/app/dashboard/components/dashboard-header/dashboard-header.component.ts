@@ -18,7 +18,6 @@ export class DashboardHeaderComponent {
   readonly unreadCount = input<number>(0);
 
   readonly toggleMobileDrawer = output<void>();
-  readonly simulateSuddenStop = output<void>();
   readonly openGeofenceModal = output<void>();
   readonly viewNotification = output<NotificationItem>();
   readonly markAllRead = output<void>();

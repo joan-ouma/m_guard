@@ -23,8 +23,6 @@ const (
 	maxHeadingDeg         = 360.0
 	maxScaledHeadingDeg   = 3600.0 // some devices report heading in tenths of a degree
 	earthRadiusKM         = 6371.0
-	defaultBatteryPercent = 100
-	defaultSignalQuality  = 20
 	reverseGeocodeTimeout = 4 * time.Second
 	eventGeofenceBreach   = "GEOFENCE_BREACH"
 )
@@ -135,12 +133,15 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 
 	battery := payload.BatteryPercent
-	if battery <= 0 {
-		battery = defaultBatteryPercent
+	if battery < 0 {
+		battery = 0
+	}
+	if battery > 100 {
+		battery = 100
 	}
 	signal := payload.SignalQuality
-	if signal <= 0 {
-		signal = defaultSignalQuality
+	if signal < 0 {
+		signal = 0
 	}
 
 	breached, _, err := s.telemetry.CheckGeofenceBreach(ctx, repository.CheckGeofenceParams{
@@ -168,11 +169,22 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 	defer tx.Rollback(ctx)
 
+	locType := payload.LocType
+	if locType == "" {
+		locType = "gps"
+	}
+	accuracy := payload.Accuracy
+	if accuracy <= 0 && payload.Latitude != 0 && payload.Longitude != 0 {
+		accuracy = 5.0
+	}
+
 	err = s.telemetry.SaveTelemetry(ctx, tx, repository.SaveTelemetryParams{
 		BikeID:        bikeID,
 		SensorID:      sensorID,
 		Latitude:      payload.Latitude,
 		Longitude:     payload.Longitude,
+		Accuracy:      accuracy,
+		LocType:       locType,
 		Address:       address,
 		SubCounty:     subCounty,
 		County:        county,

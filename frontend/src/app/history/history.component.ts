@@ -107,7 +107,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Helper to find nearest address from breadcrumbs
     const findNearestAddress = (lat: number, lng: number): string => {
-      if (!pts || pts.length === 0) return 'Nairobi Area';
+      if (!pts || pts.length === 0) return (lat && lng ? `${lat.toFixed(4)}, ${lng.toFixed(4)}` : '');
       let closest = pts[0];
       let minDist = 999999;
       for (const p of pts) {
@@ -117,7 +117,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
           closest = p;
         }
       }
-      return closest.address || 'Nairobi';
+      return closest.address || (lat && lng ? `${lat.toFixed(4)}, ${lng.toFixed(4)}` : '');
     };
 
     for (let i = 0; i < pts.length; i++) {
@@ -153,7 +153,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
         heading: p.heading_deg,
         ignition: p.ignition,
         battery: p.battery_percent,
-        address: p.address || 'Nairobi',
+        address: p.address || (p.latitude && p.longitude ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}` : ''),
         lat: p.latitude,
         lng: p.longitude,
       });
@@ -206,7 +206,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
         speed: 0,
         heading: 0,
         ignition: type === 'BIKE_ON',
-        battery: 95,
+        battery: 0,
         address: findNearestAddress(ev.latitude, ev.longitude),
         lat: ev.latitude,
         lng: ev.longitude,
@@ -436,32 +436,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }).subscribe({
       next: ({ breadcrumbs, events }) => {
         this.breadcrumbs.set(breadcrumbs.data || []);
-        
-        // Mock injection: add some incident events into bikeEvents if it's not empty
-        const evData = events.data || [];
-        if (evData.length > 0) {
-          const firstEv = evData[0];
-          evData.push({
-            ...firstEv,
-            id: 9991,
-            event_type: 'TAMPER',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 60).toISOString(),
-          });
-          evData.push({
-            ...firstEv,
-            id: 9992,
-            event_type: 'THEFT',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 120).toISOString(),
-          });
-          evData.push({
-            ...firstEv,
-            id: 9993,
-            event_type: 'DURESS',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 180).toISOString(),
-          });
-        }
-        this.bikeEvents.set(evData);
-        
+        this.bikeEvents.set(events.data || []);
         this.isLoading.set(false);
 
         if (this.viewMode() === 'map') {
@@ -668,9 +643,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearMapLayers();
 
     const pts = this.breadcrumbs();
-    if (pts.length === 0) return;
+    const validPts = pts.filter((p) => p.latitude !== 0 || p.longitude !== 0);
+    if (validPts.length === 0) return;
 
-    const coords: [number, number][] = pts.map((p) => [p.latitude, p.longitude]);
+    const coords: [number, number][] = validPts.map((p) => [p.latitude, p.longitude]);
 
     this.pathGlow = L.polyline(coords, {
       color: '#38BDF8',
@@ -688,8 +664,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       lineJoin: 'round',
     }).addTo(this.map);
 
+    this.map.fitBounds(L.latLngBounds(coords), { padding: [50, 50], maxZoom: 16 });
+
     // Start Pin (A)
-    const startPt = pts[0];
+    const startPt = validPts[0];
     const startIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
@@ -705,7 +683,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       .bindTooltip(`Day Origin: ${this.formatTime(startPt.recorded_at)}`, { direction: 'top', offset: [0, -10] });
 
     // End Pin (B)
-    const endPt = pts[pts.length - 1];
+    const endPt = validPts[validPts.length - 1];
     const endIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
@@ -722,7 +700,8 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Plot accident, touch, geofence, and immobilization events on the map
     const specialEvents = this.trailEvents().filter(
-      (e) => e.type === 'BIKE_TOUCHED' || e.type === 'GEOFENCE_APPROACHING' || e.type === 'ACCIDENT_DETECTED' || e.type === 'IMMOBILIZED' || e.type === 'REACTIVATED'
+      (e) => (e.lat !== 0 || e.lng !== 0) &&
+        (e.type === 'BIKE_TOUCHED' || e.type === 'GEOFENCE_APPROACHING' || e.type === 'ACCIDENT_DETECTED' || e.type === 'IMMOBILIZED' || e.type === 'REACTIVATED' || e.type === 'THEFT' || e.type === 'TAMPER' || e.type === 'DURESS')
     );
 
     for (const sev of specialEvents) {
