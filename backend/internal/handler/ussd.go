@@ -52,19 +52,20 @@ func (h *USSDHandler) HandleUSSD(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	if strings.Contains(contentType, "application/json") {
 		_ = json.NewDecoder(r.Body).Decode(&req)
-	} else {
-		_ = r.ParseForm()
-		req.SessionID = r.FormValue("sessionId")
-		req.ServiceCode = r.FormValue("serviceCode")
-		req.PhoneNumber = r.FormValue("phoneNumber")
-		req.Text = r.FormValue("text")
 	}
+	_ = r.ParseForm()
 
 	if req.PhoneNumber == "" {
-		req.PhoneNumber = r.URL.Query().Get("phoneNumber")
-		req.Text = r.URL.Query().Get("text")
-		req.SessionID = r.URL.Query().Get("sessionId")
-		req.ServiceCode = r.URL.Query().Get("serviceCode")
+		req.PhoneNumber = getParam(r, "phoneNumber", "phone_number", "phone")
+	}
+	if req.SessionID == "" {
+		req.SessionID = getParam(r, "sessionId", "session_id", "sessionId")
+	}
+	if req.ServiceCode == "" {
+		req.ServiceCode = getParam(r, "serviceCode", "service_code")
+	}
+	if req.Text == "" {
+		req.Text = getParam(r, "text", "Text")
 	}
 
 	if req.PhoneNumber == "" {
@@ -147,4 +148,16 @@ func (h *USSDHandler) SimulatorPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(simulatorHTML))
+}
+
+func getParam(r *http.Request, keys ...string) string {
+	for _, k := range keys {
+		if v := r.FormValue(k); v != "" {
+			return strings.TrimSpace(v)
+		}
+		if v := r.URL.Query().Get(k); v != "" {
+			return strings.TrimSpace(v)
+		}
+	}
+	return ""
 }
