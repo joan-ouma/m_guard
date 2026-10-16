@@ -323,8 +323,8 @@ func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
 	title := "🚨 " + strings.ReplaceAll(ev.eventType, "_", " ")
 	body := "Security event " + ev.eventType + " detected on " + ev.registration
 	if ev.eventType == eventGeofenceBreach {
-		title := "🚨 Geofence Breach Alert"
-		body := "Motorcycle " + ev.registration + " has breached its geofence boundary."
+		title = "🚨 Geofence Breach Alert"
+		body = "Motorcycle " + ev.registration + " has breached its geofence boundary."
 	}
 
 	if s.sse != nil {
