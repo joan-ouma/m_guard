@@ -1,75 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracker Attached - MotoGuard</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b;">
-  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 32px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 8px; text-align: left; padding: 32px;">
-          
-          <tr>
-            <td>
-              <p style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #18181b;">
-                MotoGuard
-              </p>
-
-              <h1 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b;">
-                Tracker Attached to Your Motorcycle
-              </h1>
-
-              <p style="margin: 0 0 20px 0; font-size: 15px; color: #3f3f46; line-height: 1.5;">
-                Hello {{.RiderName}},<br><br>
-                A GPS tracker has been attached to your motorcycle. You are registered as the rider for this bike.
-              </p>
-
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; margin-bottom: 24px; font-size: 14px;">
-                <tr>
-                  <td style="padding: 10px 14px; color: #71717a; border-bottom: 1px solid #e4e4e7; width: 40%;">Number Plate</td>
-                  <td style="padding: 10px 14px; font-weight: 700; color: #18181b; border-bottom: 1px solid #e4e4e7;">{{.BikeRegistration}}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 14px; color: #71717a; border-bottom: 1px solid #e4e4e7;">Motorcycle</td>
-                  <td style="padding: 10px 14px; color: #18181b; border-bottom: 1px solid #e4e4e7;">{{.BikeMake}} {{.BikeModel}}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 14px; color: #71717a; border-bottom: 1px solid #e4e4e7;">Tracker IMEI</td>
-                  <td style="padding: 10px 14px; color: #18181b; font-family: monospace;">{{.IMEI}}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 14px; color: #71717a;">Attached On</td>
-                  <td style="padding: 10px 14px; color: #18181b;">{{.AttachedAt}}</td>
-                </tr>
-              </table>
-
-              <p style="margin: 0 0 24px 0; font-size: 14px; color: #3f3f46; line-height: 1.5;">
-                You can track this bike directly from the app.
-              </p>
-
-              <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
-                <tr>
-                  <td>
-                    <a href="{{.DashboardURL}}" target="_blank" style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 10px 20px; border-radius: 6px;">
-                      Open MotoGuard
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 24px 0;">
-
-              <p style="margin: 0; font-size: 13px; color: #71717a; line-height: 1.4;">
-                If this was not done with your permission, contact us at <a href="mailto:{{.ReplyToEmail}}" style="color: #18181b;">{{.ReplyToEmail}}</a>.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.5; padding: 20px;">
+  <h2>Tracker Attached to Your Motorcycle</h2>
+  <p>Hello {{.RiderName}},</p>
+  <p>A GPS tracker has been attached to your motorcycle. You are registered as the rider for this bike.</p>
+  <ul>
+    <li><strong>Number Plate:</strong> {{.BikeRegistration}}</li>
+    <li><strong>Motorcycle:</strong> {{.BikeMake}} {{.BikeModel}}</li>
+    <li><strong>Tracker IMEI:</strong> {{.IMEI}}</li>
+    <li><strong>Attached On:</strong> {{.AttachedAt}}</li>
+  </ul>
+  <p><a href="{{.DashboardURL}}">Open MotoGuard</a></p>
+  <p style="color: #666; font-size: 13px;">If this was not done with your permission, contact us at <a href="mailto:{{.ReplyToEmail}}">{{.ReplyToEmail}}</a>.</p>
 </body>
 </html>

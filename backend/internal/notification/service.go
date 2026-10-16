@@ -173,17 +173,6 @@ func (s *Service) dispatchEmergencySMS(ctx context.Context, ep DeviceEndpoint, a
 	slog.Info("Emergency SMS dispatched via SNS", "phone", ep.PhoneNumber)
 }
 
-func (s *Service) publishGlobalTopic(ctx context.Context, alert SecurityAlert, fcmPayload string) {
-	if s.topicARN == "" {
-		return
-	}
-
-	_, err := s.snsClient.PublishToTopic(ctx, s.topicARN, alert.Title, alert.Body, fcmPayload)
-	if err != nil {
-		slog.Warn("Failed to publish to SNS topic", "topic_arn", s.topicARN, "error", err)
-	}
-}
-
 func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlertParams) error {
 	title := params.Title
 	if title == "" {

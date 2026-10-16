@@ -1,84 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Alert - MGuard</title>
+  <title>Security Alert - MotoGuard</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f4f5; padding: 40px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 580px; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 8px; text-align: left; margin: 0 auto;">
-          <tr>
-            <td style="padding: 36px 36px 32px 36px;">
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
-                <tr>
-                  <td>
-                    <span style="font-size: 18px; font-weight: 700; color: #18181b; letter-spacing: -0.3px;">MGuard</span>
-                  </td>
-                  <td align="right">
-                    <span style="display: inline-block; padding: 4px 8px; font-size: 11px; font-weight: 600; color: #b45309; background-color: #fef3c7; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Security Alert</span>
-                  </td>
-                </tr>
-              </table>
-
-              <h1 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.4;">
-                Bike Movement / Vibration Detected
-              </h1>
-
-              <p style="margin: 0 0 24px 0; font-size: 15px; color: #3f3f46; line-height: 1.6;">
-                Unusual motion or physical vibration has been detected on bike <strong>{{.BikeRegistration}}</strong> while the ignition status is <strong>OFF</strong>.
-              </p>
-
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid #e4e4e7; border-radius: 6px; margin-bottom: 28px; font-size: 14px;">
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                  <td style="padding: 12px 16px; color: #71717a; width: 35%; border-bottom: 1px solid #f4f4f5;">Bike</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">{{.BikeRegistration}} ({{.BikeModel}})</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                  <td style="padding: 12px 16px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Sensor Event</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #b45309; border-bottom: 1px solid #f4f4f5;">Movement / Tamper Sensor Triggered</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                  <td style="padding: 12px 16px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Ignition</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">OFF</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                  <td style="padding: 12px 16px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Recorded Time</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">{{.Timestamp}}</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                  <td style="padding: 12px 16px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Location</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">{{.Address}}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 16px; color: #71717a;">Battery Level</td>
-                  <td style="padding: 12px 16px; font-weight: 500; color: #18181b;">{{.BatteryPercent}}%</td>
-                </tr>
-              </table>
-
-              <div style="margin: 0 0 24px 0;">
-                <a href="{{.DashboardURL}}" target="_blank" style="display: inline-block; background-color: #18181b; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 500; padding: 12px 24px; border-radius: 6px;">
-                  Open Fleet Dashboard
-                </a>
-              </div>
-
-              <p style="margin: 0; font-size: 13px; color: #71717a; line-height: 1.5; border-top: 1px solid #f4f4f5; padding-top: 20px;">
-                If this movement is unauthorized, verify the bike's physical location immediately or send an immobilization command from the dashboard.
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background-color: #fafafa; border-top: 1px solid #e4e4e7; padding: 16px 36px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-              <p style="margin: 0; font-size: 12px; color: #a1a1aa;">
-                MGuard &bull; Fleet Tracking & Security
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.5; padding: 20px;">
+  <h2>Bike Movement / Vibration Detected</h2>
+  <p>Unusual motion or physical vibration has been detected on bike <strong>{{.BikeRegistration}}</strong> while the ignition status is <strong>OFF</strong>.</p>
+  <ul>
+    <li><strong>Bike:</strong> {{.BikeRegistration}} ({{.BikeModel}})</li>
+    <li><strong>Event:</strong> Movement / Tamper Sensor Triggered</li>
+    <li><strong>Ignition:</strong> OFF</li>
+    <li><strong>Recorded Time:</strong> {{.Timestamp}}</li>
+    <li><strong>Location:</strong> {{.Address}}</li>
+    <li><strong>Battery:</strong> {{.BatteryPercent}}%</li>
+  </ul>
+  <p><a href="{{.DashboardURL}}">Open Fleet Dashboard</a></p>
+  <p style="color: #666; font-size: 13px;">If this movement is unauthorized, verify the bike's physical location immediately or send an immobilization command from the dashboard.</p>
 </body>
 </html>

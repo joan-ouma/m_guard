@@ -559,10 +559,10 @@ func (s *BikeService) VerifyTracker(ctx context.Context, imei string) (*domain.T
 	}
 
 	dto, err := s.repo.VerifyTracker(ctx, cleanIMEI)
+	if errors.Is(err, repository.ErrNotFound) {
+		return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s does not exist in MotoGuard database", cleanIMEI), instance)
+	}
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s does not exist in MotoGuard database", cleanIMEI), instance)
-		}
 		slog.Error("VerifyTracker repo error", "error", err, "imei", cleanIMEI)
 		return nil, domain.NewInternalServerError(instance)
 	}
@@ -607,12 +607,11 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 		return nil, domain.NewBadRequestError("Validation failed", instance, validationErrors)
 	}
 
-	// Verify tracker is available
 	trackerStatus, err := s.repo.VerifyTracker(ctx, imei)
+	if errors.Is(err, repository.ErrNotFound) {
+		return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s not found", imei), instance)
+	}
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, domain.NewNotFoundError(fmt.Sprintf("Tracker hardware with IMEI %s not found", imei), instance)
-		}
 		slog.Error("AttachBike VerifyTracker error", "error", err)
 		return nil, domain.NewInternalServerError(instance)
 	}
@@ -620,7 +619,6 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 		return nil, domain.NewConflictError(fmt.Sprintf("Tracker %s is already claimed by another motorcycle", imei), instance)
 	}
 
-	// Check if user already has this registration number
 	regExists, err := s.repo.ExistsRegistrationNumber(ctx, repository.ExistsRegParams{
 		UserID:    claims.UserID,
 		RegNumber: regNumber,
@@ -649,7 +647,6 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 
 	dto := ToBikeDTO(bike)
 
-	// Send email notification to rider asynchronously
 	if s.mailer != nil && riderEmail != "" {
 		go func(recipientEmail, recipientName string, bDTO domain.BikeDTO) {
 			ctxEmail, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -675,7 +672,6 @@ func (s *BikeService) AttachBike(ctx context.Context, claims *security.JWTClaims
 		}(riderEmail, riderName, dto)
 	}
 
-	// Broadcast over SSE
 	if s.sseBroker != nil {
 		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
 	}

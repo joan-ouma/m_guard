@@ -40,7 +40,6 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Disable write deadline for SSE stream in Go
 	rc := http.NewResponseController(w)
 	_ = rc.SetWriteDeadline(time.Time{})
 
@@ -54,9 +53,10 @@ func (h *SSEHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	h.broker.Register(client)
 	defer h.broker.Unregister(client)
 
-	// Send initial snapshot of bikes immediately upon connection
-	if bikesList, err := h.bikeService.ListBikes(r.Context(), claims, "", 100); err == nil {
-		if dataBytes, err := json.Marshal(bikesList); err == nil {
+	bikesList, err := h.bikeService.ListBikes(r.Context(), claims, "", 100)
+	if err == nil {
+		dataBytes, mErr := json.Marshal(bikesList)
+		if mErr == nil {
 			fmt.Fprintf(w, "event: bikes_init\ndata: %s\n\n", dataBytes)
 			flusher.Flush()
 		}

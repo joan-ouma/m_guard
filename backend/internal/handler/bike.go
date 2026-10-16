@@ -31,11 +31,9 @@ func NewBikeHandler(s *service.BikeService) *BikeHandler {
 func (h *BikeHandler) Routes(auth func(http.Handler) http.Handler, sseStream http.HandlerFunc) chi.Router {
 	r := chi.NewRouter()
 
-	// Public tracker verification (rate-limited per IP) so unauthenticated users during signup can verify trackers
 	r.Get("/verify-tracker", h.VerifyTracker)
 	r.Post("/verify-tracker", h.VerifyTracker)
 
-	// Protected routes below
 	r.Group(func(pr chi.Router) {
 		pr.Use(auth)
 		pr.Get("/stream", sseStream)
@@ -391,10 +389,8 @@ func (h *BikeHandler) Immobilize(w http.ResponseWriter, r *http.Request) {
 func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 	ip := middleware.GetClientIP(r)
 
-	// Always expose rate limit headers to frontend clients
 	w.Header().Set("Access-Control-Expose-Headers", "Retry-After, X-RateLimit-Locked, X-RateLimit-Remaining, X-RateLimit-Limit")
 
-	// Check rate limit per IP
 	allowed, retryAfter, lockedOut, remaining, maxAttempts := h.verifyLimiter.CheckAllowed(ip)
 	w.Header().Set("X-RateLimit-Limit", strconv.Itoa(maxAttempts))
 	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
@@ -411,16 +407,11 @@ func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var imei string
-	if r.Method == http.MethodGet {
-		imei = strings.TrimSpace(r.URL.Query().Get("imei"))
-	} else {
+	imei := strings.TrimSpace(r.URL.Query().Get("imei"))
+	if imei == "" && r.Body != nil {
 		var req domain.VerifyTrackerRequest
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		imei = strings.TrimSpace(req.IMEI)
-		if imei == "" {
-			imei = strings.TrimSpace(r.URL.Query().Get("imei"))
-		}
 	}
 
 	if imei == "" {
@@ -449,7 +440,6 @@ func (h *BikeHandler) VerifyTracker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Success: record success and enforce baseline 1 request per min
 	h.verifyLimiter.RecordSuccess(ip)
 	w.Header().Set("Retry-After", "60")
 	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(maxAttempts))

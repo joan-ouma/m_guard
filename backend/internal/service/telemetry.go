@@ -21,7 +21,7 @@ const (
 	maxPlausibleSpeedKMH  = 180.0
 	minTrackedDistanceKM  = 0.005
 	maxHeadingDeg         = 360.0
-	maxScaledHeadingDeg   = 3600.0 // some devices report heading in tenths of a degree
+	maxScaledHeadingDeg   = 3600.0
 	earthRadiusKM         = 6371.0
 	reverseGeocodeTimeout = 4 * time.Second
 	eventGeofenceBreach   = "GEOFENCE_BREACH"
@@ -29,7 +29,6 @@ const (
 
 var ErrInvalidSensorID = errors.New("sensor id is required")
 
-// securityEvent is everything needed to tell an owner something happened.
 type securityEvent struct {
 	bikeID       string
 	userID       string
@@ -68,8 +67,6 @@ func (s *TelemetryService) SetNotificationService(ns *notification.Service) {
 	s.notifications = ns
 }
 
-// IngestTelemetry reads top to bottom. Every `if` body is a single level deep,
-// and no block ever contains another block.
 func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.TelemetryPayload) error {
 	sensorID := strings.TrimSpace(payload.SensorID)
 	if sensorID == "" {
@@ -86,7 +83,6 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		recordedAt = time.Unix(payload.Timestamp, 0).UTC()
 	}
 
-	// Normalize what the device reported.
 	speed := math.Max(payload.SpeedKMH, 0)
 	heading := payload.HeadingDeg
 	switch {
@@ -98,7 +94,6 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		heading = math.Mod(heading, maxHeadingDeg)
 	}
 
-	// Fill in speed and heading from the previous fix when the device omitted them.
 	prevLat, prevLng, prevAt, hasPrev, err := s.telemetry.GetBikeLastPosition(ctx, bikeID)
 	if err != nil {
 		slog.Warn("last position lookup failed", "bike_id", bikeID, "err", err)
@@ -157,7 +152,6 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		}
 	}
 
-	// Network call happens before the transaction, so no DB connection is held while waiting.
 	var address, subCounty, county string
 	hasCoordinates := payload.Latitude != 0 || payload.Longitude != 0
 	if hasCoordinates {
@@ -209,7 +203,6 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		return err
 	}
 
-	// Everything below happens after the data is safely stored.
 	eventType := strings.TrimSpace(payload.EventType)
 	if eventType == "" {
 		eventType = strings.TrimSpace(payload.Event)
@@ -318,21 +311,15 @@ func (s *TelemetryService) IngestEvent(
 	return nil
 }
 
-// raiseAlert is the single path through which every alert leaves the service.
 func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
-	title := "🚨 " + strings.ReplaceAll(ev.eventType, "_", " ")
-	body := "Security event " + ev.eventType + " detected on " + ev.registration
-	if ev.eventType == eventGeofenceBreach {
-		title = "🚨 Geofence Breach Alert"
-		body = "Motorcycle " + ev.registration + " has breached its geofence boundary."
-	}
+	msg := RenderAlert(ev.eventType, ev.registration)
 
 	if s.sse != nil {
 		s.sse.BroadcastAlert(ev.userID, map[string]any{
 			"bike_id":     ev.bikeID,
 			"event_type":  ev.eventType,
-			"title":       title,
-			"activity":    body,
+			"title":       msg.Title,
+			"activity":    msg.Body,
 			"latitude":    ev.lat,
 			"longitude":   ev.lng,
 			"recorded_at": ev.at,
@@ -342,8 +329,8 @@ func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
 	if s.notifications != nil && ev.userID != "" {
 		err := s.notifications.DispatchSecurityAlert(ctx, ev.userID, notification.SecurityAlert{
 			BikeID:     ev.bikeID,
-			Title:      title,
-			Body:       body,
+			Title:      msg.Title,
+			Body:       msg.Body,
 			EventType:  ev.eventType,
 			Latitude:   ev.lat,
 			Longitude:  ev.lng,
