@@ -91,7 +91,7 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	}
 
 	// 1. Root Welcome menu
-	welcome := s.handleSingleBikeMenu(nil, "+254712345678", bike, nil)
+	welcome := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, nil)
 	if !containsString(welcome, "CON Welcome to M-Guard") ||
 		!containsString(welcome, "1. Find bike") ||
 		!containsString(welcome, "2. Immobilize bike") ||
@@ -101,13 +101,13 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	}
 
 	// 2. Option 1: Find bike
-	findBike := s.handleSingleBikeMenu(nil, "+254712345678", bike, []string{"1"})
+	findBike := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, []string{"1"})
 	if !containsString(findBike, "CON Bike KMDF 123X") || !containsString(findBike, "0. Back") {
 		t.Fatalf("unexpected find bike response: %s", findBike)
 	}
 
 	// 3. Option 2: Immobilize bike confirmation
-	immob := s.handleSingleBikeMenu(nil, "+254712345678", bike, []string{"2"})
+	immob := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, []string{"2"})
 	if !containsString(immob, "CON Turn off engine for KMDF 123X?") || !containsString(immob, "0. Back") {
 		t.Fatalf("unexpected immobilize confirmation: %s", immob)
 	}
@@ -115,15 +115,18 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	// 4. Option 3: Reactivate bike (when bike is immobilized)
 	bikeImmob := bike
 	bikeImmob.IsImmobilized = true
-	react := s.handleSingleBikeMenu(nil, "+254712345678", bikeImmob, []string{"3"})
+	react := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bikeImmob, []string{"3"})
 	if !containsString(react, "CON Restore engine for KMDF 123X?") || !containsString(react, "0. Back") {
 		t.Fatalf("unexpected reactivate confirmation: %s", react)
 	}
 
-	// 5. Option 4: Emergency phones
-	emerg := s.handleSingleBikeMenu(nil, "+254712345678", bike, []string{"4"})
-	if !containsString(emerg, "CON Emergency Helplines:") || !containsString(emerg, "0. Back") {
-		t.Fatalf("unexpected emergency helplines: %s", emerg)
+	// 5. Option 4: Emergency phones (dynamic contacts)
+	emergBike := bike
+	emergBike.OwnerName = "Alpha Fleet"
+	emergBike.OwnerPhone = "+254700000000"
+	emerg := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4"})
+	if !containsString(emerg, "CON Emergency Contacts:") || !containsString(emerg, "Alpha Fleet: +254700000000") || !containsString(emerg, "0. Back") {
+		t.Fatalf("unexpected emergency contacts: %s", emerg)
 	}
 }
 

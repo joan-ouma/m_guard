@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -127,15 +128,21 @@ func (s *USSDService) HandleUSSD(ctx context.Context, req domain.USSDRequest) st
 	// 2. Parse multi-level USSD inputs with stack back-navigation
 	steps := parseUSSDStack(strings.TrimSpace(req.Text))
 
-	// Single bike flow vs Multi-bike flow
-	if len(bikes) == 1 {
-		return s.handleSingleBikeMenu(ctx, phone, bikes[0], steps)
+	// Dynamic trigger label based on caller's dialed serviceCode
+	trigger := "USSD"
+	if strings.TrimSpace(req.ServiceCode) != "" {
+		trigger = fmt.Sprintf("USSD (%s)", strings.TrimSpace(req.ServiceCode))
 	}
 
-	return s.handleMultiBikeMenu(ctx, phone, bikes, steps)
+	// Single bike flow vs Multi-bike flow
+	if len(bikes) == 1 {
+		return s.handleSingleBikeMenu(ctx, phone, trigger, bikes[0], steps)
+	}
+
+	return s.handleMultiBikeMenu(ctx, phone, trigger, bikes, steps)
 }
 
-func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
 		return "CON Welcome to M-Guard\n1. Find bike\n2. Immobilize bike\n3. Reactivate bike\n4. Emergency phones"
 	}
@@ -145,17 +152,17 @@ func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone string, bi
 	case "1":
 		return s.handleFindBike(bike)
 	case "2":
-		return s.handleImmobilizeBike(ctx, phone, bike, steps[1:])
+		return s.handleImmobilizeBike(ctx, phone, trigger, bike, steps[1:])
 	case "3":
-		return s.handleReactivateBike(ctx, phone, bike, steps[1:])
+		return s.handleReactivateBike(ctx, phone, trigger, bike, steps[1:])
 	case "4":
-		return s.handleEmergencyPhones()
+		return s.handleEmergencyPhones(bike)
 	default:
 		return "END Invalid option. Session ended."
 	}
 }
 
-func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone string, bikes []domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone, trigger string, bikes []domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
 		var sb strings.Builder
 		sb.WriteString("CON Welcome to M-Guard\nSelect bike:\n")
@@ -173,7 +180,7 @@ func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone string, bik
 	}
 
 	selectedBike := bikes[idx-1]
-	return s.handleSingleBikeMenu(ctx, phone, selectedBike, steps[1:])
+	return s.handleSingleBikeMenu(ctx, phone, trigger, selectedBike, steps[1:])
 }
 
 // 1. Find bike
@@ -182,16 +189,26 @@ func (s *USSDService) handleFindBike(bike domain.RiderBikeInfo) string {
 }
 
 func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo) string {
-	loc := bike.CurrentAddress
-	if loc == "" || loc == "Location pending update" {
-		if bike.SubCounty != "" || bike.County != "" {
-			loc = fmt.Sprintf("%s, %s", bike.SubCounty, bike.County)
+	loc := strings.TrimSpace(bike.CurrentAddress)
+	if loc == "" || strings.EqualFold(loc, "Location pending update") {
+		subCounty := strings.TrimSpace(bike.SubCounty)
+		county := strings.TrimSpace(bike.County)
+		if subCounty != "" || county != "" {
+			if subCounty != "" && county != "" {
+				loc = fmt.Sprintf("%s, %s", subCounty, county)
+			} else if subCounty != "" {
+				loc = subCounty
+			} else {
+				loc = county
+			}
+		} else if bike.Latitude != 0 && bike.Longitude != 0 {
+			loc = fmt.Sprintf("%.4f, %.4f", bike.Latitude, bike.Longitude)
 		} else {
-			loc = "GPS active"
+			loc = "Location pending update"
 		}
 	}
 
-	status := bike.Status
+	status := strings.TrimSpace(bike.Status)
 	if status == "" {
 		if bike.Ignition {
 			status = "RUNNING"
@@ -205,7 +222,7 @@ func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo) string {
 }
 
 // 2. Immobilize bike
-func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
 	if bike.IsImmobilized {
 		return fmt.Sprintf("END Bike %s is already immobilized.", bike.RegistrationNumber)
 	}
@@ -215,7 +232,7 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone string, bi
 	}
 
 	if steps[0] == "1" {
-		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, true, "USSD (*384#)")
+		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, true, trigger)
 		if err != nil {
 			slog.Error("Failed to immobilize bike via USSD", "bike_id", bike.ID, "error", err)
 			return "END Unable to immobilize bike at this time. Please try again."
@@ -252,7 +269,7 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone string, bi
 }
 
 // 3. Reactivate bike
-func (s *USSDService) handleReactivateBike(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
 	if !bike.IsImmobilized {
 		return fmt.Sprintf("END Bike %s is already active.", bike.RegistrationNumber)
 	}
@@ -262,7 +279,7 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone string, bi
 	}
 
 	if steps[0] == "1" {
-		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, false, "USSD (*384#)")
+		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, false, trigger)
 		if err != nil {
 			slog.Error("Failed to reactivate bike via USSD", "bike_id", bike.ID, "error", err)
 			return "END Unable to reactivate bike at this time. Please try again."
@@ -298,9 +315,32 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone string, bi
 	return "END Invalid option. Session ended."
 }
 
-// 4. Emergency phones
-func (s *USSDService) handleEmergencyPhones() string {
-	return "CON Emergency Helplines:\nControl Room: 0700 123 456\nPolice: 999 / 112\n0. Back"
+// 4. Emergency phones - dynamic lookup based on linked bike's fleet owner & env configs
+func (s *USSDService) handleEmergencyPhones(bike domain.RiderBikeInfo) string {
+	var sb strings.Builder
+	sb.WriteString("CON Emergency Contacts:\n")
+
+	if strings.TrimSpace(bike.OwnerPhone) != "" {
+		ownerLabel := strings.TrimSpace(bike.OwnerName)
+		if ownerLabel == "" || strings.EqualFold(ownerLabel, "Fleet Owner") {
+			ownerLabel = "Fleet Manager"
+		}
+		sb.WriteString(fmt.Sprintf("%s: %s\n", ownerLabel, strings.TrimSpace(bike.OwnerPhone)))
+	}
+
+	supportPhone := strings.TrimSpace(os.Getenv("EMERGENCY_SUPPORT_PHONE"))
+	if supportPhone != "" {
+		sb.WriteString(fmt.Sprintf("Support: %s\n", supportPhone))
+	}
+
+	policeHotline := strings.TrimSpace(os.Getenv("POLICE_HOTLINE"))
+	if policeHotline == "" {
+		policeHotline = "999 / 112"
+	}
+	sb.WriteString(fmt.Sprintf("Police: %s\n", policeHotline))
+	sb.WriteString("0. Back")
+
+	return sb.String()
 }
 
 
