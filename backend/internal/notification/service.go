@@ -166,6 +166,7 @@ func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlert
 		Body:       body,
 		EventType:  "TEST_ALERT",
 		RecordedAt: time.Now().UTC(),
+	}
 	return s.DispatchSecurityAlert(ctx, params.UserID, alert)
 }
 
