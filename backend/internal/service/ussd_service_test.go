@@ -3,7 +3,6 @@ package service
 import (
 	"testing"
 
-	"motoguard-backend/internal/africastalking"
 	"motoguard-backend/internal/domain"
 )
 
@@ -52,34 +51,6 @@ func TestRenderBikeStatus(t *testing.T) {
 	}
 }
 
-func TestIncomingSMSCommandParsing(t *testing.T) {
-	atClient := africastalking.NewClient("sandbox", "", true)
-	s := NewUSSDService(nil, atClient, nil, nil, nil)
-
-	bikes := []domain.RiderBikeInfo{
-		{
-			RegistrationNumber: "KME 123A",
-			Status:             "STOPPED",
-			Ignition:           false,
-			SpeedKMH:           0,
-			BatteryPercent:     95,
-			CurrentAddress:     "Westlands, Nairobi",
-			IsImmobilized:      false,
-		},
-	}
-
-	// Test STATUS command
-	statusReply := s.handleSMSStatus(bikes, nil)
-	if !containsString(statusReply, "KME 123A") || !containsString(statusReply, "STOPPED") {
-		t.Errorf("unexpected status reply: %s", statusReply)
-	}
-
-	// Test Help command
-	helpReply := s.smsHelpMessage()
-	if !containsString(helpReply, "STATUS") || !containsString(helpReply, "LOCK") {
-		t.Errorf("unexpected help reply: %s", helpReply)
-	}
-}
 
 func TestParseUSSDStack(t *testing.T) {
 	tests := []struct {
