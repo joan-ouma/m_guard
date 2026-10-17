@@ -168,24 +168,6 @@ func (c *AWSSNSClient) PublishToEndpoint(ctx context.Context, endpointARN string
 	return resp.Result.MessageID, nil
 }
 
-func (c *AWSSNSClient) PublishSMS(ctx context.Context, phoneNumber, message string) (string, error) {
-	params := url.Values{}
-	params.Set("Action", "Publish")
-	params.Set("Version", "2010-03-31")
-	params.Set("PhoneNumber", phoneNumber)
-	params.Set("Message", message)
-
-	body, err := c.doRequest(ctx, params)
-	if err != nil {
-		return "", fmt.Errorf("aws sns Publish SMS failed: %w", err)
-	}
-
-	var resp publishResponse
-	if err := xml.Unmarshal(body, &resp); err != nil {
-		return "", fmt.Errorf("failed to parse Publish SMS XML: %w", err)
-	}
-	return resp.Result.MessageID, nil
-}
 
 func (c *AWSSNSClient) PublishToTopic(ctx context.Context, topicARN string, subject, rawMessage, gcmPayload string) (string, error) {
 	params := url.Values{}

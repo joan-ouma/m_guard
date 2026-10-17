@@ -24,7 +24,7 @@ type Config struct {
 	AWSAccessKeyID      string
 	AWSSecretAccessKey  string
 	AWSSNSPlatformAppARN string
-	AWSSNSTopicARN      string
+	AWSSNSTopicARN       string
 }
 
 func getEnv(key, fallback string) string {

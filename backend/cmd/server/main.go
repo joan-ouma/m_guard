@@ -80,10 +80,12 @@ func main() {
 	telemetryService.SetSSEBroker(sseBroker)
 	telemetryService.SetNotificationService(notificationService)
 
+	var cmdPub service.CommandPublisher
 	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService)
 	if err != nil {
 		slog.Error("mqtt client error", "error", err)
 	} else {
+		cmdPub = mqttSubscriber
 		bikeService.SetCommandPublisher(mqttSubscriber)
 		if err := mqttSubscriber.Start(ctx); err != nil {
 			slog.Error("mqtt subscriber start error", "error", err)
@@ -91,6 +93,11 @@ func main() {
 			defer mqttSubscriber.Stop()
 		}
 	}
+
+	// Initialize USSD Service for non-smartphone riders
+	ussdRepo := repository.NewUSSDRepository(pool)
+	ussdService := service.NewUSSDService(ussdRepo, cmdPub, sseBroker, notificationService)
+	ussdHandler := handler.NewUSSDHandler(ussdService)
 
 	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
@@ -101,6 +108,7 @@ func main() {
 		HealthHandler:       healthHandler,
 		NotificationHandler: notificationHandler,
 		SSEHandler:          sseHandler,
+		USSDHandler:         ussdHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})

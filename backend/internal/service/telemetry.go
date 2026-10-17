@@ -312,14 +312,19 @@ func (s *TelemetryService) IngestEvent(
 }
 
 func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
-	msg := RenderAlert(ev.eventType, ev.registration)
+	title := "🚨 " + strings.ReplaceAll(ev.eventType, "_", " ")
+	body := "Security event " + ev.eventType + " detected on " + ev.registration
+	if ev.eventType == eventGeofenceBreach {
+		title = "🚨 Geofence Breach Alert"
+		body = "Motorcycle " + ev.registration + " has breached its geofence boundary."
+	}
 
 	if s.sse != nil {
 		s.sse.BroadcastAlert(ev.userID, map[string]any{
 			"bike_id":     ev.bikeID,
 			"event_type":  ev.eventType,
-			"title":       msg.Title,
-			"activity":    msg.Body,
+			"title":       title,
+			"activity":    body,
 			"latitude":    ev.lat,
 			"longitude":   ev.lng,
 			"recorded_at": ev.at,
@@ -329,8 +334,8 @@ func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
 	if s.notifications != nil && ev.userID != "" {
 		err := s.notifications.DispatchSecurityAlert(ctx, ev.userID, notification.SecurityAlert{
 			BikeID:     ev.bikeID,
-			Title:      msg.Title,
-			Body:       msg.Body,
+			Title:      title,
+			Body:       body,
 			EventType:  ev.eventType,
 			Latitude:   ev.lat,
 			Longitude:  ev.lng,

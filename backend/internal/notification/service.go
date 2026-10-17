@@ -130,11 +130,9 @@ func (s *Service) broadcastToUserDevices(ctx context.Context, userID string, ale
 	}
 
 	slog.Info("Broadcasting alert to all devices under account", "user_id", userID, "device_count", len(endpoints))
-	sentPhones := make(map[string]struct{})
 
 	for _, ep := range endpoints {
 		s.dispatchToEndpoint(ctx, ep, alert, fcmPayload)
-		s.dispatchEmergencySMS(ctx, ep, alert, sentPhones)
 	}
 }
 
@@ -149,28 +147,6 @@ func (s *Service) dispatchToEndpoint(ctx context.Context, ep DeviceEndpoint, ale
 	if isStaleEndpointError(err) {
 		_ = s.repo.DeleteEndpointByARN(ctx, ep.EndpointARN)
 	}
-}
-
-func (s *Service) dispatchEmergencySMS(ctx context.Context, ep DeviceEndpoint, alert SecurityAlert, sentPhones map[string]struct{}) {
-	if !isCriticalEvent(alert.EventType) {
-		return
-	}
-	if ep.PhoneNumber == "" {
-		return
-	}
-	if _, alreadySent := sentPhones[ep.PhoneNumber]; alreadySent {
-		return
-	}
-
-	sentPhones[ep.PhoneNumber] = struct{}{}
-	smsMsg := fmt.Sprintf("🚨 MOTORGUARD ALERT: %s. %s", alert.Title, alert.Body)
-	_, err := s.snsClient.PublishSMS(ctx, ep.PhoneNumber, smsMsg)
-	if err != nil {
-		slog.Warn("Failed to send emergency SMS via SNS", "phone", ep.PhoneNumber, "error", err)
-		return
-	}
-
-	slog.Info("Emergency SMS dispatched via SNS", "phone", ep.PhoneNumber)
 }
 
 func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlertParams) error {
@@ -190,13 +166,6 @@ func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlert
 		Body:       body,
 		EventType:  "TEST_ALERT",
 		RecordedAt: time.Now().UTC(),
-	}
-
-	if params.PhoneNumber != "" {
-		smsMsg := fmt.Sprintf("MotorGuard Alert Test: %s. SMS delivery verified.", body)
-		_, _ = s.snsClient.PublishSMS(ctx, params.PhoneNumber, smsMsg)
-	}
-
 	return s.DispatchSecurityAlert(ctx, params.UserID, alert)
 }
 

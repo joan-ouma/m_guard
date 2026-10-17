@@ -15,6 +15,7 @@ type RouterConfig struct {
 	HealthHandler       *HealthHandler
 	NotificationHandler *NotificationHandler
 	SSEHandler          *SSEHandler
+	USSDHandler         *USSDHandler
 	AuthMiddleware      func(http.Handler) http.Handler
 	RateLimitMiddleware func(http.Handler) http.Handler
 }
@@ -35,6 +36,11 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 	r.Mount("/v1/bikes", cfg.BikeHandler.Routes(cfg.AuthMiddleware, cfg.SSEHandler.Stream))
 	if cfg.NotificationHandler != nil {
 		r.Mount("/v1/notifications", cfg.NotificationHandler.Routes(cfg.AuthMiddleware))
+	}
+
+	if cfg.USSDHandler != nil {
+		r.Mount("/v1/ussd", cfg.USSDHandler.Routes())
+		r.Mount("/ussd", cfg.USSDHandler.Routes())
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
