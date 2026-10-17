@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"motoguard-backend/internal/africastalking"
-
 	"github.com/google/uuid"
 )
 
@@ -30,7 +28,6 @@ type SendTestAlertParams struct {
 
 type Service struct {
 	snsClient      SNSClient
-	atClient       africastalking.Client
 	repo           *Repository
 	platformAppARN string
 	topicARN       string
@@ -43,10 +40,6 @@ func NewService(client SNSClient, repo *Repository, platformAppARN, topicARN str
 		platformAppARN: platformAppARN,
 		topicARN:       topicARN,
 	}
-}
-
-func (s *Service) SetATClient(client africastalking.Client) {
-	s.atClient = client
 }
 
 func (s *Service) RegisterDevice(ctx context.Context, params RegisterDeviceParams) (string, error) {
@@ -170,17 +163,7 @@ func (s *Service) dispatchEmergencySMS(ctx context.Context, ep DeviceEndpoint, a
 	}
 
 	sentPhones[ep.PhoneNumber] = struct{}{}
-	smsMsg := fmt.Sprintf("🚨 MGUARD ALERT: %s. %s", alert.Title, alert.Body)
-
-	if s.atClient != nil {
-		_, err := s.atClient.SendSMS(ctx, []string{ep.PhoneNumber}, smsMsg, "")
-		if err == nil {
-			slog.Info("Emergency SMS dispatched via Africa's Talking", "phone", ep.PhoneNumber)
-			return
-		}
-		slog.Warn("Failed to send emergency SMS via Africa's Talking, falling back to SNS", "phone", ep.PhoneNumber, "error", err)
-	}
-
+	smsMsg := fmt.Sprintf("🚨 MOTORGUARD ALERT: %s. %s", alert.Title, alert.Body)
 	_, err := s.snsClient.PublishSMS(ctx, ep.PhoneNumber, smsMsg)
 	if err != nil {
 		slog.Warn("Failed to send emergency SMS via SNS", "phone", ep.PhoneNumber, "error", err)
@@ -210,12 +193,8 @@ func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlert
 	}
 
 	if params.PhoneNumber != "" {
-		smsMsg := fmt.Sprintf("MGuard Alert Test: %s. SMS delivery verified.", body)
-		if s.atClient != nil {
-			_, _ = s.atClient.SendSMS(ctx, []string{params.PhoneNumber}, smsMsg, "")
-		} else {
-			_, _ = s.snsClient.PublishSMS(ctx, params.PhoneNumber, smsMsg)
-		}
+		smsMsg := fmt.Sprintf("MotorGuard Alert Test: %s. SMS delivery verified.", body)
+		_, _ = s.snsClient.PublishSMS(ctx, params.PhoneNumber, smsMsg)
 	}
 
 	return s.DispatchSecurityAlert(ctx, params.UserID, alert)
