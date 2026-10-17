@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"motoguard-backend/internal/africastalking"
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
@@ -20,7 +19,6 @@ import (
 
 type USSDService struct {
 	repo         *repository.USSDRepository
-	atClient     africastalking.Client
 	cmdPub       CommandPublisher
 	sseBroker    *sse.Broker
 	notifService *notification.Service
@@ -28,14 +26,12 @@ type USSDService struct {
 
 func NewUSSDService(
 	repo *repository.USSDRepository,
-	atClient africastalking.Client,
 	cmdPub CommandPublisher,
 	sseBroker *sse.Broker,
 	notifService *notification.Service,
 ) *USSDService {
 	return &USSDService{
 		repo:         repo,
-		atClient:     atClient,
 		cmdPub:       cmdPub,
 		sseBroker:    sseBroker,
 		notifService: notifService,

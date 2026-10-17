@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"motoguard-backend/internal/africastalking"
-
 	"github.com/google/uuid"
 )
 
@@ -30,7 +28,6 @@ type SendTestAlertParams struct {
 
 type Service struct {
 	snsClient      SNSClient
-	atClient       africastalking.Client
 	repo           *Repository
 	platformAppARN string
 	topicARN       string
@@ -43,10 +40,6 @@ func NewService(client SNSClient, repo *Repository, platformAppARN, topicARN str
 		platformAppARN: platformAppARN,
 		topicARN:       topicARN,
 	}
-}
-
-func (s *Service) SetATClient(client africastalking.Client) {
-	s.atClient = client
 }
 
 func (s *Service) RegisterDevice(ctx context.Context, params RegisterDeviceParams) (string, error) {

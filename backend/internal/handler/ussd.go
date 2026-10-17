@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"motoguard-backend/internal/africastalking"
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/service"
 
@@ -14,13 +13,11 @@ import (
 
 type USSDHandler struct {
 	ussdService *service.USSDService
-	atClient    africastalking.Client
 }
 
-func NewUSSDHandler(ussdService *service.USSDService, atClient africastalking.Client) *USSDHandler {
+func NewUSSDHandler(ussdService *service.USSDService) *USSDHandler {
 	return &USSDHandler{
 		ussdService: ussdService,
-		atClient:    atClient,
 	}
 }
 
