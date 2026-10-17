@@ -41,10 +41,9 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 	if cfg.USSDHandler != nil {
 		r.Mount("/v1/ussd", cfg.USSDHandler.Routes())
 		r.Mount("/ussd", cfg.USSDHandler.Routes())
-		r.Mount("/v1/sms", cfg.USSDHandler.SMSRoutes())
-		r.Mount("/sms", cfg.USSDHandler.SMSRoutes())
-		r.Get("/simulator", cfg.USSDHandler.SimulatorPage)
-		r.Get("/v1/simulator", cfg.USSDHandler.SimulatorPage)
+		// SMS routes deactivated for now:
+		// r.Mount("/v1/sms", cfg.USSDHandler.SMSRoutes())
+		// r.Mount("/sms", cfg.USSDHandler.SMSRoutes())
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

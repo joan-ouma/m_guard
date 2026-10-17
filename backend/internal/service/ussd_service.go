@@ -88,26 +88,48 @@ func (s *USSDService) VerifyPIN(ctx context.Context, phone, enteredPIN string) (
 	return false, nil
 }
 
+// parseUSSDStack resolves Africa's Talking asterisk-delimited inputs into a navigation stack,
+// allowing '0' to reliably return to the previous menu at any level.
+func parseUSSDStack(text string) []string {
+	if text == "" {
+		return nil
+	}
+	parts := strings.Split(text, "*")
+	var stack []string
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		if part == "0" {
+			if len(stack) > 0 {
+				stack = stack[:len(stack)-1]
+			}
+		} else {
+			stack = append(stack, part)
+		}
+	}
+	return stack
+}
+
 // HandleUSSD processes Africa's Talking USSD callback and returns the session response.
 func (s *USSDService) HandleUSSD(ctx context.Context, req domain.USSDRequest) string {
 	phone := req.PhoneNumber
-	rawText := strings.TrimSpace(req.Text)
 
-	// Parse multi-level USSD input separated by "*"
-	var steps []string
-	if rawText != "" {
-		steps = strings.Split(rawText, "*")
-	}
-
+	// Lookup bikes registered to this caller's phone number
 	bikes, err := s.repo.GetBikesByPhone(ctx, phone)
 	if err != nil {
 		slog.Error("USSD lookup bikes error", "phone", phone, "error", err)
 		return "END System temporarily unavailable. Please try again shortly."
 	}
 
+	// 1. If phone number is not registered on the platform, do NOT allow procession
 	if len(bikes) == 0 {
-		return s.handleUnregisteredRiderFlow(ctx, phone, steps)
+		return "END Phone number not registered on M-Guard. Please contact your administrator."
 	}
+
+	// 2. Parse multi-level USSD inputs with stack back-navigation
+	steps := parseUSSDStack(strings.TrimSpace(req.Text))
 
 	// Single bike flow vs Multi-bike flow
 	if len(bikes) == 1 {
@@ -117,455 +139,162 @@ func (s *USSDService) HandleUSSD(ctx context.Context, req domain.USSDRequest) st
 	return s.handleMultiBikeMenu(ctx, phone, bikes, steps)
 }
 
-func (s *USSDService) handleUnregisteredRiderFlow(ctx context.Context, phone string, steps []string) string {
-	if len(steps) == 0 {
-		return "CON Welcome to MGuard\nNo motorcycle linked to this phone.\n1. Register Motorcycle\n0. Exit"
-	}
-
-	choice := strings.TrimSpace(steps[0])
-	switch choice {
-	case "1":
-		return s.handleBikeRegistrationFlow(ctx, phone, steps[1:])
-	case "0":
-		return "END Thank you for using MGuard Fleet Security."
-	default:
-		return "END Invalid option selected. Please dial again."
-	}
-}
-
 func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
-		return fmt.Sprintf("CON MGuard: %s (%s)\n1. Check Status & Location\n2. Lock Bike (Immobilize)\n3. Unlock Bike (Mobilize)\n4. Emergency SOS\n5. Register New Bike\n6. Change PIN\n0. Exit",
-			bike.RegistrationNumber, bike.Make)
+		return "CON Welcome to M-Guard\n1. Find bike\n2. Immobilize bike\n3. Reactivate bike\n4. Emergency phones"
 	}
 
-	choice := strings.TrimSpace(steps[0])
+	choice := steps[0]
 	switch choice {
 	case "1":
-		return s.renderBikeStatus(bike)
+		return s.handleFindBike(bike)
 	case "2":
-		return s.handleLockFlow(ctx, phone, bike, steps[1:])
+		return s.handleImmobilizeBike(ctx, phone, bike, steps[1:])
 	case "3":
-		return s.handleUnlockFlow(ctx, phone, bike, steps[1:])
+		return s.handleReactivateBike(ctx, phone, bike, steps[1:])
 	case "4":
-		return s.handleSOSFlow(ctx, phone, bike, steps[1:])
-	case "5":
-		return s.handleBikeRegistrationFlow(ctx, phone, steps[1:])
-	case "6":
-		return s.handleChangePINFlow(ctx, phone, steps[1:])
-	case "0":
-		return "END Thank you for using MGuard Fleet Security."
+		return s.handleEmergencyPhones()
 	default:
-		return "END Invalid option selected. Please dial again."
+		return "END Invalid option. Session ended."
 	}
 }
 
 func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone string, bikes []domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
 		var sb strings.Builder
-		sb.WriteString("CON MGuard Fleets\nSelect Motorcycle:\n")
+		sb.WriteString("CON Welcome to M-Guard\nSelect bike:\n")
 		for i, b := range bikes {
-			sb.WriteString(fmt.Sprintf("%d. %s (%s)\n", i+1, b.RegistrationNumber, b.Make))
+			sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, b.RegistrationNumber))
 		}
-		sb.WriteString(fmt.Sprintf("%d. Register New Bike\n", len(bikes)+1))
-		sb.WriteString(fmt.Sprintf("%d. Change PIN\n", len(bikes)+2))
 		sb.WriteString("0. Exit")
 		return sb.String()
 	}
 
-	idxStr := strings.TrimSpace(steps[0])
-	if idxStr == "0" {
-		return "END Thank you for using MGuard."
-	}
-
+	idxStr := steps[0]
 	idx, err := strconv.Atoi(idxStr)
-	if err != nil {
-		return "END Invalid selection. Please dial again."
+	if err != nil || idx < 1 || idx > len(bikes) {
+		return "END Invalid selection. Session ended."
 	}
 
-	if idx >= 1 && idx <= len(bikes) {
-		selectedBike := bikes[idx-1]
-		return s.handleSingleBikeMenu(ctx, phone, selectedBike, steps[1:])
-	}
-
-	if idx == len(bikes)+1 {
-		return s.handleBikeRegistrationFlow(ctx, phone, steps[1:])
-	}
-
-	if idx == len(bikes)+2 {
-		return s.handleChangePINFlow(ctx, phone, steps[1:])
-	}
-
-	return "END Invalid selection. Please dial again."
+	selectedBike := bikes[idx-1]
+	return s.handleSingleBikeMenu(ctx, phone, selectedBike, steps[1:])
 }
 
-func (s *USSDService) handleBikeRegistrationFlow(ctx context.Context, phone string, steps []string) string {
-	if len(steps) == 0 {
-		return "CON Enter Number Plate (e.g. KMDF 123X):"
-	}
-
-	regNumber := strings.ToUpper(strings.TrimSpace(steps[0]))
-	if len(regNumber) < 3 {
-		return "END ❌ Invalid plate number. Please redial to start over."
-	}
-
-	if len(steps) == 1 {
-		return "CON Enter Tracker IMEI (15 digits):"
-	}
-
-	imei := strings.TrimSpace(steps[1])
-	if len(imei) < 6 {
-		return "END ❌ Invalid tracker IMEI. Must be at least 6-15 digits."
-	}
-
-	if len(steps) == 2 {
-		return "CON Select Motorcycle Make:\n1. Bajaj Boxer\n2. TVS HLX\n3. Honda Ace\n4. Haojue\n5. Other"
-	}
-
-	makeChoice := strings.TrimSpace(steps[2])
-	bikeMake := "Bajaj"
-	bikeModel := "Boxer 150"
-	switch makeChoice {
-	case "1":
-		bikeMake = "Bajaj"
-		bikeModel = "Boxer"
-	case "2":
-		bikeMake = "TVS"
-		bikeModel = "HLX 125"
-	case "3":
-		bikeMake = "Honda"
-		bikeModel = "Ace 125"
-	case "4":
-		bikeMake = "Haojue"
-		bikeModel = "Lucky 110"
-	case "5":
-		bikeMake = "Motorcycle"
-		bikeModel = "Standard"
-	default:
-		return "END ❌ Invalid make selection. Please redial to start over."
-	}
-
-	if len(steps) == 3 {
-		return "CON Set 4-digit Security PIN:"
-	}
-
-	pin := strings.TrimSpace(steps[3])
-	if len(pin) != 4 || !isAllDigits(pin) {
-		return "END ❌ Security PIN must be exactly 4 numeric digits."
-	}
-
-	if len(steps) == 4 {
-		return "CON Confirm 4-digit Security PIN:"
-	}
-
-	confirmPIN := strings.TrimSpace(steps[4])
-	if pin != confirmPIN {
-		return "END ❌ PIN confirmation does not match. Please redial to start over."
-	}
-
-	bike, err := s.repo.RegisterBike(ctx, repository.RegisterBikeParams{
-		Phone:              phone,
-		RegistrationNumber: regNumber,
-		IMEI:               imei,
-		Make:               bikeMake,
-		Model:              bikeModel,
-	})
-	if err != nil {
-		return fmt.Sprintf("END ❌ Registration failed: %s", err.Error())
-	}
-
-	// Save PIN
-	_ = s.repo.SaveRiderPIN(ctx, phone, HashPIN(phone, pin))
-
-	// Send SMS confirmation
-	go func() {
-		norm, _ := repository.NormalizePhoneNumber(phone)
-		msg := fmt.Sprintf("Welcome to MGuard! Motorcycle %s registered successfully with IMEI %s. Your PIN is active. Dial *384*999# or SMS STATUS to 20880 anytime.", bike.RegistrationNumber, imei)
-		_, _ = s.atClient.SendSMS(context.Background(), []string{norm}, msg, "")
-	}()
-
-	return fmt.Sprintf("END ✅ Motorcycle %s registered successfully!\nYour MGuard security PIN is now active.\nDial *384*999# anytime to manage your bike.", bike.RegistrationNumber)
+// 1. Find bike
+func (s *USSDService) handleFindBike(bike domain.RiderBikeInfo) string {
+	return s.renderBikeStatus(bike)
 }
 
 func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo) string {
-	ignitionStr := "OFF"
-	if bike.Ignition {
-		ignitionStr = "ON"
-	}
-
-	engineStr := "UNLOCKED"
-	if bike.IsImmobilized {
-		engineStr = "LOCKED (Immobilized)"
-	}
-
 	loc := bike.CurrentAddress
 	if loc == "" || loc == "Location pending update" {
 		if bike.SubCounty != "" || bike.County != "" {
 			loc = fmt.Sprintf("%s, %s", bike.SubCounty, bike.County)
 		} else {
-			loc = "In Transit / GPS tracking active"
+			loc = "GPS active"
 		}
 	}
 
-	return fmt.Sprintf("END MGuard %s\nStatus: %s\nIgnition: %s\nSpeed: %.0f km/h\nBattery: %d%%\nEngine: %s\nLocation: %s",
-		bike.RegistrationNumber,
-		bike.Status,
-		ignitionStr,
-		bike.SpeedKMH,
-		bike.BatteryPercent,
-		engineStr,
-		loc,
-	)
+	status := bike.Status
+	if status == "" {
+		if bike.Ignition {
+			status = "RUNNING"
+		} else {
+			status = "STOPPED"
+		}
+	}
+
+	return fmt.Sprintf("CON Bike %s\nStatus: %s\nBattery: %d%%\nLocation: %s\n0. Back",
+		bike.RegistrationNumber, status, bike.BatteryPercent, loc)
 }
 
-func (s *USSDService) handleLockFlow(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
+// 2. Immobilize bike
+func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
 	if bike.IsImmobilized {
-		return fmt.Sprintf("END Motorcycle %s engine is ALREADY LOCKED (Immobilized). Starter is disabled.", bike.RegistrationNumber)
+		return fmt.Sprintf("END Bike %s is already immobilized.", bike.RegistrationNumber)
 	}
 
 	if len(steps) == 0 {
-		return fmt.Sprintf("CON LOCK ENGINE: %s\nEnter your 4-digit PIN to disable starter:", bike.RegistrationNumber)
+		return fmt.Sprintf("CON Turn off engine for %s?\n1. Yes, shut down\n0. Back", bike.RegistrationNumber)
 	}
 
-	pin := strings.TrimSpace(steps[0])
-	valid, err := s.VerifyPIN(ctx, phone, pin)
-	if err != nil {
-		return fmt.Sprintf("END %s", err.Error())
-	}
-	if !valid {
-		return "END ❌ Incorrect PIN. Engine lock cancelled for your security."
-	}
-
-	// Perform Immobilization
-	imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, true, "USSD (*384#)")
-	if err != nil {
-		slog.Error("Failed to lock bike via USSD", "bike_id", bike.ID, "error", err)
-		return "END Unable to lock engine at this time. Please retry shortly."
-	}
-
-	// Publish MQTT command to ESP32 hardware
-	if s.cmdPub != nil && imei != "" {
-		_ = s.cmdPub.PublishCommand(imei, "IMMOBILIZE")
-	}
-
-	// Broadcast SSE update to frontend portal
-	if s.sseBroker != nil {
-		s.sseBroker.BroadcastAlert(userID, map[string]any{
-			"event_type":  "IMMOBILIZED",
-			"bike_id":     bike.ID,
-			"title":       "🔒 Engine Immobilized via USSD",
-			"activity":    fmt.Sprintf("Rider on %s engaged engine immobilization remotely.", phone),
-			"recorded_at": time.Now().UTC(),
-		})
-	}
-
-	// Send SMS confirmation
-	smsMsg := fmt.Sprintf("🔒 MGuard: Engine for %s has been LOCKED successfully via USSD. Starter disabled.", bike.RegistrationNumber)
-	go func() {
-		norm, _ := repository.NormalizePhoneNumber(phone)
-		_, _ = s.atClient.SendSMS(context.Background(), []string{norm}, smsMsg, "")
-	}()
-
-	return fmt.Sprintf("END 🔒 Engine LOCKED successfully!\nMotorcycle %s starter is now disabled.", bike.RegistrationNumber)
-}
-
-func (s *USSDService) handleUnlockFlow(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
-	if !bike.IsImmobilized {
-		return fmt.Sprintf("END Motorcycle %s engine is ALREADY UNLOCKED. Ready to ride.", bike.RegistrationNumber)
-	}
-
-	if len(steps) == 0 {
-		return fmt.Sprintf("CON UNLOCK ENGINE: %s\nEnter your 4-digit PIN to restore starter:", bike.RegistrationNumber)
-	}
-
-	pin := strings.TrimSpace(steps[0])
-	valid, err := s.VerifyPIN(ctx, phone, pin)
-	if err != nil {
-		return fmt.Sprintf("END %s", err.Error())
-	}
-	if !valid {
-		return "END ❌ Incorrect PIN. Engine unlock cancelled."
-	}
-
-	// Perform Mobilization
-	imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, false, "USSD (*384#)")
-	if err != nil {
-		slog.Error("Failed to unlock bike via USSD", "bike_id", bike.ID, "error", err)
-		return "END Unable to unlock engine at this time. Please retry."
-	}
-
-	// Publish MQTT command to ESP32 hardware
-	if s.cmdPub != nil && imei != "" {
-		_ = s.cmdPub.PublishCommand(imei, "REACTIVATE")
-	}
-
-	// Broadcast SSE update
-	if s.sseBroker != nil {
-		s.sseBroker.BroadcastAlert(userID, map[string]any{
-			"event_type":  "REACTIVATED",
-			"bike_id":     bike.ID,
-			"title":       "🔓 Engine Reactivated via USSD",
-			"activity":    fmt.Sprintf("Rider on %s unlocked engine remotely.", phone),
-			"recorded_at": time.Now().UTC(),
-		})
-	}
-
-	// Send SMS confirmation
-	smsMsg := fmt.Sprintf("🔓 MGuard: Engine for %s has been UNLOCKED successfully via USSD. Ready to ride.", bike.RegistrationNumber)
-	go func() {
-		norm, _ := repository.NormalizePhoneNumber(phone)
-		_, _ = s.atClient.SendSMS(context.Background(), []string{norm}, smsMsg, "")
-	}()
-
-	return fmt.Sprintf("END 🔓 Engine UNLOCKED successfully!\nMotorcycle %s is ready to start.", bike.RegistrationNumber)
-}
-
-func (s *USSDService) handleSOSFlow(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
-	if len(steps) == 0 {
-		return fmt.Sprintf("CON 🚨 EMERGENCY SOS: %s\nAlert fleet manager and send your current location?\n1. YES, Send SOS Now\n2. Cancel", bike.RegistrationNumber)
-	}
-
-	choice := strings.TrimSpace(steps[0])
-	if choice != "1" {
-		return "END Emergency SOS cancelled."
-	}
-
-	// Record Emergency Event
-	details := fmt.Sprintf("Emergency SOS triggered by rider (%s) via USSD", phone)
-	_ = s.repo.RecordEmergencySOS(ctx, bike.ID, bike.UserID, bike.Latitude, bike.Longitude, details)
-
-	// Send Alert to Fleet Owner and Rider
-	ownerMsg := fmt.Sprintf("🚨 MGUARD SOS ALERT! Rider %s (%s) triggered Emergency SOS on %s. Location: %s. Maps: https://maps.google.com/?q=%.6f,%.6f",
-		bike.RiderName, phone, bike.RegistrationNumber, bike.CurrentAddress, bike.Latitude, bike.Longitude)
-
-	riderMsg := fmt.Sprintf("🚨 MGuard: Emergency SOS dispatched for %s! Fleet manager has been notified with your current location.", bike.RegistrationNumber)
-
-	go func() {
-		bgCtx := context.Background()
-		recipients := make([]string, 0, 2)
-		normRider, _ := repository.NormalizePhoneNumber(phone)
-		recipients = append(recipients, normRider)
-
-		if bike.OwnerPhone != "" {
-			normOwner, _ := repository.NormalizePhoneNumber(bike.OwnerPhone)
-			if normOwner != normRider {
-				_, _ = s.atClient.SendSMS(bgCtx, []string{normOwner}, ownerMsg, "")
-			}
+	if steps[0] == "1" {
+		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, true, "USSD (*384#)")
+		if err != nil {
+			slog.Error("Failed to immobilize bike via USSD", "bike_id", bike.ID, "error", err)
+			return "END Unable to immobilize bike at this time. Please try again."
 		}
 
-		_, _ = s.atClient.SendSMS(bgCtx, []string{normRider}, riderMsg, "")
-	}()
+		if s.cmdPub != nil && imei != "" {
+			_ = s.cmdPub.PublishCommand(imei, "IMMOBILIZE")
+		}
 
-	// Push Notification & SSE Broadcast
-	if s.sseBroker != nil {
-		s.sseBroker.BroadcastAlert(bike.UserID, map[string]any{
-			"event_type":  "SOS_DURESS",
-			"bike_id":     bike.ID,
-			"title":       "🚨 EMERGENCY SOS TRIGGERED",
-			"activity":    fmt.Sprintf("Rider %s (%s) triggered an SOS alert via USSD.", bike.RiderName, phone),
-			"latitude":    bike.Latitude,
-			"longitude":   bike.Longitude,
-			"recorded_at": time.Now().UTC(),
-		})
+		if s.sseBroker != nil {
+			s.sseBroker.BroadcastAlert(userID, map[string]any{
+				"event_type":  "IMMOBILIZED",
+				"bike_id":     bike.ID,
+				"title":       "🔒 Engine Immobilized via USSD",
+				"activity":    fmt.Sprintf("Rider on %s engaged engine immobilization remotely.", phone),
+				"recorded_at": time.Now().UTC(),
+			})
+		}
+
+		// SMS notification deactivated for now
+
+		return "END Engine immobilized. Starter has been disabled safely."
 	}
 
-	if s.notifService != nil {
-		_ = s.notifService.DispatchSecurityAlert(ctx, bike.UserID, notification.SecurityAlert{
-			BikeID:     bike.ID,
-			Title:      "🚨 EMERGENCY SOS TRIGGERED",
-			Body:       fmt.Sprintf("Rider %s triggered SOS on %s at %s", bike.RiderName, bike.RegistrationNumber, bike.CurrentAddress),
-			EventType:  "SOS_DURESS",
-			Latitude:   bike.Latitude,
-			Longitude:  bike.Longitude,
-			RecordedAt: time.Now().UTC(),
-		})
-	}
-
-	return fmt.Sprintf("END 🚨 SOS ALERT DISPATCHED!\nFleet manager and emergency contacts notified with your live coordinates.\nHelp is on the way.")
+	return "END Invalid option. Session ended."
 }
 
-func (s *USSDService) handleChangePINFlow(ctx context.Context, phone string, steps []string) string {
+// 3. Reactivate bike
+func (s *USSDService) handleReactivateBike(ctx context.Context, phone string, bike domain.RiderBikeInfo, steps []string) string {
+	if !bike.IsImmobilized {
+		return fmt.Sprintf("END Bike %s is already active.", bike.RegistrationNumber)
+	}
+
 	if len(steps) == 0 {
-		return "CON CHANGE PIN\nEnter CURRENT 4-digit PIN (default 1234):"
+		return fmt.Sprintf("CON Restore engine for %s?\n1. Yes, reactivate\n0. Back", bike.RegistrationNumber)
 	}
 
-	currentPIN := strings.TrimSpace(steps[0])
-	valid, err := s.VerifyPIN(ctx, phone, currentPIN)
-	if err != nil {
-		return fmt.Sprintf("END %s", err.Error())
-	}
-	if !valid {
-		return "END ❌ Current PIN is incorrect. PIN change cancelled."
-	}
+	if steps[0] == "1" {
+		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, false, "USSD (*384#)")
+		if err != nil {
+			slog.Error("Failed to reactivate bike via USSD", "bike_id", bike.ID, "error", err)
+			return "END Unable to reactivate bike at this time. Please try again."
+		}
 
-	if len(steps) == 1 {
-		return "CON Enter NEW 4-digit PIN:"
-	}
+		if s.cmdPub != nil && imei != "" {
+			_ = s.cmdPub.PublishCommand(imei, "REACTIVATE")
+		}
 
-	newPIN := strings.TrimSpace(steps[1])
-	if len(newPIN) != 4 || !isAllDigits(newPIN) {
-		return "END ❌ New PIN must be exactly 4 numeric digits. Please try again."
-	}
+		if s.sseBroker != nil {
+			s.sseBroker.BroadcastAlert(userID, map[string]any{
+				"event_type":  "REACTIVATED",
+				"bike_id":     bike.ID,
+				"title":       "🔓 Engine Reactivated via USSD",
+				"activity":    fmt.Sprintf("Rider on %s restored engine remotely.", phone),
+				"recorded_at": time.Now().UTC(),
+			})
+		}
 
-	if len(steps) == 2 {
-		return "CON Confirm NEW 4-digit PIN:"
-	}
+		// SMS notification deactivated for now
 
-	confirmPIN := strings.TrimSpace(steps[2])
-	if newPIN != confirmPIN {
-		return "END ❌ PIN confirmation does not match. Please try again."
-	}
-
-	hashed := HashPIN(phone, newPIN)
-	if err := s.repo.SaveRiderPIN(ctx, phone, hashed); err != nil {
-		slog.Error("Failed to save new rider PIN", "phone", phone, "error", err)
-		return "END Unable to update PIN at this time. Please retry."
+		return "END Engine reactivated. Bike is ready to ride."
 	}
 
-	go func() {
-		norm, _ := repository.NormalizePhoneNumber(phone)
-		msg := "MGuard: Your security PIN has been updated successfully. Keep this PIN safe."
-		_, _ = s.atClient.SendSMS(context.Background(), []string{norm}, msg, "")
-	}()
+	return "END Invalid option. Session ended."
+}
 
-	return "END ✅ PIN updated successfully!\nPlease keep your new PIN safe."
+// 4. Emergency phones
+func (s *USSDService) handleEmergencyPhones() string {
+	return "CON Emergency Helplines:\nControl Room: 0700 123 456\nPolice: 999 / 112\n0. Back"
 }
 
 // HandleIncomingSMS processes inbound SMS commands from riders (2-Way SMS).
 func (s *USSDService) HandleIncomingSMS(ctx context.Context, req domain.SMSIncomingRequest) string {
-	phone := req.From
-	text := strings.TrimSpace(req.Text)
-
-	if text == "" {
-		return s.smsHelpMessage()
-	}
-
-	tokens := strings.Fields(text)
-	cmd := strings.ToUpper(tokens[0])
-
-	if cmd == "REG" || cmd == "REGISTER" {
-		return s.handleSMSRegister(ctx, phone, tokens[1:])
-	}
-
-	bikes, err := s.repo.GetBikesByPhone(ctx, phone)
-	if err != nil || len(bikes) == 0 {
-		return fmt.Sprintf("MGuard: Phone %s is not linked to any active motorcycle. Reply: REG <PLATE> <IMEI> <PIN> to register your motorcycle.", phone)
-	}
-
-	switch cmd {
-	case "STATUS", "INFO", "WHERE":
-		return s.handleSMSStatus(bikes, tokens[1:])
-	case "LOCK", "STOP":
-		return s.handleSMSLock(ctx, phone, bikes, tokens[1:], true)
-	case "UNLOCK", "START":
-		return s.handleSMSLock(ctx, phone, bikes, tokens[1:], false)
-	case "SOS", "HELP", "EMERGENCY":
-		return s.handleSMSSOS(ctx, phone, bikes)
-	case "PIN":
-		return s.handleSMSChangePIN(ctx, phone, tokens[1:])
-	default:
-		return s.smsHelpMessage()
-	}
+	// SMS processing deactivated for now
+	return "SMS service is currently deactivated."
 }
 
 func (s *USSDService) handleSMSRegister(ctx context.Context, phone string, args []string) string {

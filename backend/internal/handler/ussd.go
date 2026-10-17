@@ -124,7 +124,7 @@ func (h *USSDHandler) HandleIncomingSMS(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// GetOutboxSMS returns recent outbound SMS log for simulator/testing UI.
+// GetOutboxSMS returns recent outbound SMS log.
 func (h *USSDHandler) GetOutboxSMS(w http.ResponseWriter, r *http.Request) {
 	limit := 50
 	if l := r.URL.Query().Get("limit"); l != "" {
@@ -143,12 +143,6 @@ func (h *USSDHandler) GetOutboxSMS(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// SimulatorPage serves the local interactive Africa's Talking Sandbox Simulator.
-func (h *USSDHandler) SimulatorPage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(simulatorHTML))
-}
 
 func getParam(r *http.Request, keys ...string) string {
 	for _, k := range keys {
