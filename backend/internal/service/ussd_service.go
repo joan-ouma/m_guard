@@ -235,7 +235,15 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone string, bi
 			})
 		}
 
-		// SMS notification deactivated for now
+		if s.notifService != nil {
+			_ = s.notifService.DispatchSecurityAlert(ctx, userID, notification.SecurityAlert{
+				BikeID:     bike.ID,
+				Title:      "🔒 Engine Immobilized via USSD",
+				Body:       fmt.Sprintf("Motorcycle %s engine immobilized remotely via USSD by %s", bike.RegistrationNumber, phone),
+				EventType:  "IMMOBILIZE",
+				RecordedAt: time.Now().UTC(),
+			})
+		}
 
 		return "END Engine immobilized. Starter has been disabled safely."
 	}
@@ -274,7 +282,15 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone string, bi
 			})
 		}
 
-		// SMS notification deactivated for now
+		if s.notifService != nil {
+			_ = s.notifService.DispatchSecurityAlert(ctx, userID, notification.SecurityAlert{
+				BikeID:     bike.ID,
+				Title:      "🔓 Engine Reactivated via USSD",
+				Body:       fmt.Sprintf("Motorcycle %s engine restored remotely via USSD by %s", bike.RegistrationNumber, phone),
+				EventType:  "REACTIVATED",
+				RecordedAt: time.Now().UTC(),
+			})
+		}
 
 		return "END Engine reactivated. Bike is ready to ride."
 	}

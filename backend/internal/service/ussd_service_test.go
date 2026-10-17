@@ -112,7 +112,15 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 		t.Fatalf("unexpected immobilize confirmation: %s", immob)
 	}
 
-	// 4. Option 4: Emergency phones
+	// 4. Option 3: Reactivate bike (when bike is immobilized)
+	bikeImmob := bike
+	bikeImmob.IsImmobilized = true
+	react := s.handleSingleBikeMenu(nil, "+254712345678", bikeImmob, []string{"3"})
+	if !containsString(react, "CON Restore engine for KMDF 123X?") || !containsString(react, "0. Back") {
+		t.Fatalf("unexpected reactivate confirmation: %s", react)
+	}
+
+	// 5. Option 4: Emergency phones
 	emerg := s.handleSingleBikeMenu(nil, "+254712345678", bike, []string{"4"})
 	if !containsString(emerg, "CON Emergency Helplines:") || !containsString(emerg, "0. Back") {
 		t.Fatalf("unexpected emergency helplines: %s", emerg)
