@@ -51,8 +51,7 @@ func NormalizePhoneNumber(phone string) (normalized string, last9 string) {
 	return normalized, last9
 }
 
-// GetBikesByPhone retrieves all motorcycles linked to the caller's phone number
-// either as an assigned rider (driver_contacts) or as the fleet owner (users).
+// GetBikesByPhone retrieves all motorcycles linked to the caller's phone number directly via users.
 func (r *USSDRepository) GetBikesByPhone(ctx context.Context, phone string) ([]domain.RiderBikeInfo, error) {
 	normalized, last9 := NormalizePhoneNumber(phone)
 
@@ -78,16 +77,12 @@ func (r *USSDRepository) GetBikesByPhone(ctx context.Context, phone string) ([]d
 			b.imei,
 			b.last_telemetry_at,
 			COALESCE(u.phone_number, ''),
-			COALESCE(u.name, 'Fleet Owner'),
-			COALESCE(dc.name, 'Rider')
+			COALESCE(u.name, 'Owner'),
+			COALESCE(u.name, 'Rider')
 		FROM bikes b
 		JOIN users u ON b.user_id = u.id
-		LEFT JOIN driver_contacts dc ON b.driver_contact_id = dc.id
 		WHERE 
-			-- Match Driver Contact Phone
-			(dc.phone = $1 OR dc.phone = $2 OR dc.phone LIKE '%' || $3)
-			OR
-			-- Match Fleet Owner Phone
+			-- Match User Phone directly
 			(u.phone_number = $1 OR u.phone_number = $2 OR u.phone_number LIKE '%' || $3)
 		ORDER BY b.registration_number ASC
 	`
