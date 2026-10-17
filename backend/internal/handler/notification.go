@@ -110,6 +110,6 @@ func (h *NotificationHandler) SendTestNotification(w http.ResponseWriter, r *htt
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]string{
-		"message": "Test push and SMS alert dispatched via AWS SNS",
+		"message": "Test push alert dispatched via AWS SNS",
 	})
 }

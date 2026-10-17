@@ -137,11 +137,9 @@ func (s *Service) broadcastToUserDevices(ctx context.Context, userID string, ale
 	}
 
 	slog.Info("Broadcasting alert to all devices under account", "user_id", userID, "device_count", len(endpoints))
-	sentPhones := make(map[string]struct{})
 
 	for _, ep := range endpoints {
 		s.dispatchToEndpoint(ctx, ep, alert, fcmPayload)
-		s.dispatchEmergencySMS(ctx, ep, alert, sentPhones)
 	}
 }
 
@@ -156,11 +154,6 @@ func (s *Service) dispatchToEndpoint(ctx context.Context, ep DeviceEndpoint, ale
 	if isStaleEndpointError(err) {
 		_ = s.repo.DeleteEndpointByARN(ctx, ep.EndpointARN)
 	}
-}
-
-func (s *Service) dispatchEmergencySMS(ctx context.Context, ep DeviceEndpoint, alert SecurityAlert, sentPhones map[string]struct{}) {
-	// SMS dispatch deactivated for now
-	return
 }
 
 func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlertParams) error {
@@ -180,10 +173,6 @@ func (s *Service) SendTestNotification(ctx context.Context, params SendTestAlert
 		Body:       body,
 		EventType:  "TEST_ALERT",
 		RecordedAt: time.Now().UTC(),
-	}
-
-	// SMS dispatch deactivated for now
-
 	return s.DispatchSecurityAlert(ctx, params.UserID, alert)
 }
 

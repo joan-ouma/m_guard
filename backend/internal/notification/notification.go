@@ -48,6 +48,5 @@ type SNSClient interface {
 	CreatePlatformEndpoint(ctx context.Context, platformAppARN, token, customUserData string) (string, error)
 	DeleteEndpoint(ctx context.Context, endpointARN string) error
 	PublishToEndpoint(ctx context.Context, endpointARN string, subject, rawMessage, gcmPayload string) (string, error)
-	PublishSMS(ctx context.Context, phoneNumber, message string) (string, error)
 	PublishToTopic(ctx context.Context, topicARN string, subject, rawMessage, gcmPayload string) (string, error)
 }

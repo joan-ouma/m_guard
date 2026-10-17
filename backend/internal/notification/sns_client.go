@@ -168,10 +168,6 @@ func (c *AWSSNSClient) PublishToEndpoint(ctx context.Context, endpointARN string
 	return resp.Result.MessageID, nil
 }
 
-func (c *AWSSNSClient) PublishSMS(ctx context.Context, phoneNumber, message string) (string, error) {
-	// SMS dispatch deactivated for now
-	return "", nil
-}
 
 func (c *AWSSNSClient) PublishToTopic(ctx context.Context, topicARN string, subject, rawMessage, gcmPayload string) (string, error) {
 	params := url.Values{}
