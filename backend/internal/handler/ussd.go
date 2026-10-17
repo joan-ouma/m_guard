@@ -25,8 +25,7 @@ func (h *USSDHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/", h.HandleUSSD)
-	r.Post("/callback", h.HandleUSSD)
-	r.Get("/callback", h.HandleUSSD) // Support GET test pings
+	r.Get("/", h.HandleUSSD) // Support GET test pings
 
 	return r
 }

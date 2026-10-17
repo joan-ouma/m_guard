@@ -39,7 +39,6 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 	}
 
 	if cfg.USSDHandler != nil {
-		r.Mount("/v1/ussd", cfg.USSDHandler.Routes())
 		r.Mount("/ussd", cfg.USSDHandler.Routes())
 	}
 
