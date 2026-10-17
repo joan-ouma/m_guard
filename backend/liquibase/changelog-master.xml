@@ -47,4 +47,7 @@
     <!-- 014. Location Precision & LBS Tracking Type -->
     <include file="changesets/014-add-accuracy-and-loctype.xml" relativeToChangelogFile="true"/>
 
+    <!-- 015. USSD Rider PINs -->
+    <include file="changesets/015-create-ussd-pins.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

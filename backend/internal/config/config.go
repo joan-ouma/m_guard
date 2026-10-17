@@ -24,7 +24,11 @@ type Config struct {
 	AWSAccessKeyID      string
 	AWSSecretAccessKey  string
 	AWSSNSPlatformAppARN string
-	AWSSNSTopicARN      string
+	AWSSNSTopicARN       string
+	ATAPIKey             string
+	ATUsername           string
+	ATSenderID           string
+	ATIsSandbox          bool
 }
 
 func getEnv(key, fallback string) string {
@@ -46,6 +50,8 @@ func Load() (Config, error) {
 	}
 
 	defaultFrontendURL := "https://mxguard.jullie.tech"
+	atUsername := getEnv("AFRICASTALKING_USERNAME", getEnv("AT_USERNAME", "sandbox"))
+	atIsSandbox := atUsername == "sandbox" || strings.ToLower(getEnv("AFRICASTALKING_SANDBOX", "true")) == "true"
 
 	return Config{
 		Port:                 getEnv("PORT", "8080"),
@@ -66,5 +72,9 @@ func Load() (Config, error) {
 		AWSSecretAccessKey:   getEnv("AWS_SECRET_ACCESS_KEY", ""),
 		AWSSNSPlatformAppARN: getEnv("AWS_SNS_PLATFORM_APP_ARN", ""),
 		AWSSNSTopicARN:       getEnv("AWS_SNS_TOPIC_ARN", ""),
+		ATAPIKey:             getEnv("AFRICASTALKING_API_KEY", getEnv("AT_API_KEY", "")),
+		ATUsername:           atUsername,
+		ATSenderID:           getEnv("AFRICASTALKING_SENDER_ID", getEnv("AT_SENDER_ID", "")),
+		ATIsSandbox:          atIsSandbox,
 	}, nil
 }

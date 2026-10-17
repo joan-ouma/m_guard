@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"motoguard-backend/internal/africastalking"
 	"motoguard-backend/internal/config"
 	"motoguard-backend/internal/database"
 	"motoguard-backend/internal/handler"
@@ -63,8 +64,13 @@ func main() {
 	slog.Info("Initializing AWS SNS client", "region", cfg.AWSRegion, "platform_app_arn", cfg.AWSSNSPlatformAppARN)
 	snsClient := notification.NewAWSSNSClient(cfg.AWSRegion, cfg.AWSAccessKeyID, cfg.AWSSecretAccessKey)
 
+	// Initialize Africa's Talking Client
+	atClient := africastalking.NewClient(cfg.ATUsername, cfg.ATAPIKey, cfg.ATIsSandbox)
+	slog.Info("Africa's Talking client initialized", "username", cfg.ATUsername, "is_sandbox", cfg.ATIsSandbox)
+
 	notificationRepo := notification.NewRepository(pool)
 	notificationService := notification.NewService(snsClient, notificationRepo, cfg.AWSSNSPlatformAppARN, cfg.AWSSNSTopicARN)
+	notificationService.SetATClient(atClient)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
 	bikeRepo := repository.NewBikeRepository(pool)
@@ -80,10 +86,12 @@ func main() {
 	telemetryService.SetSSEBroker(sseBroker)
 	telemetryService.SetNotificationService(notificationService)
 
+	var cmdPub service.CommandPublisher
 	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService)
 	if err != nil {
 		slog.Error("mqtt client error", "error", err)
 	} else {
+		cmdPub = mqttSubscriber
 		bikeService.SetCommandPublisher(mqttSubscriber)
 		if err := mqttSubscriber.Start(ctx); err != nil {
 			slog.Error("mqtt subscriber start error", "error", err)
@@ -91,6 +99,11 @@ func main() {
 			defer mqttSubscriber.Stop()
 		}
 	}
+
+	// Initialize USSD & 2-Way SMS Service for non-smartphone riders
+	ussdRepo := repository.NewUSSDRepository(pool)
+	ussdService := service.NewUSSDService(ussdRepo, atClient, cmdPub, sseBroker, notificationService)
+	ussdHandler := handler.NewUSSDHandler(ussdService, atClient)
 
 	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
@@ -101,6 +114,7 @@ func main() {
 		HealthHandler:       healthHandler,
 		NotificationHandler: notificationHandler,
 		SSEHandler:          sseHandler,
+		USSDHandler:         ussdHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})
