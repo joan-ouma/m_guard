@@ -120,13 +120,28 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 		t.Fatalf("unexpected reactivate confirmation: %s", react)
 	}
 
-	// 5. Option 4: Emergency phones (dynamic contacts)
+	// 5. Option 4: Emergency directory & search
 	emergBike := bike
 	emergBike.OwnerName = "Alpha Fleet"
 	emergBike.OwnerPhone = "+254700000000"
-	emerg := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4"})
-	if !containsString(emerg, "CON Emergency Contacts:") || !containsString(emerg, "Alpha Fleet: +254700000000") || !containsString(emerg, "0. Back") {
-		t.Fatalf("unexpected emergency contacts: %s", emerg)
+	emergMenu := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4"})
+	if !containsString(emergMenu, "CON Emergency Directory:") || !containsString(emergMenu, "1. Fleet Owner") || !containsString(emergMenu, "2. Search Police Station") {
+		t.Fatalf("unexpected emergency directory menu: %s", emergMenu)
+	}
+
+	emergOwner := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "1"})
+	if !containsString(emergOwner, "CON Fleet Owner:") || !containsString(emergOwner, "Alpha Fleet: +254700000000") {
+		t.Fatalf("unexpected fleet owner response: %s", emergOwner)
+	}
+
+	emergSearchPrompt := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "2"})
+	if !containsString(emergSearchPrompt, "CON Enter town or station name") {
+		t.Fatalf("unexpected search prompt: %s", emergSearchPrompt)
+	}
+
+	emergSearchRes := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "2", "rongai"})
+	if !containsString(emergSearchRes, "Ongata Rongai Police") || !containsString(emergSearchRes, "0721 334 999") {
+		t.Fatalf("unexpected search results: %s", emergSearchRes)
 	}
 }
 

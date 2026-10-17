@@ -156,7 +156,7 @@ func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone, trigger s
 	case "3":
 		return s.handleReactivateBike(ctx, phone, trigger, bike, steps[1:])
 	case "4":
-		return s.handleEmergencyPhones(bike)
+		return s.handleEmergencyPhones(bike, steps[1:])
 	default:
 		return "END Invalid option. Session ended."
 	}
@@ -315,31 +315,117 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger s
 	return "END Invalid option. Session ended."
 }
 
-// 4. Emergency phones - dynamic lookup based on linked bike's fleet owner & env configs
-func (s *USSDService) handleEmergencyPhones(bike domain.RiderBikeInfo) string {
-	var sb strings.Builder
-	sb.WriteString("CON Emergency Contacts:\n")
+// 4. Emergency phones - searchable police & fleet directory
+func (s *USSDService) handleEmergencyPhones(bike domain.RiderBikeInfo, steps []string) string {
+	if len(steps) == 0 {
+		return "CON Emergency Directory:\n1. Fleet Owner\n2. Search Police Station\n0. Back"
+	}
 
-	if strings.TrimSpace(bike.OwnerPhone) != "" {
-		ownerLabel := strings.TrimSpace(bike.OwnerName)
-		if ownerLabel == "" || strings.EqualFold(ownerLabel, "Fleet Owner") {
-			ownerLabel = "Fleet Manager"
+	switch steps[0] {
+	case "1":
+		var sb strings.Builder
+		sb.WriteString("CON Fleet Owner:\n")
+		if strings.TrimSpace(bike.OwnerPhone) != "" {
+			ownerLabel := strings.TrimSpace(bike.OwnerName)
+			if ownerLabel == "" || strings.EqualFold(ownerLabel, "Fleet Owner") {
+				ownerLabel = "Fleet Manager"
+			}
+			sb.WriteString(fmt.Sprintf("%s: %s\n", ownerLabel, strings.TrimSpace(bike.OwnerPhone)))
+		} else {
+			sb.WriteString("No fleet owner phone on record.\n")
 		}
-		sb.WriteString(fmt.Sprintf("%s: %s\n", ownerLabel, strings.TrimSpace(bike.OwnerPhone)))
+
+		supportPhone := strings.TrimSpace(os.Getenv("EMERGENCY_SUPPORT_PHONE"))
+		if supportPhone != "" {
+			sb.WriteString(fmt.Sprintf("Support: %s\n", supportPhone))
+		}
+
+		policeHotline := strings.TrimSpace(os.Getenv("POLICE_HOTLINE"))
+		if policeHotline == "" {
+			policeHotline = "999 / 112"
+		}
+		sb.WriteString(fmt.Sprintf("National Police: %s\n", policeHotline))
+		sb.WriteString("0. Back")
+		return sb.String()
+
+	case "2":
+		if len(steps) == 1 {
+			return "CON Enter town or station name (e.g. Rongai, Karen, Central):\n0. Back"
+		}
+		searchTerm := strings.TrimSpace(steps[1])
+		return searchPoliceStations(searchTerm)
+
+	default:
+		return "END Invalid option. Session ended."
+	}
+}
+
+type policeStationEntry struct {
+	Name     string
+	Phone    string
+	Keywords []string
+}
+
+var kenyaPoliceStations = []policeStationEntry{
+	{Name: "Ongata Rongai Police", Phone: "0721 334 999", Keywords: []string{"rongai", "ongata", "rimpa", "kajiado north"}},
+	{Name: "Karen Police Station", Phone: "0722 841 000", Keywords: []string{"karen", "hardy"}},
+	{Name: "Central Police Station", Phone: "020 222 2222", Keywords: []string{"central", "cbd", "nairobi cbd", "city"}},
+	{Name: "Kilimani Police Station", Phone: "020 272 2222", Keywords: []string{"kilimani", "kileleshwa", "hurlingham"}},
+	{Name: "Langata Police Station", Phone: "0721 365 000", Keywords: []string{"langata", "south c", "madaraka"}},
+	{Name: "Kasarani Police Station", Phone: "0721 364 888", Keywords: []string{"kasarani", "roysambu", "thika road", "clay city"}},
+	{Name: "Gigiri Police Station", Phone: "0721 364 777", Keywords: []string{"gigiri", "runda", "rosslyn"}},
+	{Name: "Parklands / Westlands", Phone: "0721 364 111", Keywords: []string{"westlands", "parklands", "spring valley"}},
+	{Name: "Embakasi Police Station", Phone: "0721 364 444", Keywords: []string{"embakasi", "fedha", "tassia", "pipeline"}},
+	{Name: "Industrial Area Police", Phone: "0721 364 555", Keywords: []string{"industrial area", "south b"}},
+	{Name: "Buruburu Police Station", Phone: "0721 364 666", Keywords: []string{"buruburu", "umoja", "donholm"}},
+	{Name: "Kayole Police Station", Phone: "0721 364 333", Keywords: []string{"kayole", "komarock", "miango"}},
+	{Name: "Pangani Police Station", Phone: "0721 364 222", Keywords: []string{"pangani", "ngara", "mlango kubwa"}},
+	{Name: "Ngong Police Station", Phone: "0722 841 000", Keywords: []string{"ngong", "kiserian", "matasia"}},
+	{Name: "Kitengela Police Station", Phone: "0720 555 888", Keywords: []string{"kitengela", "athi river", "mlolongo", "syokimau"}},
+	{Name: "Ruiru Police Station", Phone: "0722 841 111", Keywords: []string{"ruiru", "kahawa", "juja"}},
+	{Name: "Thika Police Station", Phone: "0722 841 222", Keywords: []string{"thika", "makongeni"}},
+	{Name: "Machakos Police Station", Phone: "0722 841 333", Keywords: []string{"machakos", "katumani"}},
+	{Name: "Nakuru Central Police", Phone: "0722 841 555", Keywords: []string{"nakuru", "njoro"}},
+	{Name: "Naivasha Police Station", Phone: "0722 841 556", Keywords: []string{"naivasha"}},
+	{Name: "Eldoret Central Police", Phone: "0722 841 666", Keywords: []string{"eldoret", "uasin gishu"}},
+	{Name: "Kisumu Central Police", Phone: "0722 841 777", Keywords: []string{"kisumu", "kondele"}},
+	{Name: "Mombasa Central Police", Phone: "0722 841 888", Keywords: []string{"mombasa", "nyali", "changamwe", "likoni"}},
+	{Name: "Malindi Police Station", Phone: "0722 841 999", Keywords: []string{"malindi", "kilifi"}},
+}
+
+func searchPoliceStations(term string) string {
+	q := strings.ToLower(strings.TrimSpace(term))
+	if q == "" {
+		return "CON Enter a valid town or station name:\n0. Back"
 	}
 
-	supportPhone := strings.TrimSpace(os.Getenv("EMERGENCY_SUPPORT_PHONE"))
-	if supportPhone != "" {
-		sb.WriteString(fmt.Sprintf("Support: %s\n", supportPhone))
+	var matched []policeStationEntry
+	for _, st := range kenyaPoliceStations {
+		if strings.Contains(strings.ToLower(st.Name), q) {
+			matched = append(matched, st)
+			continue
+		}
+		for _, kw := range st.Keywords {
+			if strings.Contains(kw, q) || strings.Contains(q, kw) {
+				matched = append(matched, st)
+				break
+			}
+		}
+		if len(matched) >= 3 {
+			break
+		}
 	}
 
-	policeHotline := strings.TrimSpace(os.Getenv("POLICE_HOTLINE"))
-	if policeHotline == "" {
-		policeHotline = "999 / 112"
+	if len(matched) == 0 {
+		return fmt.Sprintf("CON No station found for %q.\nNational Hotline: 999 / 112\nDCI Hotline: 0800 722 203\n0. Back", term)
 	}
-	sb.WriteString(fmt.Sprintf("Police: %s\n", policeHotline))
+
+	var sb strings.Builder
+	sb.WriteString("CON Search Results:\n")
+	for _, st := range matched {
+		sb.WriteString(fmt.Sprintf("%s:\n%s\n", st.Name, st.Phone))
+	}
 	sb.WriteString("0. Back")
-
 	return sb.String()
 }
 

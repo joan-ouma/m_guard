@@ -270,12 +270,11 @@ func (r *USSDRepository) SetBikeImmobilizedByRider(ctx context.Context, bikeID s
 		eventType = "REACTIVATED"
 	}
 
-	description := fmt.Sprintf("Engine %s via %s", eventType, triggeredBy)
 	eventQuery := `
-		INSERT INTO bike_events (id, bike_id, event_type, latitude, longitude, recorded_at, description)
-		VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), $5)
+		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
+		VALUES ($1, $2, $3, $4, NOW())
 	`
-	if _, err := tx.Exec(ctx, eventQuery, bikeID, eventType, lat, lng, description); err != nil {
+	if _, err := tx.Exec(ctx, eventQuery, bikeID, eventType, lat, lng); err != nil {
 		return "", "", err
 	}
 
@@ -289,10 +288,10 @@ func (r *USSDRepository) SetBikeImmobilizedByRider(ctx context.Context, bikeID s
 // RecordEmergencySOS creates a high-priority security SOS alert record in the database.
 func (r *USSDRepository) RecordEmergencySOS(ctx context.Context, bikeID, userID string, lat, lng float64, details string) error {
 	query := `
-		INSERT INTO bike_events (id, bike_id, event_type, latitude, longitude, recorded_at, description)
-		VALUES (gen_random_uuid(), $1, 'SOS_DURESS', $2, $3, NOW(), $4)
+		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
+		VALUES ($1, 'SOS_DURESS', $2, $3, NOW())
 	`
-	_, err := r.pool.Exec(ctx, query, bikeID, lat, lng, details)
+	_, err := r.pool.Exec(ctx, query, bikeID, lat, lng)
 	return err
 }
 
