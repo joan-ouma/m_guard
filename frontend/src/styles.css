@@ -755,3 +755,111 @@ body {
     break-inside: avoid !important;
   }
 }
+
+.mg-scroll-anim {
+  opacity: 0 !important;
+  transform: translate3d(0, 36px, 0) !important;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, transform !important;
+}
+
+.mg-scroll-anim.mg-in-view {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+@keyframes mgRadarPulseBig {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes mgRadarPulseMed {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+}
+
+@keyframes mgRadarPulseRed {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+@keyframes mgRadarPulseWhite {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.circle-image-big {
+  animation: mgRadarPulseBig 3.8s ease-in-out infinite !important;
+  transform-origin: center !important;
+  will-change: transform, opacity !important;
+}
+
+.circle-image-medium {
+  animation: mgRadarPulseMed 3.4s ease-in-out infinite 0.3s !important;
+  transform-origin: center !important;
+  will-change: transform, opacity !important;
+}
+
+.circle-image-red {
+  animation: mgRadarPulseRed 3s ease-in-out infinite 0.6s !important;
+  transform-origin: center !important;
+  will-change: transform !important;
+}
+
+.circle-image-white {
+  animation: mgRadarPulseWhite 2.6s ease-in-out infinite 0.2s !important;
+  transform-origin: center !important;
+  will-change: transform !important;
+}
+
+@keyframes mgPlayPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.play-button {
+  animation: mgPlayPulse 2s ease-out infinite !important;
+}
+
+@keyframes mgFloatY {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+.dots-left, .dots-right, .accomplishments-dots {
+  animation: mgFloatY 4.5s ease-in-out infinite !important;
+}
