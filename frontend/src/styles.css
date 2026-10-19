@@ -7,8 +7,10 @@
 html, body {
   min-height: 100%;
   width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -21,6 +23,17 @@ html, body {
   --gray: #a2a6b0;
   --black: #000000;
   --white-50: rgba(255, 255, 255, 0.5);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.base-container, .w-container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  box-sizing: border-box !important;
 }
 
 .primary-button, .get-started-btn {
@@ -47,6 +60,189 @@ app-root {
   display: block;
   min-height: 100%;
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media screen and (min-width: 992px) {
+  .tablet-menu {
+    display: none !important;
+  }
+  .menu-button, .w-nav-button {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .w-nav-menu, .nav-menu {
+    display: none !important;
+  }
+  .w-nav-menu.w--open, .nav-menu.w--open {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 290px !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    background-color: #ffffff !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18) !important;
+    padding: 24px 20px !important;
+    z-index: 99999 !important;
+    overflow-y: auto !important;
+  }
+  .menu-button, .w-nav-button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+  }
+  .tablet-menu {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid #f1f2f4 !important;
+  }
+  .close-menu-button {
+    cursor: pointer !important;
+    padding: 8px !important;
+  }
+  .menu-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+  }
+  .menu-wrap .nav-link {
+    padding: 10px 0 !important;
+    font-size: 16px !important;
+    text-align: left !important;
+    display: block !important;
+  }
+  .menu-wrap .primary-button {
+    margin-left: 0 !important;
+    margin-top: 12px !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+  .w-nav-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 99998 !important;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .section, .inner-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+  }
+  .banner-animation-wrapper {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .bunner-building {
+    max-width: 100% !important;
+  }
+  .circle-relative {
+    right: 0 !important;
+  }
+  .service-info {
+    right: 0 !important;
+  }
+  .service-card-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+  .service-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .pricing-plans-wrapper {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+  .pricing-plan-item {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .testimonials-wrap {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .testimonial {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .footer-wrapper {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 30px !important;
+  }
+  .footer-brand-wrapper,
+  .footer-location-wrap,
+  .footer-contact-wrap {
+    width: 100% !important;
+  }
+  .footer-nav-wrap {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+  }
+  .story-wrapper {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .story-text, .story-img {
+    width: 100% !important;
+  }
+  .inner-banner-wrap {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .inner-banner-wrap .inner-title {
+    font-size: 36px !important;
+    line-height: 1.2 !important;
+  }
+  .banner-image {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 350px !important;
+    object-fit: cover !important;
+  }
+  .help-wrapper {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .help-wrap {
+    width: 100% !important;
+  }
+  .help-details-wrap {
+    width: 100% !important;
+  }
+  .accomplishments-info-wrap {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .accomplishments-wrap {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .accomplishments-card {
+    width: 100% !important;
+  }
 }
 
 .leaflet-control-attribution {
