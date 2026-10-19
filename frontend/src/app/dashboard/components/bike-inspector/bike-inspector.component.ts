@@ -20,6 +20,7 @@ export class BikeInspectorComponent {
   readonly copyCoordinates = output<void>();
   readonly openRegisterModal = output<void>();
   readonly toggleMobileSheet = output<void>();
+  readonly dismiss = output<void>();
 
   formatLastSeen(dateStr?: string | null): string {
     if (!dateStr) return '3s ago';
