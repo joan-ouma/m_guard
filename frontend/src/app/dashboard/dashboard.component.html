@@ -277,9 +277,10 @@
       ></div>
 
       <!-- Left Floating Card (Scaled Up: top-6 left-6 bottom-6 w-[460px] with Thumb-Sized Targets) -->
+      @if (showInspector()) {
       <div
         id="floatingInspector"
-        class="absolute top-6 left-6 bottom-6 w-[460px] bg-white rounded-3xl border border-zinc-200/90 shadow-2xl flex flex-col z-10 overflow-hidden"
+        class="absolute top-6 left-6 bottom-6 w-[460px] max-w-[calc(100%-3rem)] bg-white rounded-3xl border border-zinc-200/90 shadow-2xl flex flex-col z-10 overflow-hidden"
       >
         <!-- Top Half: Selected Motorcycle Telemetry (divide-y divide-zinc-100 p-7 pb-5 shrink-0) -->
         @if (bikeList().length > 0) {
@@ -345,6 +346,24 @@
                       <span id="statusText">{{ selectedBike().movementStatus | uppercase }}</span>
                     </span>
                   }
+
+                  <button
+                    type="button"
+                    (click)="toggleInspector(false)"
+                    aria-label="Hide motorcycle details"
+                    title="Hide details"
+                    class="w-10 h-10 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 flex items-center justify-center shrink-0 cursor-pointer transition-colors"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -763,6 +782,29 @@
           </div>
         }
       </div>
+      }
+
+      @if (!showInspector() && bikeList().length > 0) {
+        <button
+          type="button"
+          (click)="toggleInspector(true)"
+          aria-label="Show motorcycle details"
+          title="Show details"
+          class="absolute top-6 left-6 z-10 h-12 px-5 rounded-full bg-white border border-zinc-200 shadow-lg hover:bg-zinc-50 text-sm font-bold text-zinc-900 flex items-center gap-2.5 cursor-pointer transition-colors"
+        >
+          <svg
+            class="w-5 h-5 text-zinc-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span>{{ selectedBike().plate }}</span>
+          <span class="text-zinc-400 font-medium">Details</span>
+        </button>
+      }
 
       <!-- Map Zoom Controls (Bottom Right - Thumb-Sized 48px) -->
       <div

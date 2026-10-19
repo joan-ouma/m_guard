@@ -89,6 +89,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly alertBannerText = signal<string>('');
   readonly showGeofenceModal = signal<boolean>(false);
   readonly showDuressPrompt = signal<boolean>(false);
+  readonly showInspector = signal<boolean>(true);
   readonly duressCountdown = signal<number>(30);
   readonly copiedCoordinates = signal<boolean>(false);
   readonly currentTime = signal<number>(Date.now());
@@ -528,6 +529,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleGeofenceModal(open: boolean): void {
     this.showGeofenceModal.set(open);
+  }
+
+  toggleInspector(open: boolean): void {
+    this.showInspector.set(open);
   }
 
   saveGeofence(e?: Event): void {
