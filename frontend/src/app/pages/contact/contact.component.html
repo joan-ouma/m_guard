@@ -1,0 +1,234 @@
+<div class="navbar-fixed without-bg w-nav">
+  <div class="base-container w-container">
+    <div class="nav-menu-wrapper">
+      <a routerLink="/" class="brand w-nav-brand">
+        <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+      </a>
+      <nav role="navigation" class="nav-menu w-nav-menu" [class.w--open]="mobileMenuOpen()">
+        <div class="tablet-menu">
+          <a routerLink="/" class="brand-tablet w-nav-brand">
+            <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+          </a>
+          <div class="close-menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+            <img src="/assets/landing/close-icon.png" loading="lazy" alt="" class="nav-close-icon">
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <a routerLink="/" class="nav-link w-nav-link">Home</a>
+          <a routerLink="/about" class="nav-link w-nav-link">About Us</a>
+          <a routerLink="/services" class="nav-link w-nav-link">Services</a>
+          <a routerLink="/contact" class="nav-link w-nav-link w--current">Contact Us</a>
+          <a routerLink="/login" class="primary-button w-inline-block" style="padding: 10px 24px; margin-left: 16px;">
+            <div>Get Started</div>
+          </a>
+        </div>
+      </nav>
+      <div class="menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+        <img src="/assets/landing/burger-icon.png" loading="lazy" alt="" height="16" class="image-burger">
+      </div>
+    </div>
+  </div>
+  <div class="w-nav-overlay" [style.display]="mobileMenuOpen() ? 'block' : 'none'"></div>
+</div>
+
+<div class="inner-banner">
+  <div class="base-container w-container">
+    <div class="inner-banner-wrap">
+      <h1 class="inner-title">Contact Us</h1>
+      <p class="inner-description">
+        Connect with the MotoGuard technical team, register your motorcycle tracker, or onboard your boda boda transport SACCO. Our emergency lines operate round the clock.
+      </p>
+    </div>
+  </div>
+  <img class="banner-image" src="/assets/pages/62fb86e01e19a5df64e958fe_air freight.jpg" alt="Contact MotoGuard" loading="lazy">
+</div>
+
+<div class="inner-section">
+  <div class="base-container w-container">
+    <div class="contacts-wrapper">
+      <div class="contacts-content-wrapper">
+        <div class="contacts-title">
+          <h6 class="section-subtitle">get in touch</h6>
+          <h2>We safeguard motorcycle riders across Kenya</h2>
+          <p class="paragraph-large dark-gray">
+            Whether you need emergency police assistance, device pairing support, or SACCO fleet onboarding, our support desk is active 24/7 across Nairobi, Mombasa, and Kisumu.
+          </p>
+        </div>
+        <div class="contacts-divider"></div>
+        <div class="contacts-location-slider w-slider">
+          <div class="w-slider-mask">
+            <div class="w-slide" [style.display]="activeLocation() === 0 ? 'block' : 'none'">
+              <div class="contacts-detail-wrapper">
+                <h3>Nairobi HQ</h3>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <p class="paragraph-large paragraph-no-margin">Commercial Street, Industrial Area, Nairobi</p>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="tel:+254700000000" class="paragraph-no-margin">+254 700 000 000</a>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="mailto:support@motoguard.co.ke" class="paragraph-no-margin">support&#64;motoguard.co.ke</a>
+                </div>
+              </div>
+            </div>
+            <div class="w-slide" [style.display]="activeLocation() === 1 ? 'block' : 'none'">
+              <div class="contacts-detail-wrapper">
+                <h3>Mombasa Branch</h3>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <p class="paragraph-large paragraph-no-margin">Moi Avenue, City Centre, Mombasa</p>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="tel:+254711000000" class="paragraph-no-margin">+254 711 000 000</a>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="mailto:mombasa@motoguard.co.ke" class="paragraph-no-margin">mombasa&#64;motoguard.co.ke</a>
+                </div>
+              </div>
+            </div>
+            <div class="w-slide" [style.display]="activeLocation() === 2 ? 'block' : 'none'">
+              <div class="contacts-detail-wrapper">
+                <h3>Kisumu Office</h3>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <p class="paragraph-large paragraph-no-margin">Oginga Odinga Street, CBD, Kisumu</p>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="tel:+254722000000" class="paragraph-no-margin">+254 722 000 000</a>
+                </div>
+                <div class="contacts-detail">
+                  <p class="contacts-icon"></p>
+                  <a href="mailto:kisumu@motoguard.co.ke" class="paragraph-no-margin">kisumu&#64;motoguard.co.ke</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="contacts-left-arrow w-slider-arrow-left" (click)="prevLocation()" role="button" tabindex="0">
+            <div class="contacts-slider-arrow-icon"></div>
+          </div>
+          <div class="contacts-right-arrow w-slider-arrow-right" (click)="nextLocation()" role="button" tabindex="0">
+            <div class="contacts-slider-arrow-icon"></div>
+          </div>
+          <div class="contacts-arrows-divider"></div>
+        </div>
+      </div>
+      <div class="contacts-form-wrapper">
+        <h3 class="contacts-form-title">Send Us a Message</h3>
+        <div class="w-form">
+          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
+            <input class="contacts-input w-input" maxlength="256" name="name" placeholder="Your name" type="text" id="name" required="">
+            <input class="contacts-input w-input" maxlength="256" name="email" placeholder="Your email" type="email" id="email" required="">
+            <textarea placeholder="Tell us about your bike or fleet requirements..." maxlength="5000" id="field" name="field" class="contacts-textarea w-input"></textarea>
+            <input type="submit" class="primary-button full-width-mobile w-button" value="Submit Message">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="base-container w-container">
+    <div class="section-title-wrapper">
+      <h6 class="section-subtitle">support capabilities</h6>
+      <h2 class="section-title">Emergency Assistance Channels</h2>
+      <p class="section-title-description">
+        Quick-access emergency dispatch and direct hotlines for urgent motorcycle incidents.
+      </p>
+    </div>
+    <div class="service-features">
+      <div class="services-item">
+        <div class="more-features-icon"></div>
+        <h3>Police Directory</h3>
+        <p class="services-item-description">Direct phone numbers to regional police stations and traffic desks across Kenya.</p>
+        <a routerLink="/emergency" class="link-with-icon w-inline-block">
+          <div>View Directory</div>
+          <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+        </a>
+      </div>
+      <div class="services-item">
+        <div class="more-features-icon"></div>
+        <h3>SACCO Escalation</h3>
+        <p class="services-item-description">Automated SMS group notifications to your stage chairperson and peers.</p>
+        <a routerLink="/settings" class="link-with-icon w-inline-block">
+          <div>Configure Contacts</div>
+          <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+        </a>
+      </div>
+      <div class="services-item last-child">
+        <div class="more-features-icon"></div>
+        <h3>Live GPS Dashboard</h3>
+        <p class="services-item-description">Monitor real-time breadcrumbs and execute emergency starter shutdown.</p>
+        <a routerLink="/login" class="link-with-icon w-inline-block">
+          <div>Open Dashboard</div>
+          <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section">
+  <div class="base-container w-container">
+    <div class="w-layout-grid career-customers-wrapper">
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4ab33f76b21f7_Clients-6.png" loading="lazy" alt="SACCO Partner"></div>
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4abc76f6b21f9_Clients-5.png" loading="lazy" alt="SACCO Partner"></div>
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4ab71e76b21f4_Clients-4.png" loading="lazy" alt="SACCO Partner"></div>
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4ab78c16b21f8_Clients-3.png" loading="lazy" alt="SACCO Partner"></div>
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4abdf766b21f6_Clients-2.png" loading="lazy" alt="SACCO Partner"></div>
+      <div class="career-customer-item"><img src="/assets/pages/62f0e3371ad4abe46d6b21f5_Clients-1.png" loading="lazy" alt="SACCO Partner" class="career-customer-image"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="base-container w-container">
+    <div class="footer-wrapper">
+      <div class="footer-brand-wrapper">
+        <div class="footer-logo-wrapper">
+          <a routerLink="/" class="footer-brand w-nav-brand">
+            <img src="/assets/landing/footer-logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="footer-logo">
+          </a>
+          <p class="footer-brand-description">Smart IoT motorcycle tracking, anti-theft ignition cut, and fleet protection built for Kenya.</p>
+        </div>
+        <div class="footer-social-icons-wrapper">
+          <a href="https://www.instagram.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://www.facebook.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://twitter.com/" target="_blank" class="footer-social-icon"></a>
+        </div>
+      </div>
+      <div class="footer-location-wrap">
+        <p class="footer-location">Nairobi, Kenya</p>
+        <a href="tel:+254700000000" class="footer-number">+254 700 000 000</a>
+        <a href="tel:+254711000000" class="footer-number">+254 711 000 000</a>
+      </div>
+      <div class="footer-contact-wrap">
+        <h2 class="footer-title">Contact Us</h2>
+        <p class="footer-description">Subscribe to our newsletter for security advisories and fleet updates.</p>
+        <div class="w-form">
+          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
+            <input class="footer-text-field w-input" maxlength="256" name="Email" placeholder="Email" type="email" id="Email" required="">
+            <input type="submit" class="primary-button-white full-width w-button" value="Subscribe">
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="footer-nav-wrap">
+      <a routerLink="/" class="footer-link">Home</a>
+      <a routerLink="/about" class="footer-link">About Us</a>
+      <a routerLink="/services" class="footer-link">Services</a>
+      <a routerLink="/contact" class="footer-link w--current">Contact Us</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-rights-wrapper">
+      <div class="footer-copyright">© MotoGuard Technologies. All Rights Reserved.</div>
+    </div>
+  </div>
+</div>

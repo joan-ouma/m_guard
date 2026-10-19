@@ -1,0 +1,241 @@
+<div class="navbar-fixed without-bg w-nav">
+  <div class="base-container w-container">
+    <div class="nav-menu-wrapper">
+      <a routerLink="/" class="brand w-nav-brand">
+        <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+      </a>
+      <nav role="navigation" class="nav-menu w-nav-menu" [class.w--open]="mobileMenuOpen()">
+        <div class="tablet-menu">
+          <a routerLink="/" class="brand-tablet w-nav-brand">
+            <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+          </a>
+          <div class="close-menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+            <img src="/assets/landing/close-icon.png" loading="lazy" alt="" class="nav-close-icon">
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <a routerLink="/" class="nav-link w-nav-link">Home</a>
+          <a routerLink="/about" class="nav-link w-nav-link">About Us</a>
+          <a routerLink="/services" class="nav-link w-nav-link w--current">Services</a>
+          <a routerLink="/contact" class="nav-link w-nav-link">Contact Us</a>
+          <a routerLink="/login" class="primary-button w-inline-block" style="padding: 10px 24px; margin-left: 16px;">
+            <div>Get Started</div>
+          </a>
+        </div>
+      </nav>
+      <div class="menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+        <img src="/assets/landing/burger-icon.png" loading="lazy" alt="" height="16" class="image-burger">
+      </div>
+    </div>
+  </div>
+  <div class="w-nav-overlay" [style.display]="mobileMenuOpen() ? 'block' : 'none'"></div>
+</div>
+
+<div class="inner-banner">
+  <div class="base-container w-container">
+    <div class="inner-banner-wrap">
+      <h1 class="inner-title">Our Services</h1>
+      <p class="inner-description">
+        From sub-meter live GPS telemetry and remote starter cut to SACCO fleet coordination and cryptographic theft evidence, MotoGuard provides full-spectrum motorcycle security.
+      </p>
+    </div>
+  </div>
+  <img class="banner-image" src="/assets/pages/62fb86e01e19a5df64e958fe_air freight.jpg" alt="MotoGuard Services" loading="lazy">
+</div>
+
+<div class="inner-section">
+  <div class="base-container w-container">
+    <div class="service-list-wrapper">
+      <div class="service-item">
+        <img src="/assets/pages/62f501918499d82881c72a57_Ocean Freight.jpg" loading="lazy" alt="Live GPS Tracking" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">Live GPS Tracking</h3>
+          <p class="service-list-description">Sub-meter GPS positioning updates every few seconds. Monitor live coordinates, speed trends, and historical route breadcrumbs from your smartphone or computer.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+      <div class="service-item">
+        <img src="/assets/pages/62f512cefe7a4ec7c4372232_Service.jpeg" loading="lazy" alt="Remote Starter Cut" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">Remote Starter Kill</h3>
+          <p class="service-list-description">Instantly cut off motorcycle starter ignition remotely via web dashboard or SMS command. Disables the bike in case of theft or hijacking, preventing getaways.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+      <div class="service-item">
+        <img src="/assets/pages/62f50f2987ee5bbcd134c5c3_Package.jpg" loading="lazy" alt="Tamper & Tilt Alarms" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">Tamper &amp; Tilt Alarms</h3>
+          <p class="service-list-description">Built-in accelerometers and gyroscopes detect towing, bike tilt, or wiring disconnects while parked. Instant loud sirens and mobile notifications wake up riders.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+      <div class="service-item">
+        <img src="/assets/pages/62f509d8d89e0059ff71fb7f_Truck.jpg" loading="lazy" alt="Geofence Zones" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">Geofence Boundaries</h3>
+          <p class="service-list-description">Define permitted operational perimeters around boda stages, routes, and towns. Receive real-time breach alerts if a motorcycle crosses predefined borders.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+      <div class="service-item">
+        <img src="/assets/pages/62f5ff5587ee5b0bee412322_Ocean Freight.jpg" loading="lazy" alt="SACCO Fleet Management" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">SACCO Fleet Portal</h3>
+          <p class="service-list-description">Unified management for stage leaders and fleet owners. Monitor dozens of motorcycles simultaneously, audit trip logs, and broadcast emergency alerts.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+      <div class="service-item">
+        <img src="/assets/pages/62f4ffeb3b8fc2c35ca6acd0_Service Detail Main.jpg" loading="lazy" alt="Cryptographic Evidence" class="service-list-image">
+        <div class="service-list-content">
+          <h3 class="service-link-title">Cryptographic Theft Proof</h3>
+          <p class="service-list-description">Every location record is hashed and timestamped into immutable proof chains. Export verified incident logs for police reporting and insurance claims.</p>
+          <a routerLink="/signup" class="link-with-icon w-inline-block">
+            <div>Learn More</div>
+            <img src="/assets/landing/arrow-link.svg" loading="lazy" alt="Arrow">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section primary-light-bg">
+  <div class="base-container w-container">
+    <div class="section-title-wrapper">
+      <h6 class="section-subtitle">our workflow</h6>
+      <h2 class="section-title">The Protection Process</h2>
+      <p class="section-title-description">
+        How MotoGuard safeguards motorcycles from movement detection to swift recovery.
+      </p>
+    </div>
+    <div class="service-list-process-wrapper">
+      <div class="service-list-process-wrap">
+        <div class="service-list-icon-wrap">
+          <img src="/assets/landing/service-gps.svg" loading="lazy" alt="Live Monitoring">
+        </div>
+        <h3>1. Stealth Monitoring</h3>
+        <p class="paragraph-large dark-gray">Sensors remain dormant and undetectable, preserving battery until movement is triggered.</p>
+      </div>
+      <div class="service-list-process-wrap">
+        <div class="service-list-icon-wrap">
+          <img src="/assets/landing/service-tamper.svg" loading="lazy" alt="Instant Detection">
+        </div>
+        <h3>2. Instant Detection</h3>
+        <p class="paragraph-large dark-gray">Motion or tilt instantly activates high-frequency telemetry and pushes SMS/app alerts.</p>
+      </div>
+      <div class="service-list-process-wrap">
+        <div class="service-list-icon-wrap">
+          <img src="/assets/landing/service-immobilizer.svg" loading="lazy" alt="Starter Immobilization">
+        </div>
+        <h3>3. Remote Kill</h3>
+        <p class="paragraph-large dark-gray">Cut starter power with one tap from your phone, immobilizing the vehicle safely.</p>
+      </div>
+      <div class="service-list-process-wrap">
+        <div class="service-list-icon-wrap">
+          <img src="/assets/landing/check-icon.svg" loading="lazy" alt="Police Recovery">
+        </div>
+        <h3>4. Verified Recovery</h3>
+        <p class="paragraph-large dark-gray">Export tamper-proof evidence and live coordinates to police desks and stage SACCOs.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section">
+  <div class="base-container w-container">
+    <div class="service-list-section-wrapper">
+      <div class="service-list-section-wrap first-child">
+        <h2>We provide robust, field-tested motorcycle security</h2>
+        <ul role="list" class="service-list">
+          <li><span class="list-item-circle"> </span> Sub-meter GPS precision across rural and urban Kenya</li>
+          <li><span class="list-item-circle"> </span> Built-in cellular fallback with offline breadcrumb buffer</li>
+          <li><span class="list-item-circle"> </span> Dedicated SACCO group emergency escalation channels</li>
+        </ul>
+        <div class="buttons-wrapper">
+          <a routerLink="/signup" class="primary-button">Protect Your Fleet</a>
+        </div>
+      </div>
+      <div class="service-list-section-wrap">
+        <img class="image-border-radius" src="/assets/pages/62f5fee9915f95842f9a9ff4_Box.jpg" width="571" alt="MotorGuard Hardware" loading="lazy">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="service-list-2-bottom-section">
+    <div class="service-list-2-bottom-left-block">
+      <img src="/assets/pages/62f5ff4677a56f39f691abfb_Service Detail Main.jpg" loading="lazy" alt="MotorGuard Operations" class="service-list-2-bottom-image">
+    </div>
+    <div class="service-list-2-bottom-center-block">
+      <img src="/assets/pages/62f5ff5587ee5b0bee412322_Ocean Freight.jpg" loading="lazy" alt="Fleet Portal" class="service-list-2-bottom-image">
+    </div>
+    <div class="service-list-2-bottom-contacts">
+      <h2 class="service-list-2-bottom-title">Ready to safeguard your motorcycle?</h2>
+      <a routerLink="/contact" class="primary-button-white">Contact Us</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="base-container w-container">
+    <div class="footer-wrapper">
+      <div class="footer-brand-wrapper">
+        <div class="footer-logo-wrapper">
+          <a routerLink="/" class="footer-brand w-nav-brand">
+            <img src="/assets/landing/footer-logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="footer-logo">
+          </a>
+          <p class="footer-brand-description">Smart IoT motorcycle tracking, anti-theft ignition cut, and fleet protection built for Kenya.</p>
+        </div>
+        <div class="footer-social-icons-wrapper">
+          <a href="https://www.instagram.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://www.facebook.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://twitter.com/" target="_blank" class="footer-social-icon"></a>
+        </div>
+      </div>
+      <div class="footer-location-wrap">
+        <p class="footer-location">Nairobi, Kenya</p>
+        <a href="tel:+254700000000" class="footer-number">+254 700 000 000</a>
+        <a href="tel:+254711000000" class="footer-number">+254 711 000 000</a>
+      </div>
+      <div class="footer-contact-wrap">
+        <h2 class="footer-title">Contact Us</h2>
+        <p class="footer-description">Subscribe to our newsletter for security advisories and fleet updates.</p>
+        <div class="w-form">
+          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
+            <input class="footer-text-field w-input" maxlength="256" name="Email" placeholder="Email" type="email" id="Email" required="">
+            <input type="submit" class="primary-button-white full-width w-button" value="Subscribe">
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="footer-nav-wrap">
+      <a routerLink="/" class="footer-link">Home</a>
+      <a routerLink="/about" class="footer-link">About Us</a>
+      <a routerLink="/services" class="footer-link w--current">Services</a>
+      <a routerLink="/contact" class="footer-link">Contact Us</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-rights-wrapper">
+      <div class="footer-copyright">© MotoGuard Technologies. All Rights Reserved.</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,328 @@
+<div class="navbar-fixed without-bg w-nav">
+  <div class="base-container w-container">
+    <div class="nav-menu-wrapper">
+      <a routerLink="/" class="brand w-nav-brand">
+        <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+      </a>
+      <nav role="navigation" class="nav-menu w-nav-menu" [class.w--open]="mobileMenuOpen()">
+        <div class="tablet-menu">
+          <a routerLink="/" class="brand-tablet w-nav-brand">
+            <img src="/assets/landing/logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="nav-logo">
+          </a>
+          <div class="close-menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+            <img src="/assets/landing/close-icon.png" loading="lazy" alt="" class="nav-close-icon">
+          </div>
+        </div>
+        <div class="menu-wrap">
+          <a routerLink="/" class="nav-link w-nav-link">Home</a>
+          <a routerLink="/about" class="nav-link w-nav-link w--current">About Us</a>
+          <a routerLink="/services" class="nav-link w-nav-link">Services</a>
+          <a routerLink="/contact" class="nav-link w-nav-link">Contact Us</a>
+          <a routerLink="/login" class="primary-button w-inline-block" style="padding: 10px 24px; margin-left: 16px;">
+            <div>Get Started</div>
+          </a>
+        </div>
+      </nav>
+      <div class="menu-button w-nav-button" (click)="toggleMobileMenu()" role="button" tabindex="0">
+        <img src="/assets/landing/burger-icon.png" loading="lazy" alt="" height="16" class="image-burger">
+      </div>
+    </div>
+  </div>
+  <div class="w-nav-overlay" [style.display]="mobileMenuOpen() ? 'block' : 'none'"></div>
+</div>
+
+<div class="inner-banner">
+  <div class="base-container w-container">
+    <div class="inner-banner-wrap">
+      <h1 class="inner-title">About MotoGuard</h1>
+      <p class="inner-description">
+        MotoGuard is an IoT stealth tracking and cryptographic theft defense system engineered specifically for Kenyan boda bodas and motorcycle transport SACCOs. We combine covert hardware, real-time telemetry, and verifiable digital proof to ensure dignity, security, and recovery.
+      </p>
+    </div>
+  </div>
+  <img class="banner-image" src="/assets/pages/62f3c59327fd43f8ced77c11_About Banner.jpg" alt="About MotoGuard" loading="lazy">
+</div>
+
+<div class="inner-section primary-light-bg">
+  <div class="base-container w-container">
+    <div class="story-wrapper">
+      <div class="story-text">
+        <h2>Our Story</h2>
+        <div class="description-wrap">
+          <p class="paragraph-large dark-gray">
+            Boda bodas are a cornerstone of Kenya's economy, yet riders face immense risks of motorcycle theft, armed hijacking, and loss of daily livelihood.
+          </p>
+          <p class="paragraph-large dark-gray">
+            Traditional trackers are quickly located and destroyed by thieves. MotorGuard offers a stealth, tamper-proof alternative that tracks motorcycles and creates verifiable cryptographic evidence for police recovery.
+          </p>
+        </div>
+        <div class="accordion">
+          <div class="accordion-item w-dropdown" (click)="setAccordion(1)">
+            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
+              <div class="accordion-title-wrap">
+                <div class="accordion-number">1</div>
+                <div>The Street Reality</div>
+              </div>
+              <div class="accordion-icon"></div>
+            </div>
+            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 1 ? 'block' : 'none'">
+              <p class="accordion-list-content">
+                Standard commercial GPS units have conspicuous antennas and wires that thieves sever in seconds. MotorGuard uses miniature stealth microcontrollers hidden deep in the bike chassis.
+              </p>
+            </nav>
+          </div>
+          <div class="accordion-item w-dropdown" (click)="setAccordion(2)">
+            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
+              <div class="accordion-title-wrap">
+                <div class="accordion-number">2</div>
+                <div>Stealth Architecture</div>
+              </div>
+              <div class="accordion-icon"></div>
+            </div>
+            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 2 ? 'block' : 'none'">
+              <p class="accordion-list-content">
+                Low-power hardware stays dormant until unauthorized movement is detected, waking up instantly to broadcast telemetry and coordinate emergency starter cutoff.
+              </p>
+            </nav>
+          </div>
+          <div class="accordion-item w-dropdown" (click)="setAccordion(3)">
+            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
+              <div class="accordion-title-wrap">
+                <div class="accordion-number">3</div>
+                <div>Community & SACCO Recourse</div>
+              </div>
+              <div class="accordion-icon"></div>
+            </div>
+            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 3 ? 'block' : 'none'">
+              <p class="accordion-list-content">
+                Hashed timestamped location logs provide indisputable legal proof of theft, coordinating directly with stage chairs and local police desks for swift recovery.
+              </p>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="story-image-wrap">
+        <img class="story-image" src="/assets/pages/62f4ad97270e0cea52fbbe12_Our Story Img.jpg" alt="MotorGuard Operations" loading="lazy">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section why-choose-us">
+  <div class="base-container w-container">
+    <div class="why-us-wrap">
+      <div class="half-column">
+        <h2>Why Choose Us</h2>
+        <div class="description-wrap">
+          <p class="paragraph-large dark-gray">
+            Our technology combines low-power hardware engineering with cryptographic evidence chains and real-time cellular telemetry.
+          </p>
+          <p class="paragraph-large dark-gray">
+            Engineered specifically to survive harsh motorcycle vibrations, unpaved terrain, and sporadic network connectivity.
+          </p>
+        </div>
+      </div>
+      <div class="half-column">
+        <div class="numbered-list">
+          <p class="list-number">1.</p>
+          <h3 class="list-text">Hardware designed exclusively for Kenyan motorcycle electrical systems</h3>
+        </div>
+        <div class="numbered-list">
+          <p class="list-number">2.</p>
+          <h3 class="list-text">Instant remote starter kill switch accessible via web dashboard or SMS commands</h3>
+        </div>
+        <div class="numbered-list">
+          <p class="list-number">3.</p>
+          <h3 class="list-text">Transparent and affordable monthly subscriptions tailored for informal transport</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section facts">
+  <div class="base-container w-container">
+    <div class="title-wrapper width-700">
+      <h2 class="text-white">Facts And Figures</h2>
+      <p class="paragraph-description">
+        Proven metrics delivering security and operational visibility to motorcycle riders across Kenya.
+      </p>
+    </div>
+  </div>
+  <div class="facts-animation-wrap">
+    <div class="facts-line"></div>
+    <div class="base-container w-container">
+      <div class="facts-circle-wrap">
+        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
+        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
+        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
+        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
+      </div>
+    </div>
+  </div>
+  <div class="base-container w-container">
+    <div class="numbers-container">
+      <div class="number-wrap">
+        <h2 class="primary-text">98.4%</h2>
+        <h3 class="text-white">Theft Recovery Rate</h3>
+      </div>
+      <div class="number-wrap">
+        <h2 class="primary-text">&lt; 30s</h2>
+        <h3 class="text-white">Remote Cut Response</h3>
+      </div>
+      <div class="number-wrap">
+        <h2 class="primary-text">2,400+</h2>
+        <h3 class="text-white">Active Tracked Bikes</h3>
+      </div>
+      <div class="number-wrap">
+        <h2 class="primary-text">120+</h2>
+        <h3 class="text-white">SACCO Stages Covered</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-with-bottom-space inner-page-light-bg">
+  <div class="base-container w-container">
+    <div class="service-card-wrap negative">
+      <div class="service-card four-cards">
+        <img src="/assets/landing/service-gps.svg" loading="lazy" alt="Live GPS Tracking" class="service-image">
+        <h3>Live GPS Tracking</h3>
+        <p class="dark-gray">Sub-meter GPS telemetry is fast, precise and constantly updating on your live map.</p>
+      </div>
+      <div class="service-card four-cards">
+        <img src="/assets/landing/service-immobilizer.svg" loading="lazy" alt="Remote Starter Kill" class="service-image">
+        <h3>Remote Starter Kill</h3>
+        <p class="dark-gray">Instant electronic ignition cut switch accessible from anywhere via web or SMS.</p>
+      </div>
+      <div class="service-card four-cards">
+        <img src="/assets/landing/service-tamper.svg" loading="lazy" alt="Tamper & Tilt Alarms" class="service-image">
+        <h3>Tamper Alarms</h3>
+        <p class="dark-gray">Motion-triggered alerts notify you when someone tries moving or towing your parked bike.</p>
+      </div>
+      <div class="service-card four-cards">
+        <img src="/assets/landing/check-icon.svg" loading="lazy" alt="Geofence Zones" class="service-image">
+        <h3>Geofencing</h3>
+        <p class="dark-gray">Set stage boundaries and receive alerts the moment a bike leaves designated corridors.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inner-section">
+  <div class="base-container w-container">
+    <div>
+      <h2>What our riders say</h2>
+      <div class="testimonial-tabs w-tabs">
+        <div class="testimonial-tabs-menu w-tab-menu" role="tablist">
+          <a class="testimonial-tab-link w-inline-block w-tab-link" [class.w--current]="activeTestimonial() === 1" (click)="setTestimonial(1)" role="tab">
+            <img alt="John" loading="lazy" src="/assets/landing/rider-1.jpg" class="testimonial-author-image">
+            <div class="testimonial-author-wrap">
+              <p class="testimonial-author">John Kamau</p>
+              <h6 class="section-subtitle without-bottom-space">Boda Operator, Nairobi Central SACCO</h6>
+            </div>
+          </a>
+          <a class="testimonial-tab-link w-inline-block w-tab-link" [class.w--current]="activeTestimonial() === 2" (click)="setTestimonial(2)" role="tab">
+            <img alt="Esther" loading="lazy" src="/assets/pages/62f3bc051470932a4d6e7141_Esther.jpg" class="testimonial-author-image">
+            <div class="testimonial-author-wrap">
+              <p class="testimonial-author">Esther Mwangi</p>
+              <h6 class="section-subtitle without-bottom-space">Fleet Owner, Thika Highway Riders</h6>
+            </div>
+          </a>
+          <a class="testimonial-tab-link w-inline-block w-tab-link" [class.w--current]="activeTestimonial() === 3" (click)="setTestimonial(3)" role="tab">
+            <img alt="David" loading="lazy" src="/assets/landing/rider-2.jpg" class="testimonial-author-image">
+            <div class="testimonial-author-wrap">
+              <p class="testimonial-author">David Ochieng</p>
+              <h6 class="section-subtitle without-bottom-space">Fleet Coordinator, Lakeview Riders SACCO</h6>
+            </div>
+          </a>
+        </div>
+        <div class="testimonial-tabs-content w-tab-content">
+          <div class="w-tab-pane w--tab-active" [style.display]="activeTestimonial() === 1 ? 'block' : 'none'">
+            <div class="testimonial-quote">
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-first">
+              <h3>My motorcycle was moved at night from the stage, and MotoGuard alerted me immediately. We killed the starter and recovered it within 20 minutes!</h3>
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-end">
+            </div>
+          </div>
+          <div class="w-tab-pane w--tab-active" [style.display]="activeTestimonial() === 2 ? 'block' : 'none'">
+            <div class="testimonial-quote">
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-first">
+              <h3>Having five motorcycles on the road was stressful. With MotoGuard, I check battery voltage and live routes from my phone anytime.</h3>
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-end">
+            </div>
+          </div>
+          <div class="w-tab-pane w--tab-active" [style.display]="activeTestimonial() === 3 ? 'block' : 'none'">
+            <div class="testimonial-quote">
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-first">
+              <h3>The tamper-proof trip history and police report export make resolving stage disputes and insurance incidents effortless.</h3>
+              <img alt="quote icon" loading="lazy" src="/assets/pages/62f37679e3e5060397cd2bee_quote.svg" class="quote-end">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-with-cta">
+  <div class="base-container w-container">
+    <div class="cta-wrapper">
+      <img src="/assets/landing/cta-illustration.svg" loading="lazy" alt="CTA Illustration" class="cta-image">
+      <div class="cta-content">
+        <h2 class="text-white">Ready to protect your motorcycle? Talk to us today</h2>
+        <div class="paragraph-wrap">
+          <p class="paragraph-large text-white">Join thousands of riders securing their daily income and assets with MotoGuard.</p>
+        </div>
+        <div class="cta-btn-wrrap">
+          <a routerLink="/signup" class="primary-button-white cta-button w-inline-block">
+            <div>Get Started</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="base-container w-container">
+    <div class="footer-wrapper">
+      <div class="footer-brand-wrapper">
+        <div class="footer-logo-wrapper">
+          <a routerLink="/" class="footer-brand w-nav-brand">
+            <img src="/assets/landing/footer-logo.svg" loading="lazy" alt="MotoGuard Logo" height="30" class="footer-logo">
+          </a>
+          <p class="footer-brand-description">Smart IoT motorcycle tracking, anti-theft ignition cut, and fleet protection built for Kenya.</p>
+        </div>
+        <div class="footer-social-icons-wrapper">
+          <a href="https://www.instagram.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://www.facebook.com/" target="_blank" class="footer-social-icon"></a>
+          <a href="https://twitter.com/" target="_blank" class="footer-social-icon"></a>
+        </div>
+      </div>
+      <div class="footer-location-wrap">
+        <p class="footer-location">Nairobi, Kenya</p>
+        <a href="tel:+254700000000" class="footer-number">+254 700 000 000</a>
+        <a href="tel:+254711000000" class="footer-number">+254 711 000 000</a>
+      </div>
+      <div class="footer-contact-wrap">
+        <h2 class="footer-title">Contact Us</h2>
+        <p class="footer-description">Subscribe to our newsletter for security advisories and fleet updates.</p>
+        <div class="w-form">
+          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
+            <input class="footer-text-field w-input" maxlength="256" name="Email" placeholder="Email" type="email" id="Email" required="">
+            <input type="submit" class="primary-button-white full-width w-button" value="Subscribe">
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="footer-nav-wrap">
+      <a routerLink="/" class="footer-link">Home</a>
+      <a routerLink="/about" class="footer-link w--current">About Us</a>
+      <a routerLink="/services" class="footer-link">Services</a>
+      <a routerLink="/contact" class="footer-link">Contact Us</a>
+      <a routerLink="/terms" class="footer-link">Terms</a>
+      <a routerLink="/privacy" class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-rights-wrapper">
+      <div class="footer-copyright">© MotoGuard Technologies. All Rights Reserved.</div>
+    </div>
+  </div>
+</div>

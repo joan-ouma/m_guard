@@ -14,6 +14,9 @@ import { SettingsComponent } from './settings/settings.component';
 import { LegalComponent } from './legal/legal.component';
 import { EmergencyComponent } from './emergency/emergency.component';
 import { LandingComponent } from './landing/landing.component';
+import { AboutComponent } from './pages/about/about.component';
+import { ServicesComponent } from './pages/services/services.component';
+import { ContactComponent } from './pages/contact/contact.component';
 
 export const routes: Routes = [
   {
@@ -108,6 +111,36 @@ export const routes: Routes = [
     path: 'home',
     component: LandingComponent,
     title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+  },
+  {
+    path: 'about',
+    component: AboutComponent,
+    title: 'About Us | MotoGuard',
+    data: {
+      description:
+        'Learn how MotoGuard safeguards two-wheeled fleets and boda boda operators across Kenya through stealth IoT tracking and smart telemetry.',
+      keywords: 'about MotoGuard, motorcycle security Kenya, IoT fleet tracking, boda boda anti-theft',
+    },
+  },
+  {
+    path: 'services',
+    component: ServicesComponent,
+    title: 'Services | MotoGuard',
+    data: {
+      description:
+        'Explore MotoGuard services: real-time GPS tracking, remote starter kill, instant geofencing alerts, and SACCO fleet telematics.',
+      keywords: 'motorcycle tracking services, remote engine cutoff, SACCO fleet management, GPS telemetry',
+    },
+  },
+  {
+    path: 'contact',
+    component: ContactComponent,
+    title: 'Contact Us | MotoGuard',
+    data: {
+      description:
+        'Get in touch with MotoGuard. Reach our support and sales teams in Nairobi for motorcycle tracker installations and fleet inquiries.',
+      keywords: 'contact MotoGuard, motorcycle GPS Nairobi, tracker installation support',
+    },
   },
   {
     path: 'dashboard',
