@@ -10614,3 +10614,117 @@ blockquote {
     z-index: 1000;
   }
 }
+
+:host {
+  display: block;
+}
+
+.primary-button, .get-started-btn {
+  background-color: #ff3841 !important;
+  border: 2px solid #ff3841 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+.primary-button div, .primary-button span, .get-started-btn div, .get-started-btn span {
+  color: #ffffff !important;
+}
+
+.primary-button:hover, .get-started-btn:hover {
+  background-color: transparent !important;
+  border-color: #ff3841 !important;
+}
+
+.primary-button:hover div, .primary-button:hover span, .get-started-btn:hover div, .get-started-btn:hover span {
+  color: #ff3841 !important;
+}
+
+@keyframes mgFadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mgBannerZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.inner-banner .inner-title {
+  animation: mgFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.inner-banner .inner-description {
+  animation: mgFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.inner-banner .banner-image {
+  animation: mgBannerZoom 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.service-card-wrap,
+.service-list-2-item,
+.service-list-item {
+  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.service-card-wrap:hover,
+.service-list-2-item:hover,
+.service-list-item:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 16px 32px rgba(23, 32, 57, 0.12) !important;
+}
+
+.service-card-wrap img,
+.service-list-2-item img {
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.service-card-wrap:hover img,
+.service-list-2-item:hover img {
+  transform: scale(1.04) !important;
+}
+
+.primary-button,
+.secondary-button,
+.primary-button-white {
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.primary-button-white:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 56, 65, 0.25) !important;
+}
+
+.primary-button:active,
+.secondary-button:active,
+.primary-button-white:active {
+  transform: translateY(1px) !important;
+}
+
+@supports (animation-timeline: view()) {
+  .service-card-wrap,
+  .service-list-2-item,
+  .service-list-item,
+  .service-list-2-bottom-contacts {
+    animation: mgFadeInUp linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 30%;
+  }
+}

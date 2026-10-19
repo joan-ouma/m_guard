@@ -10614,3 +10614,281 @@ blockquote {
     z-index: 1000;
   }
 }
+
+:host {
+  display: block;
+}
+
+.primary-button, .get-started-btn {
+  background-color: #ff3841 !important;
+  border: 2px solid #ff3841 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+.primary-button div, .primary-button span, .get-started-btn div, .get-started-btn span {
+  color: #ffffff !important;
+}
+
+.primary-button:hover, .get-started-btn:hover {
+  background-color: transparent !important;
+  border-color: #ff3841 !important;
+}
+
+.primary-button:hover div, .primary-button:hover span, .get-started-btn:hover div, .get-started-btn:hover span {
+  color: #ff3841 !important;
+}
+
+@keyframes mgFadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mgBannerZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mgRotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mgFloatY {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes mgDrawFirstLine {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    width: 240px;
+    opacity: 1;
+  }
+}
+
+@keyframes mgDrawSecondLine {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes mgDrawThirdLine {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes mgDotPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mgPulseGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 56, 65, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(255, 56, 65, 0.95));
+  }
+}
+
+.hero-banner-title-wrap h6 {
+  animation: mgFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.hero-banner-title-wrap h1 {
+  animation: mgFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.hero-banner-title-wrap p {
+  animation: mgFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.hero-banner-title-wrap .banner-btn-wrap {
+  animation: mgFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+.banner-image, .home-second-banner-img {
+  animation: mgBannerZoom 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.dots-left, .dots-right, .accomplishments-dots {
+  animation: mgFloatY 5s ease-in-out infinite;
+}
+
+.help-animation {
+  position: relative;
+  min-height: 360px;
+}
+
+.help-animation .main-circle {
+  animation: mgRotateSlow 28s linear infinite;
+  transform-origin: center;
+}
+
+.help-animation .first-line {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  height: 3px;
+  background-color: var(--primary);
+  z-index: 8;
+  animation: mgDrawFirstLine 1.4s cubic-bezier(0.25, 1, 0.5, 1) 0.3s both;
+}
+
+.help-animation .small-circle {
+  position: absolute;
+  top: 10px;
+  left: 260px;
+  z-index: 9;
+  animation: mgDotPop 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.5s both, mgPulseGlow 3s ease-in-out infinite;
+}
+
+.help-animation .second-line {
+  position: absolute;
+  top: 20px;
+  left: 268px;
+  width: 2px;
+  height: 148px;
+  background-color: var(--primary);
+  transform-origin: top;
+  animation: mgDrawSecondLine 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.6s both;
+}
+
+.help-animation .third-line {
+  position: absolute;
+  top: 168px;
+  left: 268px;
+  width: 2px;
+  height: 154px;
+  background-color: var(--primary);
+  transform-origin: top;
+  animation: mgDrawThirdLine 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.8s both;
+}
+
+.help-animation .second-small-circle {
+  position: absolute;
+  top: 158px;
+  left: 260px;
+  z-index: 9;
+  animation: mgDotPop 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.9s both, mgPulseGlow 3s ease-in-out infinite 0.5s;
+}
+
+.help-animation .third-small-circle {
+  position: absolute;
+  top: 312px;
+  left: 260px;
+  z-index: 9;
+  animation: mgDotPop 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.2s both, mgPulseGlow 3s ease-in-out infinite 1s;
+}
+
+.service-card-wrap,
+.service-card,
+.pricing-plan-item,
+.testimonial,
+.accomplishments-card,
+.features-item {
+  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.service-card-wrap:hover,
+.service-card:hover,
+.pricing-plan-item:hover,
+.testimonial:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 16px 32px rgba(23, 32, 57, 0.12) !important;
+}
+
+.service-card-wrap img,
+.service-card img,
+.image-border-radius {
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.service-card-wrap:hover img,
+.service-card:hover img {
+  transform: scale(1.04) !important;
+}
+
+.primary-button,
+.secondary-button,
+.primary-button-white {
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.primary-button-white:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 56, 65, 0.25) !important;
+}
+
+.primary-button:active,
+.secondary-button:active,
+.primary-button-white:active {
+  transform: translateY(1px) !important;
+}
+
+@supports (animation-timeline: view()) {
+  .service-card-wrap,
+  .pricing-plan-item,
+  .testimonial,
+  .accomplishments-card,
+  .help-wrapper,
+  .cta-wrapper,
+  .solution-wrapper {
+    animation: mgFadeInUp linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 30%;
+  }
+}
