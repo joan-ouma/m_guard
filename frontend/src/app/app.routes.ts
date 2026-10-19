@@ -1,17 +1,19 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { AuthService } from './core/services/auth.service';
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { BikesComponent } from './bikes/bikes.component';
-
 import { HistoryComponent } from './history/history.component';
 import { AlertsComponent } from './alerts/alerts.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LegalComponent } from './legal/legal.component';
 import { EmergencyComponent } from './emergency/emergency.component';
+import { LandingComponent } from './landing/landing.component';
 
 export const routes: Routes = [
   {
@@ -82,6 +84,7 @@ export const routes: Routes = [
   },
   {
     path: '',
+    canMatch: [() => inject(AuthService).isAuthenticated()],
     component: DashboardComponent,
     canActivate: [authGuard],
     title: 'Dashboard | MotoGuard',
@@ -90,6 +93,27 @@ export const routes: Routes = [
         'Track your motorcycles in real-time with high-precision GPS, live telemetry, geofence boundary alerts, and remote anti-theft starter immobilization.',
       keywords: 'motorcycle GPS tracking, live bike location, fleet dashboard, IoT anti-theft, ignition control, Nairobi motorcycle tracking',
     },
+  },
+  {
+    path: '',
+    component: LandingComponent,
+    title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+    data: {
+      description:
+        'Real-time IoT motorcycle tracking, intelligent geofencing, remote starter immobilization, and automated theft prevention for riders and fleet operators.',
+      keywords: 'motorcycle tracking, GPS bike security, fleet telematics, IoT immobilizer, Kenya bike tracking, duress alerts, live route history, SACCO motorcycle tracking, MotoGuard, MGuard',
+    },
+  },
+  {
+    path: 'home',
+    component: LandingComponent,
+    title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    title: 'Dashboard | MotoGuard',
   },
   {
     path: 'bikes',

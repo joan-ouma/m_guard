@@ -795,17 +795,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     let activity = alert.activity || alert.message || alert.details;
 
     if (!activity) {
-      if (rawType.includes('GEOFENCE') || rawType.includes('BREACH')) {
-        activity = 'Boundary breach detected outside perimeter';
-      } else if (rawType.includes('STOP') || rawType.includes('DURESS')) {
-        activity = 'Sudden stop anomaly recorded';
-      } else if (rawType.includes('CRASH')) {
-        activity = 'Collision impact detected';
-      } else if (rawType.includes('THEFT') || rawType.includes('TAMPER')) {
-        activity = 'Unauthorized movement or tamper alert';
-      } else {
-        activity = 'Security event detected';
-      }
+      activity = this.resolveDefaultAlertActivity(rawType);
     }
 
     const timeStr = alert.recorded_at
@@ -822,6 +812,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       time: timeStr,
       read: false,
     };
+  }
+
+  private resolveDefaultAlertActivity(type: string): string {
+    if (type.includes('GEOFENCE') || type.includes('BREACH')) return 'Boundary breach detected outside perimeter';
+    if (type.includes('STOP') || type.includes('DURESS')) return 'Sudden stop anomaly recorded';
+    if (type.includes('CRASH')) return 'Collision impact detected';
+    if (type.includes('THEFT') || type.includes('TAMPER')) return 'Unauthorized movement or tamper alert';
+    return 'Security event detected';
   }
 
   handleLogout(): void {
