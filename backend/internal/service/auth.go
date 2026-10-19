@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -38,13 +38,7 @@ func NewAuthService(
 	if argonParams == nil {
 		argonParams = security.DefaultArgon2Params
 	}
-	if mailClient == nil {
-		mailClient = &mailer.NoopMailer{}
-	}
 	frontendURL = strings.TrimRight(frontendURL, "/")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:4200"
-	}
 	return &AuthService{
 		pool:                 pool,
 		repo:                 repo,
@@ -59,16 +53,9 @@ func NewAuthService(
 func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) (*domain.UserDTO, error) {
 	instance := "/v1/users/register"
 
-	// Check if user already exists
 	_, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err == nil {
-		return nil, domain.ProblemDetails{
-			Type:     "https://motoguard.co.ke/errors/conflict",
-			Title:    "Conflict",
-			Status:   409,
-			Detail:   "A user with this email already exists",
-			Instance: instance,
-		}
+		return nil, domain.NewConflictError("A user with this email already exists", instance)
 	} else if !errors.Is(err, repository.ErrNotFound) {
 		return nil, domain.NewInternalServerError(instance)
 	}
@@ -109,23 +96,32 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
+			slog.Warn("Login failed: user not found", "email", email)
 			return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 		}
+		slog.Error("Login failed: database error", "email", email, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	matched, err := security.VerifyPassword(password, user.PasswordHash)
-	if err != nil || !matched {
+	if err != nil {
+		slog.Error("Login password verification failed: malformed hash", "email", email, "error", err)
+		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
+	}
+	if !matched {
+		slog.Warn("Login failed: invalid password", "email", email)
 		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 	}
 
 	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID)
 	if err != nil {
+		slog.Error("Login failed: access token error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	rawRefreshToken, err := security.GenerateRandomToken(32)
 	if err != nil {
+		slog.Error("Login failed: refresh token error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
@@ -133,29 +129,43 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 	sessionID := uuid.New().String()
 	now := time.Now().UTC()
 
+	ua := userAgent
+	if len(ua) > 255 {
+		ua = ua[:255]
+	}
+	ipAddr := ip
+	if len(ipAddr) > 45 {
+		ipAddr = ipAddr[:45]
+	}
+
 	session := &domain.Session{
 		ID:               sessionID,
 		UserID:           user.ID,
 		RefreshTokenHash: refreshTokenHash,
 		ExpiresAt:        now.Add(s.refreshTokenDuration),
-		UserAgent:        userAgent,
-		IPAddress:        ip,
+		UserAgent:        ua,
+		IPAddress:        ipAddr,
 		CreatedAt:        now,
 	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
+		slog.Error("Login failed: pool.Begin error", "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 	defer tx.Rollback(ctx)
 
 	if err := s.repo.CreateSession(ctx, tx, session); err != nil {
+		slog.Error("Login failed: CreateSession error", "user_id", user.ID, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
+		slog.Error("Login failed: tx.Commit error", "user_id", user.ID, "error", err)
 		return nil, "", domain.NewInternalServerError(instance)
 	}
+
+	slog.Info("User logged in successfully", "user_id", user.ID, "email", user.Email)
 
 	sessionData := &domain.SessionData{
 		AccessToken: accessToken,
@@ -208,13 +218,22 @@ func (s *AuthService) RefreshToken(ctx context.Context, rawRefreshToken, ip, use
 		return nil, "", domain.NewInternalServerError(instance)
 	}
 
+	ua := userAgent
+	if len(ua) > 255 {
+		ua = ua[:255]
+	}
+	ipAddr := ip
+	if len(ipAddr) > 45 {
+		ipAddr = ipAddr[:45]
+	}
+
 	newSession := &domain.Session{
 		ID:               uuid.New().String(),
 		UserID:           user.ID,
 		RefreshTokenHash: security.HashTokenSHA256(newRawRefreshToken),
 		ExpiresAt:        time.Now().UTC().Add(s.refreshTokenDuration),
-		UserAgent:        userAgent,
-		IPAddress:        ip,
+		UserAgent:        ua,
+		IPAddress:        ipAddr,
 		CreatedAt:        time.Now().UTC(),
 	}
 
@@ -316,13 +335,16 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 	userEmail := user.Email
 	userName := user.Name
 
-	go func() {
-		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
-		if err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL); err != nil {
-			log.Printf("[AuthService] failed to send password reset email to %s: %v", userEmail, err)
-		}
-	}()
+	if s.mailer != nil {
+		go func() {
+			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+			err := s.mailer.SendPasswordResetEmail(bgCtx, userEmail, userName, resetURL)
+			if err != nil {
+				slog.Error("failed to send password reset email", "email", userEmail, "error", err)
+			}
+		}()
+	}
 
 	return nil
 }
@@ -381,17 +403,20 @@ func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPas
 	}
 
 	user, err := s.repo.GetUserByID(ctx, prt.UserID)
-	if err == nil && user != nil {
-		userEmail := user.Email
-		userName := user.Name
-		go func() {
-			bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-			defer cancel()
-			if err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName); err != nil {
-				log.Printf("[AuthService] failed to send password changed confirmation email to %s: %v", userEmail, err)
-			}
-		}()
+	if err != nil || user == nil || s.mailer == nil {
+		return nil
 	}
+
+	userEmail := user.Email
+	userName := user.Name
+	go func() {
+		bgCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		err := s.mailer.SendPasswordChangedEmail(bgCtx, userEmail, userName)
+		if err != nil {
+			slog.Error("failed to send password changed confirmation email", "email", userEmail, "error", err)
+		}
+	}()
 
 	return nil
 }

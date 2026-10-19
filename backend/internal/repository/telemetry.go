@@ -10,6 +10,44 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// --- Parameter Types ---
+
+type CheckGeofenceParams struct {
+	GeofenceID string
+	Latitude   float64
+	Longitude  float64
+}
+
+type SaveTelemetryParams struct {
+	BikeID        string
+	SensorID      string
+	Latitude      float64
+	Longitude     float64
+	Accuracy      float64
+	LocType       string
+	Address       string
+	SubCounty     string
+	County        string
+	SpeedKMH      float64
+	HeadingDeg    float64
+	Status        string
+	Ignition      bool
+	Battery       int
+	SignalQuality int
+	Breach        bool
+	RecordedAt    time.Time
+}
+
+type SaveEventParams struct {
+	BikeID     string
+	EventType  string
+	Latitude   float64
+	Longitude  float64
+	RecordedAt time.Time
+}
+
+// --- Repository ---
+
 type TelemetryRepository struct {
 	pool *pgxpool.Pool
 }
@@ -56,7 +94,10 @@ func (r *TelemetryRepository) ResolveBikeBySensor(ctx context.Context, sensorID 
 
 func (r *TelemetryRepository) GetBikeLastPosition(ctx context.Context, bikeID string) (float64, float64, time.Time, bool, error) {
 	query := `
-		SELECT latitude, longitude, last_telemetry_at
+		SELECT 
+			COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(last_telemetry_at, (SELECT bb.recorded_at FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id ORDER BY bb.id DESC LIMIT 1))
 		FROM bikes
 		WHERE id = $1
 		LIMIT 1
@@ -78,8 +119,8 @@ func (r *TelemetryRepository) GetBikeLastPosition(ctx context.Context, bikeID st
 	return lat, lng, *lastTime, true, nil
 }
 
-func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceID string, lat float64, lng float64) (bool, string, error) {
-	if geofenceID == "" {
+func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, params CheckGeofenceParams) (bool, string, error) {
+	if params.GeofenceID == "" || (params.Latitude == 0 && params.Longitude == 0) {
 		return false, "", nil
 	}
 
@@ -96,7 +137,7 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceI
 	var name string
 	var alertOnExit, alertOnEntry, isOutside bool
 
-	err := r.pool.QueryRow(ctx, query, lng, lat, geofenceID).Scan(&name, &alertOnExit, &alertOnEntry, &isOutside)
+	err := r.pool.QueryRow(ctx, query, params.Longitude, params.Latitude, params.GeofenceID).Scan(&name, &alertOnExit, &alertOnEntry, &isOutside)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return false, "", nil
@@ -107,6 +148,8 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceI
 	breach := false
 	if alertOnExit && isOutside {
 		breach = true
+	} else if alertOnEntry && !isOutside {
+		breach = true
 	}
 
 	return breach, name, nil
@@ -115,49 +158,40 @@ func (r *TelemetryRepository) CheckGeofenceBreach(ctx context.Context, geofenceI
 func (r *TelemetryRepository) SaveTelemetry(
 	ctx context.Context,
 	tx pgx.Tx,
-	bikeID string,
-	sensorID string,
-	lat float64,
-	lng float64,
-	address string,
-	subCounty string,
-	county string,
-	speed float64,
-	heading float64,
-	status string,
-	ignition bool,
-	battery int,
-	signalQuality int,
-	breach bool,
-	recordedAt time.Time,
+	params SaveTelemetryParams,
 ) error {
 	updateTrackerQuery := `
 		UPDATE trackers
 		SET last_online_at = $1, updated_at = $1
 		WHERE imei = $2
 	`
-	_, _ = tx.Exec(ctx, updateTrackerQuery, recordedAt, sensorID)
+	_, _ = tx.Exec(ctx, updateTrackerQuery, params.RecordedAt, params.SensorID)
 
 	updateBikeQuery := `
 		UPDATE bikes
 		SET
-			latitude = $1,
-			longitude = $2,
-			current_address = COALESCE(NULLIF($3, ''), current_address),
-			sub_county = COALESCE(NULLIF($4, ''), sub_county),
-			county = COALESCE(NULLIF($5, ''), county),
-			speed_kmh = $6,
-			heading_deg = $7,
-			status = $8,
-			ignition = $9,
-			battery_percent = $10,
-			signal_quality_csq = $11,
-			last_telemetry_at = $12,
-			updated_at = $12
-		WHERE id = $13
+			latitude = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN latitude ELSE $1 END,
+			longitude = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN longitude ELSE $2 END,
+			accuracy = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN accuracy ELSE $3 END,
+			loc_type = CASE WHEN $1 = 0.0 AND $2 = 0.0 THEN loc_type ELSE $4 END,
+			current_address = COALESCE(NULLIF($5, ''), current_address),
+			sub_county = COALESCE(NULLIF($6, ''), sub_county),
+			county = COALESCE(NULLIF($7, ''), county),
+			speed_kmh = $8,
+			heading_deg = $9,
+			status = $10,
+			ignition = $11,
+			battery_percent = $12,
+			signal_quality_csq = $13,
+			last_telemetry_at = $14,
+			updated_at = $14
+		WHERE id = $15
 	`
 	_, err := tx.Exec(ctx, updateBikeQuery,
-		lat, lng, address, subCounty, county, speed, heading, status, ignition, battery, signalQuality, recordedAt, bikeID,
+		params.Latitude, params.Longitude, params.Accuracy, params.LocType,
+		params.Address, params.SubCounty, params.County,
+		params.SpeedKMH, params.HeadingDeg, params.Status, params.Ignition,
+		params.Battery, params.SignalQuality, params.RecordedAt, params.BikeID,
 	)
 	if err != nil {
 		return err
@@ -165,13 +199,15 @@ func (r *TelemetryRepository) SaveTelemetry(
 
 	insertBreadcrumbQuery := `
 		INSERT INTO bike_breadcrumbs (
-			bike_id, latitude, longitude, heading_deg, speed_kmh, ignition, battery_percent, geofence_breach, recorded_at
+			bike_id, latitude, longitude, accuracy, loc_type, heading_deg, speed_kmh, ignition, battery_percent, address, geofence_breach, recorded_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 		)
 	`
 	_, err = tx.Exec(ctx, insertBreadcrumbQuery,
-		bikeID, lat, lng, heading, speed, ignition, battery, breach, recordedAt,
+		params.BikeID, params.Latitude, params.Longitude, params.Accuracy, params.LocType,
+		params.HeadingDeg, params.SpeedKMH, params.Ignition, params.Battery, params.Address,
+		params.Breach, params.RecordedAt,
 	)
 	return err
 }
@@ -185,16 +221,12 @@ func (r *TelemetryRepository) GetGeofenceIDForBike(ctx context.Context, bikeID s
 
 func (r *TelemetryRepository) SaveEvent(
 	ctx context.Context,
-	bikeID string,
-	eventType string,
-	lat float64,
-	lng float64,
-	recordedAt time.Time,
+	params SaveEventParams,
 ) error {
 	query := `
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err := r.pool.Exec(ctx, query, bikeID, eventType, lat, lng, recordedAt)
+	_, err := r.pool.Exec(ctx, query, params.BikeID, params.EventType, params.Latitude, params.Longitude, params.RecordedAt)
 	return err
 }

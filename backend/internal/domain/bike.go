@@ -23,14 +23,13 @@ type Bike struct {
 	CurrentAddress     string
 	SubCounty          string
 	County             string
+	Accuracy           float64
+	LocType            string
 	BatteryPercent     int
 	SignalQualityCSQ   int
 	LastTelemetryAt    *time.Time
 	GeofenceID         string
 	DriverContactID    string
-	RiderName          string
-	RiderNationalID    string
-	RiderPhone         string
 	IsImmobilized      bool
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
@@ -52,6 +51,8 @@ type BikeDTO struct {
 	HeadingDeg         float64    `json:"heading_deg"`
 	Latitude           float64    `json:"latitude"`
 	Longitude          float64    `json:"longitude"`
+	Accuracy           float64    `json:"accuracy"`
+	LocType            string     `json:"loc_type"`
 	CurrentAddress     string     `json:"current_address"`
 	SubCounty          string     `json:"sub_county"`
 	County             string     `json:"county"`
@@ -60,16 +61,13 @@ type BikeDTO struct {
 	LastTelemetryAt    *time.Time `json:"last_telemetry_at,omitempty"`
 	GeofenceID         string     `json:"geofence_id,omitempty"`
 	DriverContactID    string     `json:"driver_contact_id,omitempty"`
-	RiderName          string     `json:"rider_name,omitempty"`
-	RiderNationalID    string     `json:"rider_national_id,omitempty"`
-	RiderPhone         string     `json:"rider_phone,omitempty"`
 	IsImmobilized      bool       `json:"is_immobilized"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
 type ImmobilizeBikeRequest struct {
-	Action string `json:"action"` // "IMMOBILIZE" or "REACTIVATE"
+	Action string `json:"action"`
 }
 
 type CreateBikeRequest struct {
@@ -87,9 +85,6 @@ type CreateBikeRequest struct {
 	County             string  `json:"county"`
 	GeofenceID         string  `json:"geofence_id"`
 	DriverContactID    string  `json:"driver_contact_id"`
-	RiderName          string  `json:"rider_name"`
-	RiderNationalID    string  `json:"rider_national_id"`
-	RiderPhone         string  `json:"rider_phone"`
 }
 
 type UpdateBikeRequest struct {
@@ -105,13 +100,14 @@ type UpdateBikeRequest struct {
 	Status             string `json:"status"`
 	GeofenceID         string `json:"geofence_id"`
 	DriverContactID    string `json:"driver_contact_id"`
-	RiderName          string `json:"rider_name"`
-	RiderNationalID    string `json:"rider_national_id"`
-	RiderPhone         string `json:"rider_phone"`
 }
 
 type BikeListMeta struct {
 	Total                 int    `json:"total"`
+	Limit                 int    `json:"limit,omitempty"`
+	Cursor                string `json:"cursor,omitempty"`
+	NextCursor            string `json:"next_cursor,omitempty"`
+	HasMore               bool   `json:"has_more"`
 	DefaultSelectedBikeID string `json:"default_selected_bike_id,omitempty"`
 }
 
@@ -125,8 +121,36 @@ type DriverContact struct {
 	OrganizationID string
 	Name           string
 	Phone          string
+	Email          string
 	IDNumber       string
 	LicenseNumber  string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type VerifyTrackerRequest struct {
+	IMEI string `json:"imei"`
+}
+
+type TrackerStatusDTO struct {
+	IMEI      string `json:"imei"`
+	Model     string `json:"model"`
+	Status    string `json:"status"`
+	IsClaimed bool   `json:"is_claimed"`
+}
+
+type AttachBikeRequest struct {
+	RegistrationNumber string `json:"registration_number"`
+	Label              string `json:"label"`
+	Make               string `json:"make"`
+	Model              string `json:"model"`
+	Year               int    `json:"year"`
+	Color              string `json:"color"`
+	IMEI               string `json:"imei"`
+	County             string `json:"county"`
+	SubCounty          string `json:"sub_county"`
+	RiderName          string `json:"rider_name"`
+	RiderNationalID    string `json:"rider_national_id"`
+	RiderPhone         string `json:"rider_phone"`
+	RiderEmail         string `json:"rider_email"`
 }

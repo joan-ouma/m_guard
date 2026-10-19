@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -21,6 +21,20 @@ type MQTTSubscriber struct {
 	telemetryService *service.TelemetryService
 	cellResolver     *geolocation.CellResolver
 	topics           []string
+}
+
+func resolveCellPosition(ctx context.Context, resolver *geolocation.CellResolver, mcc, mnc, lac, cid, rssi int, cells []domain.CellTower) (float64, float64, float64, bool) {
+	if resolver == nil || mcc <= 0 {
+		return 0, 0, 0, false
+	}
+	towers := cells
+	if len(towers) == 0 && lac > 0 && cid > 0 {
+		towers = []domain.CellTower{{LAC: lac, CID: cid, RSSIDBm: rssi}}
+	}
+	if len(towers) == 0 {
+		return 0, 0, 0, false
+	}
+	return resolver.ResolveMulti(ctx, mcc, mnc, towers)
 }
 
 func NewMQTTSubscriber(brokerURL string, clientID string, username string, password string, telemetryService *service.TelemetryService) (*MQTTSubscriber, error) {
@@ -39,7 +53,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 	opts.SetKeepAlive(30 * time.Second)
 
 	opts.SetConnectionLostHandler(func(c pahomqtt.Client, err error) {
-		log.Printf("[MQTT] Connection lost: %v", err)
+		slog.Warn("MQTT connection lost", "error", err)
 	})
 
 	if username != "" {
@@ -51,7 +65,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 
 	handler := func(c pahomqtt.Client, m pahomqtt.Message) {
 		topic := m.Topic()
-		log.Printf("[MQTT Incoming] Topic: %s, Size: %d bytes, Payload: %s", topic, len(m.Payload()), string(m.Payload()))
+		slog.Info("MQTT incoming message", "topic", topic, "bytes", len(m.Payload()))
 
 		parts := strings.Split(topic, "/")
 		sensorID := ""
@@ -63,19 +77,21 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		if strings.Contains(topic, "/alert") || strings.Contains(topic, "/events") {
 			var alert domain.AlertPayload
 			if err := json.Unmarshal(m.Payload(), &alert); err != nil {
-				log.Printf("[MQTT Alert] invalid json payload from %s: %v", topic, err)
+				slog.Error("MQTT alert invalid json payload", "topic", topic, "error", err)
 				return
 			}
 
-			// When GPS is 0,0, resolve location from Cell Tower database
-			if alert.Latitude == 0 && alert.Longitude == 0 && alert.MCC > 0 && alert.LAC > 0 && alert.CID > 0 {
+			// When GPS is 0,0, resolve location from Multi-Cell triangulation or serving cell
+			if alert.Latitude == 0 && alert.Longitude == 0 {
 				geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
-				if lat, lng, ok := cellResolver.Resolve(geoCtx, alert.MCC, alert.MNC, alert.LAC, alert.CID); ok {
+				lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, alert.MCC, alert.MNC, alert.LAC, alert.CID, alert.RSSIDBm, alert.Cells)
+				geoCancel()
+				if ok {
 					alert.Latitude = lat
 					alert.Longitude = lng
+					alert.Accuracy = acc
 					alert.LocType = "lbs"
 				}
-				geoCancel()
 			}
 
 			recTime := time.Now().UTC()
@@ -93,9 +109,9 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 
 			// 1. Record the burglary/tamper alert event
 			if err := telemetryService.IngestEvent(ingestCtx, sensorID, reason, alert.Latitude, alert.Longitude, recTime); err != nil {
-				log.Printf("[MQTT Alert] failed to ingest event %s for sensor %s: %v", reason, sensorID, err)
+				slog.Error("MQTT alert failed to ingest event", "reason", reason, "sensor_id", sensorID, "error", err)
 			} else {
-				log.Printf("[MQTT Alert] Recorded alert [%s] for sensor %s at (%.6f, %.6f)", reason, sensorID, alert.Latitude, alert.Longitude)
+				slog.Info("MQTT alert recorded", "reason", reason, "sensor_id", sensorID, "lat", alert.Latitude, "lng", alert.Longitude)
 			}
 
 			// 2. Ingest telemetry so live map position & status update immediately
@@ -103,6 +119,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 				SensorID:       sensorID,
 				Latitude:       alert.Latitude,
 				Longitude:      alert.Longitude,
+				Accuracy:       alert.Accuracy,
 				LocType:        alert.LocType,
 				MCC:            alert.MCC,
 				MNC:            alert.MNC,
@@ -125,7 +142,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		// Handle Periodic Telemetry (Normal Tracking)
 		var payload domain.TelemetryPayload
 		if err := json.Unmarshal(m.Payload(), &payload); err != nil {
-			log.Printf("[MQTT Telemetry] invalid json payload from %s: %v", topic, err)
+			slog.Error("MQTT telemetry invalid json payload", "topic", topic, "error", err)
 			return
 		}
 
@@ -133,15 +150,17 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 			payload.SensorID = sensorID
 		}
 
-		// When GPS is 0,0, resolve location from Cell Tower database
-		if payload.Latitude == 0 && payload.Longitude == 0 && payload.MCC > 0 && payload.LAC > 0 && payload.CID > 0 {
+		// When GPS is 0,0, resolve location from Multi-Cell triangulation or serving cell
+		if payload.Latitude == 0 && payload.Longitude == 0 {
 			geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
-			if lat, lng, ok := cellResolver.Resolve(geoCtx, payload.MCC, payload.MNC, payload.LAC, payload.CID); ok {
+			lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, payload.MCC, payload.MNC, payload.LAC, payload.CID, payload.RSSIDBm, payload.Cells)
+			geoCancel()
+			if ok {
 				payload.Latitude = lat
 				payload.Longitude = lng
+				payload.Accuracy = acc
 				payload.LocType = "lbs"
 			}
-			geoCancel()
 		}
 
 		recTime := time.Now().UTC()
@@ -153,10 +172,9 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		defer cancel()
 
 		if err := telemetryService.IngestTelemetry(ingestCtx, payload); err != nil {
-			log.Printf("[MQTT Telemetry] failed to ingest telemetry for sensor %s: %v", payload.SensorID, err)
+			slog.Error("MQTT telemetry failed to ingest", "sensor_id", payload.SensorID, "error", err)
 		} else {
-			log.Printf("[MQTT Telemetry] Ingested sensor %s (loc=%s, lat=%.6f, lng=%.6f, ign=%v, spd=%.1f)",
-				payload.SensorID, payload.LocType, payload.Latitude, payload.Longitude, payload.Ignition, payload.SpeedKMH)
+			slog.Info("MQTT telemetry ingested", "sensor_id", payload.SensorID, "loc_type", payload.LocType, "lat", payload.Latitude, "lng", payload.Longitude, "ignition", payload.Ignition, "speed", payload.SpeedKMH)
 		}
 
 		// If telemetry also includes an active alert flag or reason
@@ -166,7 +184,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 	}
 
 	opts.SetOnConnectHandler(func(c pahomqtt.Client) {
-		log.Printf("MQTT connected / reconnected. Subscribing to topics: %s", strings.Join(topics, ", "))
+		slog.Info("MQTT connected / reconnected", "topics", topics)
 		for _, top := range topics {
 			c.Subscribe(top, 1, handler)
 		}
@@ -214,6 +232,6 @@ func (s *MQTTSubscriber) PublishCommand(imei string, action string) error {
 	}
 	token := s.client.Publish(topic, 1, false, payload)
 	token.Wait()
-	log.Printf("[MQTT] Published command %s to topic %s", action, topic)
+	slog.Info("MQTT published command", "action", action, "topic", topic)
 	return token.Error()
 }

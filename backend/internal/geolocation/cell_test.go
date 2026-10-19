@@ -33,7 +33,6 @@ func TestCellResolver_Resolve(t *testing.T) {
 
 	resolver := NewCellResolver()
 	resolver.endpoint = ts.URL
-	resolver.openCellIDEndpoint = ts.URL
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

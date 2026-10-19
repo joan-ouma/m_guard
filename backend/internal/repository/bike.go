@@ -2,14 +2,65 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
 
 	"motoguard-backend/internal/domain"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// --- Parameter Types ---
+
+type ListByOwnerParams struct {
+	UserID string
+	Cursor string
+	Limit  int
+}
+
+type SetImmobilizedParams struct {
+	UserID        string
+	BikeID        string
+	IsImmobilized bool
+}
+
+type ExistsRegParams struct {
+	UserID        string
+	RegNumber     string
+	ExcludeBikeID string
+}
+
+type GetBreadcrumbsParams struct {
+	UserID    string
+	BikeID    string
+	StartDate string
+	EndDate   string
+	Cursor    int64
+	Limit     int
+}
+
+type GetEventsParams struct {
+	UserID    string
+	BikeID    string
+	StartDate string
+	EndDate   string
+	Cursor    int64
+	Limit     int
+}
+
+type GetAllEventsParams struct {
+	UserID   string
+	Severity string
+	Cursor   int64
+	Limit    int
+}
+
+// --- Repository ---
 
 type BikeRepository struct {
 	pool *pgxpool.Pool
@@ -28,39 +79,24 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-	var riderNameVal any
-	if b.RiderName != "" {
-		riderNameVal = b.RiderName
-	}
-	var riderIDVal any
-	if b.RiderNationalID != "" {
-		riderIDVal = b.RiderNationalID
-	}
-	var riderPhoneVal any
-	if b.RiderPhone != "" {
-		riderPhoneVal = b.RiderPhone
-	}
 
 	query := `
 		INSERT INTO bikes (
 			id, user_id, registration_number, label, make, model, year, color, imei,
 			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
 			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
 			is_immobilized, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9,
 			$10, $11, $12, $13, $14, $15, $16, $17, $18,
 			$19, $20, $21, $22, $23,
-			$24, $25, $26,
-			$27, $28, $29
+			$24, $25, $26
 		)
 	`
 	_, err := tx.Exec(ctx, query,
 		b.ID, b.UserID, b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color, b.IMEI,
 		b.Status, b.Ignition, b.SpeedKMH, b.HeadingDeg, b.Latitude, b.Longitude, b.CurrentAddress, b.SubCounty, b.County,
 		b.BatteryPercent, b.SignalQualityCSQ, b.LastTelemetryAt, geofenceVal, driverVal,
-		riderNameVal, riderIDVal, riderPhoneVal,
 		b.IsImmobilized, b.CreatedAt, b.UpdatedAt,
 	)
 	return err
@@ -69,11 +105,16 @@ func (r *BikeRepository) Create(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID string) (*domain.Bike, error) {
 	query := `
 		SELECT 
-			id, user_id, registration_number, label, make, model, year, color, imei,
-			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
-			is_immobilized, created_at, updated_at
+			id, user_id, registration_number,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
+			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+			COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
+			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
+			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+			COALESCE(is_immobilized, false), created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 		LIMIT 1
@@ -81,13 +122,15 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 	row := r.pool.QueryRow(ctx, query, userID, bikeID)
 
 	var b domain.Bike
-	var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
-
 	err := row.Scan(
-		&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
-		&riderNameVal, &riderIDVal, &riderPhoneVal,
+		&b.ID, &b.UserID, &b.RegistrationNumber,
+		&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
+		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
+		&b.Latitude, &b.Longitude,
+		&b.Accuracy, &b.LocType,
+		&b.CurrentAddress, &b.SubCounty, &b.County,
+		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
+		&b.GeofenceID, &b.DriverContactID,
 		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 	)
 	if err != nil {
@@ -97,83 +140,152 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		return nil, err
 	}
 
-	if geofenceVal.Valid {
-		b.GeofenceID = geofenceVal.String
-	}
-	if driverVal.Valid {
-		b.DriverContactID = driverVal.String
-	}
-	if riderNameVal.Valid {
-		b.RiderName = riderNameVal.String
-	}
-	if riderIDVal.Valid {
-		b.RiderNationalID = riderIDVal.String
-	}
-	if riderPhoneVal.Valid {
-		b.RiderPhone = riderPhoneVal.String
+	return &b, nil
+}
+
+func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*domain.Bike, error) {
+	query := `
+		SELECT 
+			id, user_id, registration_number,
+			COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
+			COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+			COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+			COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
+			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
+			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+			COALESCE(is_immobilized, false), created_at, updated_at
+		FROM bikes
+		WHERE id = $1
+		LIMIT 1
+	`
+	row := r.pool.QueryRow(ctx, query, bikeID)
+
+	var b domain.Bike
+	err := row.Scan(
+		&b.ID, &b.UserID, &b.RegistrationNumber,
+		&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
+		&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
+		&b.Latitude, &b.Longitude,
+		&b.Accuracy, &b.LocType,
+		&b.CurrentAddress, &b.SubCounty, &b.County,
+		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
+		&b.GeofenceID, &b.DriverContactID,
+		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
 	}
 
 	return &b, nil
 }
 
-func (r *BikeRepository) ListByOwner(ctx context.Context, userID string) ([]domain.Bike, error) {
-	query := `
-		SELECT 
-			id, user_id, registration_number, label, make, model, year, color, imei,
-			status, ignition, speed_kmh, heading_deg, latitude, longitude, current_address, sub_county, county,
-			battery_percent, signal_quality_csq, last_telemetry_at, geofence_id, driver_contact_id,
-			rider_name, rider_national_id, rider_phone,
-			is_immobilized, created_at, updated_at
-		FROM bikes
-		WHERE user_id = $1
-		ORDER BY created_at DESC
-	`
-	rows, err := r.pool.Query(ctx, query, userID)
+func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerParams) ([]domain.Bike, domain.BikeListMeta, error) {
+	if params.Limit <= 0 || params.Limit > 100 {
+		params.Limit = 25
+	}
+
+	var total int
+	countQuery := `SELECT COUNT(*) FROM bikes WHERE user_id = $1`
+	_ = r.pool.QueryRow(ctx, countQuery, params.UserID).Scan(&total)
+
+	var query string
+	var args []any
+	if params.Cursor != "" {
+		query = `
+			SELECT 
+				id, user_id, registration_number,
+				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
+				COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+				COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+				COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+				COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
+				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
+				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+				COALESCE(is_immobilized, false), created_at, updated_at
+			FROM bikes
+			WHERE user_id = $1 AND (
+				created_at < (SELECT created_at FROM bikes WHERE id = $2)
+				OR (created_at = (SELECT created_at FROM bikes WHERE id = $2) AND id < $2)
+			)
+			ORDER BY created_at DESC, id DESC
+			LIMIT $3
+		`
+		args = []any{params.UserID, params.Cursor, params.Limit + 1}
+	} else {
+		query = `
+			SELECT 
+				id, user_id, registration_number,
+				COALESCE(label, ''), COALESCE(make, ''), COALESCE(model, ''), COALESCE(year, 0), COALESCE(color, ''), imei,
+				COALESCE(status, 'STOPPED'), COALESCE(ignition, false), COALESCE(speed_kmh, 0.0), COALESCE(heading_deg, 0.0),
+				COALESCE(NULLIF(latitude, 0.0), (SELECT bb.latitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+				COALESCE(NULLIF(longitude, 0.0), (SELECT bb.longitude FROM bike_breadcrumbs bb WHERE bb.bike_id = bikes.id AND (bb.latitude != 0.0 OR bb.longitude != 0.0) ORDER BY bb.id DESC LIMIT 1), 0.0),
+				COALESCE(accuracy, 0.0), COALESCE(loc_type, 'gps'),
+				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
+				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
+				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
+				COALESCE(is_immobilized, false), created_at, updated_at
+			FROM bikes
+			WHERE user_id = $1
+			ORDER BY created_at DESC, id DESC
+			LIMIT $2
+		`
+		args = []any{params.UserID, params.Limit + 1}
+	}
+
+	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, domain.BikeListMeta{}, err
 	}
 	defer rows.Close()
 
 	var bikes []domain.Bike
 	for rows.Next() {
 		var b domain.Bike
-		var geofenceVal, driverVal, riderNameVal, riderIDVal, riderPhoneVal sql.NullString
 		err := rows.Scan(
-			&b.ID, &b.UserID, &b.RegistrationNumber, &b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
-			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg, &b.Latitude, &b.Longitude, &b.CurrentAddress, &b.SubCounty, &b.County,
-			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt, &geofenceVal, &driverVal,
-			&riderNameVal, &riderIDVal, &riderPhoneVal,
+			&b.ID, &b.UserID, &b.RegistrationNumber,
+			&b.Label, &b.Make, &b.Model, &b.Year, &b.Color, &b.IMEI,
+			&b.Status, &b.Ignition, &b.SpeedKMH, &b.HeadingDeg,
+			&b.Latitude, &b.Longitude,
+			&b.Accuracy, &b.LocType,
+			&b.CurrentAddress, &b.SubCounty, &b.County,
+			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
+			&b.GeofenceID, &b.DriverContactID,
 			&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
-		}
-		if geofenceVal.Valid {
-			b.GeofenceID = geofenceVal.String
-		}
-		if driverVal.Valid {
-			b.DriverContactID = driverVal.String
-		}
-		if riderNameVal.Valid {
-			b.RiderName = riderNameVal.String
-		}
-		if riderIDVal.Valid {
-			b.RiderNationalID = riderIDVal.String
-		}
-		if riderPhoneVal.Valid {
-			b.RiderPhone = riderPhoneVal.String
+			return nil, domain.BikeListMeta{}, err
 		}
 		bikes = append(bikes, b)
 	}
-
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, domain.BikeListMeta{}, err
 	}
 
-	return bikes, nil
+	hasMore := len(bikes) > params.Limit
+	nextCursor := ""
+	if hasMore {
+		nextCursor = bikes[params.Limit-1].ID
+		bikes = bikes[:params.Limit]
+	}
+
+	meta := domain.BikeListMeta{
+		Total:      total,
+		Limit:      params.Limit,
+		Cursor:     params.Cursor,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}
+
+	return bikes, meta, nil
 }
 
-func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bikeID string, isImmobilized bool) (string, error) {
+func (r *BikeRepository) SetImmobilized(ctx context.Context, params SetImmobilizedParams) (string, error) {
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
 		return "", err
@@ -188,7 +300,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 	`
-	err = tx.QueryRow(ctx, checkQuery, userID, bikeID).Scan(&currentImmobilized, &imei, &lat, &lng)
+	err = tx.QueryRow(ctx, checkQuery, params.UserID, params.BikeID).Scan(&currentImmobilized, &imei, &lat, &lng)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", ErrNotFound
@@ -196,8 +308,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		return "", err
 	}
 
-	// State is already at desired value; avoid recording duplicate events
-	if currentImmobilized == isImmobilized {
+	if currentImmobilized == params.IsImmobilized {
 		return imei, nil
 	}
 
@@ -206,12 +317,12 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		SET is_immobilized = $1, updated_at = NOW()
 		WHERE user_id = $2 AND id = $3
 	`
-	if _, err := tx.Exec(ctx, updateQuery, isImmobilized, userID, bikeID); err != nil {
+	if _, err := tx.Exec(ctx, updateQuery, params.IsImmobilized, params.UserID, params.BikeID); err != nil {
 		return "", err
 	}
 
 	eventType := "IMMOBILIZED"
-	if !isImmobilized {
+	if !params.IsImmobilized {
 		eventType = "REACTIVATED"
 	}
 
@@ -219,7 +330,7 @@ func (r *BikeRepository) SetImmobilized(ctx context.Context, userID string, bike
 		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
 		VALUES ($1, $2, $3, $4, NOW())
 	`
-	if _, err := tx.Exec(ctx, eventQuery, bikeID, eventType, lat, lng); err != nil {
+	if _, err := tx.Exec(ctx, eventQuery, params.BikeID, eventType, lat, lng); err != nil {
 		return "", err
 	}
 
@@ -239,18 +350,6 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 	if b.DriverContactID != "" {
 		driverVal = b.DriverContactID
 	}
-	var riderNameVal any
-	if b.RiderName != "" {
-		riderNameVal = b.RiderName
-	}
-	var riderIDVal any
-	if b.RiderNationalID != "" {
-		riderIDVal = b.RiderNationalID
-	}
-	var riderPhoneVal any
-	if b.RiderPhone != "" {
-		riderPhoneVal = b.RiderPhone
-	}
 
 	query := `
 		UPDATE bikes
@@ -267,17 +366,13 @@ func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) 
 			county = $10,
 			geofence_id = $11,
 			driver_contact_id = $12,
-			rider_name = $13,
-			rider_national_id = $14,
-			rider_phone = $15,
-			updated_at = $16
-		WHERE user_id = $17 AND id = $18
+			updated_at = $13
+		WHERE user_id = $14 AND id = $15
 	`
 	tag, err := tx.Exec(ctx, query,
 		b.RegistrationNumber, b.Label, b.Make, b.Model, b.Year, b.Color,
 		b.Status, b.CurrentAddress, b.SubCounty, b.County,
 		geofenceVal, driverVal,
-		riderNameVal, riderIDVal, riderPhoneVal,
 		b.UpdatedAt,
 		b.UserID, b.ID,
 	)
@@ -325,14 +420,14 @@ func (r *BikeRepository) ExistsIMEI(ctx context.Context, imei string, excludeBik
 	return true, nil
 }
 
-func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID string, regNumber string, excludeBikeID string) (bool, error) {
+func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, params ExistsRegParams) (bool, error) {
 	var row pgx.Row
-	if excludeBikeID != "" {
+	if params.ExcludeBikeID != "" {
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) AND id != $3 LIMIT 1`
-		row = r.pool.QueryRow(ctx, query, userID, regNumber, excludeBikeID)
+		row = r.pool.QueryRow(ctx, query, params.UserID, params.RegNumber, params.ExcludeBikeID)
 	} else {
 		query := `SELECT 1 FROM bikes WHERE user_id = $1 AND LOWER(registration_number) = LOWER($2) LIMIT 1`
-		row = r.pool.QueryRow(ctx, query, userID, regNumber)
+		row = r.pool.QueryRow(ctx, query, params.UserID, params.RegNumber)
 	}
 	var val int
 	err := row.Scan(&val)
@@ -345,49 +440,66 @@ func (r *BikeRepository) ExistsRegistrationNumber(ctx context.Context, userID st
 	return true, nil
 }
 
-func (r *BikeRepository) GetBreadcrumbs(ctx context.Context, userID string, bikeID string, startDate string, endDate string, limit int) ([]domain.BreadcrumbDTO, error) {
-	if limit <= 0 || limit > 5000 {
-		limit = 1000
+func (r *BikeRepository) GetBreadcrumbs(
+	ctx context.Context,
+	params GetBreadcrumbsParams,
+) ([]domain.BreadcrumbDTO, domain.PaginationMeta, error) {
+	if params.Limit <= 0 || params.Limit > 1000 {
+		params.Limit = 25
 	}
 
-	var query string
-	var args []any
-
-	if startDate != "" && endDate != "" {
-		query = `
-			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
-			FROM bike_breadcrumbs bb
-			JOIN bikes b ON b.id = bb.bike_id
-			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3 AND bb.recorded_at <= $4
-			ORDER BY bb.recorded_at ASC
-			LIMIT $5
-		`
-		args = []any{userID, bikeID, startDate, endDate, limit}
-	} else if startDate != "" {
-		query = `
-			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
-			FROM bike_breadcrumbs bb
-			JOIN bikes b ON b.id = bb.bike_id
-			WHERE b.user_id = $1 AND bb.bike_id = $2 AND bb.recorded_at >= $3
-			ORDER BY bb.recorded_at ASC
-			LIMIT $4
-		`
-		args = []any{userID, bikeID, startDate, limit}
+	var total int
+	countQuery := `
+		SELECT COUNT(*)
+		FROM bike_breadcrumbs bb
+		JOIN bikes b ON b.id = bb.bike_id
+		WHERE b.user_id = $1 AND bb.bike_id = $2
+	`
+	var countArgs []any
+	if params.StartDate != "" && params.EndDate != "" {
+		countQuery += ` AND bb.recorded_at >= $3 AND bb.recorded_at <= $4`
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate, params.EndDate}
+	} else if params.StartDate != "" {
+		countQuery += ` AND bb.recorded_at >= $3`
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate}
 	} else {
-		query = `
-			SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
-			FROM bike_breadcrumbs bb
-			JOIN bikes b ON b.id = bb.bike_id
-			WHERE b.user_id = $1 AND bb.bike_id = $2
-			ORDER BY bb.recorded_at ASC
-			LIMIT $3
-		`
-		args = []any{userID, bikeID, limit}
+		countArgs = []any{params.UserID, params.BikeID}
 	}
+	_ = r.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&total)
+
+	whereClause := "b.user_id = $1 AND bb.bike_id = $2"
+	args := []any{params.UserID, params.BikeID}
+	argIdx := 3
+
+	if params.StartDate != "" && params.EndDate != "" {
+		whereClause += fmt.Sprintf(" AND bb.recorded_at >= $%d AND bb.recorded_at <= $%d", argIdx, argIdx+1)
+		args = append(args, params.StartDate, params.EndDate)
+		argIdx += 2
+	} else if params.StartDate != "" {
+		whereClause += fmt.Sprintf(" AND bb.recorded_at >= $%d", argIdx)
+		args = append(args, params.StartDate)
+		argIdx++
+	}
+
+	if params.Cursor > 0 {
+		whereClause += fmt.Sprintf(" AND bb.id > $%d", argIdx)
+		args = append(args, params.Cursor)
+		argIdx++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT bb.id, bb.bike_id, bb.latitude, bb.longitude, COALESCE(bb.accuracy, 0.0), COALESCE(bb.loc_type, 'gps'), bb.speed_kmh, bb.heading_deg, bb.ignition, bb.battery_percent, bb.address, bb.geofence_breach, bb.recorded_at
+		FROM bike_breadcrumbs bb
+		JOIN bikes b ON b.id = bb.bike_id
+		WHERE %s
+		ORDER BY bb.id ASC
+		LIMIT $%d
+	`, whereClause, argIdx)
+	args = append(args, params.Limit+1)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, domain.PaginationMeta{}, err
 	}
 	defer rows.Close()
 
@@ -396,61 +508,106 @@ func (r *BikeRepository) GetBreadcrumbs(ctx context.Context, userID string, bike
 		var p domain.BreadcrumbDTO
 		err := rows.Scan(
 			&p.ID, &p.BikeID, &p.Latitude, &p.Longitude,
+			&p.Accuracy, &p.LocType,
 			&p.SpeedKMH, &p.HeadingDeg, &p.Ignition,
 			&p.BatteryPercent, &p.Address, &p.GeofenceBreach, &p.RecordedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, domain.PaginationMeta{}, err
 		}
 		points = append(points, p)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, domain.PaginationMeta{}, err
+	}
 
-	return points, rows.Err()
+	hasMore := len(points) > params.Limit
+	var nextCursor int64
+	if hasMore {
+		nextCursor = points[params.Limit-1].ID
+		points = points[:params.Limit]
+	}
+
+	cursorStr := ""
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
+	}
+	nextCursorStr := ""
+	if nextCursor > 0 {
+		nextCursorStr = strconv.FormatInt(nextCursor, 10)
+	}
+
+	meta := domain.PaginationMeta{
+		Total:      total,
+		Limit:      params.Limit,
+		Cursor:     cursorStr,
+		NextCursor: nextCursorStr,
+		HasMore:    hasMore,
+	}
+
+	return points, meta, nil
 }
 
-func (r *BikeRepository) GetEvents(ctx context.Context, userID string, bikeID string, startDate string, endDate string, limit int) ([]domain.BikeEventDTO, error) {
-	if limit <= 0 || limit > 5000 {
-		limit = 1000
+func (r *BikeRepository) GetEvents(
+	ctx context.Context,
+	params GetEventsParams,
+) ([]domain.BikeEventDTO, domain.PaginationMeta, error) {
+	if params.Limit <= 0 || params.Limit > 1000 {
+		params.Limit = 25
 	}
 
-	var query string
-	var args []any
-
-	if startDate != "" && endDate != "" {
-		query = `
-			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
-			FROM bike_events be
-			JOIN bikes b ON b.id = be.bike_id
-			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3 AND be.recorded_at <= $4
-			ORDER BY be.recorded_at ASC
-			LIMIT $5
-		`
-		args = []any{userID, bikeID, startDate, endDate, limit}
-	} else if startDate != "" {
-		query = `
-			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
-			FROM bike_events be
-			JOIN bikes b ON b.id = be.bike_id
-			WHERE b.user_id = $1 AND be.bike_id = $2 AND be.recorded_at >= $3
-			ORDER BY be.recorded_at ASC
-			LIMIT $4
-		`
-		args = []any{userID, bikeID, startDate, limit}
+	var total int
+	countQuery := `
+		SELECT COUNT(*)
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE b.user_id = $1 AND be.bike_id = $2
+	`
+	var countArgs []any
+	if params.StartDate != "" && params.EndDate != "" {
+		countQuery += ` AND be.recorded_at >= $3 AND be.recorded_at <= $4`
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate, params.EndDate}
+	} else if params.StartDate != "" {
+		countQuery += ` AND be.recorded_at >= $3`
+		countArgs = []any{params.UserID, params.BikeID, params.StartDate}
 	} else {
-		query = `
-			SELECT be.id, be.bike_id, be.event_type, be.latitude, be.longitude, be.recorded_at
-			FROM bike_events be
-			JOIN bikes b ON b.id = be.bike_id
-			WHERE b.user_id = $1 AND be.bike_id = $2
-			ORDER BY be.recorded_at ASC
-			LIMIT $3
-		`
-		args = []any{userID, bikeID, limit}
+		countArgs = []any{params.UserID, params.BikeID}
 	}
+	_ = r.pool.QueryRow(ctx, countQuery, countArgs...).Scan(&total)
+
+	whereClause := "b.user_id = $1 AND be.bike_id = $2"
+	args := []any{params.UserID, params.BikeID}
+	argIdx := 3
+
+	if params.StartDate != "" && params.EndDate != "" {
+		whereClause += fmt.Sprintf(" AND be.recorded_at >= $%d AND be.recorded_at <= $%d", argIdx, argIdx+1)
+		args = append(args, params.StartDate, params.EndDate)
+		argIdx += 2
+	} else if params.StartDate != "" {
+		whereClause += fmt.Sprintf(" AND be.recorded_at >= $%d", argIdx)
+		args = append(args, params.StartDate)
+		argIdx++
+	}
+
+	if params.Cursor > 0 {
+		whereClause += fmt.Sprintf(" AND be.id > $%d", argIdx)
+		args = append(args, params.Cursor)
+		argIdx++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT be.id, be.bike_id, b.registration_number, COALESCE(b.model, ''), be.event_type, be.latitude, be.longitude, be.recorded_at
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE %s
+		ORDER BY be.id ASC
+		LIMIT $%d
+	`, whereClause, argIdx)
+	args = append(args, params.Limit+1)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, domain.PaginationMeta{}, err
 	}
 	defer rows.Close()
 
@@ -458,13 +615,303 @@ func (r *BikeRepository) GetEvents(ctx context.Context, userID string, bikeID st
 	for rows.Next() {
 		var e domain.BikeEventDTO
 		err := rows.Scan(
-			&e.ID, &e.BikeID, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
+			&e.ID, &e.BikeID, &e.RegistrationNumber, &e.Model, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, domain.PaginationMeta{}, err
 		}
 		events = append(events, e)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, domain.PaginationMeta{}, err
+	}
 
-	return events, rows.Err()
+	hasMore := len(events) > params.Limit
+	var nextCursor int64
+	if hasMore {
+		nextCursor = events[params.Limit-1].ID
+		events = events[:params.Limit]
+	}
+
+	cursorStr := ""
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
+	}
+	nextCursorStr := ""
+	if nextCursor > 0 {
+		nextCursorStr = strconv.FormatInt(nextCursor, 10)
+	}
+
+	meta := domain.PaginationMeta{
+		Total:      total,
+		Limit:      params.Limit,
+		Cursor:     cursorStr,
+		NextCursor: nextCursorStr,
+		HasMore:    hasMore,
+	}
+
+	return events, meta, nil
+}
+
+func (r *BikeRepository) GetAllEvents(
+	ctx context.Context,
+	params GetAllEventsParams,
+) ([]domain.BikeEventDTO, domain.PaginationMeta, int, int, int, error) {
+	if params.Limit <= 0 || params.Limit > 100 {
+		params.Limit = 10
+	}
+
+	// 1. Fetch aggregate counts for the user across all bikes
+	var total, criticalCount, warningCount, infoCount int
+	countsQuery := `
+		SELECT 
+			COUNT(*),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%IMPACT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%' OR be.event_type ILIKE '%CUT%'),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%' OR be.event_type ILIKE '%UNAUTHOR%' OR (be.event_type ILIKE '%RFID%' AND be.event_type NOT ILIKE '%DISARM%' AND be.event_type NOT ILIKE '%ARM%')),
+			COUNT(*) FILTER (WHERE be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%' OR be.event_type ILIKE '%DISARM%' OR be.event_type ILIKE '%ARM%')
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE b.user_id = $1
+	`
+	_ = r.pool.QueryRow(ctx, countsQuery, params.UserID).Scan(&total, &criticalCount, &warningCount, &infoCount)
+
+	// 2. Build where clause
+	whereClause := "b.user_id = $1"
+	args := []any{params.UserID}
+	argIdx := 2
+
+	sev := strings.ToUpper(strings.TrimSpace(params.Severity))
+	switch sev {
+	case "CRITICAL":
+		whereClause += " AND (be.event_type ILIKE '%BREACH%' OR be.event_type ILIKE '%THEFT%' OR be.event_type ILIKE '%CRASH%' OR be.event_type ILIKE '%ACCIDENT%' OR be.event_type ILIKE '%IMPACT%' OR be.event_type ILIKE '%DURESS%' OR be.event_type ILIKE '%SOS%' OR be.event_type ILIKE '%CUT%')"
+	case "WARNING":
+		whereClause += " AND (be.event_type ILIKE '%TOUCH%' OR be.event_type ILIKE '%TAMPER%' OR be.event_type ILIKE '%TILT%' OR be.event_type ILIKE '%LIFT%' OR be.event_type ILIKE '%SHOCK%' OR be.event_type ILIKE '%VIBRAT%' OR be.event_type ILIKE '%BURGLARY%' OR be.event_type ILIKE '%UNAUTHOR%' OR (be.event_type ILIKE '%RFID%' AND be.event_type NOT ILIKE '%DISARM%' AND be.event_type NOT ILIKE '%ARM%'))"
+	case "INFO":
+		whereClause += " AND (be.event_type ILIKE '%ON%' OR be.event_type ILIKE '%OFF%' OR be.event_type ILIKE '%IMMOBILIZ%' OR be.event_type ILIKE '%REACTIVAT%' OR be.event_type ILIKE '%DISARM%' OR be.event_type ILIKE '%ARM%')"
+	}
+
+	filteredTotal := total
+	if sev == "CRITICAL" {
+		filteredTotal = criticalCount
+	} else if sev == "WARNING" {
+		filteredTotal = warningCount
+	} else if sev == "INFO" {
+		filteredTotal = infoCount
+	}
+
+	if params.Cursor > 0 {
+		whereClause += fmt.Sprintf(" AND be.id < $%d", argIdx)
+		args = append(args, params.Cursor)
+		argIdx++
+	}
+
+	query := fmt.Sprintf(`
+		SELECT be.id, be.bike_id, b.registration_number, COALESCE(b.model, ''), be.event_type, be.latitude, be.longitude, be.recorded_at
+		FROM bike_events be
+		JOIN bikes b ON b.id = be.bike_id
+		WHERE %s
+		ORDER BY be.id DESC
+		LIMIT $%d
+	`, whereClause, argIdx)
+	args = append(args, params.Limit+1)
+
+	rows, err := r.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, domain.PaginationMeta{}, 0, 0, 0, err
+	}
+	defer rows.Close()
+
+	var events []domain.BikeEventDTO
+	for rows.Next() {
+		var e domain.BikeEventDTO
+		err := rows.Scan(
+			&e.ID, &e.BikeID, &e.RegistrationNumber, &e.Model, &e.EventType, &e.Latitude, &e.Longitude, &e.RecordedAt,
+		)
+		if err != nil {
+			return nil, domain.PaginationMeta{}, 0, 0, 0, err
+		}
+		events = append(events, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, domain.PaginationMeta{}, 0, 0, 0, err
+	}
+
+	hasMore := len(events) > params.Limit
+	var nextCursor int64
+	if hasMore {
+		nextCursor = events[params.Limit-1].ID
+		events = events[:params.Limit]
+	}
+
+	cursorStr := ""
+	if params.Cursor > 0 {
+		cursorStr = strconv.FormatInt(params.Cursor, 10)
+	}
+	nextCursorStr := ""
+	if nextCursor > 0 {
+		nextCursorStr = strconv.FormatInt(nextCursor, 10)
+	}
+
+	meta := domain.PaginationMeta{
+		Total:      filteredTotal,
+		Limit:      params.Limit,
+		Cursor:     cursorStr,
+		NextCursor: nextCursorStr,
+		HasMore:    hasMore,
+	}
+
+	return events, meta, criticalCount, warningCount, infoCount, nil
+}
+
+func (r *BikeRepository) VerifyTracker(ctx context.Context, imei string) (*domain.TrackerStatusDTO, error) {
+	queryTracker := `
+		SELECT id, imei, COALESCE(model, ''), COALESCE(status, 'AVAILABLE')
+		FROM trackers
+		WHERE imei = $1
+		LIMIT 1
+	`
+	var trkID, trkIMEI, model, status string
+	err := r.pool.QueryRow(ctx, queryTracker, imei).Scan(&trkID, &trkIMEI, &model, &status)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	// Check if claimed in bikes
+	var bikeID string
+	queryBike := `SELECT id FROM bikes WHERE imei = $1 LIMIT 1`
+	err = r.pool.QueryRow(ctx, queryBike, imei).Scan(&bikeID)
+	if err == nil {
+		return &domain.TrackerStatusDTO{
+			IMEI:      trkIMEI,
+			Model:     model,
+			Status:    "CLAIMED",
+			IsClaimed: true,
+		}, nil
+	}
+
+	// Check if assigned in active tracker_assignments
+	var assignID string
+	queryAssignment := `
+		SELECT id FROM tracker_assignments
+		WHERE tracker_id = $1 AND unassigned_at IS NULL
+		LIMIT 1
+	`
+	err = r.pool.QueryRow(ctx, queryAssignment, trkID).Scan(&assignID)
+	if err == nil {
+		return &domain.TrackerStatusDTO{
+			IMEI:      trkIMEI,
+			Model:     model,
+			Status:    "CLAIMED",
+			IsClaimed: true,
+		}, nil
+	}
+
+	return &domain.TrackerStatusDTO{
+		IMEI:      trkIMEI,
+		Model:     model,
+		Status:    "AVAILABLE",
+		IsClaimed: false,
+	}, nil
+}
+
+func (r *BikeRepository) AttachBikeWithRider(ctx context.Context, userID string, req domain.AttachBikeRequest) (*domain.Bike, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	// 1. Find tracker
+	queryTracker := `SELECT id, COALESCE(model, '') FROM trackers WHERE imei = $1 LIMIT 1`
+	var trackerID, trackerModel string
+	err = tx.QueryRow(ctx, queryTracker, req.IMEI).Scan(&trackerID, &trackerModel)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	// 2. Insert driver contact
+	driverContactID := uuid.New().String()
+	insertDriverQuery := `
+		INSERT INTO driver_contacts (id, user_id, name, phone, email, national_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+	`
+	_, err = tx.Exec(ctx, insertDriverQuery, driverContactID, userID, req.RiderName, req.RiderPhone, req.RiderEmail, req.RiderNationalID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save driver contact: %w", err)
+	}
+
+	// 3. Create Bike
+	bikeID := uuid.New().String()
+	now := time.Now().UTC()
+	year := req.Year
+	if year <= 0 {
+		year = now.Year()
+	}
+
+	label := req.Label
+	if label == "" {
+		label = fmt.Sprintf("%s %s", req.Make, req.Model)
+	}
+
+	bike := domain.Bike{
+		ID:                 bikeID,
+		UserID:             userID,
+		RegistrationNumber: req.RegistrationNumber,
+		Label:              label,
+		Make:               req.Make,
+		Model:              req.Model,
+		Year:               year,
+		Color:              req.Color,
+		IMEI:               req.IMEI,
+		Status:             "STOPPED",
+		Ignition:           false,
+		SpeedKMH:           0.0,
+		HeadingDeg:         0.0,
+		Latitude:           0.0,
+		Longitude:          0.0,
+		Accuracy:           0.0,
+		LocType:            "gps",
+		CurrentAddress:     "",
+		SubCounty:          req.SubCounty,
+		County:             req.County,
+		BatteryPercent:     100,
+		SignalQualityCSQ:   20,
+		LastTelemetryAt:    nil,
+		DriverContactID:    driverContactID,
+		IsImmobilized:      false,
+		CreatedAt:          now,
+		UpdatedAt:          now,
+	}
+
+	if err := r.Create(ctx, tx, &bike); err != nil {
+		return nil, fmt.Errorf("failed to create bike: %w", err)
+	}
+
+	// 4. Create tracker assignment
+	assignmentID := uuid.New().String()
+	insertAssignmentQuery := `
+		INSERT INTO tracker_assignments (id, tracker_id, bike_id, assigned_at, created_at)
+		VALUES ($1, $2, $3, NOW(), NOW())
+	`
+	if _, err := tx.Exec(ctx, insertAssignmentQuery, assignmentID, trackerID, bikeID); err != nil {
+		return nil, fmt.Errorf("failed to assign tracker: %w", err)
+	}
+
+	// 5. Update tracker status
+	updateTrackerQuery := `UPDATE trackers SET status = 'ACTIVE', updated_at = NOW() WHERE id = $1`
+	if _, err := tx.Exec(ctx, updateTrackerQuery, trackerID); err != nil {
+		return nil, fmt.Errorf("failed to update tracker status: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return &bike, nil
 }

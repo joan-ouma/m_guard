@@ -1,67 +1,322 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
+import { BikeService } from '../core/services/bike.service';
+import { BikeEventDTO, PaginatedEventsResponse } from '../core/models/bike.models';
+
+export interface DisplayAlert {
+  id: string | number;
+  bikeId: string;
+  plate: string;
+  model: string;
+  eventType: string;
+  title: string;
+  description: string;
+  severity: 'critical' | 'warning' | 'info';
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+}
 
 @Component({
   selector: 'app-alerts',
   standalone: true,
-  imports: [CommonModule, RouterLink],
-  template: `
-<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
-  <aside class="w-72 bg-white border-r border-zinc-200 flex flex-col justify-between shrink-0 z-30">
-    <div>
-      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
-        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-        </div>
-        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
-      </div>
-      <nav class="p-4 space-y-2">
-        <a routerLink="/" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg> Home
-        </a>
-        <a routerLink="/bikes" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-          </svg> Bikes
-        </a>
-        <a routerLink="/history" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg> History
-        </a>
-        <a routerLink="/alerts" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold bg-zinc-900 text-white shadow-xs">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg> Alerts
-        </a>
-        <a routerLink="/settings" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors">
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg> Settings
-        </a>
-      </nav>
-    </div>
-  </aside>
-  <div class="flex-1 flex flex-col h-full overflow-y-auto bg-zinc-50 p-8">
-    <div class="max-w-4xl mx-auto w-full">
-      <h1 class="text-3xl font-black tracking-tight text-zinc-900 mb-2">Alerts & Notifications</h1>
-      <p class="text-zinc-500 mb-8">View two-stage silent alerts, confirmed theft alerts, and history.</p>
-      
-      <div class="bg-white rounded-2xl border border-zinc-200 p-8 text-center">
-        <div class="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
-          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        </div>
-        <h3 class="text-lg font-bold text-zinc-900 mb-1">No Active Alerts</h3>
-        <p class="text-zinc-500 text-sm">Quiet pre-alerts and escalation notifications will appear here.</p>
-      </div>
-    </div>
-  </div>
-</div>
-  `
+  imports: [CommonModule, RouterLink, RouterLinkActive, MobileNavComponent],
+  templateUrl: './alerts.component.html'
 })
-export class AlertsComponent {}
+export class AlertsComponent implements OnInit {
+  private readonly bikeService = inject(BikeService);
+
+  readonly isLoading = signal<boolean>(true);
+  readonly alerts = signal<DisplayAlert[]>([]);
+  readonly selectedSeverity = signal<'ALL' | 'critical' | 'warning' | 'info'>('ALL');
+
+  // Aggregate metrics from backend
+  readonly totalEvents = signal<number>(0);
+  readonly criticalCount = signal<number>(0);
+  readonly warningCount = signal<number>(0);
+  readonly infoCount = signal<number>(0);
+  readonly activeBikesCount = signal<number>(0);
+
+  // Cursor pagination state
+  readonly pageSize = signal<number>(10);
+  readonly pageSizes = [10, 25, 50, 100];
+  readonly cursorStack = signal<string[]>([]);
+  readonly nextCursor = signal<string | null>(null);
+  readonly hasMore = signal<boolean>(false);
+
+  readonly currentPage = computed<number>(() => this.cursorStack().length + 1);
+  readonly hasPrev = computed<boolean>(() => this.cursorStack().length > 0);
+  readonly hasNext = computed<boolean>(() => this.hasMore());
+  readonly totalPages = computed<number>(() => {
+    return Math.max(1, Math.ceil(this.totalEvents() / this.pageSize()));
+  });
+
+  constructor() {
+    // Listen to live SSE alerts from the backend
+    effect(() => {
+      const live = this.bikeService.latestAlert();
+      if (!live) return;
+
+      const evType = live.event_type || live.eventType || 'ALERT';
+      const plate = live.plate || live.registration_number || 'Motorcycle';
+      const sev = this.classifySeverity(evType);
+
+      const newAlert: DisplayAlert = {
+        id: 'live_' + Date.now(),
+        bikeId: live.bike_id || live.bikeId || '',
+        plate: plate,
+        model: live.model || '',
+        eventType: evType,
+        title: live.title || this.formatTitle(evType),
+        description: live.activity || live.message || this.formatDescription(evType, plate),
+        severity: sev,
+        latitude: Number(live.latitude) || 0,
+        longitude: Number(live.longitude) || 0,
+        timestamp: live.recorded_at || live.recordedAt || new Date().toISOString(),
+      };
+
+      // If user is on page 1, prepend immediately
+      if (this.cursorStack().length === 0) {
+        const curSev = this.selectedSeverity();
+        if (curSev === 'ALL' || curSev === sev) {
+          this.alerts.update((prev) => [newAlert, ...prev]);
+        }
+      }
+
+      this.totalEvents.update((n) => n + 1);
+      if (sev === 'critical') this.criticalCount.update((c) => c + 1);
+      else if (sev === 'warning') this.warningCount.update((c) => c + 1);
+      else if (sev === 'info') this.infoCount.update((c) => c + 1);
+    });
+  }
+
+  ngOnInit(): void {
+    // Load bikes count for top metric card
+    this.bikeService.loadBikes().subscribe({
+      next: (res) => this.activeBikesCount.set(res.data?.length || 0),
+    });
+
+    this.loadAlerts();
+  }
+
+  loadAlerts(): void {
+    this.isLoading.set(true);
+
+    const cursor = this.cursorStack().length > 0 
+      ? this.cursorStack()[this.cursorStack().length - 1] 
+      : undefined;
+
+    this.bikeService.getAllEvents(this.pageSize(), cursor, this.selectedSeverity()).subscribe({
+      next: (res: PaginatedEventsResponse) => {
+        const list: DisplayAlert[] = (res.data || []).map((ev: BikeEventDTO) => ({
+          id: ev.id,
+          bikeId: ev.bike_id,
+          plate: ev.registration_number || 'Motorcycle',
+          model: ev.model || '',
+          eventType: ev.event_type,
+          title: this.formatTitle(ev.event_type),
+          description: this.formatDescription(ev.event_type, ev.registration_number || 'Motorcycle'),
+          severity: this.classifySeverity(ev.event_type),
+          latitude: ev.latitude,
+          longitude: ev.longitude,
+          timestamp: ev.recorded_at,
+        }));
+
+        this.alerts.set(list);
+        this.nextCursor.set(res.pagination?.next_cursor || null);
+        this.hasMore.set(res.pagination?.has_more || false);
+        this.totalEvents.set(res.pagination?.total || 0);
+
+        if (res.critical_count !== undefined) this.criticalCount.set(res.critical_count);
+        if (res.warning_count !== undefined) this.warningCount.set(res.warning_count);
+        if (res.info_count !== undefined) this.infoCount.set(res.info_count);
+
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  prevPage(): void {
+    if (this.cursorStack().length > 0) {
+      this.cursorStack.update((stack) => stack.slice(0, -1));
+      this.loadAlerts();
+    }
+  }
+
+  nextPage(): void {
+    const next = this.nextCursor();
+    if (next && this.hasMore()) {
+      this.cursorStack.update((stack) => [...stack, next]);
+      this.loadAlerts();
+    }
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.cursorStack.set([]);
+    this.loadAlerts();
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = parseInt((event.target as HTMLSelectElement).value, 10);
+    if (!isNaN(val) && val > 0) {
+      this.setPageSize(val);
+    }
+  }
+
+  setSeverity(sev: 'ALL' | 'critical' | 'warning' | 'info'): void {
+    this.selectedSeverity.set(sev);
+    this.cursorStack.set([]);
+    this.loadAlerts();
+  }
+
+  private classifySeverity(type?: string): 'critical' | 'warning' | 'info' {
+    const t = (type || '').toUpperCase();
+    if (
+      t.includes('IMPACT') ||
+      t.includes('CRASH') ||
+      t.includes('ACCIDENT') ||
+      t.includes('BREACH') ||
+      t.includes('THEFT') ||
+      t.includes('DURESS') ||
+      t.includes('SOS') ||
+      t.includes('CUT')
+    ) {
+      return 'critical';
+    }
+    if (
+      t.includes('UNAUTHOR') ||
+      (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN'))) ||
+      t.includes('TOUCH') ||
+      t.includes('TAMPER') ||
+      t.includes('TILT') ||
+      t.includes('LIFT') ||
+      t.includes('SHOCK') ||
+      t.includes('VIBRAT') ||
+      t.includes('BURGLARY')
+    ) {
+      return 'warning';
+    }
+    return 'info';
+  }
+
+  formatTitle(type: string): string {
+    const raw = (type || '').trim();
+    const t = raw.toUpperCase();
+
+    if (t.includes('IMPACT') || t.includes('CRASH') || t.includes('ACCIDENT')) return `Crash / Heavy Impact Detected`;
+    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN')))) {
+      return `Unauthorized Key Scanned`;
+    }
+    if (t.includes('DISARM')) return `Disarmed via Key Card`;
+    if (t.includes('ARM')) return `Armed via Key Card`;
+    if (t.includes('TILT') || t.includes('LIFT')) return `Bike Tilted or Moved`;
+    if (t.includes('BURGLARY') || t.includes('THEFT')) return `Theft Attempt`;
+    if (t.includes('BREACH') || t.includes('EXIT')) return `Left Safe Area`;
+    if (t.includes('ENTER') || t.includes('ENTRY')) return `Entered Safe Area`;
+    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) return `Tampering Detected`;
+    if (t.includes('DURESS') || t.includes('SOS')) return `Emergency SOS Alert`;
+    if (t.includes('SPEED') || t.includes('OVERSPEED')) return `High Speed Warning`;
+    if (t.includes('POWER_CUT') || t.includes('WIRE_CUT') || t.includes('CUT')) return `Tracker Power Disconnected`;
+    if (t.includes('POWER') || t.includes('BATTERY') || t.includes('BAT')) return `Low Battery Warning`;
+    if (t.includes('IGNITION_ON') || t.includes('BIKE_ON') || (t.startsWith('ON') && !t.includes('DISARM'))) return `Engine Started`;
+    if (t.includes('IGNITION_OFF') || t.includes('BIKE_OFF') || t.startsWith('OFF')) return `Engine Turned Off`;
+    if (t.includes('IMMOBILIZ')) return `Engine Locked`;
+    if (t.includes('REACTIVAT')) return `Engine Unlocked`;
+
+    // Smart fallback: capitalize raw string like "rfid_unauthorized_scan" -> "Rfid Unauthorized Scan"
+    if (raw.length > 0) {
+      return raw.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return `Security Event`;
+  }
+
+  formatDescription(type: string, plate: string): string {
+    const raw = (type || '').trim();
+    const t = raw.toUpperCase();
+
+    if (t.includes('IMPACT') || t.includes('CRASH') || t.includes('ACCIDENT')) {
+      return `A sudden heavy impact or collision was detected on your motorcycle.`;
+    }
+    if (t.includes('UNAUTHOR') || (t.includes('RFID') && (t.includes('FAIL') || t.includes('DENIED') || t.includes('INVALID') || t.includes('SCAN')))) {
+      return `An unrecognized RFID key card attempted to scan or access your motorcycle.`;
+    }
+    if (t.includes('DISARM')) {
+      return `Your motorcycle security system was disarmed using an authorized key card.`;
+    }
+    if (t.includes('ARM')) {
+      return `Your motorcycle security system was armed using an authorized key card.`;
+    }
+    if (t.includes('TILT') || t.includes('LIFT')) {
+      return `Your motorcycle was moved, tilted, or lifted while parked.`;
+    }
+    if (t.includes('BURGLARY') || t.includes('THEFT')) {
+      return `Suspicious movement detected while your motorcycle is parked and locked.`;
+    }
+    if (t.includes('BREACH')) {
+      return `Your motorcycle has moved outside of your safe boundary.`;
+    }
+    if (t.includes('ENTER') || t.includes('ENTRY')) {
+      return `Your motorcycle has returned inside your safe boundary.`;
+    }
+    if (t.includes('TAMPER') || t.includes('TOUCH') || t.includes('SHOCK') || t.includes('VIBRAT')) {
+      return `Someone may be touching, shaking, or tampering with your motorcycle.`;
+    }
+    if (t.includes('DURESS') || t.includes('SOS')) {
+      return `The emergency SOS button was pressed on your motorcycle.`;
+    }
+    if (t.includes('SPEED') || t.includes('OVERSPEED')) {
+      return `Your motorcycle exceeded the maximum speed threshold.`;
+    }
+    if (t.includes('POWER_CUT') || t.includes('WIRE_CUT') || t.includes('CUT')) {
+      return `Main power to the motorcycle tracker was disconnected.`;
+    }
+    if (t.includes('POWER') || t.includes('BATTERY')) {
+      return `Your motorcycle tracker battery is critically low.`;
+    }
+    if (t.includes('IGNITION_ON') || t.includes('BIKE_ON') || (t.startsWith('ON') && !t.includes('DISARM'))) {
+      return `The motorcycle ignition was switched on.`;
+    }
+    if (t.includes('IGNITION_OFF') || t.includes('BIKE_OFF') || t.startsWith('OFF')) {
+      return `The motorcycle engine was shut down.`;
+    }
+    if (t.includes('IMMOBILIZ')) {
+      return `Engine locked remotely. Starter cannot be turned on.`;
+    }
+    if (t.includes('REACTIVAT')) {
+      return `Engine unlocked. Your motorcycle is ready to ride.`;
+    }
+
+    return `Hardware trigger recorded: ${raw.replace(/[-_]/g, ' ')}.`;
+  }
+
+  formatTimestamp(iso: string): string {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const now = Date.now();
+      const diffMs = now - d.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+
+      return d.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return iso;
+    }
+  }
+}

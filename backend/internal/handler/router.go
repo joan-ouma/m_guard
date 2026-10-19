@@ -2,61 +2,53 @@ package handler
 
 import (
 	"net/http"
+
+	"motoguard-backend/internal/domain"
+
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
-// RouterConfig contains dependencies required to assemble the HTTP router.
 type RouterConfig struct {
 	AuthHandler         *AuthHandler
 	BikeHandler         *BikeHandler
+	HealthHandler       *HealthHandler
+	NotificationHandler *NotificationHandler
+	SSEHandler          *SSEHandler
+	USSDHandler         *USSDHandler
 	AuthMiddleware      func(http.Handler) http.Handler
 	RateLimitMiddleware func(http.Handler) http.Handler
 }
 
-// NewRouter constructs and registers all API routes on a standard http.ServeMux.
-func NewRouter(cfg RouterConfig) *http.ServeMux {
-	mux := http.NewServeMux()
+func NewRouter(cfg RouterConfig) *chi.Mux {
+	r := chi.NewRouter()
 
-	authMW := cfg.AuthMiddleware
-	rateLimitMW := cfg.RateLimitMiddleware
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.RealIP)
+	r.Use(chimiddleware.Recoverer)
 
-	// User Registration
-	mux.Handle("POST /v1/users/register", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
-	mux.Handle("POST /v1/users", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Register)))
+	r.Get("/health", cfg.HealthHandler.Check)
+	r.Get("/v1/health", cfg.HealthHandler.Check)
 
-	// Authentication & Sessions
-	mux.Handle("POST /v1/sessions", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.Login)))
-	mux.Handle("PUT /v1/sessions/current", http.HandlerFunc(cfg.AuthHandler.Refresh))
-	mux.Handle("DELETE /v1/sessions/current", http.HandlerFunc(cfg.AuthHandler.Logout))
-	mux.Handle("GET /v1/sessions/current", authMW(http.HandlerFunc(cfg.AuthHandler.GetCurrent)))
+	r.Mount("/v1/users", cfg.AuthHandler.UserRoutes(cfg.RateLimitMiddleware))
+	r.Mount("/v1/sessions", cfg.AuthHandler.SessionRoutes(cfg.RateLimitMiddleware, cfg.AuthMiddleware))
+	r.Mount("/v1/password-resets", cfg.AuthHandler.PasswordResetRoutes(cfg.RateLimitMiddleware))
+	r.Mount("/v1/bikes", cfg.BikeHandler.Routes(cfg.AuthMiddleware, cfg.SSEHandler.Stream))
+	if cfg.NotificationHandler != nil {
+		r.Mount("/v1/notifications", cfg.NotificationHandler.Routes(cfg.AuthMiddleware))
+	}
 
-	// Password Recovery
-	mux.Handle("POST /v1/password-resets", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.RequestPasswordReset)))
-	mux.Handle("PATCH /v1/password-resets/{token}", rateLimitMW(http.HandlerFunc(cfg.AuthHandler.ConfirmPasswordReset)))
+	if cfg.USSDHandler != nil {
+		r.Mount("/ussd", cfg.USSDHandler.Routes())
+	}
 
-	// Fleet Management
-	mux.Handle("GET /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.List)))
-	mux.Handle("POST /v1/bikes", authMW(http.HandlerFunc(cfg.BikeHandler.Create)))
-	mux.Handle("GET /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.GetByID(w, r, getBikeID(r))
-	})))
-	mux.Handle("PUT /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.Update(w, r, getBikeID(r))
-	})))
-	mux.Handle("PATCH /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.Update(w, r, getBikeID(r))
-	})))
-	mux.Handle("DELETE /v1/bikes/{id}", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.Delete(w, r, getBikeID(r))
-	})))
-	mux.Handle("GET /v1/bikes/{id}/breadcrumbs", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.GetBreadcrumbs(w, r, getBikeID(r))
-	})))
-	mux.Handle("GET /v1/bikes/{id}/events", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.GetEvents(w, r, getBikeID(r))
-	})))
-	mux.Handle("POST /v1/bikes/{id}/immobilize", authMW(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.BikeHandler.Immobilize(w, r, getBikeID(r))
-	})))
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		domain.NewNotFoundError("Resource not found", r.URL.Path).WriteJSON(w)
+	})
 
-	return mux
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
+	})
+
+	return r
 }

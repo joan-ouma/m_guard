@@ -15,8 +15,8 @@ constexpr uint8_t MPU6500_I2C_ADDR    = 0x68;
 // Network & Broker Configuration
 const char* const BROKER_HOST         = "172.233.255.158";
 constexpr uint16_t BROKER_PORT        = 42519; // Make sure this matches your deployed MQTT port
-const char* const CLIENT_ID           = "860123456789001"; // IMEI of the SIM module
-const char* const TELEMETRY_TOPIC     = "motoguard/v1/telemetry/860123456789001";
+static String deviceImei              = "860123456789001"; // Dynamically queried via AT+GSN at boot
+static String telemetryTopic          = "motoguard/v1/telemetry/" + deviceImei;
 const char* const CELLULAR_APN        = "safaricom";
 
 // Scheduling Intervals
@@ -52,9 +52,17 @@ struct CellTowerInfo {
   int16_t  rssiDbm = -115; // Signal strength in dBm
 };
 
+struct CellNeighbor {
+  uint32_t lac = 0;
+  uint32_t cid = 0;
+  int16_t  rssiDbm = -115;
+};
+
 // Global System State
 static ImuData currentImu;
 static CellTowerInfo currentTower;
+static CellNeighbor neighborCells[7];
+static int neighborCellCount = 0;
 static LocationResult cachedLocation;
 
 static float deadReckonHeadingDeg = 0.0;
@@ -163,7 +171,8 @@ void updateHeadingFromGyro(float yawRate, float dt) {
   if (abs(yawRate) <= 1.2) return; // Guard: ignore stationary sensor noise
 
   deadReckonHeadingDeg += yawRate * dt;
-  deadReckonHeadingDeg = fmod(deadReckonHeadingDeg + 360.0, 360.0);
+  while (deadReckonHeadingDeg < 0.0) deadReckonHeadingDeg += 360.0;
+  while (deadReckonHeadingDeg >= 360.0) deadReckonHeadingDeg -= 360.0;
 }
 
 void updateSpeedFromMotion(bool inMotion, float dt) {
@@ -172,8 +181,10 @@ void updateSpeedFromMotion(bool inMotion, float dt) {
     deadReckonSpeedMps = (coasted < 0.3) ? 0.0 : coasted;
     return;
   }
-  // Accelerate in motion up to ~43 km/h
-  deadReckonSpeedMps = (deadReckonSpeedMps < 12.0) ? (deadReckonSpeedMps + 2.0 * dt) : deadReckonSpeedMps;
+  // When in motion, decay last confirmed speed smoothly instead of fabricating artificial speed
+  if (deadReckonSpeedMps > 0.0) {
+    deadReckonSpeedMps *= 0.99;
+  }
 }
 
 void projectDeadReckoningDisplacement(float dt) {
@@ -298,6 +309,66 @@ void updateServingCellTower(CellTowerInfo &tower) {
   parseSignalStrength(sendAT("AT+CSQ", 500), tower);
 }
 
+void scanNeighborCells() {
+  neighborCellCount = 0;
+  String resp = sendAT("AT+CENG?", 1200);
+  int startIdx = resp.indexOf("+CENG:");
+  if (startIdx == -1) return;
+
+  int searchPos = 0;
+  while (neighborCellCount < 7) {
+    int lineStart = resp.indexOf("+CENG:", searchPos);
+    if (lineStart == -1) break;
+
+    int lineEnd = resp.indexOf('\n', lineStart);
+    if (lineEnd == -1) lineEnd = resp.length();
+    String line = resp.substring(lineStart, lineEnd);
+    searchPos = lineEnd + 1;
+
+    int quoteStart = line.indexOf('\"');
+    int quoteEnd = line.lastIndexOf('\"');
+    if (quoteStart == -1 || quoteEnd <= quoteStart) continue;
+
+    String content = line.substring(quoteStart + 1, quoteEnd);
+    int commaCount = 0;
+    int prevComma = -1;
+    String tokens[12];
+    for (int i = 0; i <= (int)content.length(); i++) {
+      bool isComma = (i < (int)content.length() && content.charAt(i) == ',');
+      bool isEnd = (i == (int)content.length());
+      if (!isComma && !isEnd) continue;
+      if (commaCount < 12) {
+        tokens[commaCount++] = content.substring(prevComma + 1, i);
+      }
+      prevComma = i;
+    }
+
+    if (commaCount < 7) continue;
+
+    int rxlev = tokens[1].toInt();
+    int dbm = (rxlev > 0 && rxlev <= 63) ? (rxlev - 110) : -95;
+    uint32_t lac = 0;
+    uint32_t cid = 0;
+
+    bool isServing = line.startsWith("+CENG: 0");
+    if (isServing && commaCount >= 10) {
+      cid = strtoul(tokens[6].c_str(), NULL, 16);
+      lac = strtoul(tokens[9].c_str(), NULL, 16);
+    }
+    if (!isServing && commaCount >= 7) {
+      cid = strtoul(tokens[3].c_str(), NULL, 16);
+      lac = strtoul(tokens[6].c_str(), NULL, 16);
+    }
+
+    if (cid == 0 || lac == 0) continue;
+
+    neighborCells[neighborCellCount].lac = lac;
+    neighborCells[neighborCellCount].cid = cid;
+    neighborCells[neighborCellCount].rssiDbm = dbm;
+    neighborCellCount++;
+  }
+}
+
 LocationResult resolveBestLocation() {
   LocationResult loc;
 
@@ -313,8 +384,9 @@ LocationResult resolveBestLocation() {
     return loc;
   }
 
-  // Tier 3: Safaricom Cell Tower LAC/CID Lookup
+  // Tier 3: Safaricom Cell Tower LAC/CID Lookup & Multi-Cell Scan
   updateServingCellTower(currentTower);
+  scanNeighborCells();
 
   // Tier 4: Dead Reckoning (if moving and a valid previous fix exists)
   if (deadReckonSpeedMps > 1.0 && cachedLocation.lat != 0.0 && cachedLocation.lon != 0.0) {
@@ -394,24 +466,55 @@ bool connectTcpSocket() {
   return true;
 }
 
-void mqttSendConnectPacket() {
-  Serial.println("[MQTT] Transmitting Connect Packet...");
-  // MQTT v3.1.1 Connect (Clean Session, 60s KeepAlive, ID: 860123456789001)
-  uint8_t pkt[] = {
-    0x10, 27, 
-    0x00, 0x04, 'M', 'Q', 'T', 'T', 
-    0x04, 0x02, 0x00, 0x3C, 
-    0x00, 15, 
-    '8','6','0','1','2','3','4','5','6','7','8','9','0','0','1'
-  };
+void queryDeviceImei() {
+  String resp = sendAT("AT+GSN", 1000);
+  resp.trim();
+  for (int i = 0; i <= (int)resp.length() - 15; i++) {
+    bool isNumeric = true;
+    for (int j = 0; j < 15; j++) {
+      if (!isDigit(resp.charAt(i + j))) {
+        isNumeric = false;
+        break;
+      }
+    }
+    if (isNumeric) {
+      deviceImei = resp.substring(i, i + 15);
+      telemetryTopic = "motoguard/v1/telemetry/" + deviceImei;
+      Serial.println("[MODEM] Detected Device IMEI: " + deviceImei);
+      return;
+    }
+  }
+  Serial.println("[MODEM] Using fallback IMEI: " + deviceImei);
+}
 
-  sim868.println("AT+CIPSEND=29");
+void mqttSendConnectPacket() {
+  Serial.println("[MQTT] Transmitting Connect Packet for " + deviceImei + "...");
+  int idLen = deviceImei.length();
+  int varHeaderLen = 10;
+  int payloadLen = 2 + idLen;
+  int remLen = varHeaderLen + payloadLen;
+
+  sim868.print("AT+CIPSEND=");
+  sim868.println(1 + 1 + remLen);
   if (!waitPrompt()) {
     Serial.println("[MQTT] Connect prompt failed.");
     return;
   }
 
-  sim868.write(pkt, sizeof(pkt));
+  sim868.write(0x10); // CONNECT packet
+  sim868.write((uint8_t)remLen);
+  // Variable header: Protocol Name ("MQTT")
+  sim868.write((uint8_t)0x00);
+  sim868.write((uint8_t)0x04);
+  sim868.print("MQTT");
+  sim868.write((uint8_t)0x04); // Protocol Level 4 (MQTT v3.1.1)
+  sim868.write((uint8_t)0x02); // Connect Flags: Clean Session
+  sim868.write((uint8_t)0x00); // Keep Alive MSB
+  sim868.write((uint8_t)0x3C); // Keep Alive LSB (60s)
+  // Payload: Client Identifier
+  sim868.write((uint8_t)(idLen >> 8));
+  sim868.write((uint8_t)(idLen & 0xFF));
+  sim868.print(deviceImei);
   delay(400); // Allow broker to process and acknowledge
 }
 
@@ -426,7 +529,7 @@ bool mqttPublishPayload(const String &payload) {
     return false;
   }
 
-  int topicLen = strlen(TELEMETRY_TOPIC);
+  int topicLen = telemetryTopic.length();
   int payloadLen = payload.length();
   int remLen = 2 + topicLen + payloadLen;
 
@@ -457,7 +560,7 @@ bool mqttPublishPayload(const String &payload) {
   for (int i = 0; i < remCount; i++) sim868.write(remBytes[i]);
   sim868.write(topicLen >> 8);   // Topic length MSB
   sim868.write(topicLen & 0xFF); // Topic length LSB
-  sim868.print(TELEMETRY_TOPIC);
+  sim868.print(telemetryTopic);
   sim868.print(payload);
   Serial.println("[MQTT] Telemetry Published Successfully!");
   return true;
@@ -467,7 +570,21 @@ bool mqttPublishPayload(const String &payload) {
 // TELEMETRY SERIALIZATION & DISPATCH
 // ============================================================================
 
+int queryBatteryPercent() {
+  String resp = sendAT("AT+CBC", 500);
+  int idx = resp.indexOf("+CBC: ");
+  if (idx == -1) return 0;
+  int c1 = resp.indexOf(',', idx);
+  if (c1 == -1) return 0;
+  int c2 = resp.indexOf(',', c1 + 1);
+  if (c2 == -1) return 0;
+  return resp.substring(c1 + 1, c2).toInt();
+}
+
 String serializeTelemetry(const LocationResult &loc, const ImuData &imu) {
+  int bat = queryBatteryPercent();
+  bool ign = (deadReckonSpeedMps > 0.3) || (loc.speedKmh > 1.0);
+
   String json = "{";
   json += "\"lat\":" + String(loc.lat, 6) + ",";
   json += "\"lng\":" + String(loc.lon, 6) + ",";
@@ -477,13 +594,21 @@ String serializeTelemetry(const LocationResult &loc, const ImuData &imu) {
   json += "\"lac\":" + String(currentTower.lac) + ",";
   json += "\"cid\":" + String(currentTower.cid) + ",";
   json += "\"csq\":" + String(currentTower.csq) + ",";
-  json += "\"bat\":100,"; // ADDED: Required by backend
+  json += "\"bat\":" + String(bat) + ",";
   json += "\"rssi_dbm\":" + String(currentTower.rssiDbm) + ",";
-  json += "\"spd\":" + String(deadReckonSpeedMps * 3.6, 1) + ","; // FIX: 'spd' instead of 'speed'
-  json += "\"hdg\":" + String(deadReckonHeadingDeg, 1) + ","; // FIX: 'hdg' instead of 'heading'
-  json += "\"ign\":true,";
+  json += "\"spd\":" + String(deadReckonSpeedMps * 3.6, 1) + ",";
+  json += "\"hdg\":" + String(deadReckonHeadingDeg, 1) + ",";
+  json += "\"ign\":" + String(ign ? "true" : "false") + ",";
   json += "\"ax\":" + String(imu.ax) + ",\"ay\":" + String(imu.ay) + ",\"az\":" + String(imu.az) + ",";
   json += "\"gx\":" + String(imu.gx) + ",\"gy\":" + String(imu.gy) + ",\"gz\":" + String(imu.gz);
+  if (neighborCellCount > 0) {
+    json += ",\"cells\":[";
+    for (int i = 0; i < neighborCellCount; i++) {
+      if (i > 0) json += ",";
+      json += "{\"lac\":" + String(neighborCells[i].lac) + ",\"cid\":" + String(neighborCells[i].cid) + ",\"dbm\":" + String(neighborCells[i].rssiDbm) + "}";
+    }
+    json += "]";
+  }
   json += "}";
   return json;
 }
@@ -536,6 +661,7 @@ void setup() {
 
   sim868.begin(9600, SERIAL_8N1, PIN_SIM868_RX, PIN_SIM868_TX);
   powerOnModem();
+  queryDeviceImei();
 
   sendAT("ATE0");       // Disable command echo
   sendAT("AT+CFUN=1");  // Ensure full radio functionality is enabled

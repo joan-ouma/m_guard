@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tracker Attached - MotoGuard</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111; line-height: 1.5; padding: 20px;">
+  <h2>Tracker Attached to Your Motorcycle</h2>
+  <p>Hello {{.RiderName}},</p>
+  <p>A GPS tracker has been attached to your motorcycle. You are registered as the rider for this bike.</p>
+  <ul>
+    <li><strong>Number Plate:</strong> {{.BikeRegistration}}</li>
+    <li><strong>Motorcycle:</strong> {{.BikeMake}} {{.BikeModel}}</li>
+    <li><strong>Tracker IMEI:</strong> {{.IMEI}}</li>
+    <li><strong>Attached On:</strong> {{.AttachedAt}}</li>
+  </ul>
+  <p><a href="{{.DashboardURL}}">Open MotoGuard</a></p>
+  <p style="color: #666; font-size: 13px;">If this was not done with your permission, contact us at <a href="mailto:{{.ReplyToEmail}}">{{.ReplyToEmail}}</a>.</p>
+</body>
+</html>

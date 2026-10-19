@@ -1,18 +1,21 @@
 .PHONY: all run stop clean db-restore
 
+-include .env
+-include backend/.env
+
 DATABASE_URL ?= postgres://postgres:postgres@localhost:5433/motoguard?sslmode=disable
-JWT_SECRET ?= motoguard-production-enterprise-secret-key-32bytes
+JWT_SECRET ?= dev-secret-key-change-in-production
 PORT ?= 8080
-CORS_ORIGINS ?= http://localhost:4200
 MQTT_BROKER_URL ?= tcp://localhost:1883
-MQTT_USERNAME ?= tracker
-MQTT_PASSWORD ?= ~:!Nu2>#6TDe5Y+
+MQTT_USERNAME ?=
+MQTT_PASSWORD ?=
 FRONTEND_URL ?= http://localhost:4200
-MAILJET_API_KEY ?= b0db02dc22bbde39a369687dce33bc1c
-MAILJET_SECRET_KEY ?= b5cd5867d7906029a7fd2debad0cc8a4
-MAILJET_SENDER_EMAIL ?= no-reply@jullie.tech
-MAILJET_REPLY_TO_EMAIL ?= hello@jullie.tech
+MAILJET_API_KEY ?=
+MAILJET_SECRET_KEY ?=
+MAILJET_SENDER_EMAIL ?=
+MAILJET_REPLY_TO_EMAIL ?=
 MAILJET_SENDER_NAME ?= MGuard
+LOG_FILE ?= ./logs/app.log
 
 all: run
 
@@ -41,3 +44,14 @@ stop:
 clean: stop
 	@rm -f backend/server
 	@rm -rf frontend/dist
+
+DB_USER ?= postgres
+DB_PASSWORD ?= postgres
+
+migrate:
+	@echo "==> Running Liquibase migrations..."
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) update
+
+migrate-status:
+	@echo "==> Checking Liquibase migration status..."
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) status

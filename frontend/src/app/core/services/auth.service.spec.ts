@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { Component } from '@angular/core';
 import { AuthService } from './auth.service';
 import { AuthResponse } from '../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 @Component({ standalone: true, template: '' })
 class DummyLoginComponent {}
@@ -66,7 +67,7 @@ describe('AuthService', () => {
         expect(service.currentOrg()?.name).toBe('MotoGuard Nairobi Fleet');
       });
 
-    const req = httpTesting.expectOne('/v1/sessions');
+    const req = httpTesting.expectOne(`${environment.apiBaseUrl}/v1/sessions`);
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
   });
@@ -76,7 +77,7 @@ describe('AuthService', () => {
       expect(res.message).toBe('Accepted');
     });
 
-    const req = httpTesting.expectOne('/v1/password-resets');
+    const req = httpTesting.expectOne(`${environment.apiBaseUrl}/v1/password-resets`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ email: 'dispatcher@motoguard.co.ke' });
     req.flush({ message: 'Accepted' }, { status: 202, statusText: 'Accepted' });
@@ -88,7 +89,7 @@ describe('AuthService', () => {
       expect(res.message).toBe('Password updated');
     });
 
-    const req = httpTesting.expectOne(`/v1/password-resets/${token}`);
+    const req = httpTesting.expectOne(`${environment.apiBaseUrl}/v1/password-resets/${token}`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ password: 'new_secret_password' });
     req.flush({ message: 'Password updated' });
@@ -104,8 +105,20 @@ describe('AuthService', () => {
       expect(service.currentUser()).toBeNull();
     });
 
-    const req = httpTesting.expectOne('/v1/sessions/current');
+    const req = httpTesting.expectOne(`${environment.apiBaseUrl}/v1/sessions/current`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('should parse JWT claims and check expiration accurately', () => {
+    const validFutureToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ1c3JfMTIzIiwiZXhwIjoyNTAwMDAwMDAwfQ.mock_sig';
+    const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ1c3JfMTIzIiwiZXhwIjoxMDAwfQ.mock_sig';
+
+    const claims = service.getClaims(validFutureToken);
+    expect(claims?.['uid']).toBe('usr_123');
+    expect(claims?.exp).toBe(2500000000);
+
+    expect(service.isTokenExpired(validFutureToken)).toBe(false);
+    expect(service.isTokenExpired(expiredToken)).toBe(true);
   });
 });

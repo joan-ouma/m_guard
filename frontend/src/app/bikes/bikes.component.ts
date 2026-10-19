@@ -1,11 +1,13 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
 import Swal from 'sweetalert2';
+import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
+import { OnboardingModalComponent } from '../dashboard/components/onboarding-modal/onboarding-modal.component';
 
 export interface MotorcycleAsset {
   id: string;
@@ -30,7 +32,14 @@ export interface MotorcycleAsset {
 @Component({
   selector: 'app-bikes',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    ReactiveFormsModule,
+    MobileNavComponent,
+    OnboardingModalComponent,
+  ],
   templateUrl: './bikes.component.html',
 })
 export class BikesComponent implements OnInit {
@@ -45,6 +54,10 @@ export class BikesComponent implements OnInit {
   readonly registrationError = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
 
+  // Bike Details Modal
+  readonly selectedBikeForModal = signal<MotorcycleAsset | null>(null);
+  readonly showDetailsModal = signal<boolean>(false);
+
   readonly canCreateBike = computed(() => true);
 
   readonly bikes = computed<MotorcycleAsset[]>(() => {
@@ -55,8 +68,8 @@ export class BikesComponent implements OnInit {
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}\s?[0-9]{3}[A-Z]$/i)]],
     model: ['', [Validators.required]],
     imei: ['', [Validators.required, Validators.pattern(/^[0-9]{15}$/)]],
-    county: ['Nairobi County', [Validators.required]],
-    subCounty: ['Westlands', [Validators.required]],
+    county: ['', [Validators.required]],
+    subCounty: ['', [Validators.required]],
   });
 
   readonly filteredBikes = computed(() => {
@@ -87,24 +100,66 @@ export class BikesComponent implements OnInit {
     return this.bikes().filter((b) => b.status === 'STOPPED').length;
   });
 
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(10);
+  readonly pageSizes = [10, 25, 50, 100];
+
+  readonly totalPages = computed(() => {
+    return Math.max(1, Math.ceil(this.filteredBikes().length / this.pageSize()));
+  });
+
+  readonly paginatedBikes = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredBikes().slice(start, start + this.pageSize());
+  });
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = parseInt((event.target as HTMLSelectElement).value, 10);
+    if (!isNaN(val) && val > 0) {
+      this.setPageSize(val);
+    }
+  }
+
   ngOnInit(): void {
     this.bikeService.loadBikes().subscribe();
   }
 
   setFilter(filter: 'ALL' | 'RUNNING' | 'STOPPED'): void {
     this.selectedFilter.set(filter);
+    this.currentPage.set(1);
   }
 
   onSearch(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.searchQuery.set(val);
+    this.currentPage.set(1);
   }
 
   openRegisterModal(): void {
     this.registrationError.set(null);
     this.registerForm.reset({
-      county: 'Nairobi County',
-      subCounty: 'Westlands',
+      plate: '',
+      model: '',
+      imei: '',
+      county: '',
+      subCounty: '',
     });
     this.showRegisterModal.set(true);
   }
@@ -114,6 +169,11 @@ export class BikesComponent implements OnInit {
     this.registrationError.set(null);
   }
 
+  onBikeAttached(bike: BikeDTO): void {
+    this.closeRegisterModal();
+    this.bikeService.loadBikes().subscribe();
+  }
+
   registerBike(): void {
     if (this.registerForm.invalid || this.isSubmitting()) return;
 
@@ -121,9 +181,10 @@ export class BikesComponent implements OnInit {
     this.registrationError.set(null);
 
     const val = this.registerForm.value;
-    const parts = val.model.trim().split(' ');
-    const make = parts[0] || 'Bajaj';
-    const model = parts.slice(1).join(' ') || val.model.trim();
+    const rawModel = (val.model || '').trim();
+    const parts = rawModel.split(/\s+/);
+    const make = parts[0] || '';
+    const model = parts.length > 1 ? parts.slice(1).join(' ') : rawModel;
 
     this.bikeService
       .createBike({
@@ -156,17 +217,33 @@ export class BikesComponent implements OnInit {
   }
 
   navigateToMap(bikeId: string): void {
+    this.closeBikeDetails();
     this.router.navigate(['/'], { queryParams: { bike: bikeId } });
   }
 
+  navigateToHistory(bikeId: string): void {
+    this.closeBikeDetails();
+    this.router.navigate(['/history'], { queryParams: { bike: bikeId } });
+  }
+
+  openBikeDetails(bike: MotorcycleAsset): void {
+    this.selectedBikeForModal.set(bike);
+    this.showDetailsModal.set(true);
+  }
+
+  closeBikeDetails(): void {
+    this.showDetailsModal.set(false);
+    this.selectedBikeForModal.set(null);
+  }
+
   getUserInitials(): string {
-    const name = this.authService.currentUser()?.name || 'Brian Otieno';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
+    const raw = (this.authService.currentUser()?.name || this.authService.currentUser()?.email || '').trim();
+    if (!raw) return 'U';
+    const parts = raw.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return raw.slice(0, 2).toUpperCase();
   }
 
   handleLogout(): void {
@@ -219,8 +296,8 @@ export class BikesComponent implements OnInit {
     const modelText = [b.make, b.model].filter(Boolean).join(' ') || b.label || 'Motorcycle';
     const speedText = `${b.speed_kmh.toFixed(1)} km/h • Ignition ${b.ignition ? 'ON' : 'OFF'}`;
 
-    let lastPing = '3s ago';
-    const pingTime = b.last_telemetry_at || b.updated_at || b.created_at;
+    let lastPing = 'No signal yet';
+    const pingTime = b.last_telemetry_at;
     if (pingTime) {
       const diffSec = Math.max(0, Math.floor((Date.now() - new Date(pingTime).getTime()) / 1000));
       if (diffSec < 60) lastPing = `${Math.max(1, diffSec)}s ago`;
@@ -236,15 +313,15 @@ export class BikesComponent implements OnInit {
       imei: b.imei,
       status: b.status,
       speedText: speedText,
-      address: b.current_address ? b.current_address : 'Calculating...',
-      county: b.county ? b.county : 'Calculating...',
-      subCounty: b.sub_county ? b.sub_county : 'Calculating...',
+      address: b.current_address ? b.current_address : 'Awaiting GPS lock...',
+      county: b.county ? b.county : '',
+      subCounty: b.sub_county ? b.sub_county : '',
       lat: b.latitude || 0,
       lng: b.longitude || 0,
-      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Ongata Rongai Zone',
-      fenceRadius: 2500,
-      batteryPercent: b.battery_percent ?? 100,
-      signalQuality: b.signal_quality_csq ?? 20,
+      fenceName: b.geofence_id ? 'Assigned Geofence' : 'Not configured',
+      fenceRadius: b.geofence_id ? 2500 : 0,
+      batteryPercent: b.battery_percent ?? 0,
+      signalQuality: b.signal_quality_csq ?? 0,
       lastPing: lastPing,
       isImmobilized: !!b.is_immobilized,
     };

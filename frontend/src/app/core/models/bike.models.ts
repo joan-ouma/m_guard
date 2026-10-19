@@ -14,6 +14,8 @@ export interface BikeDTO {
   heading_deg: number;
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  loc_type?: string;
   current_address: string;
   sub_county: string;
   county: string;
@@ -22,22 +24,44 @@ export interface BikeDTO {
   last_telemetry_at?: string;
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
   is_immobilized: boolean;
   created_at: string;
   updated_at: string;
 }
 
+export interface PaginationMeta {
+  total: number;
+  limit: number;
+  cursor?: string;
+  next_cursor?: string;
+  has_more: boolean;
+}
+
 export interface BikeListMeta {
   total: number;
+  limit?: number;
+  cursor?: string;
+  next_cursor?: string;
+  has_more?: boolean;
   default_selected_bike_id?: string;
 }
 
 export interface BikeListResponse {
   data: BikeDTO[];
   meta: BikeListMeta;
+}
+
+export interface PaginatedBreadcrumbsResponse {
+  data: BreadcrumbDTO[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedEventsResponse {
+  data: BikeEventDTO[];
+  pagination: PaginationMeta;
+  critical_count?: number;
+  warning_count?: number;
+  info_count?: number;
 }
 
 export interface CreateBikePayload {
@@ -55,9 +79,6 @@ export interface CreateBikePayload {
   county?: string;
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
 }
 
 export interface UpdateBikePayload {
@@ -73,9 +94,6 @@ export interface UpdateBikePayload {
   status?: 'RUNNING' | 'STOPPED';
   geofence_id?: string;
   driver_contact_id?: string;
-  rider_name?: string;
-  rider_national_id?: string;
-  rider_phone?: string;
 }
 
 export interface BreadcrumbDTO {
@@ -83,6 +101,8 @@ export interface BreadcrumbDTO {
   bike_id: string;
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  loc_type?: string;
   speed_kmh: number;
   heading_deg: number;
   ignition: boolean;
@@ -96,9 +116,34 @@ export interface BreadcrumbDTO {
 export interface BikeEventDTO {
   id: number;
   bike_id: string;
+  registration_number?: string;
+  model?: string;
   event_type: 'BIKE_TOUCHED' | 'GEOFENCE_APPROACHING' | 'ACCIDENT_DETECTED' | 'IGNITION_ON' | 'IGNITION_OFF' | string;
   latitude: number;
   longitude: number;
   recorded_at: string;
+}
+
+export interface TrackerStatusDTO {
+  imei: string;
+  model: string;
+  status: string;
+  is_claimed: boolean;
+}
+
+export interface AttachBikePayload {
+  registration_number: string;
+  label?: string;
+  make: string;
+  model: string;
+  year?: number;
+  color?: string;
+  imei: string;
+  county: string;
+  sub_county: string;
+  rider_name: string;
+  rider_national_id: string;
+  rider_phone: string;
+  rider_email: string;
 }
 

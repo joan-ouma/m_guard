@@ -1,0 +1,324 @@
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
+
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
+    <div>
+      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
+        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> Home
+        </a>
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg> Bikes
+        </a>
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> History
+        </a>
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg> Geofence
+        </a>
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
+        </a>
+        <a routerLink="/emergency" routerLinkActive="bg-rose-600 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center justify-between shrink-0 z-20 relative">
+      <div class="flex items-center gap-3">
+        <app-mobile-nav></app-mobile-nav>
+        <span class="font-bold text-base text-zinc-900">Alerts</span>
+      </div>
+      <button
+        type="button"
+        (click)="loadAlerts()"
+        class="text-xs px-2.5 py-1 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+      >
+        Refresh
+      </button>
+    </header>
+
+    <div class="flex-1 overflow-y-auto bg-zinc-50 p-4 lg:p-8">
+      <div class="max-w-4xl mx-auto w-full">
+        <!-- Title & Header -->
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-zinc-900 mb-1">Security Alerts &amp; Incidents</h1>
+            <p class="text-zinc-500 text-sm">Real-time geofence breaches, tampering, theft triggers, and ignition events.</p>
+          </div>
+          <button
+            type="button"
+            (click)="loadAlerts()"
+            [disabled]="isLoading()"
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            <svg class="w-4 h-4" [class.animate-spin]="isLoading()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ isLoading() ? 'Syncing...' : 'Sync Alerts' }}
+          </button>
+        </div>
+
+        <!-- Metric Badges -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs">
+            <span class="text-xs font-semibold text-zinc-400 block mb-1">Total Events</span>
+            <span class="text-2xl font-black text-zinc-900">{{ totalEvents() }}</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-rose-200/80 shadow-xs">
+            <span class="text-xs font-semibold text-rose-600 block mb-1">Critical (Breach/Theft)</span>
+            <span class="text-2xl font-black text-rose-600">{{ criticalCount() }}</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-amber-200/80 shadow-xs">
+            <span class="text-xs font-semibold text-amber-600 block mb-1">Warnings (Tamper)</span>
+            <span class="text-2xl font-black text-amber-600">{{ warningCount() }}</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs">
+            <span class="text-xs font-semibold text-zinc-500 block mb-1">Active Bikes</span>
+            <span class="text-2xl font-black text-zinc-900">{{ activeBikesCount() }}</span>
+          </div>
+        </div>
+
+        <!-- Filters Toolbar with Show Entries on Right -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              (click)="setSeverity('ALL')"
+              [class.bg-zinc-900]="selectedSeverity() === 'ALL'"
+              [class.text-white]="selectedSeverity() === 'ALL'"
+              [class.bg-white]="selectedSeverity() !== 'ALL'"
+              [class.text-zinc-600]="selectedSeverity() !== 'ALL'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 hover:border-zinc-300 transition-colors cursor-pointer"
+            >
+              All Alerts ({{ totalEvents() }})
+            </button>
+            <button
+              type="button"
+              (click)="setSeverity('critical')"
+              [class.bg-rose-600]="selectedSeverity() === 'critical'"
+              [class.text-white]="selectedSeverity() === 'critical'"
+              [class.bg-white]="selectedSeverity() !== 'critical'"
+              [class.text-rose-700]="selectedSeverity() !== 'critical'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-rose-200 hover:border-rose-300 transition-colors cursor-pointer"
+            >
+              Critical ({{ criticalCount() }})
+            </button>
+            <button
+              type="button"
+              (click)="setSeverity('warning')"
+              [class.bg-amber-500]="selectedSeverity() === 'warning'"
+              [class.text-white]="selectedSeverity() === 'warning'"
+              [class.bg-white]="selectedSeverity() !== 'warning'"
+              [class.text-amber-800]="selectedSeverity() !== 'warning'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-amber-200 hover:border-amber-300 transition-colors cursor-pointer"
+            >
+              Warnings ({{ warningCount() }})
+            </button>
+            <button
+              type="button"
+              (click)="setSeverity('info')"
+              [class.bg-zinc-700]="selectedSeverity() === 'info'"
+              [class.text-white]="selectedSeverity() === 'info'"
+              [class.bg-white]="selectedSeverity() !== 'info'"
+              [class.text-zinc-600]="selectedSeverity() !== 'info'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 hover:border-zinc-300 transition-colors cursor-pointer"
+            >
+              Info / Ignition ({{ infoCount() }})
+            </button>
+          </div>
+
+          <!-- Show Entries (matching Bikes toolbar) -->
+          <div class="flex items-center gap-2 text-xs text-zinc-600 font-medium self-end sm:self-auto shrink-0">
+            <label for="alertPageSizeSelect" class="text-zinc-500 font-medium select-none">Show</label>
+            <div class="relative inline-flex items-center">
+              <select
+                id="alertPageSizeSelect"
+                [value]="pageSize()"
+                (change)="onPageSizeChange($event)"
+                class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+              >
+                @for (size of pageSizes; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <span class="text-zinc-400 hidden sm:inline">entries</span>
+          </div>
+        </div>
+
+        <!-- Alert Cards Feed -->
+        @if (isLoading()) {
+          <div class="p-12 text-center text-zinc-400 text-sm flex flex-col items-center gap-3">
+            <svg class="w-8 h-8 animate-spin text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Loading security events...</span>
+          </div>
+        } @else if (alerts().length === 0) {
+          <div class="bg-white rounded-2xl border border-zinc-200 p-10 text-center">
+            <div class="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-400">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-zinc-900 mb-1">No Alerts Recorded</h3>
+            <p class="text-zinc-500 text-sm max-w-sm mx-auto">
+              No security breaches or incidents detected for the selected filter. Live alerts will trigger here in real time.
+            </p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (alert of alerts(); track alert.id) {
+              <div class="bg-white rounded-2xl border border-zinc-200/80 hover:border-zinc-300 p-4 sm:p-5 transition-all shadow-xs hover:shadow-sm">
+                <!-- TOP: Icon + Title & Description + Icon Action Buttons (Top Right) -->
+                <div class="flex items-start justify-between gap-3">
+                  <!-- Icon + Text -->
+                  <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                    <!-- Icon Pill with subtle ring -->
+                    <div
+                      class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ring-1"
+                      [class.bg-rose-50]="alert.severity === 'critical'"
+                      [class.text-rose-600]="alert.severity === 'critical'"
+                      [class.ring-rose-200]="alert.severity === 'critical'"
+                      [class.bg-amber-50]="alert.severity === 'warning'"
+                      [class.text-amber-600]="alert.severity === 'warning'"
+                      [class.ring-amber-200]="alert.severity === 'warning'"
+                      [class.bg-zinc-100]="alert.severity === 'info'"
+                      [class.text-zinc-700]="alert.severity === 'info'"
+                      [class.ring-zinc-200]="alert.severity === 'info'"
+                    >
+                      @if (alert.severity === 'critical') {
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      } @else if (alert.severity === 'warning') {
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      } @else {
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      }
+                    </div>
+
+                    <!-- Title & Description -->
+                    <div class="min-w-0 flex-1">
+                      <h4 class="text-base font-bold text-zinc-900 tracking-tight">
+                        {{ alert.title }}
+                      </h4>
+                      <p class="text-xs sm:text-sm text-zinc-500 mt-0.5 leading-relaxed">
+                        {{ alert.description }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Actions (Compact Icon Buttons top-right) -->
+                  <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
+                    <a
+                      [routerLink]="['/history']"
+                      [queryParams]="{ bike: alert.bikeId }"
+                      title="View History"
+                      aria-label="View History"
+                      class="w-8 h-8 rounded-xl border border-zinc-200/80 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </a>
+                    <a
+                      [routerLink]="['/']"
+                      [queryParams]="{ bike: alert.bikeId }"
+                      title="Locate on Map"
+                      aria-label="Locate on Map"
+                      class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-black text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- BOTTOM: Metadata row only (never wraps buttons onto awkward lines) -->
+                <div class="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-zinc-100 text-xs text-zinc-500">
+                  <span class="px-2 py-0.5 rounded-md bg-zinc-900 text-white font-mono text-xs font-bold tracking-wider shrink-0">
+                    {{ alert.plate }}
+                  </span>
+                  @if (alert.model) {
+                    <span class="font-medium text-zinc-600">{{ alert.model }}</span>
+                    <span class="text-zinc-300">•</span>
+                  }
+                  <span class="font-medium text-zinc-500">{{ formatTimestamp(alert.timestamp) }}</span>
+                  @if (alert.latitude && alert.longitude) {
+                    <span class="text-zinc-300">•</span>
+                    <span class="flex items-center gap-1 font-mono text-[11px] text-zinc-500">
+                      <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {{ alert.latitude | number:'1.4-4' }}, {{ alert.longitude | number:'1.4-4' }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Bottom Pagination Bar (Clean, Minimal, 100% Identical to Bikes) -->
+          <div class="p-3.5 sm:px-6 bg-zinc-50/70 rounded-2xl border border-zinc-200/80 flex items-center justify-between gap-3 text-xs shadow-xs mt-4">
+            <span class="text-zinc-500 font-medium">
+              Page <strong class="text-zinc-900 font-bold">{{ currentPage() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+            </span>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                (click)="prevPage()"
+                [disabled]="!hasPrev()"
+                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Prev</span>
+              </button>
+
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="!hasNext()"
+                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              >
+                <span>Next</span>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

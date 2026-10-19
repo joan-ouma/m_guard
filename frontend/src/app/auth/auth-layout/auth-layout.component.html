@@ -1,10 +1,10 @@
-<div class="min-h-screen w-full flex items-center justify-center p-3 sm:p-6 lg:p-10 bg-slate-50 dark:bg-slate-950 font-sans">
+<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-white md:bg-slate-50 dark:bg-slate-950 font-sans">
   
-  <!-- Centered Elevated Card with generous proportions and white framing padding -->
-  <div class="w-full max-w-[1100px] min-h-[640px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 dark:border-slate-800 p-3 sm:p-4 md:p-5 flex flex-col md:flex-row items-stretch">
+  <!-- Centered Elevated Card with generous proportions and white framing padding on desktop, seamless on mobile -->
+  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[680px] md:h-[680px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch">
     
-    <!-- Left Side: Branding Panel (approx 40% width, framed inside the card with its own rounded corners) -->
-    <div class="md:w-[40%] aura-panel relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex flex-col justify-between p-8 sm:p-10 text-white min-h-[360px] md:min-h-full">
+    <!-- Left Side: Branding Panel (Hidden on mobile, approx 40% width on desktop) -->
+    <div class="hidden md:flex md:w-[40%] md:h-full aura-panel relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white">
       <!-- Aurora Borealis 6-layer CSS blend modes -->
       <div class="aura-layer-1" aria-hidden="true"></div>
       <div class="aura-layer-2" aria-hidden="true"></div>
@@ -42,20 +42,20 @@
           </svg>
         </div>
 
-        <!-- Bottom-Left: Text 1 + Text 2 -->
+        <!-- Bottom-Left: Simple Brand Description -->
         <div class="pt-24 md:pt-0">
           <p class="text-sm font-normal text-slate-300 mb-2">
-            You can easily
+            MotoGuard
           </p>
           <h2 class="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
-            Get real-time access to your fleet intelligence and precision tracking
+            Real-time GPS tracking and anti-theft security for your motorcycle.
           </h2>
         </div>
       </div>
     </div>
 
-    <!-- Right Side: Authentication Form (approx 60% width, strictly left-aligned) -->
-    <div class="md:w-[60%] flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 py-8 md:py-10">
+    <!-- Right Side: Authentication Form (Full width on mobile, approx 60% on desktop) -->
+    <div class="w-full md:w-[60%] flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 py-8 md:py-10">
       <div class="w-full max-w-md">
         
         <!-- Top Left: Standalone Cobalt Blue Asterisk Icon (Strictly Left-Aligned) -->

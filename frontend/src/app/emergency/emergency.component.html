@@ -1,0 +1,290 @@
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
+
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
+    <div>
+      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
+        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> Home
+        </a>
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg> Bikes
+        </a>
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> History
+        </a>
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg> Geofence
+        </a>
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
+        </a>
+        <!-- EMERGENCY POLICE & AMBULANCE ITEM -->
+        <a routerLink="/emergency" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <!-- Top Mobile Header -->
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+      <app-mobile-nav></app-mobile-nav>
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-zinc-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+        <span class="font-bold text-base text-zinc-900">Emergency &amp; Police</span>
+      </div>
+    </header>
+
+    <!-- In-Page Mobile Tab Bar (Map 1st, Directory 2nd) -->
+    <div class="lg:hidden p-2.5 bg-white border-b border-zinc-200 shrink-0">
+      <div class="grid grid-cols-2 p-1 bg-zinc-100 rounded-lg text-xs font-semibold">
+        <button
+          type="button"
+          (click)="setView('map')"
+          [class.bg-white]="activeView() === 'map'"
+          [class.text-zinc-900]="activeView() === 'map'"
+          [class.shadow-2xs]="activeView() === 'map'"
+          [class.text-zinc-500]="activeView() !== 'map'"
+          class="py-2 rounded-md transition-all text-center cursor-pointer"
+        >
+          Map
+        </button>
+        <button
+          type="button"
+          (click)="setView('list')"
+          [class.bg-white]="activeView() === 'list'"
+          [class.text-zinc-900]="activeView() === 'list'"
+          [class.shadow-2xs]="activeView() === 'list'"
+          [class.text-zinc-500]="activeView() !== 'list'"
+          class="py-2 rounded-md transition-all text-center cursor-pointer"
+        >
+          Directory
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="flex-1 flex overflow-hidden">
+
+      <!-- LEFT COLUMN: DIRECTORY & SEARCH -->
+      <div
+        class="w-full lg:w-[420px] xl:w-[460px] flex flex-col border-r border-zinc-200 bg-white overflow-hidden shrink-0"
+        [class.hidden]="activeView() === 'map' && activeView() !== 'split'"
+      >
+        <!-- Search & Filter Header -->
+        <div class="p-4 border-b border-zinc-100 space-y-3">
+          <div>
+            <h1 class="text-lg font-bold text-zinc-900">Emergency Numbers</h1>
+            <p class="text-xs text-zinc-500">Quick dial police stations and ambulances in Kenya</p>
+          </div>
+
+          <!-- Simple Search Bar -->
+          <div class="relative">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              placeholder="Search station or area (e.g. Kilimani, Rongai, Juja)..."
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+            />
+          </div>
+
+          <!-- Simple Filter Tabs (All / Police / Ambulance / Hotlines) -->
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              (click)="setTypeFilter('ALL')"
+              [class.bg-zinc-900]="selectedType() === 'ALL'"
+              [class.text-white]="selectedType() === 'ALL'"
+              [class.bg-zinc-100]="selectedType() !== 'ALL'"
+              [class.text-zinc-600]="selectedType() !== 'ALL'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer text-center"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('police')"
+              [class.bg-zinc-900]="selectedType() === 'police'"
+              [class.text-white]="selectedType() === 'police'"
+              [class.bg-zinc-100]="selectedType() !== 'police'"
+              [class.text-zinc-600]="selectedType() !== 'police'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 17V11a6 6 0 1 1 12 0v6" />
+                <path d="M4 17h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" fill="currentColor" fill-opacity="0.2" />
+                <path d="M12 8v5" stroke-width="2" />
+                <circle cx="12" cy="7.5" r="0.9" fill="currentColor" />
+                <path d="M2.5 10a7 7 0 0 0 0 4" />
+                <path d="M21.5 10a7 7 0 0 1 0 4" />
+                <line x1="12" y1="2" x2="12" y2="4" />
+              </svg>
+              Police
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('ambulance')"
+              [class.bg-zinc-900]="selectedType() === 'ambulance'"
+              [class.text-white]="selectedType() === 'ambulance'"
+              [class.bg-zinc-100]="selectedType() !== 'ambulance'"
+              [class.text-zinc-600]="selectedType() !== 'ambulance'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 8a1 1 0 0 1 1-1h9v11H4a1 1 0 0 1-1-1V8z" fill="currentColor" fill-opacity="0.1" />
+                <path d="M13 10h4.5a1 1 0 0 1 .8.4l2.5 3.3a1 1 0 0 1 .2.6V17a1 1 0 0 1-1 1h-7V10z" fill="currentColor" fill-opacity="0.1" />
+                <path d="M8 10v4m-2-2h4" stroke-width="2" />
+                <circle cx="7" cy="18" r="2" />
+                <circle cx="17" cy="18" r="2" />
+              </svg>
+              Ambulance
+            </button>
+            <button
+              type="button"
+              (click)="setTypeFilter('national')"
+              [class.bg-zinc-900]="selectedType() === 'national'"
+              [class.text-white]="selectedType() === 'national'"
+              [class.bg-zinc-100]="selectedType() !== 'national'"
+              [class.text-zinc-600]="selectedType() !== 'national'"
+              class="flex-1 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                <path d="M14 3a7 7 0 0 1 7 7" />
+              </svg>
+              Hotlines
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTACTS LIST -->
+        <div class="flex-1 overflow-y-auto divide-y divide-zinc-100">
+          @for (contact of filteredContacts(); track contact.id) {
+            <div
+              (click)="selectContact(contact)"
+              class="p-3.5 hover:bg-zinc-50 transition-colors cursor-pointer flex items-center justify-between gap-3"
+              [class.bg-zinc-50]="selectedContact()?.id === contact.id"
+            >
+              <!-- Icon -->
+              <div class="w-12 h-12 rounded-xl bg-zinc-100/90 border border-zinc-200/60 flex items-center justify-center text-zinc-700 shrink-0 shadow-2xs">
+                @if (contact.type === 'police') {
+                  <svg class="w-6 h-6 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 17V11a6 6 0 1 1 12 0v6" />
+                    <path d="M4 17h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z" fill="currentColor" fill-opacity="0.2" />
+                    <path d="M12 8v5" stroke-width="2" />
+                    <circle cx="12" cy="7.5" r="0.9" fill="currentColor" />
+                    <path d="M2.5 10a7 7 0 0 0 0 4" />
+                    <path d="M21.5 10a7 7 0 0 1 0 4" />
+                    <line x1="12" y1="2" x2="12" y2="4" />
+                  </svg>
+                } @else if (contact.type === 'ambulance') {
+                  <svg class="w-6 h-6 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 8a1 1 0 0 1 1-1h9v11H4a1 1 0 0 1-1-1V8z" fill="currentColor" fill-opacity="0.1" />
+                    <path d="M13 10h4.5a1 1 0 0 1 .8.4l2.5 3.3a1 1 0 0 1 .2.6V17a1 1 0 0 1-1 1h-7V10z" fill="currentColor" fill-opacity="0.1" />
+                    <path d="M8 10v4m-2-2h4" stroke-width="2" />
+                    <circle cx="7" cy="18" r="2" />
+                    <circle cx="17" cy="18" r="2" />
+                  </svg>
+                } @else {
+                  <svg class="w-6 h-6 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    <path d="M14 3a7 7 0 0 1 7 7" />
+                  </svg>
+                }
+              </div>
+
+              <!-- Info -->
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <h3 class="font-semibold text-xs sm:text-sm text-zinc-900 truncate">
+                    {{ contact.name }}
+                  </h3>
+                  @if (getDistanceToBike(contact)) {
+                    <span class="text-[11px] text-zinc-500 shrink-0">
+                      • {{ getDistanceToBike(contact) }}
+                    </span>
+                  }
+                </div>
+                <p class="text-[11px] text-zinc-500 truncate mt-0.5">
+                  {{ contact.subCounty }}, {{ contact.county }}
+                </p>
+                <div class="flex items-center gap-2 mt-1 text-xs">
+                  <a
+                    [href]="'tel:' + contact.phone"
+                    (click)="$event.stopPropagation()"
+                    class="font-mono font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    {{ contact.phone }}
+                  </a>
+                  @if (contact.altPhone) {
+                    <span class="text-zinc-300">/</span>
+                    <a
+                      [href]="'tel:' + contact.altPhone"
+                      (click)="$event.stopPropagation()"
+                      class="font-mono font-medium text-blue-600/75 hover:text-blue-800 text-[11px] transition-colors"
+                    >
+                      {{ contact.altPhone }}
+                    </a>
+                  }
+                </div>
+              </div>
+
+              <!-- Call Button -->
+              <a
+                [href]="'tel:' + contact.phone"
+                (click)="$event.stopPropagation()"
+                class="h-8 px-3 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs flex items-center gap-1.5 shrink-0 transition-colors"
+              >
+                <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Call
+              </a>
+            </div>
+          }
+
+          @if (filteredContacts().length === 0) {
+            <div class="p-8 text-center text-zinc-400 text-xs">
+              No contacts match "{{ searchQuery() }}"
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: MAP -->
+      <div
+        class="flex-1 h-full w-full relative bg-zinc-100 overflow-hidden"
+        [class.hidden]="activeView() === 'list' && activeView() !== 'split'"
+      >
+        <div id="emergencyMap"></div>
+
+        <!-- Map Legend -->
+        <div class="absolute top-3 left-3 z-10">
+          <div class="px-3.5 py-2 rounded-xl bg-white/95 border border-zinc-200/90 shadow-sm text-xs sm:text-sm font-semibold text-zinc-800 flex items-center gap-4">
+            <span class="flex items-center gap-2"><img src="/siren.png" class="w-6 h-6 object-contain" alt="" /> Police</span>
+            <span class="flex items-center gap-2"><img src="/ambulance.png" class="w-6 h-6 object-contain" alt="" /> Ambulance</span>
+            <span class="flex items-center gap-2"><img src="/emergency-phone.png" class="w-6 h-6 object-contain" alt="" /> Hotline</span>
+            <span class="flex items-center gap-2"><img src="/motorbike.png" class="w-6 h-6 object-contain" alt="" /> Bike</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,7 +1,7 @@
-<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden select-none">
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden select-none print:hidden">
 
-  <!-- LEFT NAVIGATION SIDEBAR -->
-  <aside class="w-72 bg-white border-r border-zinc-200 flex flex-col justify-between shrink-0 z-30">
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
     <div>
       <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
         <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
@@ -13,14 +13,14 @@
       </div>
 
       <nav class="p-4 space-y-2">
-        <a routerLink="/" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           Home
         </a>
 
-        <a routerLink="/bikes" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
@@ -28,22 +28,28 @@
           Bikes
         </a>
 
-        <!-- History Menu Item (Active) -->
-        <a routerLink="/history" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold bg-zinc-900 text-white cursor-pointer shadow-xs transition-colors">
-          <svg class="w-6 h-6 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           History
         </a>
 
-        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors">
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
           </svg>
           Geofence
         </a>
 
-        <a routerLink="/" [fragment]="'settings'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors">
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          Alerts
+        </a>
+
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer">
           <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -62,10 +68,10 @@
           </div>
           <div class="min-w-0">
             <p class="text-base font-bold text-zinc-900 truncate">
-              {{ authService.currentUser()?.name || 'Rider' }}
+              {{ authService.currentUser()?.name || authService.currentUser()?.email || 'User' }}
             </p>
             <p class="text-sm text-zinc-500 truncate">
-              {{ authService.currentUser()?.email || 'operator@mototrack.ke' }}
+              {{ authService.currentUser()?.email || '' }}
             </p>
           </div>
         </div>
@@ -83,312 +89,305 @@
   </aside>
 
   <!-- MAIN VIEW CONTAINER -->
-  <div class="flex-1 flex flex-col h-full min-w-0 relative overflow-hidden bg-zinc-50/50">
+  <div class="flex-1 flex flex-col h-full min-w-0 relative overflow-y-auto bg-zinc-50/50">
 
-    <!-- TOP NAVBAR: MINIMAL & UNCLUTTERED -->
-    <header class="h-20 bg-white border-b border-zinc-200 px-8 flex items-center justify-between shrink-0 z-20 shadow-xs">
-      <div class="flex items-center gap-5">
-        <!-- Back button (only shown when in Map mode) -->
-        <button
-          *ngIf="viewMode() === 'map'"
-          type="button"
-          (click)="backToTextualData()"
-          class="min-h-[48px] h-12 px-5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-base flex items-center gap-2.5 transition-all cursor-pointer shadow-xs"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Trail List
-        </button>
+    <!-- TOP NAVBAR: STREAMLINED RESPONSIVE HEADER -->
+    <!-- TOP NAVBAR: ONLY FOR TITLE (ALL PAGES) -->
+    <header class="h-16 lg:h-20 bg-white border-b border-zinc-200 px-4 lg:px-8 flex items-center justify-between shrink-0 z-20 shadow-xs relative">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <!-- Single Mobile Nav Drawer Button -->
+        <app-mobile-nav class="shrink-0 lg:hidden"></app-mobile-nav>
 
-        <div *ngIf="viewMode() === 'map'" class="flex items-center gap-3">
-          <span class="text-2xl font-black text-zinc-900 tracking-tight">{{ selectedBike()?.registration_number }}</span>
-          <span class="text-base text-zinc-400">•</span>
-          <span class="text-base font-bold text-zinc-700">{{ formatReadableDate(selectedStartDate()) }}<ng-container *ngIf="selectedStartDate() !== selectedEndDate()"> - {{ formatReadableDate(selectedEndDate()) }}</ng-container></span>
-          <span class="text-base font-mono font-bold text-sky-600">({{ totalDistanceKm() }} km)</span>
-        </div>
-        <div *ngIf="viewMode() === 'text'">
-          <h1 class="text-2xl font-black text-zinc-900 tracking-tight">Trip History</h1>
-          <p class="text-base text-zinc-500">Chronological telemetry trail and ignition events</p>
+        <!-- Mode 1: Map View Header Controls -->
+        <ng-container *ngIf="viewMode() === 'map'">
+          <button
+            type="button"
+            (click)="backToTextualData()"
+            class="h-10 px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer shadow-xs shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Timeline</span>
+          </button>
+
+          <div class="flex items-center gap-2 truncate">
+            <span class="text-sm sm:text-base font-black text-zinc-950 tracking-wider font-plate">{{ selectedBike()?.registration_number }}</span>
+            <span class="text-xs text-zinc-300">•</span>
+            <span class="text-xs sm:text-sm font-semibold text-zinc-600 truncate">{{ formatReadableDate(selectedStartDate()) }}</span>
+          </div>
+        </ng-container>
+
+        <!-- Mode 2: Timeline Text View Header Title (TITLE ONLY) -->
+        <div *ngIf="viewMode() === 'text'" class="min-w-0">
+          <h1 class="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">Trip History</h1>
         </div>
       </div>
-
-      <button
-        type="button"
-        (click)="fetchBreadcrumbs()"
-        title="Reload data"
-        class="h-12 w-12 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center transition-colors cursor-pointer"
-      >
-        <svg [class.animate-spin]="isLoading()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-      </button>
     </header>
 
     <!-- ================================================================= -->
-    <!-- VIEW 1: TEXTUAL DATA VIEW (MODEST UI WITH VERY FEW ELEMENTS)     -->
+    <!-- VIEW 1: TEXTUAL DATA VIEW (STUPID SIMPLE & CLEAN)                 -->
     <!-- ================================================================= -->
     <div
       *ngIf="viewMode() === 'text'"
-      class="flex-1 overflow-y-auto p-8 w-full space-y-6"
+      class="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 lg:p-8 w-full max-w-4xl mx-auto space-y-4"
     >
-      <!-- COMPACT FILTER ROW (BELOW NAVBAR) -->
-      <div class="bg-white p-5 rounded-3xl border border-zinc-200 shadow-2xs flex flex-wrap items-center justify-between gap-4">
-        
-        <!-- Controls: Motorcycle & Date -->
-        <div class="flex flex-wrap items-center gap-4">
-          <!-- Date Range Inputs -->
-          <div class="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-2xl p-1 h-12">
-            <input
-              type="date"
-              [ngModel]="selectedStartDate()"
-              (change)="onStartDateChange($event)"
-              class="h-full px-3 bg-transparent text-zinc-900 font-bold text-base rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer w-[140px]"
-            />
-            <span class="text-zinc-400 font-bold px-1">→</span>
-            <input
-              type="date"
-              [ngModel]="selectedEndDate()"
-              (change)="onEndDateChange($event)"
-              class="h-full px-3 bg-transparent text-zinc-900 font-bold text-base rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer w-[140px]"
-            />
+      <!-- COMPACT ACTIVE SELECTION BAR -->
+      <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 shadow-2xs flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-zinc-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+            </svg>
           </div>
-
-          <!-- Day Navigation Steppers -->
-          <div class="flex items-center gap-1.5 bg-zinc-100 p-1 rounded-2xl border border-zinc-200/80">
-            <button
-              type="button"
-              (click)="prevDay()"
-              title="Previous Day"
-              class="h-10 px-3.5 rounded-xl text-zinc-700 hover:bg-white text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>Prev</span>
-            </button>
-            <button
-              type="button"
-              (click)="nextDay()"
-              [disabled]="isSelectedDateToday()"
-              [class.opacity-40]="isSelectedDateToday()"
-              [class.cursor-not-allowed]="isSelectedDateToday()"
-              title="Next Day"
-              class="h-10 px-3.5 rounded-xl text-zinc-700 hover:bg-white text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <span>Next</span>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-plate font-black text-sm sm:text-base text-zinc-950 tracking-wider">
+                {{ selectedBike()?.registration_number || 'Select Bike' }}
+              </span>
+              <span
+                *ngIf="filterIncidentsOnly()"
+                (click)="clearIncidentFilter()"
+                title="Click to clear filter"
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 hover:bg-rose-200 cursor-pointer flex items-center gap-1 transition-colors"
+              >
+                Alerts Only <span class="font-black text-rose-500">×</span>
+              </span>
+            </div>
+            <p class="text-xs font-semibold text-zinc-500 truncate mt-0.5">
+              {{ formatReadableDate(selectedStartDate()) }}
+              <ng-container *ngIf="selectedStartDate() !== selectedEndDate()">
+                – {{ formatReadableDate(selectedEndDate()) }}
+              </ng-container>
+            </p>
           </div>
-
-          <!-- Quick Chips -->
-          <div class="flex items-center p-1 bg-zinc-100 rounded-2xl border border-zinc-200/80">
-            <button
-              type="button"
-              (click)="setPreset('today')"
-              [class]="isSelectedDateToday() ? 'bg-white text-zinc-900 font-bold shadow-xs' : 'text-zinc-600 hover:text-zinc-900 font-semibold'"
-              class="h-10 px-4 rounded-xl text-sm transition-all cursor-pointer"
-            >
-              Today
-            </button>
-            <button
-              type="button"
-              (click)="setPreset('yesterday')"
-              class="h-10 px-4 rounded-xl text-sm text-zinc-600 hover:text-zinc-900 font-semibold transition-all cursor-pointer"
-            >
-              Yesterday
-            </button>
-          </div>
-
-          <!-- Incidents Only Toggle -->
-          <div class="flex items-center p-1 bg-zinc-100 rounded-2xl border border-zinc-200/80 ml-2">
-            <button
-              type="button"
-              (click)="filterIncidentsOnly.set(false)"
-              [class]="!filterIncidentsOnly() ? 'bg-white text-zinc-900 font-bold shadow-xs' : 'text-zinc-600 hover:text-zinc-900 font-semibold'"
-              class="h-10 px-4 rounded-xl text-sm transition-all cursor-pointer"
-            >
-              All Data
-            </button>
-            <button
-              type="button"
-              (click)="filterIncidentsOnly.set(true)"
-              [class]="filterIncidentsOnly() ? 'bg-white text-rose-600 font-bold shadow-xs' : 'text-zinc-600 hover:text-rose-500 font-semibold'"
-              class="h-10 px-4 rounded-xl text-sm transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              Incidents Only
-            </button>
-          </div>
-
-          <!-- Formatted date label -->
-          <span class="text-base font-bold text-zinc-800 ml-1">
-            {{ formatReadableDate(selectedStartDate()) }}
-            <ng-container *ngIf="selectedStartDate() !== selectedEndDate()">
-               - {{ formatReadableDate(selectedEndDate()) }}
-            </ng-container>
-          </span>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
+        <!-- Quick Day Stepper & The ONLY Filter Button -->
+        <div class="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
-            (click)="openReportModal()"
-            [disabled]="breadcrumbs().length === 0"
-            [class.opacity-40]="breadcrumbs().length === 0"
-            class="min-h-[48px] h-12 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:cursor-not-allowed text-white font-bold text-base flex items-center gap-2.5 transition-all shadow-xs cursor-pointer"
+            (click)="prevDay()"
+            title="Previous Day"
+            class="w-9 h-9 rounded-xl bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 text-zinc-700 flex items-center justify-center transition-colors cursor-pointer"
           >
-            <svg class="w-5 h-5 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            <span>Generate Report</span>
           </button>
-          
           <button
             type="button"
-            (click)="seeTrailInMap()"
-            [disabled]="breadcrumbs().length === 0"
-            [class.opacity-40]="breadcrumbs().length === 0"
-            class="min-h-[48px] h-12 px-6 rounded-2xl bg-zinc-900 hover:bg-zinc-800 disabled:cursor-not-allowed text-white font-bold text-base flex items-center gap-2.5 transition-all shadow-xs cursor-pointer"
+            (click)="nextDay()"
+            [disabled]="isSelectedDateToday()"
+            [class.opacity-30]="isSelectedDateToday()"
+            [class.cursor-not-allowed]="isSelectedDateToday()"
+            title="Next Day"
+            class="w-9 h-9 rounded-xl bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 text-zinc-700 flex items-center justify-center transition-colors cursor-pointer"
           >
-            <svg class="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            <span>See Trail in Map</span>
+          </button>
+          <!-- THE ONLY FILTER BUTTON -->
+          <button
+            type="button"
+            (click)="openFilterModal()"
+            title="Filter options"
+            class="h-9 px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+          >
+            <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span>Filter</span>
+            <span *ngIf="filterIncidentsOnly()" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
           </button>
         </div>
       </div>
 
-      <!-- MODEST DAY SUMMARY HEADER -->
-      <div class="flex items-center justify-between px-2">
-        <div class="flex items-center gap-3">
-          <span class="font-black text-2xl text-zinc-900 tracking-tight">{{ selectedBike()?.registration_number }}</span>
-          <span class="text-base text-zinc-400">•</span>
-          <span class="text-base font-bold text-zinc-700">{{ formatReadableDate(selectedStartDate()) }}<ng-container *ngIf="selectedStartDate() !== selectedEndDate()"> - {{ formatReadableDate(selectedEndDate()) }}</ng-container></span>
+      <!-- THREE CLEAN METRIC CARDS -->
+      <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
+        <!-- Distance Card -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 shadow-2xs">
+          <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Distance</p>
+          <p class="text-sm sm:text-lg font-black text-zinc-950 mt-0.5">
+            {{ totalDistanceKm() }} <span class="text-xs font-bold text-zinc-400">km</span>
+          </p>
         </div>
-        <div class="text-sm font-mono text-zinc-600 flex flex-wrap items-center gap-2 sm:gap-3">
-          <span class="font-bold text-zinc-900">{{ totalDistanceKm() }} km total</span>
-          <span>•</span>
-          <span class="text-emerald-700 font-bold">{{ onEventsCount() }} ON</span>
-          <span>•</span>
-          <span class="text-amber-700 font-bold">{{ offEventsCount() }} OFF</span>
-          <ng-container *ngIf="touchEventsCount() > 0">
-            <span>•</span>
-            <span class="text-rose-600 font-bold flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              {{ touchEventsCount() }} Touched
-            </span>
-          </ng-container>
-          <ng-container *ngIf="geofenceEventsCount() > 0">
-            <span>•</span>
-            <span class="text-violet-700 font-bold">{{ geofenceEventsCount() }} Near Border</span>
-          </ng-container>
-          <ng-container *ngIf="accidentEventsCount() > 0">
-            <span>•</span>
-            <span class="text-red-700 font-black flex items-center gap-1.5 bg-red-100 px-2.5 py-0.5 rounded-full">
-              <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
-              {{ accidentEventsCount() }} Accident Detected
-            </span>
-          </ng-container>
-          <ng-container *ngIf="immobilizedEventsCount() > 0">
-            <span>•</span>
-            <span class="text-rose-600 font-bold flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              {{ immobilizedEventsCount() }} Immobilized
-            </span>
-          </ng-container>
-          <ng-container *ngIf="reactivatedEventsCount() > 0">
-            <span>•</span>
-            <span class="text-emerald-600 font-bold flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              {{ reactivatedEventsCount() }} Reactivated
-            </span>
-          </ng-container>
+
+        <!-- Ignition Trips Card -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 shadow-2xs">
+          <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Ignition</p>
+          <p class="text-xs sm:text-base font-bold text-zinc-800 mt-0.5 truncate">
+            <span class="text-emerald-600 font-black">{{ onEventsCount() }} ON</span>
+            <span class="text-zinc-300 mx-1">•</span>
+            <span class="text-amber-600 font-black">{{ offEventsCount() }} OFF</span>
+          </p>
         </div>
+
+        <!-- Security Card -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-zinc-200/90 shadow-2xs">
+          <p class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Security</p>
+          <p *ngIf="incidentEventsCount() === 0" class="text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 flex items-center gap-1 truncate">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>All Clear</span>
+          </p>
+          <p *ngIf="incidentEventsCount() > 0" class="text-xs sm:text-sm font-black text-rose-600 mt-0.5 flex items-center gap-1 truncate">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <span>{{ incidentEventsCount() }} Alert{{ incidentEventsCount() > 1 ? 's' : '' }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions: View on Map & Evidence Report (Off the navbar) -->
+      <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+        <button
+          type="button"
+          (click)="seeTrailInMap()"
+          [disabled]="breadcrumbs().length === 0"
+          class="h-10 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200/90 text-zinc-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+        >
+          <svg class="w-4 h-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+          <span>View on Map</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="openReportModal()"
+          [disabled]="breadcrumbs().length === 0"
+          class="h-10 px-4 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200/90 text-zinc-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+        >
+          <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Evidence Report</span>
+        </button>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div
+        *ngIf="isLoading()"
+        class="bg-white p-12 rounded-2xl border border-zinc-200/90 text-center shadow-2xs flex flex-col items-center justify-center gap-3"
+      >
+        <div class="w-8 h-8 border-3 border-zinc-200 border-t-zinc-900 rounded-full animate-spin"></div>
+        <p class="text-xs sm:text-sm font-semibold text-zinc-500">Loading trail data...</p>
       </div>
 
       <!-- EMPTY STATE -->
       <div
         *ngIf="filteredTrailEvents().length === 0 && !isLoading()"
-        class="bg-white p-12 rounded-3xl border border-zinc-200 text-center"
+        class="bg-white p-8 sm:p-10 rounded-2xl border border-zinc-200/90 text-center shadow-2xs space-y-3"
       >
-        <p class="text-base font-bold text-zinc-800">No trail recorded for this date</p>
-        <p class="text-sm text-zinc-400 mt-1">Try selecting Yesterday or use the date picker above</p>
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-400">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-zinc-900">No activity recorded</h3>
+          <p class="text-xs text-zinc-500 max-w-xs mx-auto mt-1">
+            No telemetry points or ignition events found for {{ selectedBike()?.registration_number }} on {{ formatReadableDate(selectedStartDate()) }}.
+          </p>
+        </div>
+        <div class="flex items-center justify-center gap-2 pt-2">
+          <button
+            type="button"
+            (click)="setPreset('yesterday')"
+            class="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-colors cursor-pointer"
+          >
+            Check Yesterday
+          </button>
+          <button
+            type="button"
+            (click)="openFilterModal()"
+            class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold transition-colors cursor-pointer"
+          >
+            Change Filter
+          </button>
+        </div>
       </div>
 
-      <!-- SIMPLE CHRONOLOGICAL TRAIL & EVENTS LIST -->
-      <div *ngIf="filteredTrailEvents().length > 0" class="bg-white rounded-3xl border border-zinc-200 divide-y divide-zinc-100 overflow-hidden shadow-2xs">
-        
-        <div
-          *ngFor="let ev of filteredTrailEvents()"
-          class="p-5 flex items-center justify-between gap-5 hover:bg-zinc-50/70 transition-colors"
-          [class.bg-red-50/80]="ev.type === 'ACCIDENT_DETECTED'"
-          [class.bg-emerald-50/30]="ev.type === 'BIKE_ON'"
-          [class.bg-amber-50/30]="ev.type === 'BIKE_OFF'"
-          [class.bg-rose-50/40]="ev.type === 'BIKE_TOUCHED'"
-          [class.bg-violet-50/40]="ev.type === 'GEOFENCE_APPROACHING'"
-          [class.bg-rose-50/60]="ev.type === 'IMMOBILIZED'"
-          [class.bg-emerald-50/60]="ev.type === 'REACTIVATED'"
-          [class.bg-rose-100]="ev.type === 'THEFT' || ev.type === 'DURESS'"
-          [class.bg-amber-100]="ev.type === 'TAMPER'"
-        >
-          <!-- Left: Event Indicator & Time -->
-          <div class="flex items-center gap-4 min-w-0">
-            <!-- Icon Indicator -->
+      <!-- ACTIVITY TRAIL FEED -->
+      <div
+        *ngIf="filteredTrailEvents().length > 0 && !isLoading()"
+        class="bg-white rounded-2xl border border-zinc-200/90 shadow-xs overflow-hidden flex flex-col"
+      >
+        <!-- Toolbar / Show Entries Selector Header -->
+        <div class="px-4 sm:px-6 py-3 bg-white border-b border-zinc-100 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 text-xs text-zinc-600 font-medium">
+            <label for="historyPageSizeSelect" class="text-zinc-500 font-medium select-none">Show</label>
+            <div class="relative inline-flex items-center">
+              <select
+                id="historyPageSizeSelect"
+                [ngModel]="pageSize()"
+                (ngModelChange)="setPageSize($event)"
+                class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+              >
+                @for (size of pageSizes; track size) {
+                  <option [ngValue]="size">{{ size }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <span class="text-zinc-400 hidden sm:inline">entries</span>
+          </div>
+        </div>
+
+        <!-- Activity Feed Items (Preserved card list format - NOT a table) -->
+        <div class="divide-y divide-zinc-100">
+          <div
+            *ngFor="let ev of paginatedTrailEvents()"
+            class="p-3.5 sm:p-4 flex items-start sm:items-center justify-between gap-3 hover:bg-zinc-50/70 transition-colors"
+            [class.bg-red-50/50]="ev.type === 'ACCIDENT_DETECTED'"
+            [class.bg-rose-50/40]="ev.type === 'THEFT' || ev.type === 'DURESS' || ev.type === 'IMMOBILIZED'"
+            [class.bg-amber-50/30]="ev.type === 'TAMPER' || ev.type === 'BIKE_OFF'"
+            [class.bg-emerald-50/25]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'"
+          >
+          <!-- Left: Icon & Details -->
+          <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
             <div
-              class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-base shrink-0 shadow-2xs"
+              class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs mt-0.5 sm:mt-0"
               [class.bg-red-600]="ev.type === 'ACCIDENT_DETECTED'"
-              [class.bg-emerald-500]="ev.type === 'BIKE_ON'"
+              [class.bg-emerald-600]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'"
               [class.bg-amber-500]="ev.type === 'BIKE_OFF'"
               [class.bg-rose-600]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
               [class.bg-amber-600]="ev.type === 'TAMPER'"
-              [class.bg-emerald-600]="ev.type === 'REACTIVATED'"
               [class.bg-violet-600]="ev.type === 'GEOFENCE_APPROACHING'"
-              [class.text-white]="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'BIKE_ON' || ev.type === 'BIKE_OFF' || ev.type === 'BIKE_TOUCHED' || ev.type === 'GEOFENCE_APPROACHING' || ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED' || ev.type === 'THEFT' || ev.type === 'TAMPER' || ev.type === 'DURESS'"
+              [class.text-white]="ev.type !== 'MOVING' && ev.type !== 'IDLE'"
               [class.bg-zinc-100]="ev.type === 'MOVING' || ev.type === 'IDLE'"
               [class.text-zinc-600]="ev.type === 'MOVING' || ev.type === 'IDLE'"
             >
-              <!-- Immobilized / Reactivated power icon -->
-              <svg *ngIf="ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED'" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <svg *ngIf="ev.type === 'IMMOBILIZED' || ev.type === 'REACTIVATED'" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
               </svg>
-              <!-- Accident / Theft / Tamper / Duress Detected icon -->
-              <svg *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'TAMPER' || ev.type === 'DURESS'" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <svg *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'TAMPER' || ev.type === 'DURESS' || ev.type === 'BIKE_TOUCHED'" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <!-- Bike Touched icon -->
-              <svg *ngIf="ev.type === 'BIKE_TOUCHED'" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <!-- Geofence approaching icon -->
-              <svg *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <svg *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
-              <!-- Bike ON icon -->
-              <svg *ngIf="ev.type === 'BIKE_ON'" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <svg *ngIf="ev.type === 'BIKE_ON'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <!-- Bike OFF icon -->
-              <svg *ngIf="ev.type === 'BIKE_OFF'" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <svg *ngIf="ev.type === 'BIKE_OFF'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <!-- Moving icon -->
               <svg *ngIf="ev.type === 'MOVING'" class="w-5 h-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
               </svg>
-              <!-- Idle icon -->
-              <span *ngIf="ev.type === 'IDLE'" class="w-3 h-3 rounded-full bg-zinc-400"></span>
+              <span *ngIf="ev.type === 'IDLE'" class="w-2.5 h-2.5 rounded-full bg-zinc-400"></span>
             </div>
 
-            <!-- Title & Address -->
-            <div class="min-w-0">
-              <div class="flex items-center gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span
-                  class="text-base font-bold truncate"
+                  class="text-xs sm:text-sm font-bold truncate"
                   [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
                   [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
                   [class.text-amber-800]="ev.type === 'BIKE_OFF' || ev.type === 'TAMPER'"
@@ -398,108 +397,252 @@
                 >
                   {{ ev.title }}
                 </span>
-                
-                <!-- Badges -->
-                <span
-                  *ngIf="ev.type === 'IMMOBILIZED'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 flex items-center gap-1.5"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse"></span>
-                  Immobilized
-                </span>
-                <span
-                  *ngIf="ev.type === 'REACTIVATED'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1.5"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                  Reactivated
-                </span>
-                <span
-                  *ngIf="ev.type === 'ACCIDENT_DETECTED'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-red-600 text-white flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  Crash / Incident Alert
-                </span>
-                <span
-                  *ngIf="ev.type === 'BIKE_TOUCHED'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 flex items-center gap-1.5"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse"></span>
-                  Touch Alert
-                </span>
-                <span
-                  *ngIf="ev.type === 'THEFT'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  Theft Confirmed
-                </span>
-                <span
-                  *ngIf="ev.type === 'TAMPER'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-600 text-white flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  Power Cut / Tamper
-                </span>
-                <span
-                  *ngIf="ev.type === 'DURESS'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  Duress Triggered
-                </span>
-                <span
-                  *ngIf="ev.type === 'GEOFENCE_APPROACHING'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800"
-                >
-                  Near Boundary
-                </span>
-                <span
-                  *ngIf="ev.type === 'BIKE_ON'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
-                >
-                  Ignition ON
-                </span>
-                <span
-                  *ngIf="ev.type === 'BIKE_OFF'"
-                  class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800"
-                >
-                  Ignition OFF
-                </span>
-              </div>
 
-              <!-- Location Address -->
-              <p class="text-sm text-zinc-600 truncate mt-1">
-                {{ ev.address }}
-              </p>
+                <span *ngIf="ev.type === 'ACCIDENT_DETECTED'" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-600 text-white shrink-0">CRASH</span>
+                <span *ngIf="ev.type === 'THEFT'" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white shrink-0">THEFT</span>
+                <span *ngIf="ev.type === 'TAMPER'" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-600 text-white shrink-0">TAMPER</span>
+                <span *ngIf="ev.type === 'DURESS'" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white shrink-0">DURESS</span>
+                <span *ngIf="ev.type === 'IMMOBILIZED'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 shrink-0">IMMOBILIZED</span>
+                <span *ngIf="ev.type === 'REACTIVATED'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 shrink-0">REACTIVATED</span>
+                <span *ngIf="ev.type === 'BIKE_TOUCHED'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 shrink-0">TOUCH</span>
+                <span *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-800 shrink-0">PROXIMITY</span>
+              </div>
+              <p class="text-xs text-zinc-500 truncate mt-0.5">{{ ev.address }}</p>
             </div>
           </div>
 
-          <!-- Right: Timestamp & Battery -->
+          <!-- Right: Timestamp & Status -->
           <div class="text-right shrink-0">
-            <p class="text-sm font-mono font-bold text-zinc-900">{{ formatTime(ev.time) }}</p>
-            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED' && ev.type !== 'THEFT' && ev.type !== 'TAMPER' && ev.type !== 'DURESS'" class="text-xs font-mono font-semibold text-zinc-400 mt-0.5">Bat: {{ ev.battery }}%</p>
-            <p *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'DURESS'" class="text-xs font-mono font-black text-red-600 mt-0.5 animate-pulse">EMERGENCY</p>
-            <p *ngIf="ev.type === 'TAMPER'" class="text-xs font-mono font-black text-amber-600 mt-0.5 animate-pulse">CRITICAL</p>
-            <p *ngIf="ev.type === 'BIKE_TOUCHED'" class="text-xs font-mono font-bold text-rose-600 mt-0.5">Parked Alert</p>
-            <p *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="text-xs font-mono font-bold text-violet-600 mt-0.5">Proximity</p>
+            <p class="text-xs sm:text-sm font-bold text-zinc-950">{{ formatTime(ev.time) }}</p>
+            <p *ngIf="ev.type !== 'BIKE_TOUCHED' && ev.type !== 'GEOFENCE_APPROACHING' && ev.type !== 'ACCIDENT_DETECTED' && ev.type !== 'IMMOBILIZED' && ev.type !== 'REACTIVATED' && ev.type !== 'THEFT' && ev.type !== 'TAMPER' && ev.type !== 'DURESS'" class="text-[11px] font-bold text-zinc-500 mt-0.5">
+              Bat: {{ ev.battery }}%
+            </p>
+            <p *ngIf="ev.type === 'ACCIDENT_DETECTED' || ev.type === 'THEFT' || ev.type === 'DURESS'" class="text-[11px] font-black uppercase tracking-wider text-red-600 mt-0.5 animate-pulse">
+              EMERGENCY
+            </p>
+            <p *ngIf="ev.type === 'TAMPER'" class="text-[11px] font-black uppercase tracking-wider text-amber-600 mt-0.5 animate-pulse">
+              CRITICAL
+            </p>
+            <p *ngIf="ev.type === 'BIKE_TOUCHED'" class="text-[11px] font-bold uppercase tracking-wider text-rose-600 mt-0.5">
+              Alert
+            </p>
+            <p *ngIf="ev.type === 'GEOFENCE_APPROACHING'" class="text-[11px] font-bold uppercase tracking-wider text-violet-600 mt-0.5">
+              Border
+            </p>
           </div>
         </div>
 
-      </div>
+        </div>
 
+        <!-- Bottom Pagination Bar (Clean, Minimal, Uniform with Bike List) -->
+        <div class="p-3.5 sm:px-6 bg-zinc-50/70 border-t border-zinc-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span class="text-zinc-500 font-medium">
+            Page <strong class="text-zinc-900 font-bold">{{ currentPage() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+          </span>
+
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <!-- Prev Button -->
+            <button
+              type="button"
+              (click)="prevPage()"
+              [disabled]="currentPage() <= 1"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs active:scale-95"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Prev</span>
+            </button>
+
+            <!-- Page Number buttons -->
+            @if (totalPages() > 1) {
+              <div class="flex items-center gap-1">
+                @for (p of pages(); track p) {
+                  <button
+                    type="button"
+                    (click)="goToPage(p)"
+                    class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center shadow-2xs"
+                    [ngClass]="currentPage() === p ? 'bg-zinc-900 text-white' : 'bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200'"
+                  >
+                    {{ p }}
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Next Button -->
+            <button
+              type="button"
+              (click)="nextPage()"
+              [disabled]="currentPage() >= totalPages()"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs active:scale-95"
+            >
+              <span>Next</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- VIEW 2: MAP TRAIL VIEW (ACTIVATED VIA "SEE TRAIL IN MAP")        -->
+    <!-- VIEW 2: MAP TRAIL VIEW (ACTIVATED VIA "SEE TRAIL IN MAP")         -->
     <!-- ================================================================= -->
     <div
       *ngIf="viewMode() === 'map'"
       class="relative flex-1 w-full h-[calc(100vh-80px)] overflow-hidden bg-zinc-950"
     >
-      <!-- FULL-BLEED LEAFLET DARK MAP (ZERO FLOATING CONTROLS) -->
       <div id="historyMap" class="w-full h-full z-0"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- FILTER MODAL (SIMPLE FORM)                                        -->
+<!-- ================================================================= -->
+<div *ngIf="isFilterModalOpen()" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 print:hidden">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-zinc-950/60 backdrop-blur-xs transition-opacity" (click)="closeFilterModal()"></div>
+
+  <!-- Modal Dialog Card -->
+  <div class="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200/90 z-10 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-4 duration-200">
+    
+    <!-- Modal Header -->
+    <div class="px-5 py-4 sm:p-5 border-b border-zinc-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-black text-zinc-900 tracking-tight">Filter Trip History</h2>
+        <p class="text-xs text-zinc-500">Select motorcycle, period and alerts</p>
+      </div>
+      <button
+        type="button"
+        (click)="closeFilterModal()"
+        class="w-9 h-9 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Form Body -->
+    <form (submit)="$event.preventDefault(); applyFilters()" class="p-5 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
+      
+      <!-- Field 1: Motorcycle Picker -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider">Select Motorcycle</label>
+        <div class="relative">
+          <select
+            [ngModel]="tempBikeId()"
+            (ngModelChange)="tempBikeId.set($event)"
+            name="tempBike"
+            class="w-full h-11 px-3.5 pr-10 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 font-plate font-black tracking-wider text-sm text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-900 appearance-none transition-colors cursor-pointer"
+          >
+            <option *ngFor="let b of bikes()" [value]="b.id">
+              {{ b.registration_number }} - {{ b.model }}
+            </option>
+          </select>
+          <svg class="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Field 2: Quick Presets -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider">Quick Date Presets</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            (click)="setModalPreset('today')"
+            class="h-9 px-3 rounded-xl border border-zinc-200 text-xs font-bold transition-all cursor-pointer bg-zinc-50 hover:bg-zinc-100 text-zinc-800"
+          >
+            Today
+          </button>
+          <button
+            type="button"
+            (click)="setModalPreset('yesterday')"
+            class="h-9 px-3 rounded-xl border border-zinc-200 text-xs font-bold transition-all cursor-pointer bg-zinc-50 hover:bg-zinc-100 text-zinc-800"
+          >
+            Yesterday
+          </button>
+          <button
+            type="button"
+            (click)="setModalPreset('week')"
+            class="h-9 px-3 rounded-xl border border-zinc-200 text-xs font-bold transition-all cursor-pointer bg-zinc-50 hover:bg-zinc-100 text-zinc-800"
+          >
+            Last 7 Days
+          </button>
+        </div>
+      </div>
+
+      <!-- Field 3: Date Range -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider">Date Period</label>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <span class="block text-[11px] font-semibold text-zinc-400 mb-1">From</span>
+            <input
+              type="date"
+              [ngModel]="tempStartDate()"
+              (ngModelChange)="tempStartDate.set($event)"
+              name="startDate"
+              class="w-full h-11 px-3 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer"
+            />
+          </div>
+          <div>
+            <span class="block text-[11px] font-semibold text-zinc-400 mb-1">To</span>
+            <input
+              type="date"
+              [ngModel]="tempEndDate()"
+              (ngModelChange)="tempEndDate.set($event)"
+              name="endDate"
+              class="w-full h-11 px-3 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Field 4: Incidents Only Toggle -->
+      <div class="pt-1">
+        <label class="flex items-center justify-between p-3.5 rounded-2xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100/70 transition-colors cursor-pointer select-none">
+          <div class="min-w-0 pr-3">
+            <span class="block text-xs sm:text-sm font-bold text-zinc-900">Security Incidents Only</span>
+            <span class="block text-[11px] text-zinc-500">Show only tamper, crash, theft, and duress alerts</span>
+          </div>
+          <input
+            type="checkbox"
+            [ngModel]="tempIncidentsOnly()"
+            (ngModelChange)="tempIncidentsOnly.set($event)"
+            name="incidentsOnly"
+            class="w-5 h-5 rounded-md text-zinc-900 focus:ring-zinc-900 border-zinc-300 cursor-pointer"
+          />
+        </label>
+      </div>
+
+    </form>
+
+    <!-- Modal Actions Footer -->
+    <div class="p-4 sm:p-5 border-t border-zinc-100 bg-zinc-50 flex items-center justify-end gap-2.5">
+      <button
+        type="button"
+        (click)="closeFilterModal()"
+        class="h-11 px-5 rounded-xl font-bold text-xs sm:text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/80 transition-colors cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="applyFilters()"
+        class="h-11 px-6 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+      >
+        <span>Apply Filters</span>
+        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </button>
     </div>
 
   </div>
@@ -508,7 +651,7 @@
 <!-- ================================================================= -->
 <!-- REPORT MODAL                                                      -->
 <!-- ================================================================= -->
-<div *ngIf="isReportModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div *ngIf="isReportModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden">
   <div class="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm" (click)="closeReportModal()"></div>
   <div class="bg-white rounded-3xl shadow-2xl border border-zinc-200 w-full max-w-md relative z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
     <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
@@ -572,104 +715,106 @@
 <!-- ================================================================= -->
 <!-- PRINTABLE REPORT VIEW                                             -->
 <!-- ================================================================= -->
-<div *ngIf="isReportViewOpen()" class="fixed inset-0 z-[100] bg-white overflow-y-auto print:p-0">
+<div *ngIf="isReportViewOpen()" class="fixed inset-0 z-[100] bg-white overflow-y-auto printable-report-modal print:static print:inset-auto print:overflow-visible print:h-auto print:w-full print:block print:bg-white print:p-0">
   <!-- Screen-only controls -->
-  <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-zinc-200 px-8 py-4 flex items-center justify-between z-10 print:hidden shadow-sm">
-    <h2 class="text-xl font-black text-zinc-900 tracking-tight">Report Preview</h2>
-    <div class="flex gap-3">
-      <button type="button" (click)="closeReportView()" class="px-5 py-2.5 rounded-xl text-zinc-600 font-bold hover:bg-zinc-100 transition-colors border border-zinc-200">
+  <div class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-zinc-200 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between z-10 print:hidden shadow-xs">
+    <h2 class="text-lg sm:text-xl font-black text-zinc-900 tracking-tight">Report Preview</h2>
+    <div class="flex gap-2 sm:gap-3">
+      <button type="button" (click)="closeReportView()" class="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-zinc-600 font-bold hover:bg-zinc-100 transition-colors border border-zinc-200 text-xs sm:text-sm cursor-pointer">
         Close
       </button>
-      <button type="button" (click)="printReport()" class="px-5 py-2.5 rounded-xl bg-zinc-900 text-white font-bold hover:bg-zinc-800 flex items-center gap-2 transition-colors shadow-xs">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <button type="button" (click)="printReport()" class="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-zinc-900 text-white font-bold hover:bg-zinc-800 flex items-center gap-1.5 sm:gap-2 transition-colors shadow-xs text-xs sm:text-sm cursor-pointer">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg>
-        Print / Save PDF
+        Print / PDF
       </button>
     </div>
   </div>
   
   <!-- Report Content -->
-  <div class="max-w-4xl mx-auto p-12 bg-white print:p-4 text-zinc-900">
-    <div class="flex items-start justify-between border-b-2 border-zinc-900 pb-6 mb-8">
+  <div class="max-w-4xl mx-auto p-4 sm:p-8 lg:p-12 bg-white printable-report-content print:p-0 print:max-w-none print:w-full text-zinc-900">
+    <div class="flex items-start justify-between border-b-2 border-zinc-900 pb-6 mb-8 print-avoid-break">
       <div>
-        <h1 class="text-4xl font-black tracking-tighter">MGUARD</h1>
-        <p class="text-lg font-bold text-zinc-500 mt-1">Tamper-Evident Trail Report</p>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tighter">MGUARD</h1>
+        <p class="text-sm sm:text-lg font-bold text-zinc-500 mt-1">Tamper-Evident Trail Report</p>
       </div>
       <div class="text-right">
-        <p class="text-sm font-bold text-zinc-500 uppercase">Generated On</p>
-        <p class="font-mono text-zinc-900 font-semibold">
+        <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase">Generated On</p>
+        <p class="text-zinc-900 font-bold text-xs sm:text-sm">
           {{ formatReadableDate(selectedEndDate()) }}
         </p>
-        <p class="text-sm font-bold text-zinc-500 uppercase mt-4">Issued To</p>
-        <p class="font-bold text-zinc-900 uppercase">
+        <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase mt-2 sm:mt-4">Issued To</p>
+        <p class="font-bold text-zinc-900 uppercase text-xs sm:text-sm">
           {{ reportSharedWith() === 'download' ? 'Rider (Personal Records)' : reportSharedWith() }}
         </p>
       </div>
     </div>
     
-    <div class="grid grid-cols-2 gap-8 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-8 print-avoid-break">
       <div>
-        <p class="text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Vehicle Details</p>
-        <p class="font-bold text-xl">{{ selectedBike()?.registration_number }}</p>
-        <p class="text-zinc-600">Total distance in window: {{ totalDistanceKm() }} km</p>
+        <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Vehicle Details</p>
+        <p class="font-plate font-black text-xl sm:text-2xl tracking-wider text-zinc-950">{{ selectedBike()?.registration_number }}</p>
+        <p class="text-zinc-600 text-sm font-medium">Total distance in window: {{ totalDistanceKm() }} km</p>
       </div>
       <div>
-        <p class="text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Time Window</p>
-        <p class="font-bold text-lg">
+        <p class="text-xs sm:text-sm font-bold text-zinc-500 uppercase border-b border-zinc-200 pb-2 mb-2">Time Window</p>
+        <p class="font-bold text-base sm:text-lg">
           {{ formatReadableDate(selectedStartDate()) }} <ng-container *ngIf="selectedStartDate() !== selectedEndDate()"> to {{ formatReadableDate(selectedEndDate()) }}</ng-container>
         </p>
       </div>
     </div>
     
-    <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-6 mb-10 print:border-zinc-300">
-      <div class="flex items-start gap-4">
-        <svg class="w-8 h-8 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 sm:p-6 mb-8 sm:mb-10 print:border-zinc-300 print-avoid-break">
+      <div class="flex items-start gap-3 sm:gap-4">
+        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
-        <div>
-          <p class="font-bold text-zinc-900 text-lg">Cryptographic Verification</p>
-          <p class="text-sm text-zinc-600 mt-1">
+        <div class="min-w-0 flex-1">
+          <p class="font-bold text-zinc-900 text-base sm:text-lg">Cryptographic Verification</p>
+          <p class="text-xs sm:text-sm text-zinc-600 mt-1">
             The data contained in this report is certified as originating directly from MGuard telemetry servers without alteration.
           </p>
-          <div class="mt-3 p-3 bg-white border border-zinc-200 rounded-xl font-mono text-xs text-zinc-500 break-all">
+          <div class="mt-3 p-3 bg-white border border-zinc-200 rounded-xl font-mono text-[11px] sm:text-xs text-zinc-500 break-all">
             SHA-256: {{ reportHash() }}
           </div>
         </div>
       </div>
     </div>
     
-    <h3 class="text-xl font-black mb-4 border-b border-zinc-200 pb-2">Chronological Event Log</h3>
+    <h3 class="text-lg sm:text-xl font-black mb-4 border-b border-zinc-200 pb-2 print-avoid-break">Chronological Event Log</h3>
     
-    <table class="w-full text-left text-sm mb-12">
-      <thead>
-        <tr class="border-b-2 border-zinc-900">
-          <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Time</th>
-          <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Event</th>
-          <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Location</th>
-          <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide text-right">Details</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-zinc-200">
-        <tr *ngFor="let ev of trailEvents()" class="hover:bg-zinc-50">
-          <td class="py-3 pr-4 font-mono whitespace-nowrap">{{ formatReadableDate(ev.time.split('T')[0]) }}<br>{{ formatTime(ev.time) }}</td>
-          <td class="py-3 pr-4 font-bold"
-              [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
-              [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
-              [class.text-amber-700]="ev.type === 'TAMPER'"
-              [class.text-emerald-700]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'">
-            {{ ev.title }}
-          </td>
-          <td class="py-3 pr-4 text-zinc-600">{{ ev.address }}</td>
-          <td class="py-3 text-right font-mono text-xs text-zinc-500">
-            Lat: {{ ev.lat | number:'1.5-5' }}<br>
-            Lng: {{ ev.lng | number:'1.5-5' }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto -mx-4 sm:mx-0 mb-10 print:overflow-visible print:mx-0 print:mb-6 print:w-full">
+      <table class="w-full text-left text-xs sm:text-sm min-w-[520px] print:min-w-0 print:w-full print:text-xs">
+        <thead>
+          <tr class="border-b-2 border-zinc-900 print:border-zinc-800">
+            <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Time</th>
+            <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Event</th>
+            <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide">Location</th>
+            <th class="py-3 font-bold text-zinc-500 uppercase tracking-wide text-right">Details</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-200">
+          <tr *ngFor="let ev of trailEvents()" class="hover:bg-zinc-50 print:break-inside-avoid">
+            <td class="py-3 pr-4 font-semibold whitespace-nowrap">{{ formatReadableDate(ev.time.split('T')[0]) }}<br>{{ formatTime(ev.time) }}</td>
+            <td class="py-3 pr-4 font-bold"
+                [class.text-red-700]="ev.type === 'ACCIDENT_DETECTED'"
+                [class.text-rose-700]="ev.type === 'BIKE_TOUCHED' || ev.type === 'IMMOBILIZED' || ev.type === 'THEFT' || ev.type === 'DURESS'"
+                [class.text-amber-700]="ev.type === 'TAMPER'"
+                [class.text-emerald-700]="ev.type === 'BIKE_ON' || ev.type === 'REACTIVATED'">
+              {{ ev.title }}
+            </td>
+            <td class="py-3 pr-4 text-zinc-600">{{ ev.address }}</td>
+            <td class="py-3 text-right font-semibold text-xs text-zinc-600">
+              Lat: {{ ev.lat | number:'1.5-5' }}<br>
+              Lng: {{ ev.lng | number:'1.5-5' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     
-    <div class="text-center text-zinc-400 text-xs font-semibold mt-12 pt-8 border-t border-zinc-200">
+    <div class="text-center text-zinc-400 text-xs font-semibold mt-10 pt-6 border-t border-zinc-200 print-avoid-break">
       Generated by MGuard • The Rider Controls Their Data
     </div>
   </div>

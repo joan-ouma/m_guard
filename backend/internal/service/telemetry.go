@@ -2,38 +2,78 @@ package service
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"math"
 	"strings"
 	"time"
 
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/geolocation"
+	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type TelemetryService struct {
-	pool            *pgxpool.Pool
-	repo            *repository.TelemetryRepository
-	reverseGeocoder *geolocation.ReverseGeocoder
+const (
+	movingThresholdKMH    = 1.0
+	maxPlausibleSpeedKMH  = 180.0
+	minTrackedDistanceKM  = 0.005
+	maxHeadingDeg         = 360.0
+	maxScaledHeadingDeg   = 3600.0
+	earthRadiusKM         = 6371.0
+	reverseGeocodeTimeout = 4 * time.Second
+	eventGeofenceBreach   = "GEOFENCE_BREACH"
+)
+
+var ErrInvalidSensorID = errors.New("sensor id is required")
+
+type securityEvent struct {
+	bikeID       string
+	userID       string
+	registration string
+	eventType    string
+	lat, lng     float64
+	at           time.Time
 }
 
-func NewTelemetryService(pool *pgxpool.Pool, repo *repository.TelemetryRepository) *TelemetryService {
+type TelemetryService struct {
+	pool          *pgxpool.Pool
+	telemetry     *repository.TelemetryRepository
+	bikes         *repository.BikeRepository
+	sse           SSEBroker
+	geocoder      *geolocation.ReverseGeocoder
+	notifications *notification.Service
+}
+
+func NewTelemetryService(pool *pgxpool.Pool, telemetry *repository.TelemetryRepository) *TelemetryService {
 	return &TelemetryService{
-		pool:            pool,
-		repo:            repo,
-		reverseGeocoder: geolocation.NewReverseGeocoder(),
+		pool:      pool,
+		telemetry: telemetry,
+		geocoder:  geolocation.NewReverseGeocoder(),
 	}
+}
+
+func (s *TelemetryService) SetSSEBroker(broker SSEBroker) {
+	s.sse = broker
+}
+
+func (s *TelemetryService) SetBikeRepo(repo *repository.BikeRepository) {
+	s.bikes = repo
+}
+
+func (s *TelemetryService) SetNotificationService(ns *notification.Service) {
+	s.notifications = ns
 }
 
 func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.TelemetryPayload) error {
 	sensorID := strings.TrimSpace(payload.SensorID)
 	if sensorID == "" {
-		return repository.ErrNotFound
+		return ErrInvalidSensorID
 	}
 
-	bikeID, geofenceID, err := s.repo.ResolveBikeBySensor(ctx, sensorID)
+	bikeID, geofenceID, err := s.telemetry.ResolveBikeBySensor(ctx, sensorID)
 	if err != nil {
 		return err
 	}
@@ -43,62 +83,83 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		recordedAt = time.Unix(payload.Timestamp, 0).UTC()
 	}
 
-	prevLat, prevLng, prevTime, hasPrev, err := s.repo.GetBikeLastPosition(ctx, bikeID)
+	speed := math.Max(payload.SpeedKMH, 0)
+	heading := payload.HeadingDeg
+	switch {
+	case heading < 0:
+		heading = 0
+	case heading > maxHeadingDeg && heading <= maxScaledHeadingDeg:
+		heading /= 10.0
+	case heading > maxHeadingDeg:
+		heading = math.Mod(heading, maxHeadingDeg)
+	}
+
+	prevLat, prevLng, prevAt, hasPrev, err := s.telemetry.GetBikeLastPosition(ctx, bikeID)
 	if err != nil {
+		slog.Warn("last position lookup failed", "bike_id", bikeID, "err", err)
 		hasPrev = false
 	}
 
-	speed := payload.SpeedKMH
-	if speed < 0.0 {
-		speed = 0.0
+	bothFixesValid := hasPrev &&
+		prevLat != 0 && prevLng != 0 &&
+		payload.Latitude != 0 && payload.Longitude != 0
+
+	distanceKM := 0.0
+	if bothFixesValid {
+		distanceKM = haversineKM(prevLat, prevLng, payload.Latitude, payload.Longitude)
 	}
 
-	heading := payload.HeadingDeg
-	if heading > 360.0 && heading <= 3600.0 {
-		heading = heading / 10.0
-	} else if heading > 360.0 {
-		heading = math.Mod(heading, 360.0)
+	hours := recordedAt.Sub(prevAt).Hours()
+	hasMoved := bothFixesValid && distanceKM > minTrackedDistanceKM
+	canDeriveSpeed := hasMoved && speed <= 0 && hours > 0 && distanceKM/hours < maxPlausibleSpeedKMH
+	canDeriveHeading := hasMoved && heading <= 0
+
+	if canDeriveSpeed {
+		speed = distanceKM / hours
 	}
-	if heading < 0.0 {
-		heading = 0.0
-	}
-
-	if hasPrev && payload.Latitude != 0 && payload.Longitude != 0 && prevLat != 0 && prevLng != 0 {
-		distanceKM := haversineDistanceKM(prevLat, prevLng, payload.Latitude, payload.Longitude)
-		elapsedHours := recordedAt.Sub(prevTime).Hours()
-
-		if speed <= 0 && elapsedHours > 0 && distanceKM > 0.005 {
-			calculatedSpeed := distanceKM / elapsedHours
-			if calculatedSpeed < 180.0 {
-				speed = calculatedSpeed
-			}
-		}
-
-		if heading <= 0 && distanceKM > 0.005 {
-			heading = calculateBearingDeg(prevLat, prevLng, payload.Latitude, payload.Longitude)
-		}
+	if canDeriveHeading {
+		heading = bearingDeg(prevLat, prevLng, payload.Latitude, payload.Longitude)
 	}
 
+	ignition := payload.Ignition || speed > movingThresholdKMH
 	status := "STOPPED"
-	ignition := payload.Ignition
-	if ignition || speed > 1.0 || payload.SpeedKMH > 1.0 {
+	if ignition {
 		status = "RUNNING"
-	}
-	if speed > 1.0 || payload.SpeedKMH > 1.0 {
-		ignition = true
 	}
 
 	battery := payload.BatteryPercent
-	if battery <= 0 {
+	if battery < 0 {
+		battery = 0
+	}
+	if battery > 100 {
 		battery = 100
 	}
-
-	signalQuality := payload.SignalQuality
-	if signalQuality <= 0 {
-		signalQuality = 20
+	signal := payload.SignalQuality
+	if signal < 0 {
+		signal = 0
 	}
 
-	breach, _, _ := s.repo.CheckGeofenceBreach(ctx, geofenceID, payload.Latitude, payload.Longitude)
+	breached := false
+	if geofenceID != "" && (payload.Latitude != 0 || payload.Longitude != 0) {
+		var breachErr error
+		breached, _, breachErr = s.telemetry.CheckGeofenceBreach(ctx, repository.CheckGeofenceParams{
+			GeofenceID: geofenceID,
+			Latitude:   payload.Latitude,
+			Longitude:  payload.Longitude,
+		})
+		if breachErr != nil {
+			return breachErr
+		}
+	}
+
+	var address, subCounty, county string
+	hasCoordinates := payload.Latitude != 0 || payload.Longitude != 0
+	if hasCoordinates {
+		geoCtx, cancel := context.WithTimeout(ctx, reverseGeocodeTimeout)
+		defer cancel()
+		info := s.geocoder.ReverseGeocode(geoCtx, payload.Latitude, payload.Longitude)
+		address, subCounty, county = info.FormattedAddress, info.SubCounty, info.County
+	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -106,86 +167,200 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 	defer tx.Rollback(ctx)
 
-	var address, subCounty, county string
-	if payload.Latitude != 0 || payload.Longitude != 0 {
-		geoCtx, geoCancel := context.WithTimeout(ctx, 4*time.Second)
-		addrInfo := s.reverseGeocoder.ReverseGeocode(geoCtx, payload.Latitude, payload.Longitude)
-		geoCancel()
-		address = addrInfo.FormattedAddress
-		subCounty = addrInfo.SubCounty
-		county = addrInfo.County
+	locType := payload.LocType
+	if locType == "" {
+		locType = "gps"
+	}
+	accuracy := payload.Accuracy
+	if accuracy <= 0 && payload.Latitude != 0 && payload.Longitude != 0 {
+		accuracy = 5.0
 	}
 
-	err = s.repo.SaveTelemetry(
-		ctx,
-		tx,
-		bikeID,
-		sensorID,
-		payload.Latitude,
-		payload.Longitude,
-		address,
-		subCounty,
-		county,
-		speed,
-		heading,
-		status,
-		ignition,
-		battery,
-		signalQuality,
-		breach,
-		recordedAt,
-	)
+	err = s.telemetry.SaveTelemetry(ctx, tx, repository.SaveTelemetryParams{
+		BikeID:        bikeID,
+		SensorID:      sensorID,
+		Latitude:      payload.Latitude,
+		Longitude:     payload.Longitude,
+		Accuracy:      accuracy,
+		LocType:       locType,
+		Address:       address,
+		SubCounty:     subCounty,
+		County:        county,
+		SpeedKMH:      speed,
+		HeadingDeg:    heading,
+		Status:        status,
+		Ignition:      ignition,
+		Battery:       battery,
+		SignalQuality: signal,
+		Breach:        breached,
+		RecordedAt:    recordedAt,
+	})
+	if err != nil {
+		return err
+	}
+	err = tx.Commit(ctx)
 	if err != nil {
 		return err
 	}
 
-	evType := strings.TrimSpace(payload.EventType)
-	if evType == "" {
-		evType = strings.TrimSpace(payload.Event)
-	}
-	if evType != "" {
-		_ = s.repo.SaveEvent(ctx, bikeID, evType, payload.Latitude, payload.Longitude, recordedAt)
+	eventType := strings.TrimSpace(payload.EventType)
+	if eventType == "" {
+		eventType = strings.TrimSpace(payload.Event)
 	}
 
-	return tx.Commit(ctx)
+	var saveEventErr error
+	if eventType != "" {
+		saveEventErr = s.telemetry.SaveEvent(ctx, repository.SaveEventParams{
+			BikeID:     bikeID,
+			EventType:  eventType,
+			Latitude:   payload.Latitude,
+			Longitude:  payload.Longitude,
+			RecordedAt: recordedAt,
+		})
+	}
+	if saveEventErr != nil {
+		slog.Error("saving event failed", "bike_id", bikeID, "event", eventType, "err", saveEventErr)
+	}
+
+	if s.bikes == nil {
+		return nil
+	}
+	bike, err := s.bikes.GetByIDDirect(ctx, bikeID)
+	if err != nil || bike == nil {
+		slog.Warn("bike lookup for publishing failed", "bike_id", bikeID, "err", err)
+		return nil
+	}
+	dto := ToBikeDTO(bike)
+	if s.sse != nil {
+		s.sse.BroadcastBikeUpdate(dto.UserID, dto)
+	}
+
+	alert := securityEvent{
+		bikeID:       bikeID,
+		userID:       dto.UserID,
+		registration: dto.RegistrationNumber,
+		lat:          payload.Latitude,
+		lng:          payload.Longitude,
+		at:           recordedAt,
+	}
+
+	alert.eventType = eventGeofenceBreach
+	if breached {
+		s.raiseAlert(ctx, alert)
+	}
+
+	alert.eventType = eventType
+	if eventType != "" && eventType != eventGeofenceBreach {
+		s.raiseAlert(ctx, alert)
+	}
+	return nil
 }
 
-func (s *TelemetryService) IngestEvent(ctx context.Context, sensorID string, eventType string, lat float64, lng float64, recordedAt time.Time) error {
+func (s *TelemetryService) IngestEvent(
+	ctx context.Context,
+	sensorID, eventType string,
+	lat, lng float64,
+	recordedAt time.Time,
+) error {
 	sensorID = strings.TrimSpace(sensorID)
 	if sensorID == "" {
-		return repository.ErrNotFound
+		return ErrInvalidSensorID
 	}
-	bikeID, _, err := s.repo.ResolveBikeBySensor(ctx, sensorID)
+
+	bikeID, _, err := s.telemetry.ResolveBikeBySensor(ctx, sensorID)
 	if err != nil {
 		return err
 	}
 	if recordedAt.IsZero() {
 		recordedAt = time.Now().UTC()
 	}
-	return s.repo.SaveEvent(ctx, bikeID, eventType, lat, lng, recordedAt)
+
+	err = s.telemetry.SaveEvent(ctx, repository.SaveEventParams{
+		BikeID:     bikeID,
+		EventType:  eventType,
+		Latitude:   lat,
+		Longitude:  lng,
+		RecordedAt: recordedAt,
+	})
+	if err != nil {
+		return err
+	}
+
+	if s.bikes == nil {
+		return nil
+	}
+	bike, err := s.bikes.GetByIDDirect(ctx, bikeID)
+	if err != nil || bike == nil || bike.UserID == "" {
+		slog.Warn("cannot resolve bike owner; alert skipped", "bike_id", bikeID, "err", err)
+		return nil
+	}
+	registration := bike.RegistrationNumber
+	if registration == "" {
+		registration = bikeID
+	}
+
+	s.raiseAlert(ctx, securityEvent{
+		bikeID:       bikeID,
+		userID:       bike.UserID,
+		registration: registration,
+		eventType:    eventType,
+		lat:          lat,
+		lng:          lng,
+		at:           recordedAt,
+	})
+	return nil
 }
 
-func haversineDistanceKM(lat1, lon1, lat2, lon2 float64) float64 {
-	rad := math.Pi / 180.0
+func (s *TelemetryService) raiseAlert(ctx context.Context, ev securityEvent) {
+	title := "🚨 " + strings.ReplaceAll(ev.eventType, "_", " ")
+	body := "Security event " + ev.eventType + " detected on " + ev.registration
+	if ev.eventType == eventGeofenceBreach {
+		title = "🚨 Geofence Breach Alert"
+		body = "Motorcycle " + ev.registration + " has breached its geofence boundary."
+	}
+
+	if s.sse != nil {
+		s.sse.BroadcastAlert(ev.userID, map[string]any{
+			"bike_id":     ev.bikeID,
+			"event_type":  ev.eventType,
+			"title":       title,
+			"activity":    body,
+			"latitude":    ev.lat,
+			"longitude":   ev.lng,
+			"recorded_at": ev.at,
+		})
+	}
+
+	if s.notifications != nil && ev.userID != "" {
+		err := s.notifications.DispatchSecurityAlert(ctx, ev.userID, notification.SecurityAlert{
+			BikeID:     ev.bikeID,
+			Title:      title,
+			Body:       body,
+			EventType:  ev.eventType,
+			Latitude:   ev.lat,
+			Longitude:  ev.lng,
+			RecordedAt: ev.at,
+		})
+		if err != nil {
+			slog.Error("dispatching alert failed", "bike_id", ev.bikeID, "event", ev.eventType, "err", err)
+		}
+	}
+}
+
+func haversineKM(lat1, lng1, lat2, lng2 float64) float64 {
+	const rad = math.Pi / 180.0
 	dLat := (lat2 - lat1) * rad
-	dLon := (lon2 - lon1) * rad
-
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Cos(lat1*rad)*math.Cos(lat2*rad)*
-			math.Sin(dLon/2)*math.Sin(dLon/2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	return 6371.0 * c
+	dLng := (lng2 - lng1) * rad
+	h := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*rad)*math.Cos(lat2*rad)*math.Sin(dLng/2)*math.Sin(dLng/2)
+	return earthRadiusKM * 2 * math.Atan2(math.Sqrt(h), math.Sqrt(1-h))
 }
 
-func calculateBearingDeg(lat1, lon1, lat2, lon2 float64) float64 {
-	rad := math.Pi / 180.0
-	phi1 := lat1 * rad
-	phi2 := lat2 * rad
-	deltaLambda := (lon2 - lon1) * rad
-
-	y := math.Sin(deltaLambda) * math.Cos(phi2)
-	x := math.Cos(phi1)*math.Sin(phi2) - math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda)
-	theta := math.Atan2(y, x) * (180.0 / math.Pi)
-
-	return math.Mod(theta+360.0, 360.0)
+func bearingDeg(lat1, lng1, lat2, lng2 float64) float64 {
+	const rad = math.Pi / 180.0
+	phi1, phi2 := lat1*rad, lat2*rad
+	dLambda := (lng2 - lng1) * rad
+	y := math.Sin(dLambda) * math.Cos(phi2)
+	x := math.Cos(phi1)*math.Sin(phi2) - math.Sin(phi1)*math.Cos(phi2)*math.Cos(dLambda)
+	return math.Mod(math.Atan2(y, x)*(180.0/math.Pi)+360.0, 360.0)
 }

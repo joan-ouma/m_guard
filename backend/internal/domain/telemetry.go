@@ -68,26 +68,34 @@ type TrackerAssignment struct {
 	CreatedAt      time.Time
 }
 
+type CellTower struct {
+	LAC     int `json:"lac"`
+	CID     int `json:"cid"`
+	RSSIDBm int `json:"dbm"`
+}
+
 type TelemetryPayload struct {
-	SensorID       string  `json:"sensor_id"`
-	Latitude       float64 `json:"lat"`
-	Longitude      float64 `json:"lng"`
-	LocType        string  `json:"loc_type,omitempty"`
-	MCC            int     `json:"mcc,omitempty"`
-	MNC            int     `json:"mnc,omitempty"`
-	LAC            int     `json:"lac,omitempty"`
-	CID            int     `json:"cid,omitempty"`
-	SignalQuality  int     `json:"csq,omitempty"`
-	RSSIDBm        int     `json:"rssi_dbm,omitempty"`
-	SpeedKMH       float64 `json:"speed"`
-	HeadingDeg     float64 `json:"heading"`
-	Ignition       bool    `json:"ign"`
-	BatteryPercent int     `json:"bat,omitempty"`
-	Timestamp      int64   `json:"ts,omitempty"`
-	Alert          bool    `json:"alert,omitempty"`
-	Reason         string  `json:"reason,omitempty"`
-	Event          string  `json:"event,omitempty"`
-	EventType      string  `json:"event_type,omitempty"`
+	SensorID       string      `json:"sensor_id"`
+	Latitude       float64     `json:"lat"`
+	Longitude      float64     `json:"lng"`
+	LocType        string      `json:"loc_type,omitempty"`
+	Accuracy       float64     `json:"accuracy,omitempty"`
+	MCC            int         `json:"mcc,omitempty"`
+	MNC            int         `json:"mnc,omitempty"`
+	LAC            int         `json:"lac,omitempty"`
+	CID            int         `json:"cid,omitempty"`
+	Cells          []CellTower `json:"cells,omitempty"`
+	SignalQuality  int         `json:"csq,omitempty"`
+	RSSIDBm        int         `json:"rssi_dbm,omitempty"`
+	SpeedKMH       float64     `json:"speed"`
+	HeadingDeg     float64     `json:"heading"`
+	Ignition       bool        `json:"ign"`
+	BatteryPercent int         `json:"bat,omitempty"`
+	Timestamp      int64       `json:"ts,omitempty"`
+	Alert          bool        `json:"alert,omitempty"`
+	Reason         string      `json:"reason,omitempty"`
+	Event          string      `json:"event,omitempty"`
+	EventType      string      `json:"event_type,omitempty"`
 }
 
 func (p *TelemetryPayload) UnmarshalJSON(data []byte) error {
@@ -119,22 +127,24 @@ func (p *TelemetryPayload) UnmarshalJSON(data []byte) error {
 }
 
 type AlertPayload struct {
-	Alert          bool    `json:"alert"`
-	Reason         string  `json:"reason"`
-	Latitude       float64 `json:"lat"`
-	Longitude      float64 `json:"lng"`
-	LocType        string  `json:"loc_type,omitempty"`
-	MCC            int     `json:"mcc,omitempty"`
-	MNC            int     `json:"mnc,omitempty"`
-	LAC            int     `json:"lac,omitempty"`
-	CID            int     `json:"cid,omitempty"`
-	SignalQuality  int     `json:"csq,omitempty"`
-	RSSIDBm        int     `json:"rssi_dbm,omitempty"`
-	SpeedKMH       float64 `json:"speed"`
-	HeadingDeg     float64 `json:"heading"`
-	Ignition       bool    `json:"ign"`
-	Timestamp      int64   `json:"ts,omitempty"`
-	BatteryPercent int     `json:"bat,omitempty"`
+	Alert          bool        `json:"alert"`
+	Reason         string      `json:"reason"`
+	Latitude       float64     `json:"lat"`
+	Longitude      float64     `json:"lng"`
+	LocType        string      `json:"loc_type,omitempty"`
+	Accuracy       float64     `json:"accuracy,omitempty"`
+	MCC            int         `json:"mcc,omitempty"`
+	MNC            int         `json:"mnc,omitempty"`
+	LAC            int         `json:"lac,omitempty"`
+	CID            int         `json:"cid,omitempty"`
+	Cells          []CellTower `json:"cells,omitempty"`
+	SignalQuality  int         `json:"csq,omitempty"`
+	RSSIDBm        int         `json:"rssi_dbm,omitempty"`
+	SpeedKMH       float64     `json:"speed"`
+	HeadingDeg     float64     `json:"heading"`
+	Ignition       bool        `json:"ign"`
+	Timestamp      int64       `json:"ts,omitempty"`
+	BatteryPercent int         `json:"bat,omitempty"`
 }
 
 func (a *AlertPayload) UnmarshalJSON(data []byte) error {
@@ -163,6 +173,8 @@ type BreadcrumbDTO struct {
 	BikeID         string    `json:"bike_id"`
 	Latitude       float64   `json:"latitude"`
 	Longitude      float64   `json:"longitude"`
+	Accuracy       float64   `json:"accuracy"`
+	LocType        string    `json:"loc_type"`
 	SpeedKMH       float64   `json:"speed_kmh"`
 	HeadingDeg     float64   `json:"heading_deg"`
 	Ignition       bool      `json:"ignition"`
@@ -173,10 +185,12 @@ type BreadcrumbDTO struct {
 }
 
 type BikeEventDTO struct {
-	ID         int64     `json:"id"`
-	BikeID     string    `json:"bike_id"`
-	EventType  string    `json:"event_type"`
-	Latitude   float64   `json:"latitude"`
-	Longitude  float64   `json:"longitude"`
-	RecordedAt time.Time `json:"recorded_at"`
+	ID                 int64     `json:"id"`
+	BikeID             string    `json:"bike_id"`
+	RegistrationNumber string    `json:"registration_number,omitempty"`
+	Model              string    `json:"model,omitempty"`
+	EventType          string    `json:"event_type"`
+	Latitude           float64   `json:"latitude"`
+	Longitude          float64   `json:"longitude"`
+	RecordedAt         time.Time `json:"recorded_at"`
 }

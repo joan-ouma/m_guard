@@ -1,0 +1,106 @@
+:host {
+  display: block;
+  font-family: var(--font-sans);
+}
+
+/* Light Map Container */
+.leaflet-container {
+  background: #f4f4f5 !important;
+}
+
+/* Clean, modern, muted tiles without loud cartoon colors (NO API KEY REQUIRED) */
+#emergencyMap .leaflet-tile,
+.emergency-osm-tiles {
+  filter: grayscale(70%) contrast(92%) brightness(102%) !important;
+}
+
+/* Emergency Map Container */
+#emergencyMap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
+}
+
+/* Map Pin Base */
+.map-marker-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.map-marker-pin .pin-body {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.map-marker-pin .pin-tip {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  margin-top: -1px;
+}
+
+/* Police: Muted Navy Blue */
+.map-marker-police .pin-body {
+  background-color: #1e40af;
+}
+
+.map-marker-police .pin-tip {
+  border-top: 5px solid #1e40af;
+}
+
+/* Ambulance: Muted Red */
+.map-marker-ambulance .pin-body {
+  background-color: #b91c1c;
+}
+
+.map-marker-ambulance .pin-tip {
+  border-top: 5px solid #b91c1c;
+}
+
+/* National Hotline: Slate */
+.map-marker-national .pin-body {
+  background-color: #475569;
+}
+
+.map-marker-national .pin-tip {
+  border-top: 5px solid #475569;
+}
+
+/* Motorcycle: Dark Charcoal */
+.map-marker-bike .pin-body {
+  background-color: #09090b;
+  border: 1.5px solid #ffffff;
+}
+
+.map-marker-bike .pin-tip {
+  border-top: 5px solid #09090b;
+}
+
+/* Utilitarian Leaflet Popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e4e4e7 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}

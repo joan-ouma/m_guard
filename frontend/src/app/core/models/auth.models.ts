@@ -48,3 +48,14 @@ export interface ProblemDetails {
   instance?: string;
   errors?: Record<string, string[]>;
 }
+
+export interface JwtClaims {
+  sub?: string;
+  uid?: string;
+  rol?: string;
+  exp?: number;
+  iat?: number;
+  iss?: string;
+  [key: string]: unknown;
+}
+

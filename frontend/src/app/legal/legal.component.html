@@ -1,0 +1,231 @@
+<div class="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans py-10 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto space-y-8">
+
+    <!-- Simple Top Navigation -->
+    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer flex items-center gap-1"
+      >
+        <span>&larr;</span>
+        <span>Back</span>
+      </button>
+
+      <!-- Simple Switcher -->
+      <div class="flex items-center gap-4 text-xs font-semibold">
+        <button
+          type="button"
+          (click)="setTab('terms')"
+          class="cursor-pointer transition pb-1"
+          [ngClass]="activeTab() === 'terms' ? 'text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+        >
+          Terms & Conditions
+        </button>
+        <button
+          type="button"
+          (click)="setTab('privacy')"
+          class="cursor-pointer transition pb-1"
+          [ngClass]="activeTab() === 'privacy' ? 'text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+        >
+          Privacy Policy
+        </button>
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TERMS AND CONDITIONS                                            -->
+    <!-- =============================================================== -->
+    @if (activeTab() === 'terms') {
+      <article class="space-y-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Terms & Conditions
+          </h1>
+          <p class="text-xs text-slate-400 mt-1">
+            Last updated: {{ lastUpdated }}
+          </p>
+        </div>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            1. Acceptance of Terms
+          </h2>
+          <p>
+            By accessing or using the MotoGuard platform, web applications, or IoT tracking services, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, you must not access or use the platform.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            2. Services Provided
+          </h2>
+          <p>
+            MotoGuard provides motorcycle telemetry, real-time GPS tracking, geofence boundary monitoring, and remote vehicle immobilization commands. Service availability depends on GPS satellite reception, GSM cellular network coverage, and device power status.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            3. Hardware Trackers & Installation
+          </h2>
+          <p>
+            Users are responsible for ensuring hardware trackers with certified 15-digit IMEIs are properly installed by qualified automotive technicians. MotoGuard is not responsible for vehicle battery discharge or electrical issues resulting from improper physical installation.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            4. Remote Immobilization Safety
+          </h2>
+          <p>
+            Remote engine cut-off commands disengage motorcycle ignition or fuel delivery. You agree to use this feature only when the vehicle is stationary or moving at safe crawl speeds. You accept full responsibility for any accident or damage caused by triggering immobilization during high-speed transit.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            5. User Accounts & Rate Limiting
+          </h2>
+          <p>
+            You are responsible for keeping your login credentials confidential. The platform enforces automated rate limiting to protect accounts and hardware trackers against unauthorized access and brute-force scans.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            6. Subscriptions & Data Charges
+          </h2>
+          <p>
+            Hardware trackers require active data subscriptions to maintain cellular transmission to MotoGuard servers. Failure to renew subscription fees may result in temporary suspension of tracking and remote control services.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            7. Acceptable Use
+          </h2>
+          <p>
+            You agree not to use MotoGuard for unlawful surveillance, harassment, or unauthorized tracking of individuals without consent. You may not reverse-engineer, decompile, or tamper with MotoGuard hardware firmware or API services.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            8. Limitation of Liability
+          </h2>
+          <p>
+            MotoGuard is a tracking and telemetry management aid, not an insurance policy. MotoGuard is not liable for vehicle theft, recovery failures, road accidents, or indirect commercial losses. Vehicle owners must maintain appropriate commercial insurance.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            9. Termination
+          </h2>
+          <p>
+            MotoGuard reserves the right to suspend or terminate accounts that violate these terms or engage in abusive activity. You may cancel your account at any time by contacting customer support.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            10. Governing Law
+          </h2>
+          <p>
+            These terms are governed by and construed in accordance with the laws of the Republic of Kenya. Any unresolved legal disputes shall be settled through arbitration under Kenyan law.
+          </p>
+        </section>
+      </article>
+    }
+
+    <!-- =============================================================== -->
+    <!-- PRIVACY POLICY                                                  -->
+    <!-- =============================================================== -->
+    @if (activeTab() === 'privacy') {
+      <article class="space-y-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Privacy Policy
+          </h1>
+          <p class="text-xs text-slate-400 mt-1">
+            Last updated: {{ lastUpdated }}
+          </p>
+        </div>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            1. Overview
+          </h2>
+          <p>
+            MotoGuard respects your privacy and is committed to protecting your personal information and vehicle telemetry data in compliance with the Kenya Data Protection Act, 2019 and relevant privacy regulations.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            2. Information We Collect
+          </h2>
+          <p>
+            We collect account details (name, email address, phone number), vehicle information (license plate, motorcycle model), and device telemetry transmitted by installed hardware (GPS coordinates, speed, heading, ignition status, battery voltage, and 15-digit IMEI).
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            3. How We Use Your Data
+          </h2>
+          <p>
+            Your information is used solely to provide real-time tracking, generate historical ride breadcrumbs, calculate geofence breach notifications, detect vehicle tampering, and maintain service security. We do not sell or rent your personal or location data to third parties.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            4. Data Sharing
+          </h2>
+          <p>
+            We only share telemetry with essential service providers: cellular carriers for SIM connectivity and secure cloud hosting infrastructure. In cases of motorcycle theft or legal investigation, location vectors may be shared with law enforcement authorities upon verified request.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            5. Data Retention
+          </h2>
+          <p>
+            High-resolution location breadcrumbs are retained for 90 days for operational replay. Historical trip aggregates are kept for up to 12 months, after which they are permanently expunged or anonymized.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            6. Security Measures
+          </h2>
+          <p>
+            We use industry-standard encryption protocols (TLS 1.3 in transit, salted bcrypt password hashes, and access-controlled databases) to safeguard your vehicle records from unauthorized access.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            7. Your Rights
+          </h2>
+          <p>
+            Under the Kenya Data Protection Act, you have the right to access the data we hold about you, request corrections to erroneous records, and request the deletion of your account and associated tracking records upon discontinuing service.
+          </p>
+        </section>
+
+        <section class="space-y-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white">
+            8. Contact Us
+          </h2>
+          <p>
+            If you have questions about this Privacy Policy or wish to exercise your data rights, contact us at <a href="mailto:privacy@jullie.tech" class="text-slate-900 dark:text-white font-semibold underline">privacy&#64;jullie.tech</a>.
+          </p>
+        </section>
+      </article>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,87 @@
+<header
+  class="h-16 lg:h-20 bg-white border-b border-zinc-200 px-4 lg:px-8 flex items-center justify-between shrink-0 z-30 relative"
+>
+  <div class="flex items-center gap-3 lg:gap-6 min-w-0">
+    <button
+      type="button"
+      (click)="toggleMobileDrawer.emit()"
+      title="Open Menu"
+      class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer shrink-0"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Mobile-Only Brand Icon & Bold Logo (Hidden on desktop where sidebar is visible) -->
+    <div class="flex lg:hidden items-center gap-2.5 min-w-0">
+      <div
+        class="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2.2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+          />
+        </svg>
+      </div>
+      <span id="headerPlateLabel" class="text-base sm:text-lg font-bold tracking-tight text-zinc-950 font-display">
+        MGuard
+      </span>
+    </div>
+
+    @if (isBreachActive()) {
+      <div
+        id="alertBanner"
+        class="flex items-center gap-1.5 lg:gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 lg:px-4 py-1 lg:py-2 rounded-full text-xs lg:text-sm font-semibold truncate"
+      >
+        <span class="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-rose-600 shrink-0"></span>
+        <span id="alertBannerText" class="truncate">{{ alertBannerText() }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="flex items-center gap-2 lg:gap-4 shrink-0">
+    @if (hasBikes()) {
+
+      <button
+        type="button"
+        (click)="openGeofenceModal.emit()"
+        class="hidden sm:flex h-10 lg:h-12 px-3.5 lg:px-6 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs lg:text-sm font-bold items-center gap-1.5 lg:gap-2.5 cursor-pointer shadow-xs transition-colors"
+      >
+        <svg
+          class="w-4 h-4 lg:w-5 lg:h-5 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="hidden sm:inline">Create Geofence</span>
+        <span class="sm:hidden">Geofence</span>
+      </button>
+    }
+
+    <!-- Notification Bell -->
+    <app-notification-bell
+      [notifications]="notifications()"
+      [unreadCount]="unreadCount()"
+      (viewNotification)="viewNotification.emit($event)"
+      (markAllRead)="markAllRead.emit()"
+    />
+  </div>
+</header>

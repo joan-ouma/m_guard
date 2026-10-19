@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -10,6 +11,8 @@ import (
 	"motoguard-backend/internal/middleware"
 	"motoguard-backend/internal/security"
 	"motoguard-backend/internal/service"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type AuthHandler struct {
@@ -20,9 +23,40 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 	return &AuthHandler{service: s}
 }
 
+func (h *AuthHandler) UserRoutes(rateLimit func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+	r.Use(rateLimit)
+
+	r.Post("/register", h.Register)
+	r.Post("/", h.Register)
+
+	return r
+}
+
+func (h *AuthHandler) SessionRoutes(rateLimit func(http.Handler) http.Handler, auth func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+
+	r.With(rateLimit).Post("/", h.Login)
+	r.Put("/current", h.Refresh)
+	r.Delete("/current", h.Logout)
+	r.With(auth).Get("/current", h.GetCurrent)
+
+	return r
+}
+
+func (h *AuthHandler) PasswordResetRoutes(rateLimit func(http.Handler) http.Handler) chi.Router {
+	r := chi.NewRouter()
+	r.Use(rateLimit)
+
+	r.Post("/", h.RequestPasswordReset)
+	r.Patch("/{token}", h.ConfirmPasswordReset)
+
+	return r
+}
+
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -67,7 +101,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -91,22 +125,21 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	sessionData, refreshToken, err := h.service.Login(r.Context(), req.Email, req.Password, ip, userAgent)
 	if err != nil {
 		if pd, ok := err.(domain.ProblemDetails); ok {
+			if pd.Status >= 500 {
+				slog.Error("Login 500 internal error", "email", req.Email, "detail", pd.Detail, "instance", pd.Instance)
+			} else {
+				slog.Warn("Login client error", "email", req.Email, "status", pd.Status, "detail", pd.Detail)
+			}
 			pd.WriteJSON(w)
 			return
 		}
+		slog.Error("Login unhandled internal error", "email", req.Email, "error", err)
 		domain.NewInternalServerError(r.URL.Path).WriteJSON(w)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		Path:     "/v1/sessions",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, refreshToken, time.Now().Add(7*24*time.Hour), int(7*24*time.Hour.Seconds()))
+	setAccessTokenCookie(w, r, sessionData.AccessToken, time.Now().Add(15*time.Minute), int(15*time.Minute.Seconds()))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -115,7 +148,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -145,15 +178,8 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    newRefreshToken,
-		Path:     "/v1/sessions",
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, newRefreshToken, time.Now().Add(7*24*time.Hour), int(7*24*time.Hour.Seconds()))
+	setAccessTokenCookie(w, r, sessionData.AccessToken, time.Now().Add(15*time.Minute), int(15*time.Minute.Seconds()))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -162,7 +188,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -173,23 +199,15 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.service.Logout(r.Context(), rawRefreshToken)
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		Path:     "/v1/sessions",
-		Expires:  time.Unix(0, 0),
-		MaxAge:   -1,
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-	})
+	setSessionCookie(w, r, "", time.Unix(0, 0), -1)
+	setAccessTokenCookie(w, r, "", time.Unix(0, 0), -1)
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *AuthHandler) GetCurrent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -228,7 +246,7 @@ func (h *AuthHandler) GetCurrent(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
@@ -252,11 +270,14 @@ func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Reques
 
 func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		domain.NewMethodNotAllowedError("Method not allowed", r.URL.Path).WriteJSON(w)
 		return
 	}
 
-	token := strings.TrimPrefix(r.URL.Path, "/v1/password-resets/")
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		token = strings.TrimPrefix(r.URL.Path, "/v1/password-resets/")
+	}
 	token = strings.TrimSpace(token)
 	if token == "" {
 		domain.NewBadRequestError("Missing reset token in path", r.URL.Path, nil).WriteJSON(w)
@@ -283,4 +304,44 @@ func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Reques
 	_ = json.NewEncoder(w).Encode(domain.MessageResponse{
 		Message: "Password has been successfully updated. All active sessions have been revoked.",
 	})
+}
+
+func setSessionCookie(w http.ResponseWriter, r *http.Request, value string, expires time.Time, maxAge int) {
+	isHTTPS := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
+	cookie := &http.Cookie{
+		Name:     "refresh_token",
+		Value:    value,
+		Path:     "/v1/sessions",
+		Expires:  expires,
+		MaxAge:   maxAge,
+		HttpOnly: true,
+	}
+	if isHTTPS {
+		cookie.Secure = true
+		cookie.SameSite = http.SameSiteNoneMode
+	} else {
+		cookie.Secure = false
+		cookie.SameSite = http.SameSiteLaxMode
+	}
+	http.SetCookie(w, cookie)
+}
+
+func setAccessTokenCookie(w http.ResponseWriter, r *http.Request, value string, expires time.Time, maxAge int) {
+	isHTTPS := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
+	cookie := &http.Cookie{
+		Name:     "motoguard_token",
+		Value:    value,
+		Path:     "/",
+		Expires:  expires,
+		MaxAge:   maxAge,
+		HttpOnly: true,
+	}
+	if isHTTPS {
+		cookie.Secure = true
+		cookie.SameSite = http.SameSiteNoneMode
+	} else {
+		cookie.Secure = false
+		cookie.SameSite = http.SameSiteLaxMode
+	}
+	http.SetCookie(w, cookie)
 }

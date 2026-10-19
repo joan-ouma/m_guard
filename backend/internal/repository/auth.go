@@ -24,7 +24,7 @@ func NewAuthRepository(pool *pgxpool.Pool) *AuthRepository {
 
 func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, name, national_id, phone_number, created_at, updated_at
+		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW())
 		FROM users
 		WHERE LOWER(email) = LOWER($1)
 		LIMIT 1
@@ -69,7 +69,7 @@ func (r *AuthRepository) CreateUser(ctx context.Context, u *domain.User) error {
 
 func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, name, national_id, phone_number, created_at, updated_at
+		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW())
 		FROM users
 		WHERE id = $1
 		LIMIT 1

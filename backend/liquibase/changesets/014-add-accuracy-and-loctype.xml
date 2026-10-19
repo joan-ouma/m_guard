@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="014-add-accuracy-and-loctype" author="motoguard">
+        <comment>Add accuracy and loc_type to bikes and bike_breadcrumbs for multi-cell LBS and GPS precision</comment>
+        <sqlFile path="../sql/014-add-accuracy-and-loctype.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false"/>
+    </changeSet>
+
+</databaseChangeLog>

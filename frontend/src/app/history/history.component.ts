@@ -8,13 +8,14 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of, catchError } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BreadcrumbDTO, BikeEventDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
+import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 
 export interface TrailEvent {
   id: number | string;
@@ -33,7 +34,7 @@ export interface TrailEvent {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, MobileNavComponent],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -53,6 +54,13 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly breadcrumbs = signal<BreadcrumbDTO[]>([]);
   readonly bikeEvents = signal<BikeEventDTO[]>([]);
   readonly isLoading = signal<boolean>(false);
+
+  // Filter Modal Form state
+  readonly isFilterModalOpen = signal<boolean>(false);
+  readonly tempBikeId = signal<string>('');
+  readonly tempStartDate = signal<string>('');
+  readonly tempEndDate = signal<string>('');
+  readonly tempIncidentsOnly = signal<boolean>(false);
 
   // Report Modal & View state
   readonly isReportModalOpen = signal(false);
@@ -82,6 +90,13 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.selectedStartDate() === today && this.selectedEndDate() === today;
   });
 
+  readonly isSelectedDateYesterday = computed<boolean>(() => {
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    const yesterday = this.formatDate(y);
+    return this.selectedStartDate() === yesterday && this.selectedEndDate() === yesterday;
+  });
+
   // Chronological trail & events list for the selected day
   readonly trailEvents = computed<TrailEvent[]>(() => {
     const pts = this.breadcrumbs();
@@ -92,7 +107,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Helper to find nearest address from breadcrumbs
     const findNearestAddress = (lat: number, lng: number): string => {
-      if (!pts || pts.length === 0) return 'Nairobi Area';
+      if (!pts || pts.length === 0) return (lat && lng ? `${lat.toFixed(4)}, ${lng.toFixed(4)}` : '');
       let closest = pts[0];
       let minDist = 999999;
       for (const p of pts) {
@@ -102,7 +117,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
           closest = p;
         }
       }
-      return closest.address || 'Nairobi';
+      return closest.address || (lat && lng ? `${lat.toFixed(4)}, ${lng.toFixed(4)}` : '');
     };
 
     for (let i = 0; i < pts.length; i++) {
@@ -138,7 +153,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
         heading: p.heading_deg,
         ignition: p.ignition,
         battery: p.battery_percent,
-        address: p.address || 'Nairobi',
+        address: p.address || (p.latitude && p.longitude ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}` : ''),
         lat: p.latitude,
         lng: p.longitude,
       });
@@ -191,7 +206,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
         speed: 0,
         heading: 0,
         ignition: type === 'BIKE_ON',
-        battery: 95,
+        battery: 0,
         address: findNearestAddress(ev.latitude, ev.longitude),
         lat: ev.latitude,
         lng: ev.longitude,
@@ -240,11 +255,95 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.trailEvents().filter((e) => e.type === 'REACTIVATED').length;
   });
 
+  readonly incidentEventsCount = computed<number>(() => {
+    return this.trailEvents().filter((e) => 
+      e.type === 'THEFT' || 
+      e.type === 'TAMPER' || 
+      e.type === 'DURESS' || 
+      e.type === 'ACCIDENT_DETECTED' || 
+      e.type === 'BIKE_TOUCHED' || 
+      e.type === 'GEOFENCE_APPROACHING' || 
+      e.type === 'IMMOBILIZED'
+    ).length;
+  });
+
   readonly filteredTrailEvents = computed<TrailEvent[]>(() => {
     const allEvents = this.trailEvents();
     if (!this.filterIncidentsOnly()) return allEvents;
-    return allEvents.filter(e => e.type === 'THEFT' || e.type === 'TAMPER' || e.type === 'DURESS' || e.type === 'ACCIDENT_DETECTED');
+    return allEvents.filter(e => 
+      e.type === 'THEFT' || 
+      e.type === 'TAMPER' || 
+      e.type === 'DURESS' || 
+      e.type === 'ACCIDENT_DETECTED' || 
+      e.type === 'BIKE_TOUCHED' || 
+      e.type === 'GEOFENCE_APPROACHING' || 
+      e.type === 'IMMOBILIZED'
+    );
   });
+
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(10);
+  readonly pageSizes = [10, 25, 50, 100];
+
+  readonly totalPages = computed(() => {
+    return Math.max(1, Math.ceil(this.filteredTrailEvents().length / this.pageSize()));
+  });
+
+  readonly pages = computed<number[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const start = Math.max(1, Math.min(current - 2, total - 4));
+    return Array.from({ length: 5 }, (_, i) => start + i);
+  });
+
+  readonly paginatedTrailEvents = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredTrailEvents().slice(start, start + this.pageSize());
+  });
+
+  readonly showingStart = computed(() => {
+    return this.filteredTrailEvents().length === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
+  });
+
+  readonly showingEnd = computed(() => {
+    return Math.min(this.currentPage() * this.pageSize(), this.filteredTrailEvents().length);
+  });
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  setPageSize(size: number | string): void {
+    const num = typeof size === 'string' ? parseInt(size, 10) : size;
+    if (!isNaN(num) && num > 0) {
+      this.pageSize.set(num);
+      this.currentPage.set(1);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = parseInt((event.target as HTMLSelectElement).value, 10);
+    if (!isNaN(val) && val > 0) {
+      this.setPageSize(val);
+    }
+  }
 
   ngOnInit(): void {
     this.bikeService.loadBikes().subscribe({
@@ -325,43 +424,19 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!bikeId || !startDate || !endDate) return;
 
     this.isLoading.set(true);
+    this.currentPage.set(1);
 
     forkJoin({
       breadcrumbs: this.bikeService.getBikeBreadcrumbs(bikeId, 5000, undefined, startDate, endDate).pipe(
-        catchError(() => of({ data: [] as BreadcrumbDTO[] }))
+        catchError(() => of({ data: [] as BreadcrumbDTO[], pagination: { total: 0, limit: 5000, has_more: false } }))
       ),
       events: this.bikeService.getBikeEvents(bikeId, 5000, undefined, startDate, endDate).pipe(
-        catchError(() => of({ data: [] as BikeEventDTO[] }))
+        catchError(() => of({ data: [] as BikeEventDTO[], pagination: { total: 0, limit: 5000, has_more: false } }))
       ),
     }).subscribe({
       next: ({ breadcrumbs, events }) => {
         this.breadcrumbs.set(breadcrumbs.data || []);
-        
-        // Mock injection: add some incident events into bikeEvents if it's not empty
-        const evData = events.data || [];
-        if (evData.length > 0) {
-          const firstEv = evData[0];
-          evData.push({
-            ...firstEv,
-            id: 9991,
-            event_type: 'TAMPER',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 60).toISOString(),
-          });
-          evData.push({
-            ...firstEv,
-            id: 9992,
-            event_type: 'THEFT',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 120).toISOString(),
-          });
-          evData.push({
-            ...firstEv,
-            id: 9993,
-            event_type: 'DURESS',
-            recorded_at: new Date(new Date(firstEv.recorded_at).getTime() - 1000 * 60 * 180).toISOString(),
-          });
-        }
-        this.bikeEvents.set(evData);
-        
+        this.bikeEvents.set(events.data || []);
         this.isLoading.set(false);
 
         if (this.viewMode() === 'map') {
@@ -383,15 +458,67 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fetchBreadcrumbs();
   }
 
+  openFilterModal(): void {
+    this.tempBikeId.set(this.selectedBikeId());
+    this.tempStartDate.set(this.selectedStartDate());
+    this.tempEndDate.set(this.selectedEndDate());
+    this.tempIncidentsOnly.set(this.filterIncidentsOnly());
+    this.isFilterModalOpen.set(true);
+  }
+
+  closeFilterModal(): void {
+    this.isFilterModalOpen.set(false);
+  }
+
+  setModalPreset(preset: 'today' | 'yesterday' | 'week'): void {
+    const today = new Date();
+    if (preset === 'today') {
+      const d = this.formatDate(today);
+      this.tempStartDate.set(d);
+      this.tempEndDate.set(d);
+    } else if (preset === 'yesterday') {
+      const y = new Date();
+      y.setDate(y.getDate() - 1);
+      const d = this.formatDate(y);
+      this.tempStartDate.set(d);
+      this.tempEndDate.set(d);
+    } else if (preset === 'week') {
+      const past = new Date();
+      past.setDate(past.getDate() - 6);
+      this.tempStartDate.set(this.formatDate(past));
+      this.tempEndDate.set(this.formatDate(today));
+    }
+  }
+
+  applyFilters(): void {
+    let start = this.tempStartDate();
+    let end = this.tempEndDate();
+    if (start && end && start > end) {
+      const tmp = start;
+      start = end;
+      end = tmp;
+    }
+    if (start) this.selectedStartDate.set(start);
+    if (end) this.selectedEndDate.set(end);
+    if (this.tempBikeId()) this.selectedBikeId.set(this.tempBikeId());
+    this.filterIncidentsOnly.set(this.tempIncidentsOnly());
+
+    this.isFilterModalOpen.set(false);
+    this.updateQueryParams();
+    this.fetchBreadcrumbs();
+  }
+
+  clearIncidentFilter(): void {
+    this.filterIncidentsOnly.set(false);
+    this.currentPage.set(1);
+  }
+
   prevDay(): void {
     const curStart = new Date(this.selectedStartDate());
     curStart.setDate(curStart.getDate() - 1);
-    this.selectedStartDate.set(this.formatDate(curStart));
-    
-    const curEnd = new Date(this.selectedEndDate());
-    curEnd.setDate(curEnd.getDate() - 1);
-    this.selectedEndDate.set(this.formatDate(curEnd));
-    
+    const d = this.formatDate(curStart);
+    this.selectedStartDate.set(d);
+    this.selectedEndDate.set(d);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
@@ -400,12 +527,9 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isSelectedDateToday()) return;
     const curStart = new Date(this.selectedStartDate());
     curStart.setDate(curStart.getDate() + 1);
-    this.selectedStartDate.set(this.formatDate(curStart));
-    
-    const curEnd = new Date(this.selectedEndDate());
-    curEnd.setDate(curEnd.getDate() + 1);
-    this.selectedEndDate.set(this.formatDate(curEnd));
-    
+    const d = this.formatDate(curStart);
+    this.selectedStartDate.set(d);
+    this.selectedEndDate.set(d);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
   }
@@ -420,30 +544,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEndDate.set(formatted);
     this.updateQueryParams();
     this.fetchBreadcrumbs();
-  }
-
-  onStartDateChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target && target.value) {
-      this.selectedStartDate.set(target.value);
-      if (this.selectedStartDate() > this.selectedEndDate()) {
-        this.selectedEndDate.set(this.selectedStartDate());
-      }
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
-  }
-
-  onEndDateChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target && target.value) {
-      this.selectedEndDate.set(target.value);
-      if (this.selectedEndDate() < this.selectedStartDate()) {
-        this.selectedStartDate.set(this.selectedEndDate());
-      }
-      this.updateQueryParams();
-      this.fetchBreadcrumbs();
-    }
   }
 
   seeTrailInMap(): void {
@@ -543,9 +643,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearMapLayers();
 
     const pts = this.breadcrumbs();
-    if (pts.length === 0) return;
+    const validPts = pts.filter((p) => p.latitude !== 0 || p.longitude !== 0);
+    if (validPts.length === 0) return;
 
-    const coords: [number, number][] = pts.map((p) => [p.latitude, p.longitude]);
+    const coords: [number, number][] = validPts.map((p) => [p.latitude, p.longitude]);
 
     this.pathGlow = L.polyline(coords, {
       color: '#38BDF8',
@@ -563,8 +664,10 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       lineJoin: 'round',
     }).addTo(this.map);
 
+    this.map.fitBounds(L.latLngBounds(coords), { padding: [50, 50], maxZoom: 16 });
+
     // Start Pin (A)
-    const startPt = pts[0];
+    const startPt = validPts[0];
     const startIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
@@ -580,7 +683,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       .bindTooltip(`Day Origin: ${this.formatTime(startPt.recorded_at)}`, { direction: 'top', offset: [0, -10] });
 
     // End Pin (B)
-    const endPt = pts[pts.length - 1];
+    const endPt = validPts[validPts.length - 1];
     const endIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
@@ -597,7 +700,8 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Plot accident, touch, geofence, and immobilization events on the map
     const specialEvents = this.trailEvents().filter(
-      (e) => e.type === 'BIKE_TOUCHED' || e.type === 'GEOFENCE_APPROACHING' || e.type === 'ACCIDENT_DETECTED' || e.type === 'IMMOBILIZED' || e.type === 'REACTIVATED'
+      (e) => (e.lat !== 0 || e.lng !== 0) &&
+        (e.type === 'BIKE_TOUCHED' || e.type === 'GEOFENCE_APPROACHING' || e.type === 'ACCIDENT_DETECTED' || e.type === 'IMMOBILIZED' || e.type === 'REACTIVATED' || e.type === 'THEFT' || e.type === 'TAMPER' || e.type === 'DURESS')
     );
 
     for (const sev of specialEvents) {
@@ -746,6 +850,6 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }

@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"motoguard-backend/internal/domain"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func writeJSON(w http.ResponseWriter, status int, data any) {
@@ -56,6 +58,9 @@ func parseDateRange(q url.Values) (string, string) {
 }
 
 func getBikeID(r *http.Request) string {
+	if id := chi.URLParam(r, "id"); id != "" {
+		return id
+	}
 	if id := r.PathValue("id"); id != "" {
 		return id
 	}

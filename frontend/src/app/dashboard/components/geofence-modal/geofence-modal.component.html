@@ -1,0 +1,97 @@
+@if (isOpen()) {
+  <div
+    id="geofenceModal"
+    class="fixed inset-0 bg-zinc-900/50 z-50 flex items-center justify-center p-4"
+  >
+    <div
+      class="bg-white border border-zinc-200 rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150"
+    >
+      <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-zinc-900">Create Spatial Geofence</h3>
+        <button
+          type="button"
+          (click)="close.emit()"
+          class="text-zinc-400 hover:text-zinc-800 text-xs font-semibold cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
+            Geofence Label
+          </label>
+          <input
+            type="text"
+            id="fenceNameInput"
+            formControlName="fenceName"
+            required
+            class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1"
+            >
+              Radius (Meters)
+            </label>
+            <input
+              type="number"
+              id="fenceRadiusInput"
+              formControlName="fenceRadius"
+              required
+              min="100"
+              max="50000"
+              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-zinc-900 focus:outline-none focus:border-zinc-900"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1"
+            >
+              Trigger Condition
+            </label>
+            <select
+              id="fenceTriggerInput"
+              formControlName="fenceTrigger"
+              class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 cursor-pointer"
+            >
+              <option value="Alert on Exit">On Exit</option>
+              <option value="Alert on Enter">On Enter</option>
+              <option value="Alert on Both">Both</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
+            Customer Alert Email
+          </label>
+          <input
+            type="email"
+            id="fenceEmailInput"
+            formControlName="fenceEmail"
+            required
+            class="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900"
+          />
+        </div>
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            (click)="close.emit()"
+            class="px-4 py-2 rounded-full border border-zinc-200 text-zinc-700 text-xs font-semibold hover:bg-zinc-50 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="form.invalid"
+            class="px-5 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer"
+          >
+            Save & Arm Zone
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

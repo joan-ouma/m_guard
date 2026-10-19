@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, of } from 'rxjs';
 import {
   AuthResponse,
+  JwtClaims,
   LoginCredentials,
   RegisterCredentials,
   SessionData,
   User,
 } from '../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 const STORAGE_KEY_TOKEN = 'motoguard_access_token';
 const STORAGE_KEY_USER = 'motoguard_user';
@@ -25,12 +27,56 @@ export class AuthService {
   readonly currentUser = signal<User | null>(this.getStoredUser());
   readonly isLoading = signal<boolean>(false);
 
-  readonly isAuthenticated = computed(() => !!this.accessToken());
+  readonly isAuthenticated = computed(() => {
+    const token = this.accessToken();
+    return !!token && !this.isTokenExpired(token);
+  });
 
   constructor() {
     if (this.accessToken()) {
       this.verifySession();
     }
+  }
+
+  getClaims(token?: string | null): JwtClaims | null {
+    const rawToken = token ?? this.accessToken();
+    if (!rawToken) {
+      return null;
+    }
+
+    try {
+      const parts = rawToken.split('.');
+      if (parts.length < 2) {
+        return null;
+      }
+
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
+
+  isTokenExpired(token?: string | null, skewSeconds = 0): boolean {
+    const rawToken = token ?? this.accessToken();
+    if (!rawToken) {
+      return true;
+    }
+
+    const claims = this.getClaims(rawToken);
+    if (!claims || typeof claims.exp !== 'number') {
+      return false;
+    }
+
+    const nowInSec = Math.floor(Date.now() / 1000);
+    return claims.exp <= nowInSec + skewSeconds;
   }
 
   private getStoredToken(): string | null {
@@ -56,6 +102,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY_TOKEN, session.access_token);
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(session.user));
+      document.cookie = `motoguard_token=${encodeURIComponent(session.access_token)}; path=/; SameSite=Lax`;
     }
   }
 
@@ -66,6 +113,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY_TOKEN);
       localStorage.removeItem(STORAGE_KEY_USER);
+      document.cookie = 'motoguard_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
   }
 
@@ -75,7 +123,7 @@ export class AuthService {
    */
   register(credentials: RegisterCredentials): Observable<{ data: User }> {
     this.isLoading.set(true);
-    return this.http.post<{ data: User }>('/v1/users/register', credentials).pipe(
+    return this.http.post<{ data: User }>(`${environment.apiBaseUrl}/v1/users/register`, credentials).pipe(
       tap(() => this.isLoading.set(false)),
       catchError((err) => {
         this.isLoading.set(false);
@@ -90,7 +138,7 @@ export class AuthService {
    */
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>('/v1/sessions', credentials).pipe(
+    return this.http.post<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions`, credentials, { withCredentials: true }).pipe(
       tap((res) => {
         this.isLoading.set(false);
         if (res?.data) {
@@ -110,7 +158,7 @@ export class AuthService {
    */
   logout(): Observable<void> {
     this.isLoading.set(true);
-    return this.http.delete<void>('/v1/sessions/current').pipe(
+    return this.http.delete<void>(`${environment.apiBaseUrl}/v1/sessions/current`, { withCredentials: true }).pipe(
       tap(() => {
         this.clearSession();
         this.isLoading.set(false);
@@ -130,7 +178,7 @@ export class AuthService {
    * Refresh access token via HttpOnly refresh cookie
    */
   refreshToken(): Observable<AuthResponse> {
-    return this.http.put<AuthResponse>('/v1/sessions/current', {}).pipe(
+    return this.http.put<AuthResponse>(`${environment.apiBaseUrl}/v1/sessions/current`, {}, { withCredentials: true }).pipe(
       tap((res) => {
         if (res?.data) {
           this.setSession(res.data);
@@ -150,7 +198,7 @@ export class AuthService {
   requestPasswordReset(email: string): Observable<{ message: string }> {
     this.isLoading.set(true);
     return this.http
-      .post<{ message: string }>('/v1/password-resets', { email })
+      .post<{ message: string }>(`${environment.apiBaseUrl}/v1/password-resets`, { email })
       .pipe(
         tap(() => this.isLoading.set(false)),
         catchError((err) => {
@@ -167,7 +215,7 @@ export class AuthService {
   confirmPasswordReset(token: string, password: string): Observable<{ message: string }> {
     this.isLoading.set(true);
     return this.http
-      .patch<{ message: string }>(`/v1/password-resets/${encodeURIComponent(token)}`, {
+      .patch<{ message: string }>(`${environment.apiBaseUrl}/v1/password-resets/${encodeURIComponent(token)}`, {
         password,
       })
       .pipe(
