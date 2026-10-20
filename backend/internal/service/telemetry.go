@@ -100,6 +100,12 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 		hasPrev = false
 	}
 
+	if payload.Latitude == 0 && payload.Longitude == 0 && hasPrev && (prevLat != 0 || prevLng != 0) {
+		payload.Latitude = prevLat
+		payload.Longitude = prevLng
+		payload.LocType = "last_known"
+	}
+
 	bothFixesValid := hasPrev &&
 		prevLat != 0 && prevLng != 0 &&
 		payload.Latitude != 0 && payload.Longitude != 0
@@ -273,6 +279,14 @@ func (s *TelemetryService) IngestEvent(
 	}
 	if recordedAt.IsZero() {
 		recordedAt = time.Now().UTC()
+	}
+
+	if lat == 0 && lng == 0 {
+		prevLat, prevLng, _, hasPrev, err := s.telemetry.GetBikeLastPosition(ctx, bikeID)
+		if err == nil && hasPrev && (prevLat != 0 || prevLng != 0) {
+			lat = prevLat
+			lng = prevLng
+		}
 	}
 
 	err = s.telemetry.SaveEvent(ctx, repository.SaveEventParams{
