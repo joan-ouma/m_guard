@@ -65,7 +65,8 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 
 	handler := func(c pahomqtt.Client, m pahomqtt.Message) {
 		topic := m.Topic()
-		slog.Info("MQTT incoming message", "topic", topic, "bytes", len(m.Payload()))
+		rawPayload := string(m.Payload())
+		slog.Info("MQTT incoming message", "topic", topic, "bytes", len(m.Payload()), "raw", rawPayload)
 
 		parts := strings.Split(topic, "/")
 		sensorID := ""
@@ -77,7 +78,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		if strings.Contains(topic, "/alert") || strings.Contains(topic, "/events") {
 			var alert domain.AlertPayload
 			if err := json.Unmarshal(m.Payload(), &alert); err != nil {
-				slog.Error("MQTT alert invalid json payload", "topic", topic, "error", err)
+				slog.Error("MQTT alert invalid json payload", "topic", topic, "error", err, "raw", rawPayload)
 				return
 			}
 
@@ -86,6 +87,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 				geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
 				lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, alert.MCC, alert.MNC, alert.LAC, alert.CID, alert.RSSIDBm, alert.Cells)
 				geoCancel()
+				slog.Info("LBS alert resolved", "sensor_id", sensorID, "mcc", alert.MCC, "mnc", alert.MNC, "lac", alert.LAC, "cid", alert.CID, "lat", lat, "lng", lng, "accuracy", acc, "ok", ok)
 				if ok {
 					alert.Latitude = lat
 					alert.Longitude = lng
@@ -142,7 +144,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		// Handle Periodic Telemetry (Normal Tracking)
 		var payload domain.TelemetryPayload
 		if err := json.Unmarshal(m.Payload(), &payload); err != nil {
-			slog.Error("MQTT telemetry invalid json payload", "topic", topic, "error", err)
+			slog.Error("MQTT telemetry invalid json payload", "topic", topic, "error", err, "raw", rawPayload)
 			return
 		}
 
@@ -155,6 +157,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 			geoCtx, geoCancel := context.WithTimeout(context.Background(), 4*time.Second)
 			lat, lng, acc, ok := resolveCellPosition(geoCtx, cellResolver, payload.MCC, payload.MNC, payload.LAC, payload.CID, payload.RSSIDBm, payload.Cells)
 			geoCancel()
+			slog.Info("LBS position resolved", "sensor_id", payload.SensorID, "mcc", payload.MCC, "mnc", payload.MNC, "lac", payload.LAC, "cid", payload.CID, "lat", lat, "lng", lng, "accuracy", acc, "ok", ok)
 			if ok {
 				payload.Latitude = lat
 				payload.Longitude = lng
@@ -174,7 +177,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		if err := telemetryService.IngestTelemetry(ingestCtx, payload); err != nil {
 			slog.Error("MQTT telemetry failed to ingest", "sensor_id", payload.SensorID, "error", err)
 		} else {
-			slog.Info("MQTT telemetry ingested", "sensor_id", payload.SensorID, "loc_type", payload.LocType, "lat", payload.Latitude, "lng", payload.Longitude, "ignition", payload.Ignition, "speed", payload.SpeedKMH)
+			slog.Info("MQTT telemetry ingested", "sensor_id", payload.SensorID, "loc_type", payload.LocType, "lat", payload.Latitude, "lng", payload.Longitude, "ignition", payload.Ignition, "speed", payload.SpeedKMH, "raw", rawPayload)
 		}
 
 		// If telemetry also includes an active alert flag or reason

@@ -101,6 +101,7 @@ func (s *TelemetryService) IngestTelemetry(ctx context.Context, payload domain.T
 	}
 
 	if payload.Latitude == 0 && payload.Longitude == 0 && hasPrev && (prevLat != 0 || prevLng != 0) {
+		slog.Info("telemetry position fallback to last known from DB", "bike_id", bikeID, "prev_lat", prevLat, "prev_lng", prevLng)
 		payload.Latitude = prevLat
 		payload.Longitude = prevLng
 		payload.LocType = "last_known"
