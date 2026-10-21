@@ -1,33 +1,33 @@
-<!-- Left Floating Card (Tablet & Desktop: lg:w-[460px], md:w-[380px]) -->
+<!-- Left Floating Card (Tablet & Desktop: lg:w-[350px], md:w-[310px]) -->
 <div
   id="floatingInspector"
-  class="hidden md:flex absolute top-6 left-6 bottom-6 w-[380px] lg:w-[460px] bg-white rounded-3xl border border-zinc-200/90 shadow-2xl flex-col z-10 overflow-hidden"
+  class="hidden md:flex absolute top-4 left-4 bottom-4 w-[310px] lg:w-[350px] bg-white rounded-2xl border border-zinc-200/90 shadow-xl flex-col z-10 overflow-hidden"
 >
   @if (bikeList().length > 0 && selectedBike(); as bike) {
-    <div class="p-7 pb-5 divide-y divide-zinc-100 shrink-0">
+    <div class="p-4 pb-3 divide-y divide-zinc-100 overflow-y-auto max-h-full">
       <!-- Section 1 — Header & Live Status -->
-      <div class="pb-3.5">
-        <div class="flex items-start justify-between gap-3">
+      <div class="pb-2.5">
+        <div class="flex items-start justify-between gap-2.5">
           <div class="min-w-0">
             <h2
               id="cardBikeTitle"
-              class="font-plate text-3xl font-black text-zinc-950 tracking-wider leading-none truncate"
+              class="font-plate text-xl lg:text-2xl font-black text-zinc-950 tracking-wider leading-none truncate"
             >
               {{ bike.plate }}
             </h2>
-            <p class="font-sans text-base font-medium text-zinc-400 mt-1 truncate">
+            <p class="font-sans text-xs lg:text-sm font-medium text-zinc-400 mt-1 truncate">
               {{ bike.model }}
             </p>
           </div>
 
           <div class="flex items-center gap-1.5 shrink-0">
-            <!-- 5-bar Network Strength (Self-explanatory Icon Only) -->
+            <!-- 5-bar Network Strength -->
             <div
-              class="h-10 px-3 rounded-full border border-zinc-200/90 bg-zinc-50 flex items-center justify-center shrink-0"
+              class="h-7 px-2 rounded-full border border-zinc-200/90 bg-zinc-50 flex items-center justify-center shrink-0"
               [title]="getSignalLabel(bike)"
             >
               <svg
-                class="w-5.5 h-4 shrink-0 overflow-visible"
+                class="w-4 h-3 shrink-0 overflow-visible"
                 viewBox="0 0 24 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -46,27 +46,27 @@
             @if (bike.isImmobilized) {
               <span
                 id="statusPill"
-                class="h-10 px-4 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold inline-flex items-center gap-2.5 shrink-0"
+                class="h-7 px-2.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
               >
-                <span class="relative flex h-3 w-3">
+                <span class="relative flex h-2 w-2">
                   <span
                     class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"
                   ></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
                 </span>
                 <span id="statusText">IMMOBILIZED</span>
               </span>
             } @else {
               <span
                 id="statusPill"
-                class="h-10 px-4 rounded-full border text-sm font-bold inline-flex items-center gap-2.5 shrink-0"
+                class="h-7 px-2.5 rounded-full border text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
                 [ngClass]="
                   bike.movementStatus === 'Moving'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                     : 'bg-zinc-100 border-zinc-200 text-zinc-900'
                 "
               >
-                <span class="relative flex h-3 w-3">
+                <span class="relative flex h-2 w-2">
                   <span
                     class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                     [ngClass]="
@@ -77,7 +77,7 @@
                   ></span>
                   <span
                     id="statusDot"
-                    class="relative inline-flex rounded-full h-3 w-3 status-dot-pulse"
+                    class="relative inline-flex rounded-full h-2 w-2 status-dot-pulse"
                     [ngClass]="
                       bike.movementStatus === 'Moving'
                         ? 'bg-emerald-500'
@@ -94,10 +94,10 @@
               (click)="dismiss.emit()"
               aria-label="Hide motorcycle details"
               title="Hide details"
-              class="w-8 h-8 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 flex items-center justify-center shrink-0 cursor-pointer transition-colors"
+              class="w-7 h-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 flex items-center justify-center shrink-0 cursor-pointer transition-colors"
             >
               <svg
-                class="w-4 h-4"
+                class="w-3.5 h-3.5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -111,16 +111,16 @@
       </div>
 
       <!-- Section 2 — Speed Row -->
-      <div class="py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-4 min-w-0">
+      <div class="py-2 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
           <div
-            class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
+            class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
             [ngClass]="
               bike.status === 'RUNNING' ? 'text-emerald-600' : 'text-amber-600'
             "
           >
             <svg
-              class="w-7 h-7"
+              class="w-4.5 h-4.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -135,10 +135,10 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
               >CURRENT SPEED</span
             >
-            <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
+            <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
               {{ bike.speedText.split('•')[0].trim() || bike.speedText }}
             </p>
           </div>
@@ -146,15 +146,15 @@
       </div>
 
       <!-- Section 3 — Ignition Row -->
-      <div class="py-3.5 flex items-center gap-4">
+      <div class="py-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
+          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
           [ngClass]="
             bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'
           "
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -168,10 +168,10 @@
           </svg>
         </div>
         <div class="min-w-0 flex-1">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
             >IGNITION STATE</span
           >
-          <p class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
+          <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
             Switched
             <span
               class="font-black tracking-wide"
@@ -188,12 +188,12 @@
       </div>
 
       <!-- Section 4 — Last Seen Row -->
-      <div class="py-3.5 flex items-center gap-4">
+      <div class="py-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -204,22 +204,22 @@
           </svg>
         </div>
         <div class="min-w-0 flex-1">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
             >LAST SEEN</span
           >
-          <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
+          <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
             {{ formatLastSeen(bike.lastSeenAt) }}
           </p>
         </div>
       </div>
 
       <!-- Section 5 — Current Location -->
-      <div class="py-3.5 flex items-center gap-4">
+      <div class="py-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -238,12 +238,12 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
             >CURRENT LOCATION</span
           >
           <p
             id="cardAddress"
-            class="font-sans text-xl font-bold text-zinc-950 leading-snug mt-1 truncate"
+            class="font-sans text-sm font-bold text-zinc-950 leading-snug mt-0.5 truncate"
             [title]="bike.address"
           >
             {{ bike.address }}
@@ -251,10 +251,10 @@
           <button
             type="button"
             (click)="recenterMap.emit()"
-            class="mt-3 min-h-[44px] px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-sm font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer"
+            class="mt-1.5 h-7 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <svg
-              class="w-4 h-4 shrink-0"
+              class="w-3.5 h-3.5 shrink-0"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -275,12 +275,12 @@
       </div>
 
       <!-- Section 6 — County & Sub-County -->
-      <div class="py-3.5 flex items-center gap-4">
+      <div class="py-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -294,15 +294,15 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
             >COUNTY & SUB-COUNTY</span
           >
-          <p id="cardCounty" class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
+          <p id="cardCounty" class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
             {{ bike.county }}
           </p>
           <p
             id="cardSubCounty"
-            class="font-sans text-base font-medium text-zinc-500 mt-0.5 truncate"
+            class="font-sans text-xs font-medium text-zinc-500 mt-0.5 truncate"
           >
             {{ bike.subCounty }}
           </p>
@@ -310,12 +310,12 @@
       </div>
 
       <!-- Section 7 — GPS Coordinates -->
-      <div class="pt-3.5 flex items-center gap-4">
+      <div class="pt-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -329,12 +329,12 @@
             />
           </svg>
         </div>
-        <div class="flex-1 flex items-center justify-between gap-3 min-w-0">
+        <div class="flex-1 flex items-center justify-between gap-2.5 min-w-0">
           <div class="min-w-0">
-            <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
               >GPS COORDINATES</span
             >
-            <p class="font-bold text-xl text-zinc-950 mt-1 truncate">
+            <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
               <span id="cardLat">{{ bike.lat.toFixed(6) }}</span
               >, <span id="cardLng">{{ bike.lng.toFixed(6) }}</span>
             </p>
@@ -343,11 +343,11 @@
             type="button"
             (click)="copyCoordinates.emit()"
             [title]="copiedCoordinates() ? 'Copied!' : 'Copy coordinates'"
-            class="w-12 h-12 rounded-2xl bg-zinc-100 hover:bg-zinc-900 text-zinc-700 hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            class="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-900 text-zinc-700 hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer"
           >
             @if (copiedCoordinates()) {
               <svg
-                class="w-6 h-6 text-emerald-600"
+                class="w-4 h-4 text-emerald-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -357,7 +357,7 @@
               </svg>
             } @else {
               <svg
-                class="w-6 h-6"
+                class="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -372,12 +372,12 @@
       </div>
 
       <!-- Section 7.5 — Assigned Rider Identity -->
-      <div class="py-3.5 flex items-center gap-4">
+      <div class="py-2 flex items-center gap-3">
         <div
-          class="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0"
+          class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0"
         >
           <svg
-            class="w-7 h-7"
+            class="w-4.5 h-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -391,13 +391,13 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
             >ASSIGNED RIDER</span
           >
-          <p id="cardRiderName" class="font-sans text-xl font-bold text-zinc-950 mt-1 truncate">
+          <p id="cardRiderName" class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
             {{ bike.riderName }}
           </p>
-          <div class="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 font-semibold">
+          <div class="flex items-center gap-1.5 mt-0.5 text-[0.7rem] text-zinc-500 font-semibold">
             <span title="National ID">ID: {{ bike.riderNationalId }}</span>
             <span>•</span>
             <a
@@ -415,31 +415,31 @@
 
       <!-- Section 8 — Immobilize Action -->
       @if (bike.id) {
-        <div class="py-3.5">
-          <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3"
+        <div class="pt-2 pb-1">
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400 mb-1.5"
             >Security Controls</span
           >
 
           <button
             type="button"
             (click)="toggleImmobilize.emit(bike)"
-            class="w-full relative overflow-hidden rounded-2xl p-4 text-left flex items-center justify-between transition-all group cursor-pointer"
+            class="w-full relative overflow-hidden rounded-xl p-3 text-left flex items-center justify-between transition-all group cursor-pointer"
             [ngClass]="{
-              'bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_16px_-6px_rgba(225,29,72,0.4)]':
+              'bg-rose-600 hover:bg-rose-700 text-white shadow-[0_4px_12px_-4px_rgba(225,29,72,0.4)]':
                 !bike.isImmobilized &&
                 bike.movementStatus === 'Stationary',
-              'bg-amber-500 hover:bg-amber-600 text-white shadow-[0_8px_16px_-6px_rgba(245,158,11,0.4)]':
+              'bg-amber-500 hover:bg-amber-600 text-white shadow-[0_4px_12px_-4px_rgba(245,158,11,0.4)]':
                 !bike.isImmobilized && bike.movementStatus === 'Moving',
-              'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_8px_16px_-6px_rgba(16,185,129,0.4)]':
+              'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_4px_12px_-4px_rgba(16,185,129,0.4)]':
                 bike.isImmobilized,
             }"
           >
             <!-- Label & Description -->
-            <div class="pr-4">
-              <h3 class="font-black text-xl tracking-tight">
+            <div class="pr-3">
+              <h3 class="font-bold text-sm tracking-tight">
                 {{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
               </h3>
-              <p class="font-medium text-sm text-white/80 mt-1">
+              <p class="font-medium text-xs text-white/80 mt-0.5">
                 @if (bike.isImmobilized) {
                   Bike is currently disabled. Tap to restore.
                 } @else if (bike.movementStatus === 'Moving') {
@@ -448,6 +448,45 @@
                   Immediately disable the starter motor.
                 }
               </p>
+            </div>
+
+            <!-- Icon container -->
+            <div
+              class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"
+            >
+              @if (bike.isImmobilized) {
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              }
+            </div>
+          </button>
+        </div>
+      }
             </div>
 
             <!-- Icon container -->
@@ -655,13 +694,13 @@
 
         <div class="grid grid-cols-2 gap-2.5">
           <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
-            <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
             <p class="text-xs font-bold mt-0.5" [ngClass]="bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
               {{ bike.speedText.includes('ON') ? 'Engine ON' : 'Engine OFF' }}
             </p>
           </div>
           <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
-            <span class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Speed</span>
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Speed</span>
             <p class="text-xs font-bold text-zinc-900 mt-0.5">
               {{ bike.speedText.split('•')[0].trim() || '0.0 km/h' }}
             </p>

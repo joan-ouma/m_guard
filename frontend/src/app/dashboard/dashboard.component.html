@@ -51,10 +51,10 @@
           (click)="toggleInspector(true)"
           aria-label="Show motorcycle details"
           title="Show details"
-          class="absolute top-6 left-6 z-10 h-12 px-5 rounded-full bg-white border border-zinc-200 shadow-lg hover:bg-zinc-50 text-sm font-bold text-zinc-900 flex items-center gap-2.5 cursor-pointer transition-colors"
+          class="absolute top-4 left-4 z-10 h-9 px-3.5 rounded-full bg-white border border-zinc-200 shadow-md hover:bg-zinc-50 text-xs font-semibold text-zinc-900 flex items-center gap-2 cursor-pointer transition-colors"
         >
           <svg
-            class="w-5 h-5 text-zinc-500"
+            class="w-4 h-4 text-zinc-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -68,19 +68,19 @@
       }
 
       <div
-        class="absolute bottom-36 md:bottom-6 right-4 md:right-6 flex flex-col bg-white border border-zinc-200 rounded-2xl shadow-md overflow-hidden z-10"
+        class="absolute bottom-36 md:bottom-5 right-4 md:right-5 flex flex-col bg-white border border-zinc-200 rounded-xl shadow-md overflow-hidden z-10"
       >
         <button
           type="button"
           (click)="zoomIn()"
-          class="w-12 h-12 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-bold text-xl border-b border-zinc-100 cursor-pointer"
+          class="w-8 h-8 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-semibold text-base border-b border-zinc-100 cursor-pointer"
         >
           +
         </button>
         <button
           type="button"
           (click)="zoomOut()"
-          class="w-12 h-12 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-bold text-xl cursor-pointer"
+          class="w-8 h-8 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-semibold text-base cursor-pointer"
         >
           −
         </button>

@@ -511,10 +511,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 13.5px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 14px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 8px;">
+          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
             <span>${plate}</span>
           </div>
-          <div style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+          <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
             <div class="${haloClass}"></div>
             <div class="bike-marker-pin-body ${statusClass}">
               ${pinIconSvg}
@@ -523,8 +523,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           </div>
         </div>
       `,
-      iconSize: [160, 94],
-      iconAnchor: [80, 88],
+      iconSize: [120, 74],
+      iconAnchor: [60, 68],
     });
   }
 

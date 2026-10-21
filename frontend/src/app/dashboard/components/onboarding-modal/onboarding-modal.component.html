@@ -38,7 +38,7 @@
               class="h-1.5 rounded-full transition-all duration-300"
               [ngClass]="stepIndex() >= 0 ? 'bg-zinc-900' : 'bg-zinc-200'"
             ></div>
-            <span class="text-[10px] font-semibold tracking-wider uppercase text-zinc-500 truncate">1. Scan</span>
+            <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-zinc-500 truncate">1. Scan</span>
           </div>
 
           <div class="flex flex-col gap-1">
@@ -46,7 +46,7 @@
               class="h-1.5 rounded-full transition-all duration-300"
               [ngClass]="stepIndex() >= 1 ? 'bg-zinc-900' : 'bg-zinc-200'"
             ></div>
-            <span class="text-[10px] font-semibold tracking-wider uppercase text-zinc-500 truncate">2. Details</span>
+            <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-zinc-500 truncate">2. Details</span>
           </div>
 
           <div class="flex flex-col gap-1">
@@ -54,7 +54,7 @@
               class="h-1.5 rounded-full transition-all duration-300"
               [ngClass]="stepIndex() >= 2 ? 'bg-zinc-900' : 'bg-zinc-200'"
             ></div>
-            <span class="text-[10px] font-semibold tracking-wider uppercase text-zinc-500 truncate">3. Preview</span>
+            <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-zinc-500 truncate">3. Preview</span>
           </div>
 
           <!-- Step 4: Active -->
@@ -63,7 +63,7 @@
               class="h-1.5 rounded-full transition-all duration-300"
               [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-zinc-200'"
             ></div>
-            <span class="text-[10px] font-semibold tracking-wider uppercase text-zinc-500 truncate">4. Active</span>
+            <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-zinc-500 truncate">4. Active</span>
           </div>
         </div>
       </div>
@@ -275,7 +275,7 @@
                   </div>
                   <div>
                     <p class="font-bold">{{ verifiedTracker()?.model }}</p>
-                    <p class="text-emerald-700 font-mono text-[11px]">IMEI: {{ verifiedTracker()?.imei }} • Unclaimed</p>
+                    <p class="text-emerald-700 font-mono text-xs">IMEI: {{ verifiedTracker()?.imei }} • Unclaimed</p>
                   </div>
                 </div>
                 <span class="font-semibold text-emerald-800">Advancing...</span>
@@ -333,7 +333,7 @@
                     class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm font-semibold uppercase focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all placeholder:text-zinc-400"
                   />
                   @if (detailsForm.get('plate')?.touched && detailsForm.get('plate')?.errors) {
-                    <p class="text-[11px] text-rose-600 mt-1">Valid plate required (e.g. KDA 123A)</p>
+                    <p class="text-xs text-rose-600 mt-1">Valid plate required (e.g. KDA 123A)</p>
                   }
                 </div>
 
@@ -421,7 +421,7 @@
                   <h4 class="text-xs font-bold text-zinc-900 uppercase tracking-wider">
                     Rider Assignment
                   </h4>
-                  <p class="text-[11px] text-zinc-500">Contact details for the designated motorcycle operator.</p>
+                  <p class="text-xs text-zinc-500">Contact details for the designated motorcycle operator.</p>
                 </div>
 
                 <!-- Self-Rider Toggle -->
@@ -487,7 +487,7 @@
                     placeholder="e.g. rider@example.com"
                     class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-all placeholder:text-zinc-400"
                   />
-                  <p class="text-[11px] text-zinc-500 mt-1">
+                  <p class="text-xs text-zinc-500 mt-1">
                     An email will be sent to this address once attached.
                   </p>
                 </div>
@@ -532,7 +532,7 @@
               <!-- Plate Banner -->
               <div class="flex items-center justify-between border-b border-zinc-200 pb-4">
                 <div>
-                  <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 block mb-1">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-1">
                     Registration Plate
                   </span>
                   <span class="plate-badge text-base px-3 py-1.5 rounded-lg bg-amber-400 text-zinc-950 border border-amber-500 shadow-2xs font-black">
@@ -540,7 +540,7 @@
                   </span>
                 </div>
                 <div class="text-right">
-                  <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 block mb-1">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-1">
                     Vehicle Model
                   </span>
                   <p class="font-bold text-zinc-900 text-sm">
@@ -582,10 +582,10 @@
                 <div class="p-3 rounded-xl bg-white border border-zinc-200/80 flex items-center justify-between">
                   <div>
                     <p class="font-bold text-zinc-900">{{ detailsForm.get('riderName')?.value }}</p>
-                    <p class="text-zinc-500 text-[11px]">ID: {{ detailsForm.get('riderNationalId')?.value }} • {{ detailsForm.get('riderPhone')?.value }}</p>
+                    <p class="text-zinc-500 text-xs">ID: {{ detailsForm.get('riderNationalId')?.value }} • {{ detailsForm.get('riderPhone')?.value }}</p>
                   </div>
                   <div class="text-right">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-200">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
                       ✉️ {{ detailsForm.get('riderEmail')?.value }}
                     </span>
                   </div>
@@ -672,7 +672,7 @@
                 <span class="text-base">✉️</span>
                 <div class="min-w-0">
                   <p class="font-semibold text-zinc-900 truncate">Confirmation email sent</p>
-                  <p class="text-zinc-500 text-[11px] truncate">{{ detailsForm.get('riderEmail')?.value }}</p>
+                  <p class="text-zinc-500 text-xs truncate">{{ detailsForm.get('riderEmail')?.value }}</p>
                 </div>
               </div>
             </div>

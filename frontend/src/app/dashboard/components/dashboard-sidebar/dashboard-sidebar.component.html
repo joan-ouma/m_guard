@@ -39,13 +39,13 @@
         </button>
       </div>
 
-      <nav class="p-4 space-y-1.5">
+      <nav class="p-3.5 space-y-1">
         <a
           routerLink="/"
           routerLinkActive="bg-zinc-900 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 text-white shrink-0"
@@ -68,7 +68,7 @@
           routerLinkActive="bg-zinc-900 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -96,7 +96,7 @@
           routerLinkActive="bg-zinc-900 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -117,7 +117,7 @@
         <a
           href="javascript:void(0)"
           (click)="closeMobileDrawer.emit(); openGeofenceModal.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -140,7 +140,7 @@
           routerLinkActive="bg-zinc-900 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -163,7 +163,7 @@
           routerLinkActive="bg-rose-600 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -186,7 +186,7 @@
           routerLinkActive="bg-zinc-900 text-white shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -213,7 +213,7 @@
           <button
             type="button"
             (click)="pwa.installApp(); closeMobileDrawer.emit()"
-            class="w-full min-h-[48px] px-4 py-3 rounded-2xl flex items-center gap-4 text-base font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
+            class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
           >
             <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -270,15 +270,15 @@
 
 <!-- Desktop Sidebar (Hidden on mobile) -->
 <aside
-  class="hidden lg:flex w-72 h-full bg-white flex-col justify-between border-r border-zinc-200 shrink-0 z-20"
+  class="hidden lg:flex w-64 h-full bg-white flex-col justify-between border-r border-zinc-200 shrink-0 z-20"
 >
   <div>
-    <div class="h-20 px-8 flex items-center gap-4 border-b border-zinc-100">
+    <div class="h-16 px-6 flex items-center gap-3 border-b border-zinc-100">
       <div
-        class="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+        class="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
       >
         <svg
-          class="w-6 h-6"
+          class="w-5 h-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -291,18 +291,18 @@
           />
         </svg>
       </div>
-      <span class="font-bold text-2xl tracking-tight text-zinc-900">MGuard</span>
+      <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
     </div>
 
-    <nav class="p-6 space-y-2">
+    <nav class="p-3.5 space-y-1">
       <a
         routerLink="/"
         routerLinkActive="bg-zinc-900 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 text-white shrink-0"
+          class="w-5 h-5 text-white shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -321,10 +321,10 @@
         routerLink="/bikes"
         routerLinkActive="bg-zinc-900 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -348,10 +348,10 @@
         routerLink="/history"
         routerLinkActive="bg-zinc-900 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -369,10 +369,10 @@
       <a
         href="javascript:void(0)"
         (click)="openGeofenceModal.emit()"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -391,10 +391,10 @@
         routerLink="/alerts"
         routerLinkActive="bg-zinc-900 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -413,10 +413,10 @@
         routerLink="/emergency"
         routerLinkActive="bg-rose-600 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -435,10 +435,10 @@
         routerLink="/settings"
         routerLinkActive="bg-zinc-900 text-white shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
       >
         <svg
-          class="w-6 h-6 shrink-0"
+          class="w-5 h-5 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -462,9 +462,9 @@
         <button
           type="button"
           (click)="pwa.installApp()"
-          class="w-full min-h-[52px] px-5 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
+          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
         >
-          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           Install App
@@ -473,21 +473,21 @@
     </nav>
   </div>
 
-  <div class="p-4 border-t border-zinc-100">
+  <div class="p-3 border-t border-zinc-100">
     <div
-      class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80"
+      class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-zinc-50 border border-zinc-200/80"
     >
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-2.5 min-w-0">
         <div
-          class="w-12 h-12 rounded-full bg-zinc-900 text-white font-bold text-base flex items-center justify-center shrink-0"
+          class="w-9 h-9 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shrink-0"
         >
           {{ getUserInitials() }}
         </div>
         <div class="min-w-0">
-          <p class="text-base font-bold text-zinc-900 truncate">
+          <p class="text-xs font-bold text-zinc-900 truncate">
             {{ user()?.name || user()?.email || 'User' }}
           </p>
-          <p class="text-sm text-zinc-500 truncate">
+          <p class="text-[0.7rem] text-zinc-500 truncate">
             {{ user()?.email || '' }}
           </p>
         </div>
@@ -496,7 +496,7 @@
         type="button"
         (click)="logout.emit()"
         title="Log out"
-        class="w-12 h-12 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+        class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
       >
         <svg
           class="w-6 h-6"

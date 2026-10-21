@@ -3,12 +3,12 @@
     type="button"
     id="notificationBellBtn"
     (click)="togglePopover()"
-    class="relative w-10 h-10 lg:w-12 lg:h-12 rounded-full border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-700 hover:text-zinc-900 transition-colors cursor-pointer"
+    class="relative w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-700 hover:text-zinc-900 transition-colors cursor-pointer"
     title="Notifications"
     aria-label="Notifications"
   >
     <svg
-      class="w-5 h-5"
+      class="w-4.5 h-4.5 lg:w-5 lg:h-5"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -23,7 +23,7 @@
     @if (unreadCount() > 0) {
       <span
         id="notificationBellBadge"
-        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs"
+        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[0.65rem] font-bold flex items-center justify-center shadow-xs"
       >
         {{ unreadCount() > 99 ? '99+' : unreadCount() }}
       </span>
@@ -70,7 +70,7 @@
               <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
               <span class="font-medium truncate">Notifications off in browser</span>
             </div>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-zinc-200 text-zinc-700 font-medium shrink-0">Disabled</span>
+            <span class="text-[0.65rem] px-2 py-0.5 rounded bg-zinc-200 text-zinc-700 font-medium shrink-0">Disabled</span>
           </div>
         } @else if (notificationService.isSnsSubscribed()) {
           <div class="px-4 py-2 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between text-xs text-emerald-800 font-semibold">
@@ -81,7 +81,7 @@
             <button
               type="button"
               (click)="onDisableSns()"
-              class="text-[11px] font-medium text-emerald-700 hover:text-rose-600 transition-colors cursor-pointer"
+              class="text-xs font-medium text-emerald-700 hover:text-rose-600 transition-colors cursor-pointer"
             >
               Turn off
             </button>
@@ -103,7 +103,7 @@
                 {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
               </button>
             </div>
-            <p class="text-[11px] text-zinc-500 leading-tight">
+            <p class="text-xs text-zinc-500 leading-tight">
               Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
             </p>
           </div>
@@ -137,7 +137,7 @@
                   <h4 class="text-xs font-bold text-zinc-900 truncate">{{ item.title }}</h4>
                 </div>
                 <p class="text-xs text-zinc-500 mt-0.5 truncate">{{ item.activity }}</p>
-                <span class="text-[10px] text-zinc-400 mt-0.5 block">{{ item.time }}</span>
+                <span class="text-[0.65rem] text-zinc-400 mt-0.5 block">{{ item.time }}</span>
               </div>
 
               <button
