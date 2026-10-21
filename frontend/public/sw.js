@@ -1,4 +1,4 @@
-const CACHE_NAME = 'motorguard-cache-v1';
+const CACHE_NAME = 'mguard-cache-v2';
 const OFFLINE_URLS = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -43,7 +43,7 @@ self.addEventListener('push', (event) => {
     try {
       raw = event.data.json();
     } catch {
-      raw = { title: 'MotorGuard Alert', body: event.data.text() };
+      raw = { title: 'MGuard Alert', body: event.data.text() };
     }
   }
 
@@ -60,7 +60,7 @@ self.addEventListener('push', (event) => {
   const notification = data.notification || {};
   const customData = data.data || {};
 
-  const title = notification.title || data.title || raw.default || '🚨 MotorGuard Security Alert';
+  const title = notification.title || data.title || raw.default || '🚨 MGuard Security Alert';
   const body =
     notification.body ||
     data.body ||
