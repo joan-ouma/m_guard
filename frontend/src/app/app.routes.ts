@@ -22,33 +22,33 @@ export const routes: Routes = [
   {
     path: 'terms',
     component: LegalComponent,
-    title: 'Terms of Service | MotoGuard',
+    title: 'Terms of Service | MGuard',
     data: {
       description:
-        'Read the terms and conditions governing the use of MotoGuard motorcycle tracking hardware, software, and fleet management services.',
-      keywords: 'MotoGuard terms and conditions, terms of service, telematics service agreement',
+        'Read the terms and conditions governing the use of MGuard motorcycle tracking and security services.',
+      keywords: 'MGuard terms and conditions, terms of service, motorcycle security agreement',
       ogType: 'article',
     },
   },
   {
     path: 'privacy',
     component: LegalComponent,
-    title: 'Privacy Policy | MotoGuard',
+    title: 'Privacy Policy | MGuard',
     data: {
       description:
-        'Learn how MotoGuard collects, protects, and handles GPS telemetry, rider personal information, and motorcycle location data.',
-      keywords: 'MotoGuard privacy policy, GPS data protection, telemetry privacy, rider data security',
+        'Learn how MGuard collects, protects, and handles GPS telemetry, rider personal information, and motorcycle location data.',
+      keywords: 'MGuard privacy policy, GPS data protection, telemetry privacy, rider data security',
       ogType: 'article',
     },
   },
   {
     path: 'legal',
     component: LegalComponent,
-    title: 'Legal | MotoGuard',
+    title: 'Legal | MGuard',
     data: {
       description:
-        'Access MotoGuard terms of service, privacy policy, and compliance standards for motorcycle fleet management.',
-      keywords: 'MotoGuard legal, compliance, terms, privacy, fleet telematics regulations',
+        'Access MGuard terms of service, privacy policy, and compliance standards for motorcycle security.',
+      keywords: 'MGuard legal, compliance, terms, privacy, rider data protection',
       ogType: 'article',
     },
   },
@@ -56,7 +56,7 @@ export const routes: Routes = [
     path: 'alerts',
     component: AlertsComponent,
     canActivate: [authGuard],
-    title: 'Alerts | MotoGuard',
+    title: 'Alerts | MGuard',
     data: {
       description:
         'View critical motorcycle safety alerts including tilt tamper warnings, geofence breaches, duress escalation, and emergency accident notifications.',
@@ -67,7 +67,7 @@ export const routes: Routes = [
     path: 'emergency',
     component: EmergencyComponent,
     canActivate: [authGuard],
-    title: 'Emergency Contacts & Police | MotoGuard',
+    title: 'Emergency Contacts & Police | MGuard',
     data: {
       description:
         'Quickly access police station hotlines, desk numbers, ambulance emergency services, and live motorcycle incident reporting across Kenya.',
@@ -78,11 +78,11 @@ export const routes: Routes = [
     path: 'settings',
     component: SettingsComponent,
     canActivate: [authGuard],
-    title: 'Settings | MotoGuard',
+    title: 'Settings | MGuard',
     data: {
       description:
-        'Configure your SACCO leader contacts, emergency escalation phone numbers, notification channels, and fleet security preferences.',
-      keywords: 'SACCO emergency contacts, motorcycle settings, alert escalation, fleet configuration',
+        'Configure your trusted emergency contacts, notification channels, and motorcycle security preferences.',
+      keywords: 'emergency contacts, motorcycle settings, alert escalation, security configuration',
     },
   },
   {
@@ -90,80 +90,80 @@ export const routes: Routes = [
     canMatch: [() => inject(AuthService).isAuthenticated()],
     component: DashboardComponent,
     canActivate: [authGuard],
-    title: 'Dashboard | MotoGuard',
+    title: 'Dashboard | MGuard',
     data: {
       description:
-        'Track your motorcycles in real-time with high-precision GPS, live telemetry, geofence boundary alerts, and remote anti-theft starter immobilization.',
-      keywords: 'motorcycle GPS tracking, live bike location, fleet dashboard, IoT anti-theft, ignition control, Nairobi motorcycle tracking',
+        'Track your motorcycle in real-time with high-precision GPS, live telemetry, geofence boundary alerts, and remote anti-theft security lock.',
+      keywords: 'motorcycle GPS tracking, live bike location, rider dashboard, anti-theft, ignition control, Nairobi motorcycle tracking',
     },
   },
   {
     path: '',
     component: LandingComponent,
-    title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+    title: 'MGuard | Smart Motorcycle GPS Tracking & Security',
     data: {
       description:
-        'Real-time IoT motorcycle tracking, intelligent geofencing, remote starter immobilization, and automated theft prevention for riders and fleet operators.',
-      keywords: 'motorcycle tracking, GPS bike security, fleet telematics, IoT immobilizer, Kenya bike tracking, duress alerts, live route history, SACCO motorcycle tracking, MotoGuard, MGuard',
+        'Real-time motorcycle tracking, intelligent geofencing, remote security lock, and automated theft prevention built for boda boda riders.',
+      keywords: 'motorcycle tracking, GPS bike security, boda boda tracking, Kenya bike tracking, emergency alerts, live route history, MGuard',
     },
   },
   {
     path: 'home',
     component: LandingComponent,
-    title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+    title: 'MGuard | Smart Motorcycle GPS Tracking & Security',
   },
   {
     path: 'about',
     component: AboutComponent,
-    title: 'About Us | MotoGuard',
+    title: 'About Us | MGuard',
     data: {
       description:
-        'Learn how MotoGuard safeguards two-wheeled fleets and boda boda operators across Kenya through stealth IoT tracking and smart telemetry.',
-      keywords: 'about MotoGuard, motorcycle security Kenya, IoT fleet tracking, boda boda anti-theft',
+        'Learn how MGuard safeguards boda boda riders across Kenya through smart motorcycle tracking and real-time security.',
+      keywords: 'about MGuard, motorcycle security Kenya, boda boda tracking, boda boda anti-theft',
     },
   },
   {
     path: 'services',
     component: ServicesComponent,
-    title: 'Services | MotoGuard',
+    title: 'Services | MGuard',
     data: {
       description:
-        'Explore MotoGuard services: real-time GPS tracking, remote starter kill, instant geofencing alerts, and SACCO fleet telematics.',
-      keywords: 'motorcycle tracking services, remote engine cutoff, SACCO fleet management, GPS telemetry',
+        'Explore MGuard services: real-time GPS tracking, remote security lock, instant motion alerts, and route history.',
+      keywords: 'motorcycle tracking services, remote engine cutoff, boda boda tracking, GPS telemetry',
     },
   },
   {
     path: 'contact',
     component: ContactComponent,
-    title: 'Contact Us | MotoGuard',
+    title: 'Contact Us | MGuard',
     data: {
       description:
-        'Get in touch with MotoGuard. Reach our support and sales teams in Nairobi for motorcycle tracker installations and fleet inquiries.',
-      keywords: 'contact MotoGuard, motorcycle GPS Nairobi, tracker installation support',
+        'Get in touch with MGuard. Reach our support team in Nairobi for motorcycle security activation and technical support.',
+      keywords: 'contact MGuard, motorcycle GPS Nairobi, tracker support',
     },
   },
   {
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [authGuard],
-    title: 'Dashboard | MotoGuard',
+    title: 'Dashboard | MGuard',
   },
   {
     path: 'bikes',
     component: BikesComponent,
     canActivate: [authGuard],
-    title: 'Bikes | MotoGuard',
+    title: 'Bikes | MGuard',
     data: {
       description:
-        'Manage all motorcycles in your fleet. Monitor tracker hardware health, GPS signal quality, battery voltage, and remote immobilization status.',
-      keywords: 'motorcycle fleet management, bike inventory, tracker status, battery health, IoT telematics',
+        'Manage your motorcycle. Monitor connection health, GPS signal quality, battery voltage, and remote security lock status.',
+      keywords: 'motorcycle management, bike status, battery health, rider security',
     },
   },
   {
     path: 'history',
     component: HistoryComponent,
     canActivate: [authGuard],
-    title: 'History | MotoGuard',
+    title: 'History | MGuard',
     data: {
       description:
         'Replay historical motorcycle routes, inspect speed records, identify idle times, and review verified incident logs and trip audit trails.',
@@ -174,52 +174,52 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent,
     canActivate: [guestGuard],
-    title: 'Sign In | MotoGuard',
+    title: 'Sign In | MGuard',
     data: {
       description:
-        'Sign in to access your MotoGuard motorcycle tracking portal, monitor active assets on live maps, and control ignition starter security.',
-      keywords: 'MotoGuard login, motorcycle portal sign in, GPS tracking access',
+        'Sign in to access your MGuard motorcycle tracking portal, monitor your bike on live maps, and control remote security lock.',
+      keywords: 'MGuard login, motorcycle portal sign in, GPS tracking access',
     },
   },
   {
     path: 'signup',
     component: SignupComponent,
     canActivate: [guestGuard],
-    title: 'Sign Up | MotoGuard',
+    title: 'Sign Up | MGuard',
     data: {
       description:
-        'Create your MotoGuard account, pair your IoT GPS tracking device, and safeguard your motorcycle with intelligent remote fleet protection.',
-      keywords: 'motorcycle tracker registration, create MotoGuard account, bike security onboarding',
+        'Create your MGuard account, pair your motorcycle security, and safeguard your bike with 24/7 intelligent protection.',
+      keywords: 'motorcycle registration, create MGuard account, bike security onboarding',
     },
   },
   {
     path: 'forgot-password',
     component: ForgotPasswordComponent,
     canActivate: [guestGuard],
-    title: 'Forgot Password | MotoGuard',
+    title: 'Forgot Password | MGuard',
     data: {
-      description: 'Request a secure password recovery link for your MotoGuard motorcycle tracking account.',
-      keywords: 'MotoGuard forgot password, recover tracking account',
+      description: 'Request a secure password recovery link for your MGuard motorcycle tracking account.',
+      keywords: 'MGuard forgot password, recover tracking account',
     },
   },
   {
     path: 'reset-password',
     component: ResetPasswordComponent,
     canActivate: [guestGuard],
-    title: 'Reset Password | MotoGuard',
+    title: 'Reset Password | MGuard',
     data: {
-      description: 'Securely set a new password for your MotoGuard motorcycle security and fleet tracking account.',
-      keywords: 'MotoGuard reset password, account security',
+      description: 'Securely set a new password for your MGuard motorcycle security account.',
+      keywords: 'MGuard reset password, account security',
     },
   },
   {
     path: 'reset-password/:token',
     component: ResetPasswordComponent,
     canActivate: [guestGuard],
-    title: 'Reset Password | MotoGuard',
+    title: 'Reset Password | MGuard',
     data: {
-      description: 'Securely set a new password for your MotoGuard motorcycle security and fleet tracking account.',
-      keywords: 'MotoGuard reset password, account security',
+      description: 'Securely set a new password for your MGuard motorcycle security account.',
+      keywords: 'MGuard reset password, account security',
     },
   },
   {

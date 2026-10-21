@@ -14,11 +14,11 @@ export interface SeoData {
 }
 
 const DEFAULT_SEO: Required<SeoData> = {
-  title: 'MotoGuard | Smart Motorcycle GPS Tracking & Security',
+  title: 'MGuard | Smart Motorcycle GPS Tracking & Security',
   description:
-    'Real-time IoT motorcycle tracking, intelligent geofencing, remote starter immobilization, and automated theft prevention for riders and fleet operators.',
+    'Real-time motorcycle tracking, intelligent geofencing, remote security lock, and automated theft prevention built for boda boda riders.',
   keywords:
-    'motorcycle tracking, GPS bike security, fleet telematics, IoT immobilizer, Kenya bike tracking, duress alerts, live route history, SACCO motorcycle tracking, MotoGuard, MGuard',
+    'motorcycle tracking, GPS bike security, boda boda tracking, Kenya bike tracking, emergency alerts, live route history, MGuard',
   ogImage: '/motorbike.png',
   ogType: 'website',
   noIndex: false,
