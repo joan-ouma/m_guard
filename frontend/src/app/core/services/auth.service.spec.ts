@@ -52,19 +52,19 @@ describe('AuthService', () => {
         },
         organization: {
           id: 'org_abc',
-          name: 'MotoGuard Nairobi Fleet',
-          plan_tier: 'fleet',
+          name: 'MGuard Nairobi',
+          plan_tier: 'rider',
         },
       },
     };
 
     service
-      .login({ email: 'dispatcher@motoguard.co.ke', password: 'password123' })
+      .login({ email: 'rider@mguard.co.ke', password: 'password123' })
       .subscribe((res) => {
         expect(res.data.access_token).toBe('test_access_token_jwt');
         expect(service.isAuthenticated()).toBe(true);
-        expect(service.currentUser()?.email).toBe('dispatcher@motoguard.co.ke');
-        expect(service.currentOrg()?.name).toBe('MotoGuard Nairobi Fleet');
+        expect(service.currentUser()?.email).toBe('rider@mguard.co.ke');
+        expect(service.currentOrg()?.name).toBe('MGuard Nairobi');
       });
 
     const req = httpTesting.expectOne(`${environment.apiBaseUrl}/v1/sessions`);

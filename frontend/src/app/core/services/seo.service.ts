@@ -77,7 +77,7 @@ export class SeoService {
     );
 
     // Open Graph / Facebook / WhatsApp
-    this.setOrUpdateMeta('property', 'og:site_name', 'MotoGuard');
+    this.setOrUpdateMeta('property', 'og:site_name', 'MGuard');
     this.setOrUpdateMeta('property', 'og:title', title);
     this.setOrUpdateMeta('property', 'og:description', description);
     this.setOrUpdateMeta('property', 'og:type', ogType);
@@ -88,7 +88,7 @@ export class SeoService {
 
     // Twitter Card Tags
     this.setOrUpdateMeta('name', 'twitter:card', 'summary_large_image');
-    this.setOrUpdateMeta('name', 'twitter:site', '@MotoGuard');
+    this.setOrUpdateMeta('name', 'twitter:site', '@MGuard');
     this.setOrUpdateMeta('name', 'twitter:title', title);
     this.setOrUpdateMeta('name', 'twitter:description', description);
     this.setOrUpdateMeta('name', 'twitter:image', ogImage);

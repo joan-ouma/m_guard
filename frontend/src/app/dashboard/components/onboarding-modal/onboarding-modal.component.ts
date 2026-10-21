@@ -424,7 +424,7 @@ export class OnboardingModalComponent implements OnInit, OnDestroy {
 
     // 3. Not Found 404
     if (status === 404) {
-      this.verifyError.set(err.error?.detail || 'Tracker hardware does not exist in MotoGuard database.');
+      this.verifyError.set(err.error?.detail || 'Tracker hardware does not exist in MGuard database.');
       this.showImeiErrorToast('IMEI Not Found', 'Tracker does not exist.');
       return;
     }
