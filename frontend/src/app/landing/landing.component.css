@@ -2202,8 +2202,10 @@ blockquote {
 
 .section.home-banner {
   background-color: var(--primary-light);
-  padding-top: 180px;
-  padding-bottom: 130px;
+  padding-top: 140px;
+  padding-bottom: 90px;
+  position: relative;
+  overflow: hidden;
 }
 
 .section.price {
@@ -4999,8 +5001,12 @@ blockquote {
 }
 
 .home-banner-wrapper {
-  width: 43%;
+  width: 52%;
   display: flex;
+}
+
+.home-banner-wrapper.home-1 {
+  width: 54%;
 }
 
 .home-banner-wrapper.home-2 {
@@ -5009,8 +5015,10 @@ blockquote {
 
 .hero {
   margin-top: 0;
-  margin-bottom: 30px;
-  font-size: 64px;
+  margin-bottom: 20px;
+  font-size: 46px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .hero.banner {
@@ -5020,18 +5028,18 @@ blockquote {
   margin-left: auto;
   margin-right: auto;
   font-family: Inter, sans-serif;
-  font-size: 64px;
+  font-size: 48px;
   font-weight: 700;
-  line-height: 1.1em;
+  line-height: 1.15;
 }
 
 .banner-btn-wrap {
-  margin-top: 50px;
+  margin-top: 28px;
   display: flex;
 }
 
 .banner-paragraph-wrap {
-  max-width: 410px;
+  max-width: 480px;
 }
 
 .service-text-wrap {
@@ -7006,7 +7014,8 @@ blockquote {
   }
 
   .hero, .hero.banner {
-    font-size: 80px;
+    font-size: 50px;
+    line-height: 1.15;
   }
 
   .service-text-wrap {
@@ -8345,7 +8354,8 @@ blockquote {
   }
 
   .hero, .hero.banner {
-    font-size: 60px;
+    font-size: 38px;
+    line-height: 1.2;
   }
 
   .banner-btn-wrap {
@@ -9471,12 +9481,14 @@ blockquote {
   }
 
   .hero {
-    font-size: 56px;
+    font-size: 32px;
+    line-height: 1.25;
   }
 
   .hero.banner {
     max-width: 100%;
-    font-size: 50px;
+    font-size: 32px;
+    line-height: 1.25;
   }
 
   .banner-btn-wrap {
