@@ -11176,20 +11176,6 @@ blockquote {
     width: 100% !important;
   }
 
-  /* Pricing */
-  .pricing-plans-wrapper {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    max-width: 440px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    gap: 28px !important;
-  }
-
-  .pricing-plan-item {
-    width: 100% !important;
-  }
-
   /* CTA Banner - Zero Overlap */
   .cta-wrapper {
     display: flex !important;

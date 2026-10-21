@@ -31,7 +31,7 @@ export class LandingComponent implements AfterViewInit {
     );
 
     const elements = this.elementRef.nativeElement.querySelectorAll(
-      '.service-card, .pricing-plan-item, .testimonial, .accomplishments-card, .solution-text, .help-wrap, .help-details-wrap > div, .title-wrapper'
+      '.service-card, .testimonial, .accomplishments-card, .solution-text, .help-wrap, .help-details-wrap > div, .title-wrapper'
     );
     elements.forEach((el: Element) => {
       el.classList.add('mg-scroll-anim');
