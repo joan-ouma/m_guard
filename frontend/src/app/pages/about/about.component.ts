@@ -1,4 +1,4 @@
-import { Component, signal, AfterViewInit, ElementRef, inject } from '@angular/core';
+import { Component, signal, AfterViewInit, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -18,8 +18,29 @@ export class AboutComponent implements AfterViewInit {
     this.mobileMenuOpen.update((open) => !open);
   }
 
-  setTestimonial(index: number): void {
+  @ViewChild('track') track?: ElementRef<HTMLElement>;
+
+  scrollToTestimonial(index: number): void {
+    const container = this.track?.nativeElement;
+    const card = container?.children[index - 1] as HTMLElement | undefined;
+    if (!container || !card) return;
+    container.scrollTo({ left: card.offsetLeft - container.offsetLeft, behavior: 'smooth' });
     this.activeTestimonial.set(index);
+  }
+
+  onTestimonialScroll(): void {
+    const container = this.track?.nativeElement;
+    if (!container) return;
+    let closest = 0;
+    let best = Number.POSITIVE_INFINITY;
+    Array.from(container.children).forEach((child, i) => {
+      const offset = Math.abs((child as HTMLElement).offsetLeft - container.offsetLeft - container.scrollLeft);
+      if (offset < best) {
+        best = offset;
+        closest = i;
+      }
+    });
+    this.activeTestimonial.set(closest + 1);
   }
 
   ngAfterViewInit(): void {
