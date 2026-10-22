@@ -1011,3 +1011,12 @@ p {
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
+
+/* Inner page banner: bring the photo closer to the intro paragraph */
+.inner-banner .inner-banner-wrap {
+  margin-bottom: 0 !important;
+}
+
+.inner-banner .banner-image {
+  margin-top: 32px !important;
+}
