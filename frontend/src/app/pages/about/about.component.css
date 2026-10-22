@@ -3130,7 +3130,7 @@ blockquote {
 }
 
 .career-location, .career-type {
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 18px;
   line-height: 24px;
 }
@@ -3142,7 +3142,7 @@ blockquote {
 
 .career-title-mobile {
   margin-bottom: 5px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 900;
   display: none;
@@ -3523,7 +3523,7 @@ blockquote {
   min-height: 200px;
   margin-bottom: 30px;
   padding: 16px 18px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3533,7 +3533,7 @@ blockquote {
 
 .contacts-textarea::placeholder {
   color: var(--dark-gray);
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3542,7 +3542,7 @@ blockquote {
   background-color: var(--white);
   height: auto;
   padding: 16px 18px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
   transition: all .2s;
 }
@@ -3553,7 +3553,7 @@ blockquote {
 
 .contacts-input::placeholder {
   color: var(--dark-gray);
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3613,7 +3613,7 @@ blockquote {
 .footer-brand.w--current {
   color: #fff;
   padding-left: 0;
-  font-family: Poppins;
+  font-family: Inter, sans-serif;
 }
 
 .footer-social-icon {
@@ -3655,7 +3655,7 @@ blockquote {
   height: auto;
   margin-top: 20px;
   padding: 16px 22px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3947,7 +3947,7 @@ blockquote {
   color: var(--primary);
   background-color: #0000;
   padding: 30px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -4788,7 +4788,7 @@ blockquote {
   color: #999;
   margin-left: -20px;
   padding: 5px 0;
-  font-family: Poppins;
+  font-family: Inter, sans-serif;
   transition: color .2s;
   display: flex;
 }
@@ -5678,13 +5678,14 @@ blockquote {
 }
 
 .story-text {
-  width: 40%;
+  width: 46%;
+  padding-right: 48px;
 }
 
 .story-image {
   object-fit: cover;
-  border-radius: 10px;
-  height: 655px;
+  border-radius: 16px;
+  height: 560px;
 }
 
 .accordion-number {
@@ -5706,8 +5707,46 @@ blockquote {
 }
 
 .story-image-wrap {
-  width: 60%;
-  padding-left: 100px;
+  width: 54%;
+  padding-left: 64px;
+}
+
+.story-points {
+  border-top: 1px solid rgba(23, 32, 57, 0.12);
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-point {
+  border-bottom: 1px solid rgba(23, 32, 57, 0.12);
+  padding: 24px 0;
+  gap: 20px;
+  display: flex;
+}
+
+.story-point-number {
+  color: var(--primary);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  padding-top: 4px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.story-point-title {
+  color: #172039;
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.story-point-text {
+  color: #5b6275;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .description-wrap {
@@ -8263,7 +8302,7 @@ blockquote {
     color: #222;
     padding-top: 12px;
     padding-bottom: 12px;
-    font-family: Lato, sans-serif;
+    font-family: Inter, sans-serif;
     font-weight: 700;
   }
 
@@ -8523,6 +8562,7 @@ blockquote {
 
   .story-text {
     width: 100%;
+    padding-right: 0;
   }
 
   .story-image {

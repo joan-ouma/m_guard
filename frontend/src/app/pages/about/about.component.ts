@@ -7,20 +7,15 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './about.component.html',
-  styleUrl: './about.component.css',
+  styleUrls: ['./about.component.css', '../public-theme.css'],
 })
 export class AboutComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);
   mobileMenuOpen = signal<boolean>(false);
-  activeAccordion = signal<number>(1);
   activeTestimonial = signal<number>(1);
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
-  }
-
-  setAccordion(index: number): void {
-    this.activeAccordion.set(index);
   }
 
   setTestimonial(index: number): void {

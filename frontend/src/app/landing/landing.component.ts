@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css',
+  styleUrls: ['./landing.component.css', '../pages/public-theme.css'],
 })
 export class LandingComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);

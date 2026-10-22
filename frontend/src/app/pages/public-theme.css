@@ -1,0 +1,164 @@
+/*
+ * Shared clean, light editorial theme for the public pages
+ * (landing, about, services, contact).
+ *
+ * Loaded after each page's own stylesheet, so these rules win at equal
+ * specificity. The footer stays dark as a closing anchor.
+ */
+
+h1,
+h2,
+h3 {
+  color: #111827;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+p {
+  color: #4b5563;
+}
+
+.section-subtitle {
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Light sections with thin rules between them */
+.section,
+.inner-section {
+  padding-top: clamp(64px, 8vw, 104px);
+  padding-bottom: clamp(64px, 8vw, 104px);
+}
+
+.primary-light-bg,
+.why-choose-us {
+  background-color: #fff;
+}
+
+.section + .section,
+.inner-section + .inner-section {
+  border-top: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+/* Section header: label, bold heading, short intro (stacked, left aligned) */
+.section-title-wrapper,
+.title-wrapper {
+  display: block;
+  max-width: 720px;
+  margin-bottom: 48px;
+}
+
+.section-title-wrapper h2,
+.title-wrapper h2,
+.section-title-wrapper .section-title {
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 12px 0 16px;
+}
+
+.section-title-description,
+.title-wrapper .paragraph-description {
+  max-width: 620px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Inner page banner: title and intro stacked, then a contained photo */
+.inner-banner {
+  padding-top: clamp(48px, 6vw, 80px);
+}
+
+.inner-banner .inner-banner-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-column-gap: 64px;
+  align-items: end;
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 767px) {
+  .inner-banner .inner-banner-wrap {
+    grid-template-columns: 1fr;
+    grid-row-gap: 20px;
+  }
+}
+
+.inner-title {
+  width: 100%;
+  max-width: none;
+  color: #111827;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 20px;
+}
+
+.inner-description {
+  color: #4b5563;
+  max-width: 520px;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.inner-banner .banner-image {
+  width: min(1200px, calc(100% - 32px));
+  height: auto;
+  max-height: none;
+  border-radius: 16px;
+  display: block;
+  margin: 48px auto 0;
+}
+
+/* Cards: flat, outlined, no heavy shadows */
+.features-item,
+.service-card {
+  box-shadow: none !important;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background-color: #fff;
+  border-radius: 12px;
+}
+
+.contacts-form-wrapper {
+  background-color: transparent;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+.contacts-input,
+.contacts-textarea {
+  border: 1px solid rgba(17, 24, 39, 0.16);
+  background-color: #fff;
+}
+
+/* Rider photo band: white fade so the dark text reads on the photo */
+.rider-band-overlay {
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.88) 40%, rgba(255, 255, 255, 0) 72%);
+  justify-content: center;
+}
+
+.rider-band-title {
+  color: #111827;
+}
+
+.rider-band-text {
+  color: #4b5563;
+}
+
+/* Photos: softer corners, no heavy shadow */
+.accomplishments-img,
+.story-image,
+.rider-band-img {
+  box-shadow: none;
+}
+
+.story-image,
+.accomplishments-img {
+  border-radius: 12px;
+}

@@ -3130,7 +3130,7 @@ blockquote {
 }
 
 .career-location, .career-type {
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 18px;
   line-height: 24px;
 }
@@ -3142,7 +3142,7 @@ blockquote {
 
 .career-title-mobile {
   margin-bottom: 5px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 900;
   display: none;
@@ -3523,7 +3523,7 @@ blockquote {
   min-height: 200px;
   margin-bottom: 30px;
   padding: 16px 18px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3533,7 +3533,7 @@ blockquote {
 
 .contacts-textarea::placeholder {
   color: var(--dark-gray);
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3542,7 +3542,7 @@ blockquote {
   background-color: var(--white);
   height: auto;
   padding: 16px 18px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
   transition: all .2s;
 }
@@ -3553,7 +3553,7 @@ blockquote {
 
 .contacts-input::placeholder {
   color: var(--dark-gray);
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3613,7 +3613,7 @@ blockquote {
 .footer-brand.w--current {
   color: #fff;
   padding-left: 0;
-  font-family: Poppins;
+  font-family: Inter, sans-serif;
 }
 
 .footer-social-icon {
@@ -3655,7 +3655,7 @@ blockquote {
   height: auto;
   margin-top: 20px;
   padding: 16px 22px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -3947,7 +3947,7 @@ blockquote {
   color: var(--primary);
   background-color: #0000;
   padding: 30px;
-  font-family: Lato, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 }
 
@@ -4788,7 +4788,7 @@ blockquote {
   color: #999;
   margin-left: -20px;
   padding: 5px 0;
-  font-family: Poppins;
+  font-family: Inter, sans-serif;
   transition: color .2s;
   display: flex;
 }
@@ -4995,6 +4995,7 @@ blockquote {
 
 .form {
   grid-column-gap: 30px;
+  flex-direction: column;
   display: flex;
 }
 
@@ -8251,7 +8252,7 @@ blockquote {
     color: #222;
     padding-top: 12px;
     padding-bottom: 12px;
-    font-family: Lato, sans-serif;
+    font-family: Inter, sans-serif;
     font-weight: 700;
   }
 

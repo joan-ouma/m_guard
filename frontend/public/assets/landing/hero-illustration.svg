@@ -100,4 +100,5 @@
 <stop offset="1" stop-color="#FF3841"/>
 </linearGradient>
 </defs>
+<g transform="translate(506.5 848.5) scale(1.13)"><circle opacity="0.5" r="53.7113" transform="matrix(0.866025 0.5 -0.85264 0.522499 0 0)" fill="#FF3841"/><circle opacity="0.4" r="40.7905" transform="matrix(0.866025 0.5 -0.85264 0.522499 0 0)" fill="#FF3841"/><circle r="22.59" transform="matrix(0.866025 0.5 -0.85264 0.522499 0 0)" fill="#FF3841"/><circle r="15.3478" transform="matrix(0.866025 0.5 -0.85264 0.522499 0 0)" fill="white"/></g>
 </svg>

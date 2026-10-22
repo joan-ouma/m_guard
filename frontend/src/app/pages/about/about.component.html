@@ -56,50 +56,29 @@
             MGuard provides dependable, always-on protection designed specifically for motorcycles, giving riders full visibility and rapid recovery coordination whenever needed.
           </p>
         </div>
-        <div class="accordion">
-          <div class="accordion-item w-dropdown" (click)="setAccordion(1)">
-            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
-              <div class="accordion-title-wrap">
-                <div class="accordion-number">1</div>
-                <div>The Street Reality</div>
-              </div>
-              <div class="accordion-icon"></div>
+        <ol class="story-points">
+          <li class="story-point">
+            <span class="story-point-number">01</span>
+            <div>
+              <h3 class="story-point-title">The Street Reality</h3>
+              <p class="story-point-text">MGuard is engineered specifically for motorcycles, ensuring discreet integration, extreme durability, and seamless connectivity on the road.</p>
             </div>
-            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 1 ? 'block' : 'none'">
-              <p class="accordion-list-content">
-                MGuard is engineered specifically for motorcycles, ensuring discreet integration, extreme durability, and seamless connectivity on the road.
-              </p>
-            </nav>
-          </div>
-          <div class="accordion-item w-dropdown" (click)="setAccordion(2)">
-            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
-              <div class="accordion-title-wrap">
-                <div class="accordion-number">2</div>
-                <div>Instant Anti-Theft Response</div>
-              </div>
-              <div class="accordion-icon"></div>
+          </li>
+          <li class="story-point">
+            <span class="story-point-number">02</span>
+            <div>
+              <h3 class="story-point-title">Instant Anti-Theft Response</h3>
+              <p class="story-point-text">Intelligent power management ensures your motorcycle stays protected around the clock, triggering instant alerts upon any unauthorized motion and enabling remote engine control.</p>
             </div>
-            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 2 ? 'block' : 'none'">
-              <p class="accordion-list-content">
-                Intelligent power management ensures your motorcycle stays protected around the clock, triggering instant alerts upon any unauthorized motion and enabling remote engine control.
-              </p>
-            </nav>
-          </div>
-          <div class="accordion-item w-dropdown" (click)="setAccordion(3)">
-            <div class="accordion-toggle w-dropdown-toggle" role="button" tabindex="0">
-              <div class="accordion-title-wrap">
-                <div class="accordion-number">3</div>
-                <div>Rider Community Support</div>
-              </div>
-              <div class="accordion-icon"></div>
+          </li>
+          <li class="story-point">
+            <span class="story-point-number">03</span>
+            <div>
+              <h3 class="story-point-title">Rider Community Support</h3>
+              <p class="story-point-text">Accurate route records provide clear proof of theft, coordinating directly with stage leaders and police for swift motorcycle recovery.</p>
             </div>
-            <nav class="accordion-list w-dropdown-list" [style.display]="activeAccordion() === 3 ? 'block' : 'none'">
-              <p class="accordion-list-content">
-                Accurate route records provide clear proof of theft, coordinating directly with stage leaders and police for swift motorcycle recovery.
-              </p>
-            </nav>
-          </div>
-        </div>
+          </li>
+        </ol>
       </div>
       <div class="story-image-wrap">
         <img class="story-image" src="/assets/landing/motorbike-parked.jpg" alt="MGuard Operations" loading="lazy">
@@ -133,7 +112,7 @@
         </div>
         <div class="numbered-list">
           <p class="list-number">3.</p>
-          <h3 class="list-text">Transparent and affordable monthly subscriptions tailored for everyday riders</h3>
+          <h3 class="list-text">Built into motorcycles through partnerships with motorcycle assembly companies, so riders never pay a subscription</h3>
         </div>
       </div>
     </div>

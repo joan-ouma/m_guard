@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './contact.component.html',
-  styleUrl: './contact.component.css',
+  styleUrls: ['./contact.component.css', '../public-theme.css'],
 })
 export class ContactComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);

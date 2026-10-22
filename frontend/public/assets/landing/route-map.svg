@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520">
+  <rect width="800" height="520" fill="#f3f4f6"/>
+  <!-- city blocks -->
+  <g fill="#e5e7eb">
+    <rect x="40" y="40" width="150" height="110" rx="10"/>
+    <rect x="230" y="40" width="200" height="110" rx="10"/>
+    <rect x="470" y="40" width="290" height="110" rx="10"/>
+    <rect x="40" y="190" width="150" height="130" rx="10"/>
+    <rect x="230" y="190" width="120" height="130" rx="10"/>
+    <rect x="390" y="190" width="200" height="130" rx="10"/>
+    <rect x="630" y="190" width="130" height="130" rx="10"/>
+    <rect x="40" y="360" width="200" height="120" rx="10"/>
+    <rect x="280" y="360" width="150" height="120" rx="10"/>
+    <rect x="470" y="360" width="140" height="120" rx="10"/>
+    <rect x="650" y="360" width="110" height="120" rx="10"/>
+  </g>
+  <!-- main roads -->
+  <g fill="none" stroke="#ffffff" stroke-linecap="round">
+    <path d="M0 170 H800" stroke-width="22"/>
+    <path d="M210 0 V520" stroke-width="18"/>
+    <path d="M440 0 V520" stroke-width="18"/>
+    <path d="M0 340 H800" stroke-width="16"/>
+  </g>
+  <!-- trip route -->
+  <path d="M250 430 L250 340 L440 340 L440 170 L620 170 L620 95 L700 95"
+        fill="none" stroke="#ff3841" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- start marker -->
+  <circle cx="250" cy="430" r="16" fill="#ffffff" stroke="#ff3841" stroke-width="5"/>
+  <circle cx="250" cy="430" r="5" fill="#ff3841"/>
+  <!-- end marker -->
+  <circle cx="700" cy="95" r="18" fill="#ff3841" opacity="0.2"/>
+  <circle cx="700" cy="95" r="9" fill="#ff3841" stroke="#ffffff" stroke-width="3"/>
+</svg>
