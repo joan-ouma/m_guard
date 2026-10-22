@@ -986,3 +986,20 @@ p {
   font-weight: 400;
   line-height: 1.6;
 }
+
+/* Inner page banners: title first, then the intro as one full-width paragraph beneath it (same as Our Story) */
+.inner-banner .inner-banner-wrap {
+  display: block !important;
+  width: 100%;
+}
+
+.inner-banner .inner-title {
+  margin: 0 0 24px;
+}
+
+.inner-banner .inner-description {
+  width: 100%;
+  max-width: none;
+  font-size: 18px;
+  line-height: 1.7;
+}
