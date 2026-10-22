@@ -5489,6 +5489,18 @@ blockquote {
   height: 50px;
 }
 
+.testimonial-author-initials {
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  font-weight: 700;
+  display: flex;
+}
+
 .testimonial-tab-link {
   grid-column-gap: 16px;
   background-color: #0000;
