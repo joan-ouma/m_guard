@@ -1,4 +1,14 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M21.1019 47.507L20.9719 35.664L49.1499 21.354C50.1149 20.863 50.9909 22.146 50.1839 22.867L33.7499 39L22.7459 48.261C22.0989 48.805 21.1109 48.352 21.1019 47.507Z" fill="#FF9DA2"/>
-<path d="M5.32811 27.315L20.9721 35.665L48.3911 22.113C48.7501 21.947 49.0301 22.454 48.6991 22.67L26.0301 37.16C25.3861 37.572 25.4231 38.525 26.0981 38.885L44.3271 48.605C44.6461 48.775 45.0421 48.639 45.1891 48.308L58.8901 17.482C59.3001 16.558 58.4981 15.556 57.5071 15.754L5.5011 26.155C4.9291 26.27 4.81411 27.038 5.32811 27.315Z" fill="#FF3841"/>
+  <!-- Outer pulse ring -->
+  <circle cx="32" cy="28" r="22" stroke="#FF9DA2" stroke-width="2" stroke-dasharray="3 3" opacity="0.6"/>
+  <!-- Middle radar wave -->
+  <circle cx="32" cy="28" r="16" fill="#FF9DA2" fill-opacity="0.25"/>
+  <!-- GPS Pin Path -->
+  <path d="M32 10C22.0589 10 14 18.0589 14 28C14 40.5 32 54 32 54C32 54 50 40.5 50 28C50 18.0589 41.9411 10 32 10Z" fill="#FF3841"/>
+  <!-- Inner White Center -->
+  <circle cx="32" cy="27" r="7" fill="white"/>
+  <!-- Target Center Dot -->
+  <circle cx="32" cy="27" r="3.5" fill="#FF3841"/>
+  <!-- Dynamic Location Pointer Accent -->
+  <path d="M32 54L30 49H34L32 54Z" fill="#FF3841"/>
 </svg>
