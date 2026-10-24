@@ -36,6 +36,17 @@ export class ContactsComponent implements OnInit {
   readonly formCategory = signal<ContactCategory>('emergency');
   readonly formError = signal<string | null>(null);
   readonly saving = signal<boolean>(false);
+  readonly addOpen = signal<boolean>(false);
+
+  openAdd(): void {
+    this.formError.set(null);
+    this.addOpen.set(true);
+  }
+
+  closeAdd(): void {
+    if (this.saving()) return;
+    this.addOpen.set(false);
+  }
 
   ngOnInit(): void {
     this.recoveryService.loadContacts().subscribe({
@@ -97,6 +108,7 @@ export class ContactsComponent implements OnInit {
         this.formPhone.set('');
         this.formCategory.set('emergency');
         this.page.set(1);
+        this.addOpen.set(false);
       },
       error: (err: HttpErrorResponse) => {
         this.saving.set(false);
