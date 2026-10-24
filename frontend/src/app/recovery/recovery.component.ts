@@ -116,6 +116,10 @@ export class RecoveryComponent implements OnInit {
           this.resumeReport(open);
           return;
         }
+        if (this.latestReport()) {
+          this.step.set('reported');
+          return;
+        }
         this.resetWizard();
         this.step.set('how');
       }
@@ -252,6 +256,29 @@ export class RecoveryComponent implements OnInit {
         this.saving.set(false);
         this.formError.set(this.errorMessage(err));
       },
+    });
+  }
+
+  markFound(): void {
+    const report = this.latestReport();
+    if (!report) return;
+
+    Swal.fire({
+      title: 'Bike found?',
+      text: 'This closes the report. You can then report a new loss if needed.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#18181b',
+      cancelButtonColor: '#71717a',
+      confirmButtonText: 'Yes, it is found',
+      cancelButtonText: 'Not yet',
+      reverseButtons: true,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      this.recoveryService.resolveIncident(report.id).subscribe({
+        next: () => this.startAgain(),
+        error: (err: HttpErrorResponse) => this.formError.set(this.errorMessage(err)),
+      });
     });
   }
 

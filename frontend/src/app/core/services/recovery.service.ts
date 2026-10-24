@@ -91,6 +91,13 @@ export class RecoveryService {
       .pipe(map((res) => res.data));
   }
 
+  /** Marks the bike as found. The report is closed and no longer open. */
+  resolveIncident(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/v1/incidents/${id}/resolve`, {}).pipe(
+      tap(() => this.incidents.update((list) => list.filter((i) => i.id !== id))),
+    );
+  }
+
   removeIncident(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/v1/incidents/${id}`);
   }

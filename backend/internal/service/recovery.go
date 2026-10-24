@@ -210,6 +210,21 @@ func (s *RecoveryService) SetOB(ctx context.Context, userID, incidentID, obNumbe
 	return nil
 }
 
+func (s *RecoveryService) ResolveIncident(ctx context.Context, userID, incidentID string) error {
+	instance := "/v1/incidents/" + incidentID + "/resolve"
+	if !isValidID(incidentID) {
+		return domain.NewNotFoundError("Incident not found", instance)
+	}
+	if err := s.repo.ResolveIncident(ctx, userID, incidentID); err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return domain.NewNotFoundError("Incident not found", instance)
+		}
+		slog.Error("ResolveIncident failed", "user_id", userID, "incident_id", incidentID, "error", err)
+		return domain.NewInternalServerError(instance)
+	}
+	return nil
+}
+
 func (s *RecoveryService) DeleteIncident(ctx context.Context, userID, incidentID string) error {
 	instance := "/v1/incidents/" + incidentID
 	if !isValidID(incidentID) {

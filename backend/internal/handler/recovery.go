@@ -33,6 +33,7 @@ func (h *RecoveryHandler) IncidentRoutes(auth func(http.Handler) http.Handler) c
 	r.Post("/", h.CreateIncident)
 	r.Delete("/{id}", h.DeleteIncident)
 	r.Put("/{id}/ob", h.SetOB)
+	r.Post("/{id}/resolve", h.ResolveIncident)
 
 	return r
 }
@@ -134,6 +135,21 @@ func (h *RecoveryHandler) SetOB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{"data": map[string]string{"status": "saved"}})
+}
+
+func (h *RecoveryHandler) ResolveIncident(w http.ResponseWriter, r *http.Request) {
+	claims, ok := claimsFromRequest(r)
+	if !ok {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	if err := h.service.ResolveIncident(r.Context(), claims.UserID, chi.URLParam(r, "id")); err != nil {
+		writeError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *RecoveryHandler) DeleteIncident(w http.ResponseWriter, r *http.Request) {

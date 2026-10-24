@@ -55,7 +55,7 @@ func (r *RecoveryRepository) ListIncidents(ctx context.Context, userID string, l
 		       i.latitude, i.longitude, COALESCE(i.ob_number, ''), COALESCE(a.file_name, ''), i.created_at
 		FROM theft_incidents i
 		LEFT JOIN incident_attachments a ON a.incident_id = i.id
-		WHERE i.user_id = $1
+		WHERE i.user_id = $1 AND i.resolved_at IS NULL
 		ORDER BY i.created_at DESC, i.id DESC
 		LIMIT $2 OFFSET $3
 	`, userID, limit, offset)
@@ -78,7 +78,7 @@ func (r *RecoveryRepository) ListIncidents(ctx context.Context, userID string, l
 
 func (r *RecoveryRepository) CountIncidents(ctx context.Context, userID string) (int, error) {
 	var total int
-	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM theft_incidents WHERE user_id = $1`, userID).Scan(&total)
+	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM theft_incidents WHERE user_id = $1 AND resolved_at IS NULL`, userID).Scan(&total)
 	return total, err
 }
 
@@ -118,6 +118,21 @@ func (r *RecoveryRepository) SetOB(ctx context.Context, userID, incidentID, obNu
 	}
 
 	return tx.Commit(ctx)
+}
+
+// ResolveIncident marks the bike as found. The report stops counting as open.
+func (r *RecoveryRepository) ResolveIncident(ctx context.Context, userID, incidentID string) error {
+	tag, err := r.pool.Exec(ctx, `
+		UPDATE theft_incidents SET resolved_at = NOW(), updated_at = NOW()
+		WHERE id = $1 AND user_id = $2 AND resolved_at IS NULL
+	`, incidentID, userID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func (r *RecoveryRepository) DeleteIncident(ctx context.Context, userID, incidentID string) error {
