@@ -59,6 +59,7 @@ export class RecoveryService {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiBaseUrl;
 
+  readonly incidents = signal<TheftIncident[]>([]);
   readonly contacts = signal<SavedContact[]>([]);
   readonly contactsLoading = signal<boolean>(false);
 
@@ -73,6 +74,14 @@ export class RecoveryService {
         },
         error: () => this.contactsLoading.set(false),
       }),
+    );
+  }
+
+  /** Most recent first. */
+  loadIncidents(): Observable<TheftIncident[]> {
+    return this.http.get<{ data: TheftIncident[] }>(`${this.base}/v1/incidents`, { params: { limit: '10' } }).pipe(
+      map((res) => res.data),
+      tap((list) => this.incidents.set(list)),
     );
   }
 

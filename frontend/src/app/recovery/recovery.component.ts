@@ -7,12 +7,12 @@ import Swal from 'sweetalert2';
 import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { BikeService } from '../core/services/bike.service';
 import { BikeListResponse } from '../core/models/bike.models';
-import { RecoveryService, THEFT_MODES, TheftMode } from '../core/services/recovery.service';
+import { RecoveryService, THEFT_MODES, TheftIncident, TheftMode } from '../core/services/recovery.service';
 import { EMERGENCY_CONTACTS, EmergencyContact, distanceKm } from '../emergency/emergency.data';
 
-type Step = 'start' | 'how' | 'when' | 'recorded' | 'police' | 'ob' | 'done';
+type Step = 'start' | 'how' | 'when' | 'recorded' | 'police' | 'ob' | 'reported';
 
-const STEP_ORDER: Step[] = ['how', 'when', 'recorded', 'police', 'ob'];
+const WIZARD_STEPS: Step[] = ['how', 'when', 'recorded', 'police', 'ob'];
 
 export interface NearbyStation extends EmergencyContact {
   distanceLabel: string | null;
@@ -30,9 +30,14 @@ export class RecoveryComponent implements OnInit {
 
   readonly theftModes = THEFT_MODES;
   readonly step = signal<Step>('start');
-  readonly stepIndex = computed(() => STEP_ORDER.indexOf(this.step()) + 1);
-  readonly totalSteps = STEP_ORDER.length;
+  readonly loaded = signal<boolean>(false);
   readonly saving = signal<boolean>(false);
+  readonly totalSteps = WIZARD_STEPS.length;
+  readonly stepIndex = computed(() => WIZARD_STEPS.indexOf(this.step()) + 1);
+  readonly isWizard = computed(() => WIZARD_STEPS.includes(this.step()));
+
+  // Most recent report, if the rider has one
+  readonly latestReport = computed<TheftIncident | null>(() => this.recoveryService.incidents()[0] ?? null);
 
   // Step 1: how it happened
   readonly mode = signal<TheftMode | null>(null);
@@ -56,7 +61,7 @@ export class RecoveryComponent implements OnInit {
   readonly referenceLocation = signal<{ lat: number; lng: number } | null>(null);
   readonly nearbyStations = signal<NearbyStation[]>([]);
 
-  readonly modeLabel = computed(() => THEFT_MODES.find((m) => m.value === this.mode())?.label ?? '');
+  readonly modeLabel = computed(() => this.modeLabelFor(this.mode()));
   readonly attachmentName = computed(() => this.selectedFile()?.name ?? null);
 
   ngOnInit(): void {
@@ -69,6 +74,26 @@ export class RecoveryComponent implements OnInit {
         }
       },
     });
+
+    this.recoveryService.loadIncidents().subscribe({
+      next: (list) => {
+        this.loaded.set(true);
+        const latest = list[0];
+        if (!latest) return;
+
+        if (latest.ob_number) {
+          this.step.set('reported');
+        } else {
+          // Started but not finished: pick up at the OB number step.
+          this.resumeReport(latest);
+        }
+      },
+      error: () => this.loaded.set(true),
+    });
+  }
+
+  modeLabelFor(value: TheftMode | string | null): string {
+    return THEFT_MODES.find((m) => m.value === value)?.label ?? '';
   }
 
   // Start: confirm before starting the wizard
@@ -129,10 +154,9 @@ export class RecoveryComponent implements OnInit {
 
   back(): void {
     this.formError.set(null);
-    const current = this.step();
-    const index = STEP_ORDER.indexOf(current);
+    const index = WIZARD_STEPS.indexOf(this.step());
     if (index > 0) {
-      this.step.set(STEP_ORDER[index - 1]);
+      this.step.set(WIZARD_STEPS[index - 1]);
     }
   }
 
@@ -207,8 +231,16 @@ export class RecoveryComponent implements OnInit {
     this.saving.set(true);
     this.recoveryService.attachOb(id, ob, this.selectedFile()).subscribe({
       next: () => {
-        this.saving.set(false);
-        this.step.set('done');
+        this.recoveryService.loadIncidents().subscribe({
+          next: () => {
+            this.saving.set(false);
+            this.step.set('reported');
+          },
+          error: () => {
+            this.saving.set(false);
+            this.step.set('reported');
+          },
+        });
       },
       error: (err: HttpErrorResponse) => {
         this.saving.set(false);
@@ -222,16 +254,28 @@ export class RecoveryComponent implements OnInit {
     this.step.set('start');
   }
 
+  private resumeReport(incident: TheftIncident): void {
+    this.incidentId.set(incident.id);
+    this.bikeId.set(incident.bike_id ?? this.bikeId());
+    this.mode.set(incident.mode);
+    this.locationText.set(incident.location_lost);
+    this.latitude.set(incident.latitude);
+    this.longitude.set(incident.longitude);
+    this.lostAt.set(this.toLocalInputValue(new Date(incident.lost_at)));
+    this.step.set('ob');
+  }
+
   private saveIncident(): void {
     const mode = this.mode();
     if (!mode) return;
 
-    const previousId = this.incidentId();
     const lostAt = new Date(this.lostAt());
     if (isNaN(lostAt.getTime())) {
       this.formError.set('Enter a valid date and time.');
       return;
     }
+
+    const previousId = this.incidentId();
 
     this.saving.set(true);
     this.recoveryService
