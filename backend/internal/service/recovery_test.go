@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -37,7 +38,7 @@ func TestCreateIncidentValidation(t *testing.T) {
 		{"empty location", domain.CreateIncidentRequest{Mode: "other", LostAt: valid, LocationLost: "  "}, "location_lost"},
 		{"lat without lng", domain.CreateIncidentRequest{Mode: "other", LostAt: valid, LocationLost: "x", Latitude: ptrFloat(1)}, "latitude"},
 		{"lat out of range", domain.CreateIncidentRequest{Mode: "other", LostAt: valid, LocationLost: "x", Latitude: ptrFloat(95), Longitude: ptrFloat(10)}, "latitude"},
-		{"bad bike id", domain.CreateIncidentRequest{Mode: "other", LostAt: valid, LocationLost: "x", BikeID: "not-a-uuid"}, "bike_id"},
+		{"bad bike id", domain.CreateIncidentRequest{Mode: "other", LostAt: valid, LocationLost: "x", BikeID: strings.Repeat("x", 40)}, "bike_id"},
 	}
 
 	for _, tc := range cases {
@@ -67,7 +68,7 @@ func TestCreateContactValidation(t *testing.T) {
 
 func TestSetOBValidation(t *testing.T) {
 	s := NewRecoveryService(nil)
-	id := "3f6c2a1e-9b4d-4e8a-8f2a-1c2d3e4f5a6b"
+	id := "inc_3f6c2a1e9b4d4e8a8f2a1c2d"
 
 	if err := s.SetOB(context.Background(), "user-1", id, "x", nil); err == nil {
 		t.Error("expected error for too-short OB number")
@@ -75,8 +76,8 @@ func TestSetOBValidation(t *testing.T) {
 		badRequestErrors(t, err)
 	}
 
-	if err := s.SetOB(context.Background(), "user-1", "not-a-uuid", "OB 12/24/2026", nil); err == nil {
-		t.Error("expected not found for invalid incident id")
+	if err := s.SetOB(context.Background(), "user-1", "", "OB 12/24/2026", nil); err == nil {
+		t.Error("expected not found for empty incident id")
 	}
 
 	big := &domain.IncidentAttachment{FileName: "big.pdf", Data: make([]byte, MaxAttachmentBytes+1)}

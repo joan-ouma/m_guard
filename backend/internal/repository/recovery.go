@@ -28,11 +28,11 @@ func (r *RecoveryRepository) BikeOwnedBy(ctx context.Context, userID, bikeID str
 func (r *RecoveryRepository) CreateIncident(ctx context.Context, in domain.TheftIncident) (domain.TheftIncident, error) {
 	var out domain.TheftIncident
 	err := r.pool.QueryRow(ctx, `
-		INSERT INTO theft_incidents (user_id, bike_id, mode, lost_at, location_lost, latitude, longitude)
-		VALUES ($1, NULLIF($2, '')::uuid, $3, $4, $5, $6, $7)
-		RETURNING id, user_id, COALESCE(bike_id::text, ''), mode, lost_at, location_lost,
+		INSERT INTO theft_incidents (id, user_id, bike_id, mode, lost_at, location_lost, latitude, longitude)
+		VALUES ($1, $2, NULLIF($3, ''), $4, $5, $6, $7, $8)
+		RETURNING id, user_id, COALESCE(bike_id, ''), mode, lost_at, location_lost,
 		          latitude, longitude, COALESCE(ob_number, ''), created_at
-	`, in.UserID, in.BikeID, in.Mode, in.LostAt, in.LocationLost, in.Latitude, in.Longitude,
+	`, in.ID, in.UserID, in.BikeID, in.Mode, in.LostAt, in.LocationLost, in.Latitude, in.Longitude,
 	).Scan(&out.ID, &out.UserID, &out.BikeID, &out.Mode, &out.LostAt, &out.LocationLost,
 		&out.Latitude, &out.Longitude, &out.OBNumber, &out.CreatedAt)
 	return out, err
@@ -40,7 +40,7 @@ func (r *RecoveryRepository) CreateIncident(ctx context.Context, in domain.Theft
 
 func (r *RecoveryRepository) ListIncidents(ctx context.Context, userID string, limit, offset int) ([]domain.TheftIncident, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT i.id, i.user_id, COALESCE(i.bike_id::text, ''), i.mode, i.lost_at, i.location_lost,
+		SELECT i.id, i.user_id, COALESCE(i.bike_id, ''), i.mode, i.lost_at, i.location_lost,
 		       i.latitude, i.longitude, COALESCE(i.ob_number, ''), COALESCE(a.file_name, ''), i.created_at
 		FROM theft_incidents i
 		LEFT JOIN incident_attachments a ON a.incident_id = i.id
@@ -123,10 +123,10 @@ func (r *RecoveryRepository) DeleteIncident(ctx context.Context, userID, inciden
 func (r *RecoveryRepository) CreateContact(ctx context.Context, c domain.UserContact) (domain.UserContact, error) {
 	var out domain.UserContact
 	err := r.pool.QueryRow(ctx, `
-		INSERT INTO user_contacts (user_id, name, phone, category)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO user_contacts (id, user_id, name, phone, category)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, user_id, name, phone, category, created_at
-	`, c.UserID, c.Name, c.Phone, c.Category,
+	`, c.ID, c.UserID, c.Name, c.Phone, c.Category,
 	).Scan(&out.ID, &out.UserID, &out.Name, &out.Phone, &out.Category, &out.CreatedAt)
 	return out, err
 }

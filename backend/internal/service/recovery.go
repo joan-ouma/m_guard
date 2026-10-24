@@ -12,14 +12,14 @@ import (
 
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/repository"
-
-	"github.com/google/uuid"
+	"motoguard-backend/internal/security"
 )
 
 const (
 	MaxAttachmentBytes = 5 << 20 // 5 MiB receipt photo or PDF
 	MaxContactsPerUser = 50
 	maxFutureSkew      = 5 * time.Minute
+	maxIDLength        = 32
 )
 
 var (
@@ -84,7 +84,7 @@ func (s *RecoveryService) CreateIncident(ctx context.Context, userID string, req
 
 	bikeID := strings.TrimSpace(req.BikeID)
 	if bikeID != "" {
-		if _, err := uuid.Parse(bikeID); err != nil {
+		if !isValidID(bikeID) {
 			errs["bike_id"] = []string{"Invalid bike id."}
 		} else {
 			owned, err := s.repo.BikeOwnedBy(ctx, userID, bikeID)
@@ -103,6 +103,7 @@ func (s *RecoveryService) CreateIncident(ctx context.Context, userID string, req
 	}
 
 	created, err := s.repo.CreateIncident(ctx, domain.TheftIncident{
+		ID:           security.NewID("inc_"),
 		UserID:       userID,
 		BikeID:       bikeID,
 		Mode:         req.Mode,
@@ -158,7 +159,7 @@ func (s *RecoveryService) ListIncidents(ctx context.Context, userID string, limi
 func (s *RecoveryService) SetOB(ctx context.Context, userID, incidentID, obNumber string, file *domain.IncidentAttachment) error {
 	instance := "/v1/incidents/" + incidentID + "/ob"
 
-	if _, err := uuid.Parse(incidentID); err != nil {
+	if !isValidID(incidentID) {
 		return domain.NewNotFoundError("Incident not found", instance)
 	}
 
@@ -207,7 +208,7 @@ func (s *RecoveryService) SetOB(ctx context.Context, userID, incidentID, obNumbe
 
 func (s *RecoveryService) DeleteIncident(ctx context.Context, userID, incidentID string) error {
 	instance := "/v1/incidents/" + incidentID
-	if _, err := uuid.Parse(incidentID); err != nil {
+	if !isValidID(incidentID) {
 		return domain.NewNotFoundError("Incident not found", instance)
 	}
 	if err := s.repo.DeleteIncident(ctx, userID, incidentID); err != nil {
@@ -255,6 +256,7 @@ func (s *RecoveryService) CreateContact(ctx context.Context, userID string, req 
 	}
 
 	created, err := s.repo.CreateContact(ctx, domain.UserContact{
+		ID:       security.NewID("con_"),
 		UserID:   userID,
 		Name:     name,
 		Phone:    phone,
@@ -283,7 +285,7 @@ func (s *RecoveryService) ListContacts(ctx context.Context, userID string) ([]do
 
 func (s *RecoveryService) DeleteContact(ctx context.Context, userID, contactID string) error {
 	instance := "/v1/contacts/" + contactID
-	if _, err := uuid.Parse(contactID); err != nil {
+	if !isValidID(contactID) {
 		return domain.NewNotFoundError("Contact not found", instance)
 	}
 	if err := s.repo.DeleteContact(ctx, userID, contactID); err != nil {
@@ -319,6 +321,11 @@ func toContactDTO(c domain.UserContact) domain.UserContactDTO {
 		Category:  c.Category,
 		CreatedAt: c.CreatedAt,
 	}
+}
+
+// isValidID accepts the prefixed IDs the app generates (for example "bik_..."), at most 32 characters.
+func isValidID(id string) bool {
+	return id != "" && len(id) <= maxIDLength
 }
 
 // sanitizeFileName keeps only the base name and trims it to the column size.
