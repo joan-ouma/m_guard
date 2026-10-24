@@ -223,23 +223,7 @@ func (s *RecoveryService) DeleteIncident(ctx context.Context, userID, incidentID
 
 func (s *RecoveryService) CreateContact(ctx context.Context, userID string, req domain.CreateContactRequest) (domain.UserContactDTO, error) {
 	instance := "/v1/contacts"
-	errs := map[string][]string{}
-
-	name := strings.TrimSpace(req.Name)
-	if name == "" || len(name) > 120 {
-		errs["name"] = []string{"Enter a name (up to 120 characters)."}
-	}
-
-	phone := strings.TrimSpace(req.Phone)
-	if !phonePattern.MatchString(phone) {
-		errs["phone"] = []string{"Enter a valid phone number, for example 0712 345 678 or +254 712 345 678."}
-	}
-
-	category := strings.TrimSpace(req.Category)
-	if !contactCategories[category] {
-		errs["category"] = []string{"Choose emergency or insurance."}
-	}
-
+	name, phone, category, errs := validateContact(req)
 	if len(errs) > 0 {
 		return domain.UserContactDTO{}, domain.NewBadRequestError("Contact is invalid", instance, errs)
 	}
@@ -268,6 +252,57 @@ func (s *RecoveryService) CreateContact(ctx context.Context, userID string, req 
 	}
 
 	return toContactDTO(created), nil
+}
+
+func (s *RecoveryService) UpdateContact(ctx context.Context, userID, contactID string, req domain.CreateContactRequest) (domain.UserContactDTO, error) {
+	instance := "/v1/contacts/" + contactID
+	if !isValidID(contactID) {
+		return domain.UserContactDTO{}, domain.NewNotFoundError("Contact not found", instance)
+	}
+
+	name, phone, category, errs := validateContact(req)
+	if len(errs) > 0 {
+		return domain.UserContactDTO{}, domain.NewBadRequestError("Contact is invalid", instance, errs)
+	}
+
+	updated, err := s.repo.UpdateContact(ctx, domain.UserContact{
+		ID:       contactID,
+		UserID:   userID,
+		Name:     name,
+		Phone:    phone,
+		Category: category,
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return domain.UserContactDTO{}, domain.NewNotFoundError("Contact not found", instance)
+		}
+		slog.Error("UpdateContact failed", "user_id", userID, "contact_id", contactID, "error", err)
+		return domain.UserContactDTO{}, domain.NewInternalServerError(instance)
+	}
+
+	return toContactDTO(updated), nil
+}
+
+// validateContact trims the request and returns field errors, if any.
+func validateContact(req domain.CreateContactRequest) (name, phone, category string, errs map[string][]string) {
+	errs = map[string][]string{}
+
+	name = strings.TrimSpace(req.Name)
+	if name == "" || len(name) > 120 {
+		errs["name"] = []string{"Enter a name (up to 120 characters)."}
+	}
+
+	phone = strings.TrimSpace(req.Phone)
+	if !phonePattern.MatchString(phone) {
+		errs["phone"] = []string{"Enter a valid phone number, for example 0712 345 678 or +254 712 345 678."}
+	}
+
+	category = strings.TrimSpace(req.Category)
+	if !contactCategories[category] {
+		errs["category"] = []string{"Choose emergency or insurance."}
+	}
+
+	return name, phone, category, errs
 }
 
 func (s *RecoveryService) ListContacts(ctx context.Context, userID string) ([]domain.UserContactDTO, error) {

@@ -37,15 +37,33 @@ export class ContactsComponent implements OnInit {
   readonly formError = signal<string | null>(null);
   readonly saving = signal<boolean>(false);
   readonly addOpen = signal<boolean>(false);
+  readonly editingId = signal<string | null>(null);
 
   openAdd(): void {
-    this.formError.set(null);
+    this.resetForm();
+    this.addOpen.set(true);
+  }
+
+  openEdit(c: SavedContact): void {
+    this.resetForm();
+    this.editingId.set(c.id);
+    this.formName.set(c.name);
+    this.formPhone.set(c.phone);
+    this.formCategory.set(c.category);
     this.addOpen.set(true);
   }
 
   closeAdd(): void {
     if (this.saving()) return;
     this.addOpen.set(false);
+  }
+
+  private resetForm(): void {
+    this.formError.set(null);
+    this.editingId.set(null);
+    this.formName.set('');
+    this.formPhone.set('');
+    this.formCategory.set('emergency');
   }
 
   ngOnInit(): void {
@@ -86,7 +104,7 @@ export class ContactsComponent implements OnInit {
     if (this.hasNext()) this.page.update((p) => p + 1);
   }
 
-  addContact(): void {
+  saveContact(): void {
     this.formError.set(null);
     const name = this.formName().trim();
     const phone = this.formPhone().trim();
@@ -100,13 +118,15 @@ export class ContactsComponent implements OnInit {
       return;
     }
 
+    const payload = { name, phone, category: this.formCategory() };
+    const id = this.editingId();
+    const request = id ? this.recoveryService.updateContact(id, payload) : this.recoveryService.addContact(payload);
+
     this.saving.set(true);
-    this.recoveryService.addContact({ name, phone, category: this.formCategory() }).subscribe({
+    request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.formName.set('');
-        this.formPhone.set('');
-        this.formCategory.set('emergency');
+        this.resetForm();
         this.page.set(1);
         this.addOpen.set(false);
       },

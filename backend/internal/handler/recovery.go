@@ -44,6 +44,7 @@ func (h *RecoveryHandler) ContactRoutes(auth func(http.Handler) http.Handler) ch
 
 	r.Get("/", h.ListContacts)
 	r.Post("/", h.CreateContact)
+	r.Put("/{id}", h.UpdateContact)
 	r.Delete("/{id}", h.DeleteContact)
 
 	return r
@@ -185,6 +186,27 @@ func (h *RecoveryHandler) CreateContact(w http.ResponseWriter, r *http.Request) 
 	}
 
 	writeJSON(w, http.StatusCreated, map[string]any{"data": dto})
+}
+
+func (h *RecoveryHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
+	claims, ok := claimsFromRequest(r)
+	if !ok {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	var req domain.CreateContactRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	dto, err := h.service.UpdateContact(r.Context(), claims.UserID, chi.URLParam(r, "id"), req)
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": dto})
 }
 
 func (h *RecoveryHandler) DeleteContact(w http.ResponseWriter, r *http.Request) {

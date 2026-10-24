@@ -103,6 +103,13 @@ export class RecoveryService {
     );
   }
 
+  updateContact(id: string, payload: CreateContactPayload): Observable<SavedContact> {
+    return this.http.put<{ data: SavedContact }>(`${this.base}/v1/contacts/${id}`, payload).pipe(
+      map((res) => res.data),
+      tap((updated) => this.contacts.update((list) => list.map((c) => (c.id === id ? updated : c)))),
+    );
+  }
+
   removeContact(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/v1/contacts/${id}`).pipe(
       tap(() => this.contacts.update((list) => list.filter((c) => c.id !== id))),

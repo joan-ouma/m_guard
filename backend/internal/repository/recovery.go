@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"motoguard-backend/internal/domain"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -128,6 +130,21 @@ func (r *RecoveryRepository) CreateContact(ctx context.Context, c domain.UserCon
 		RETURNING id, user_id, name, phone, category, created_at
 	`, c.ID, c.UserID, c.Name, c.Phone, c.Category,
 	).Scan(&out.ID, &out.UserID, &out.Name, &out.Phone, &out.Category, &out.CreatedAt)
+	return out, err
+}
+
+func (r *RecoveryRepository) UpdateContact(ctx context.Context, c domain.UserContact) (domain.UserContact, error) {
+	var out domain.UserContact
+	err := r.pool.QueryRow(ctx, `
+		UPDATE user_contacts
+		SET name = $3, phone = $4, category = $5, updated_at = NOW()
+		WHERE id = $1 AND user_id = $2
+		RETURNING id, user_id, name, phone, category, created_at
+	`, c.ID, c.UserID, c.Name, c.Phone, c.Category,
+	).Scan(&out.ID, &out.UserID, &out.Name, &out.Phone, &out.Category, &out.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return out, ErrNotFound
+	}
 	return out, err
 }
 
