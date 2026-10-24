@@ -110,6 +110,12 @@ export class RecoveryComponent implements OnInit {
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
+        // Only one open report at a time: pick up the unfiled one instead of starting another.
+        const open = this.recoveryService.incidents().find((i) => !i.ob_number);
+        if (open) {
+          this.resumeReport(open);
+          return;
+        }
         this.resetWizard();
         this.step.set('how');
       }
@@ -275,26 +281,21 @@ export class RecoveryComponent implements OnInit {
       return;
     }
 
-    const previousId = this.incidentId();
+    const payload = {
+      bike_id: this.bikeId() ?? undefined,
+      mode,
+      lost_at: lostAt.toISOString(),
+      location_lost: this.locationText().trim() || 'Unknown location',
+      latitude: this.latitude(),
+      longitude: this.longitude(),
+    };
 
     this.saving.set(true);
-    this.recoveryService
-      .createIncident({
-        bike_id: this.bikeId() ?? undefined,
-        mode,
-        lost_at: lostAt.toISOString(),
-        location_lost: this.locationText().trim() || 'Unknown location',
-        latitude: this.latitude(),
-        longitude: this.longitude(),
-      })
-      .subscribe({
+    const create = () =>
+      this.recoveryService.createIncident(payload).subscribe({
         next: (incident) => {
           this.saving.set(false);
           this.incidentId.set(incident.id);
-          // Going back and re-saving replaces the earlier record instead of duplicating it.
-          if (previousId) {
-            this.recoveryService.removeIncident(previousId).subscribe({ error: () => undefined });
-          }
           this.step.set('recorded');
         },
         error: (err: HttpErrorResponse) => {
@@ -302,6 +303,14 @@ export class RecoveryComponent implements OnInit {
           this.formError.set(this.errorMessage(err));
         },
       });
+
+    // Going back and re-saving replaces the open record. Delete it first: only one open report is allowed.
+    const previousId = this.incidentId();
+    if (previousId) {
+      this.recoveryService.removeIncident(previousId).subscribe({ next: create, error: create });
+    } else {
+      create();
+    }
   }
 
   private errorMessage(err: HttpErrorResponse): string {

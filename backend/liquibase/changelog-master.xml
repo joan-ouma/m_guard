@@ -53,4 +53,7 @@
     <!-- 016. Bike Recovery: theft incidents, OB attachments, user contacts -->
     <include file="changesets/016-create-recovery.xml" relativeToChangelogFile="true"/>
 
+    <!-- 017. One open (unfiled) theft incident per user -->
+    <include file="changesets/017-one-open-incident.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

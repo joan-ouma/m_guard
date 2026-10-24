@@ -113,6 +113,10 @@ func (s *RecoveryService) CreateIncident(ctx context.Context, userID string, req
 		Longitude:    req.Longitude,
 	})
 	if err != nil {
+		if errors.Is(err, repository.ErrIncidentInProgress) {
+			return domain.TheftIncidentDTO{}, domain.NewConflictError(
+				"You already have a report in progress. Finish it before starting another.", instance)
+		}
 		slog.Error("CreateIncident insert failed", "user_id", userID, "error", err)
 		return domain.TheftIncidentDTO{}, domain.NewInternalServerError(instance)
 	}

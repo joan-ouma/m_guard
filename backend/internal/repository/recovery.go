@@ -7,8 +7,12 @@ import (
 	"motoguard-backend/internal/domain"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// ErrIncidentInProgress means the rider already has an unfiled report.
+var ErrIncidentInProgress = errors.New("an incident is already in progress")
 
 type RecoveryRepository struct {
 	pool *pgxpool.Pool
@@ -37,6 +41,11 @@ func (r *RecoveryRepository) CreateIncident(ctx context.Context, in domain.Theft
 	`, in.ID, in.UserID, in.BikeID, in.Mode, in.LostAt, in.LocationLost, in.Latitude, in.Longitude,
 	).Scan(&out.ID, &out.UserID, &out.BikeID, &out.Mode, &out.LostAt, &out.LocationLost,
 		&out.Latitude, &out.Longitude, &out.OBNumber, &out.CreatedAt)
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.ConstraintName == "uq_theft_incidents_one_open" {
+		return out, ErrIncidentInProgress
+	}
 	return out, err
 }
 
