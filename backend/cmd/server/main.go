@@ -99,6 +99,11 @@ func main() {
 	ussdService := service.NewUSSDService(ussdRepo, cmdPub, sseBroker, notificationService)
 	ussdHandler := handler.NewUSSDHandler(ussdService)
 
+	// Bike recovery: theft reports and saved contacts
+	recoveryRepo := repository.NewRecoveryRepository(pool)
+	recoveryService := service.NewRecoveryService(recoveryRepo)
+	recoveryHandler := handler.NewRecoveryHandler(recoveryService)
+
 	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
 
@@ -109,6 +114,7 @@ func main() {
 		NotificationHandler: notificationHandler,
 		SSEHandler:          sseHandler,
 		USSDHandler:         ussdHandler,
+		RecoveryHandler:     recoveryHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})

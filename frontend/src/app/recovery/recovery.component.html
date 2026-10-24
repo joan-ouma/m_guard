@@ -1,0 +1,287 @@
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
+
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
+    <div>
+      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
+        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> Home
+        </a>
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg> Bikes
+        </a>
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> History
+        </a>
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg> Geofence
+        </a>
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
+        </a>
+        <a routerLink="/recovery" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> Recovery
+        </a>
+        <a routerLink="/contacts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Contacts
+        </a>
+        <a routerLink="/emergency" routerLinkActive="bg-rose-600 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+      <app-mobile-nav></app-mobile-nav>
+      <span class="font-bold text-base text-zinc-900">Recovery</span>
+    </header>
+
+    <div class="flex-1 overflow-y-auto bg-zinc-50">
+      <div class="max-w-xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
+
+        <!-- START -->
+        @if (step() === 'start') {
+          <div class="text-center py-6">
+            <h1 class="text-2xl font-black tracking-tight text-zinc-900 mb-2">Lost your bike?</h1>
+            <p class="text-sm text-zinc-500 mb-8">We will help you record what happened and point you to the nearest police station.</p>
+
+            <button
+              type="button"
+              (click)="confirmTheft()"
+              class="w-full min-h-[64px] rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-base font-bold shadow-xs transition-colors cursor-pointer"
+            >
+              I lost my bike
+            </button>
+            <p class="text-xs text-zinc-400 mt-4">Use this only when your bike is stolen or missing.</p>
+          </div>
+        }
+
+        <!-- WIZARD -->
+        @if (step() !== 'start' && step() !== 'done') {
+          <div class="mb-6">
+            <div class="flex items-center justify-between text-xs font-semibold text-zinc-500 mb-2">
+              <span>Step {{ stepIndex() }} of {{ totalSteps }}</span>
+            </div>
+            <div class="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+              <div class="h-full bg-zinc-900 rounded-full transition-all" [style.width.%]="(stepIndex() / totalSteps) * 100"></div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-zinc-200 rounded-2xl shadow-xs p-5 sm:p-6">
+
+            <!-- Step 1: how -->
+            @if (step() === 'how') {
+              <h2 class="text-lg font-bold text-zinc-900 mb-1">How was the bike lost?</h2>
+              <p class="text-sm text-zinc-500 mb-5">Choose the option that fits best.</p>
+
+              <div class="space-y-2.5">
+                @for (m of theftModes; track m.value) {
+                  <button
+                    type="button"
+                    (click)="mode.set(m.value)"
+                    [class.border-zinc-900]="mode() === m.value"
+                    [class.bg-zinc-50]="mode() === m.value"
+                    [class.border-zinc-200]="mode() !== m.value"
+                    class="w-full min-h-[52px] px-4 py-3 rounded-xl border text-left text-sm font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors cursor-pointer flex items-center justify-between"
+                  >
+                    <span>{{ m.label }}</span>
+                    @if (mode() === m.value) {
+                      <span class="w-5 h-5 rounded-full bg-zinc-900 text-white text-xs flex items-center justify-center">✓</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Step 2: when and where -->
+            @if (step() === 'when') {
+              <h2 class="text-lg font-bold text-zinc-900 mb-1">When and where?</h2>
+              <p class="text-sm text-zinc-500 mb-5">As exact as you can. You can use your current location.</p>
+
+              <div class="space-y-4">
+                <div>
+                  <label for="lostAt" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Time lost</label>
+                  <input
+                    id="lostAt"
+                    type="datetime-local"
+                    [ngModel]="lostAt()"
+                    (ngModelChange)="lostAt.set($event)"
+                    class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 focus:outline-none focus:bg-white focus:border-zinc-900"
+                  />
+                </div>
+
+                <div>
+                  <label for="locationLost" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Where it was lost</label>
+                  <input
+                    id="locationLost"
+                    type="text"
+                    [ngModel]="locationText()"
+                    (ngModelChange)="locationText.set($event)"
+                    placeholder="e.g. Kimathi Street, near the bus stage"
+                    class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  (click)="useCurrentLocation()"
+                  [disabled]="locating()"
+                  class="w-full min-h-[44px] rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {{ locating() ? 'Getting your location…' : (latitude() !== null ? 'Location captured. Update it' : 'Use my current location') }}
+                </button>
+              </div>
+            }
+
+            <!-- Step 3: recorded -->
+            @if (step() === 'recorded') {
+              <h2 class="text-lg font-bold text-zinc-900 mb-1">Recorded</h2>
+              <p class="text-sm text-zinc-500 mb-5">Your report is saved. Keep it for the police and your insurer.</p>
+
+              <dl class="divide-y divide-zinc-100 border border-zinc-200 rounded-xl text-sm">
+                <div class="flex justify-between gap-4 px-4 py-3">
+                  <dt class="text-zinc-500">How</dt>
+                  <dd class="font-semibold text-zinc-900 text-right">{{ modeLabel() }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 px-4 py-3">
+                  <dt class="text-zinc-500">Time lost</dt>
+                  <dd class="font-semibold text-zinc-900 text-right">{{ lostAt() | date: 'd MMM y, HH:mm' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4 px-4 py-3">
+                  <dt class="text-zinc-500">Where</dt>
+                  <dd class="font-semibold text-zinc-900 text-right">{{ locationText() || 'Unknown location' }}</dd>
+                </div>
+              </dl>
+            }
+
+            <!-- Step 4: police -->
+            @if (step() === 'police') {
+              <h2 class="text-lg font-bold text-zinc-900 mb-1">Report to the police</h2>
+              <p class="text-sm text-zinc-500 mb-5">
+                Go to the nearest police station and ask them to record your report in the Occurrence Book (OB).
+                Keep the OB number. You will need it in the next step.
+              </p>
+
+              <button
+                type="button"
+                (click)="suggestPoliceStations()"
+                class="w-full min-h-[48px] rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold transition-colors cursor-pointer"
+              >
+                Suggest police stations near me
+              </button>
+
+              @if (nearbyStations().length > 0) {
+                <ul class="mt-4 space-y-2.5">
+                  @for (s of nearbyStations(); track s.id) {
+                    <li class="border border-zinc-200 rounded-xl p-3.5">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                          <p class="text-sm font-bold text-zinc-900 truncate">{{ s.name }}</p>
+                          <p class="text-xs text-zinc-500 truncate">{{ s.address }}</p>
+                          @if (s.distanceLabel) {
+                            <p class="text-xs font-semibold text-zinc-600 mt-1">{{ s.distanceLabel }}</p>
+                          }
+                        </div>
+                        <a
+                          [href]="'tel:' + s.phone"
+                          class="shrink-0 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-xs font-bold"
+                        >
+                          Call {{ s.phone }}
+                        </a>
+                      </div>
+                    </li>
+                  }
+                </ul>
+                <p class="text-xs text-zinc-400 mt-3">
+                  Want to see them on a map? Open <a routerLink="/emergency" class="underline">Police / Help</a>.
+                </p>
+              }
+            }
+
+            <!-- Step 5: OB number -->
+            @if (step() === 'ob') {
+              <h2 class="text-lg font-bold text-zinc-900 mb-1">Upload OB number</h2>
+              <p class="text-sm text-zinc-500 mb-5">Enter the OB number from your police receipt. You can also attach a photo or PDF of it.</p>
+
+              <div class="space-y-4">
+                <div>
+                  <label for="obNumber" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">OB number</label>
+                  <input
+                    id="obNumber"
+                    type="text"
+                    [ngModel]="obNumber()"
+                    (ngModelChange)="obNumber.set($event)"
+                    placeholder="e.g. OB 12/24/10/2026"
+                    class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+                  />
+                </div>
+
+                <div>
+                  <label for="obFile" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Receipt photo or PDF (optional)</label>
+                  <input
+                    id="obFile"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    (change)="onFileSelected($event)"
+                    class="w-full text-sm text-zinc-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:text-zinc-900 file:font-semibold cursor-pointer"
+                  />
+                  @if (attachmentName()) {
+                    <p class="text-xs text-zinc-500 mt-2">Selected: {{ attachmentName() }}</p>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (formError()) {
+              <p class="mt-4 text-sm font-semibold text-rose-600">{{ formError() }}</p>
+            }
+
+            <!-- Step navigation -->
+            <div class="mt-6 flex items-center justify-between gap-3">
+              @if (step() === 'how') {
+                <button type="button" (click)="startAgain()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 cursor-pointer">Cancel</button>
+              } @else {
+                <button type="button" (click)="back()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 hover:bg-zinc-100 cursor-pointer">Back</button>
+              }
+
+              @if (step() === 'ob') {
+                <button type="button" (click)="saveOb()" [disabled]="saving()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer disabled:opacity-50">{{ saving() ? 'Saving…' : 'Save OB number' }}</button>
+              } @else if (step() === 'recorded') {
+                <button type="button" (click)="next()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer">Next: report to police</button>
+              } @else if (step() === 'police') {
+                <button type="button" (click)="next()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer">I have reported it</button>
+              } @else {
+                <button type="button" (click)="next()" [disabled]="saving()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer disabled:opacity-50">{{ saving() ? 'Saving…' : 'Next' }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- DONE -->
+        @if (step() === 'done') {
+          <div class="text-center py-10 bg-white border border-zinc-200 rounded-2xl shadow-xs p-6">
+            <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-4 text-2xl">✓</div>
+            <h2 class="text-lg font-bold text-zinc-900 mb-1">Recovery record saved</h2>
+            <p class="text-sm text-zinc-500 mb-6">Your OB number is stored with this report.</p>
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+              <a routerLink="/contacts" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold">Go to Contacts</a>
+              <button type="button" (click)="startAgain()" class="px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 text-sm font-bold cursor-pointer">Back to start</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

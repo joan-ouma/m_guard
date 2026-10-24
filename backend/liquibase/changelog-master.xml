@@ -50,4 +50,7 @@
     <!-- 015. USSD Rider PINs -->
     <include file="changesets/015-create-ussd-pins.xml" relativeToChangelogFile="true"/>
 
+    <!-- 016. Bike Recovery: theft incidents, OB attachments, user contacts -->
+    <include file="changesets/016-create-recovery.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

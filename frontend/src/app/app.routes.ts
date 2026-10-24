@@ -13,6 +13,8 @@ import { AlertsComponent } from './alerts/alerts.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LegalComponent } from './legal/legal.component';
 import { EmergencyComponent } from './emergency/emergency.component';
+import { RecoveryComponent } from './recovery/recovery.component';
+import { ContactsComponent } from './contacts/contacts.component';
 import { LandingComponent } from './landing/landing.component';
 import { AboutComponent } from './pages/about/about.component';
 import { ServicesComponent } from './pages/services/services.component';
@@ -72,6 +74,26 @@ export const routes: Routes = [
       description:
         'Quickly access police station hotlines, desk numbers, ambulance emergency services, and live motorcycle incident reporting across Kenya.',
       keywords: 'police stations Kenya, motorcycle theft report, emergency contacts, ambulance dispatch, Nairobi police numbers',
+    },
+  },
+  {
+    path: 'recovery',
+    component: RecoveryComponent,
+    canActivate: [authGuard],
+    title: 'Bike Recovery | MGuard',
+    data: {
+      description: 'Report a lost or stolen motorcycle, record how and where it was lost, and file your police OB number.',
+      keywords: 'motorcycle recovery, bike theft report, OB number, police report Kenya',
+    },
+  },
+  {
+    path: 'contacts',
+    component: ContactsComponent,
+    canActivate: [authGuard],
+    title: 'Contacts | MGuard',
+    data: {
+      description: 'Manage emergency contacts and insurance brokers to notify when your motorcycle is lost or stolen.',
+      keywords: 'emergency contacts, insurance broker, motorcycle insurance contact',
     },
   },
   {

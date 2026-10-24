@@ -1,0 +1,228 @@
+<div class="flex h-screen w-screen bg-white font-sans text-zinc-900 overflow-hidden">
+
+  <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
+  <aside class="hidden lg:flex w-72 bg-white border-r border-zinc-200 flex-col justify-between shrink-0 z-30">
+    <div>
+      <div class="h-20 px-6 flex items-center gap-3.5 border-b border-zinc-100">
+        <div class="w-11 h-11 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a routerLink="/" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> Home
+        </a>
+        <a routerLink="/bikes" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg> Bikes
+        </a>
+        <a routerLink="/history" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> History
+        </a>
+        <a routerLink="/" [fragment]="'geofence'" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg> Geofence
+        </a>
+        <a routerLink="/alerts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Alerts
+        </a>
+        <a routerLink="/recovery" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> Recovery
+        </a>
+        <a routerLink="/contacts" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> Contacts
+        </a>
+        <a routerLink="/emergency" routerLinkActive="bg-rose-600 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Police / Help
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-zinc-900 text-white shadow-xs" [routerLinkActiveOptions]="{ exact: true }" class="min-h-[52px] px-4 py-3.5 rounded-2xl flex items-center gap-4 text-base font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer">
+          <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Settings
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <header class="h-16 lg:hidden bg-white border-b border-zinc-200 px-4 flex items-center gap-3 shrink-0 z-20 relative">
+      <app-mobile-nav></app-mobile-nav>
+      <span class="font-bold text-base text-zinc-900">Contacts</span>
+    </header>
+
+    <div class="flex-1 overflow-y-auto bg-zinc-50 p-4 lg:p-8">
+      <div class="max-w-4xl mx-auto w-full space-y-6">
+
+        <div>
+          <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-zinc-900 mb-1">Contacts</h1>
+          <p class="text-zinc-500 text-sm">Emergency contacts and insurance brokers to notify when your bike is lost.</p>
+        </div>
+
+        <!-- Built-in national numbers (always available) -->
+        <div class="bg-white border border-zinc-200 rounded-2xl shadow-xs p-4 sm:p-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Built-in national numbers</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a href="tel:999" class="flex items-center justify-between px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 transition-colors">
+              <span class="text-sm font-semibold text-zinc-900">National Police Hotline</span>
+              <span class="text-sm font-bold text-rose-700">999</span>
+            </a>
+            <a href="tel:112" class="flex items-center justify-between px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 transition-colors">
+              <span class="text-sm font-semibold text-zinc-900">Emergency (NDOC)</span>
+              <span class="text-sm font-bold text-rose-700">112</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Add contact form -->
+        <form (ngSubmit)="addContact()" class="bg-white border border-zinc-200 rounded-2xl shadow-xs p-4 sm:p-5">
+          <h2 class="text-sm font-bold text-zinc-900 mb-4">Add a contact</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label for="contactName" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Name</label>
+              <input
+                id="contactName"
+                type="text"
+                name="contactName"
+                [ngModel]="formName()"
+                (ngModelChange)="formName.set($event)"
+                placeholder="e.g. Jane Wanjiru"
+                class="w-full h-10 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+              />
+            </div>
+            <div>
+              <label for="contactPhone" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Phone</label>
+              <input
+                id="contactPhone"
+                type="tel"
+                name="contactPhone"
+                [ngModel]="formPhone()"
+                (ngModelChange)="formPhone.set($event)"
+                placeholder="0712 345 678"
+                class="w-full h-10 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+              />
+            </div>
+            <div>
+              <label for="contactType" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Type</label>
+              <select
+                id="contactType"
+                name="contactType"
+                [ngModel]="formCategory()"
+                (ngModelChange)="formCategory.set($event)"
+                class="w-full h-10 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 focus:outline-none focus:bg-white focus:border-zinc-900 cursor-pointer"
+              >
+                <option value="emergency">Emergency contact</option>
+                <option value="insurance">Insurance broker</option>
+              </select>
+            </div>
+          </div>
+
+          @if (formError()) {
+            <p class="mt-3 text-sm font-semibold text-rose-600">{{ formError() }}</p>
+          }
+
+          <div class="mt-4 flex justify-end">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer">Add contact</button>
+          </div>
+        </form>
+
+        <!-- List toolbar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="grid grid-cols-3 p-1 bg-zinc-100 rounded-lg text-xs font-semibold sm:w-96">
+            <button type="button" (click)="setFilter('ALL')" [class.bg-white]="filter() === 'ALL'" [class.shadow-2xs]="filter() === 'ALL'" [class.text-zinc-900]="filter() === 'ALL'" [class.text-zinc-500]="filter() !== 'ALL'" class="py-2 rounded-md transition-all cursor-pointer">All</button>
+            <button type="button" (click)="setFilter('emergency')" [class.bg-white]="filter() === 'emergency'" [class.shadow-2xs]="filter() === 'emergency'" [class.text-zinc-900]="filter() === 'emergency'" [class.text-zinc-500]="filter() !== 'emergency'" class="py-2 rounded-md transition-all cursor-pointer">Emergency</button>
+            <button type="button" (click)="setFilter('insurance')" [class.bg-white]="filter() === 'insurance'" [class.shadow-2xs]="filter() === 'insurance'" [class.text-zinc-900]="filter() === 'insurance'" [class.text-zinc-500]="filter() !== 'insurance'" class="py-2 rounded-md transition-all cursor-pointer">Insurance</button>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-zinc-600 font-medium">
+            <label for="contactPageSize" class="text-zinc-500 font-medium select-none">Show</label>
+            <div class="relative inline-flex items-center">
+              <select
+                id="contactPageSize"
+                [value]="pageSize()"
+                (change)="onPageSizeChange($event)"
+                class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+              >
+                @for (size of pageSizes; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <span class="text-zinc-400">entries</span>
+          </div>
+        </div>
+
+        <!-- Contact list -->
+        @if (pageItems().length === 0) {
+          <div class="bg-white border border-dashed border-zinc-300 rounded-2xl p-10 text-center text-sm text-zinc-500">
+            No contacts yet. Add one above.
+          </div>
+        } @else {
+          <ul class="bg-white border border-zinc-200 rounded-2xl shadow-xs divide-y divide-zinc-100">
+            @for (c of pageItems(); track c.id) {
+              <li class="p-4 flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-zinc-900 truncate">{{ c.name }}</p>
+                  <div class="flex items-center gap-2 mt-1 flex-wrap">
+                    <span
+                      class="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md"
+                      [class.bg-emerald-50]="c.category === 'insurance'"
+                      [class.text-emerald-700]="c.category === 'insurance'"
+                      [class.bg-sky-50]="c.category === 'emergency'"
+                      [class.text-sky-700]="c.category === 'emergency'"
+                    >
+                      {{ categoryLabel(c) }}
+                    </span>
+                    <a [href]="'tel:' + c.phone" class="text-xs font-semibold text-zinc-600 hover:text-zinc-900 underline-offset-2 hover:underline">{{ c.phone }}</a>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeContact(c)"
+                  class="shrink-0 px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors cursor-pointer"
+                >
+                  Remove
+                </button>
+              </li>
+            }
+          </ul>
+
+          <!-- Pagination bar (same as Alerts) -->
+          <div class="p-3.5 sm:px-6 bg-zinc-50/70 rounded-2xl border border-zinc-200/80 flex items-center justify-between gap-3 text-xs shadow-xs">
+            <span class="text-zinc-500 font-medium">
+              Page <strong class="text-zinc-900 font-bold">{{ page() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+            </span>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                (click)="prevPage()"
+                [disabled]="!hasPrev()"
+                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Prev</span>
+              </button>
+
+              <button
+                type="button"
+                (click)="nextPage()"
+                [disabled]="!hasNext()"
+                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+              >
+                <span>Next</span>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
