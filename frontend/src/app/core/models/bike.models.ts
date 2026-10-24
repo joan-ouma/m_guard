@@ -25,6 +25,7 @@ export interface BikeDTO {
   geofence_id?: string;
   driver_contact_id?: string;
   is_immobilized: boolean;
+  pending_command?: string;
   created_at: string;
   updated_at: string;
 }

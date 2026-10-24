@@ -422,7 +422,9 @@
                 {{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
               </h3>
               <p class="font-medium text-xs text-white/80 mt-0.5">
-                @if (bike.isImmobilized) {
+                @if (bike.pendingCommand) {
+                  Sent to the bike. Waiting for it to confirm.
+                } @else if (bike.isImmobilized) {
                   Bike is currently disabled. Tap to restore.
                 } @else if (bike.movementStatus === 'Moving') {
                   Will apply once the bike stops moving.

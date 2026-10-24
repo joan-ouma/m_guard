@@ -27,6 +27,7 @@ export interface MotorcycleAsset {
   signalQuality: number;
   lastPing: string;
   isImmobilized: boolean;
+  pendingCommand?: string;
 }
 
 @Component({
@@ -252,6 +253,18 @@ export class BikesComponent implements OnInit {
 
   toggleImmobilize(bike: MotorcycleAsset, event: Event): void {
     event.stopPropagation();
+    if (bike.pendingCommand) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: `${bike.plate} is still awaiting confirmation`,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
     const isImmobilizing = !bike.isImmobilized;
     Swal.fire({
       title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
@@ -273,7 +286,7 @@ export class BikesComponent implements OnInit {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: isImmobilizing ? `${bike.plate} Immobilized` : `${bike.plate} Reactivated`,
+              title: `${bike.plate} Awaiting Confirmation`,
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
@@ -324,6 +337,7 @@ export class BikesComponent implements OnInit {
       signalQuality: b.signal_quality_csq ?? 0,
       lastPing: lastPing,
       isImmobilized: !!b.is_immobilized,
+      pendingCommand: b.pending_command || undefined,
     };
   }
 }

@@ -17,7 +17,7 @@ import (
 )
 
 type CommandPublisher interface {
-	PublishCommand(imei string, action string) error
+	PublishCommand(imei string, action string, ts int64) error
 }
 
 type SSEBroker interface {
@@ -475,6 +475,8 @@ func (s *BikeService) GetAllEvents(
 	}, nil
 }
 
+// ImmobilizeBike queues an immobilize or reactivate command. The bike's state changes only when the
+// device confirms the command, so the response reports the command as pending.
 func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTClaims, bikeID string, immobilize bool) (*domain.BikeDTO, error) {
 	instance := fmt.Sprintf("/v1/bikes/%s/immobilize", bikeID)
 
@@ -482,25 +484,20 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 		return nil, domain.NewUnauthorizedError("Authentication token is missing", instance)
 	}
 
-	imei, err := s.repo.SetImmobilized(ctx, repository.SetImmobilizedParams{
-		UserID:        claims.UserID,
-		BikeID:        bikeID,
-		IsImmobilized: immobilize,
-	})
-	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, domain.NewNotFoundError("Motorcycle not found", instance)
-		}
-		slog.Error("ImmobilizeBike SetImmobilized error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
+	ts := time.Now().Unix()
+	imei, _, err := s.repo.CreatePendingCommand(ctx, claims.UserID, bikeID, immobilize, ts)
+	switch {
+	case errors.Is(err, repository.ErrNotFound):
+		return nil, domain.NewNotFoundError("Motorcycle not found", instance)
+	case errors.Is(err, repository.ErrCommandPending):
+		return nil, domain.NewConflictError("A command for this motorcycle is still awaiting confirmation", instance)
+	case errors.Is(err, repository.ErrAlreadyInState):
+		// Nothing to send; return the bike as it is.
+	case err != nil:
+		slog.Error("ImmobilizeBike CreatePendingCommand error", "user_id", claims.UserID, "bike_id", bikeID, "error", err)
 		return nil, domain.NewInternalServerError(instance)
-	}
-
-	if s.cmdPub != nil && imei != "" {
-		action := "IMMOBILIZE"
-		if !immobilize {
-			action = "REACTIVATE"
-		}
-		_ = s.cmdPub.PublishCommand(imei, action)
+	default:
+		s.publishCommand(imei, immobilize, ts)
 	}
 
 	bike, err := s.repo.GetByID(ctx, claims.UserID, bikeID)
@@ -514,6 +511,109 @@ func (s *BikeService) ImmobilizeBike(ctx context.Context, claims *security.JWTCl
 		s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
 	}
 	return &dto, nil
+}
+
+// publishCommand sends a command to the device. A failed send is not an error for the rider:
+// the command stays pending and RunCommandRetries sends it again.
+func (s *BikeService) publishCommand(imei string, immobilize bool, ts int64) {
+	if s.cmdPub == nil {
+		return
+	}
+	action := commandAction(immobilize)
+	if err := s.cmdPub.PublishCommand(imei, action, ts); err != nil {
+		slog.Warn("immobilizer command not sent, will retry", "imei", imei, "action", action, "error", err)
+	}
+}
+
+func commandAction(immobilize bool) string {
+	if immobilize {
+		return "IMMOBILIZE"
+	}
+	return "REACTIVATE"
+}
+
+// ConfirmImmobilizer applies the device's confirmation of a command. Confirmations that match no
+// pending command are ignored.
+func (s *BikeService) ConfirmImmobilizer(ctx context.Context, imei string, ts int64, immobilized bool) error {
+	bikeID, matched, err := s.repo.ConfirmCommand(ctx, imei, ts, immobilized)
+	if err != nil {
+		return err
+	}
+	if matched {
+		slog.Info("immobilizer command confirmed", "imei", imei, "ts", ts, "immobilized", immobilized)
+		s.broadcastBike(ctx, bikeID)
+	}
+	return nil
+}
+
+const (
+	// commandConfirmTimeout is how long the device gets to confirm before the command is sent again.
+	commandConfirmTimeout = 3 * time.Minute
+	// commandMaxAttempts caps the sends of one command; after that it is marked failed.
+	commandMaxAttempts = 5
+	commandRetryTick   = 30 * time.Second
+)
+
+// RunCommandRetries resends unconfirmed immobilizer commands until ctx is cancelled.
+func (s *BikeService) RunCommandRetries(ctx context.Context) {
+	ticker := time.NewTicker(commandRetryTick)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			s.resendUnconfirmedCommands(ctx)
+		}
+	}
+}
+
+func (s *BikeService) resendUnconfirmedCommands(ctx context.Context) {
+	if s.cmdPub == nil {
+		return
+	}
+
+	commands, err := s.repo.ListStalePendingCommands(ctx, commandConfirmTimeout)
+	if err != nil {
+		slog.Error("immobilizer retry lookup failed", "error", err)
+		return
+	}
+
+	for _, cmd := range commands {
+		if cmd.Attempts >= commandMaxAttempts {
+			if err := s.repo.MarkCommandFailed(ctx, cmd.ID); err != nil {
+				slog.Error("immobilizer command failed to close", "command_id", cmd.ID, "error", err)
+				continue
+			}
+			slog.Warn("immobilizer command never confirmed, giving up", "imei", cmd.IMEI, "action", cmd.Action, "attempts", cmd.Attempts)
+			s.broadcastBike(ctx, cmd.BikeID)
+			continue
+		}
+
+		// The same timestamp is sent again so the device's confirmation still matches.
+		if err := s.cmdPub.PublishCommand(cmd.IMEI, cmd.Action, cmd.TS); err != nil {
+			slog.Warn("immobilizer command resend failed", "imei", cmd.IMEI, "action", cmd.Action, "error", err)
+			continue
+		}
+		if err := s.repo.MarkCommandResent(ctx, cmd.ID); err != nil {
+			slog.Error("immobilizer command resend not recorded", "command_id", cmd.ID, "error", err)
+		}
+		slog.Info("immobilizer command resent", "imei", cmd.IMEI, "action", cmd.Action, "attempt", cmd.Attempts+1)
+	}
+}
+
+func (s *BikeService) broadcastBike(ctx context.Context, bikeID string) {
+	if s.sseBroker == nil {
+		return
+	}
+	bike, err := s.repo.GetByIDDirect(ctx, bikeID)
+	if err != nil {
+		slog.Warn("bike broadcast lookup failed", "bike_id", bikeID, "error", err)
+		return
+	}
+	dto := ToBikeDTO(bike)
+	s.sseBroker.BroadcastBikeUpdate(dto.UserID, dto)
 }
 
 func ToBikeDTO(b *domain.Bike) domain.BikeDTO {
@@ -544,6 +644,7 @@ func ToBikeDTO(b *domain.Bike) domain.BikeDTO {
 		GeofenceID:         b.GeofenceID,
 		DriverContactID:    b.DriverContactID,
 		IsImmobilized:      b.IsImmobilized,
+		PendingCommand:     b.PendingCommand,
 		CreatedAt:          b.CreatedAt,
 		UpdatedAt:          b.UpdatedAt,
 	}

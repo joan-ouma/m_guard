@@ -833,6 +833,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleImmobilize(bike: FleetBike): void {
     if (!bike.id) return;
+    if (bike.pendingCommand) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: `${bike.plate} is still awaiting confirmation`,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
     const isImmobilizing = !bike.isImmobilized;
     const isMoving = bike.movementStatus === 'Moving';
 
@@ -899,6 +911,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
                 [bike.id]: {
                   ...prev[bike.id],
                   isImmobilized: res.data.is_immobilized,
+                  pendingCommand: res.data.pending_command || undefined,
                 },
               };
             });
@@ -907,11 +920,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: isImmobilizing
-                ? isMoving
-                  ? `${bike.plate} Immobilization Queued`
-                  : `${bike.plate} Immobilized`
-                : `${bike.plate} Reactivated`,
+              title: res.data.pending_command
+                ? `${bike.plate} Awaiting Confirmation`
+                : isImmobilizing
+                  ? isMoving
+                    ? `${bike.plate} Immobilization Queued`
+                    : `${bike.plate} Immobilized`
+                  : `${bike.plate} Reactivated`,
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
@@ -961,6 +976,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       email: this.authService.currentUser()?.email || '',
       lastSeenAt: timestamp || undefined,
       isImmobilized: !!b.is_immobilized,
+      pendingCommand: b.pending_command || undefined,
       riderName: this.authService.currentUser()?.name || '',
       riderNationalId: this.authService.currentUser()?.national_id || '',
       riderPhone: this.authService.currentUser()?.phone_number || '',

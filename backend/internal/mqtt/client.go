@@ -20,7 +20,20 @@ type MQTTSubscriber struct {
 	client           pahomqtt.Client
 	telemetryService *service.TelemetryService
 	cellResolver     *geolocation.CellResolver
+	immobilizer      ImmobilizerConfirmer
 	topics           []string
+}
+
+// ImmobilizerConfirmer applies the device's confirmation of an immobilizer command.
+type ImmobilizerConfirmer interface {
+	ConfirmImmobilizer(ctx context.Context, imei string, ts int64, immobilized bool) error
+}
+
+// immobilizerConfirmation is what the device publishes after the relay changes state.
+// TS echoes the command's timestamp so the backend can match the two.
+type immobilizerConfirmation struct {
+	Immobilized bool  `json:"immobilized"`
+	TS          int64 `json:"ts"`
 }
 
 func resolveCellPosition(ctx context.Context, resolver *geolocation.CellResolver, mcc, mnc, lac, cid, rssi int, cells []domain.CellTower) (float64, float64, float64, bool) {
@@ -37,7 +50,7 @@ func resolveCellPosition(ctx context.Context, resolver *geolocation.CellResolver
 	return resolver.ResolveMulti(ctx, mcc, mnc, towers)
 }
 
-func NewMQTTSubscriber(brokerURL string, clientID string, username string, password string, telemetryService *service.TelemetryService) (*MQTTSubscriber, error) {
+func NewMQTTSubscriber(brokerURL string, clientID string, username string, password string, telemetryService *service.TelemetryService, immobilizer ImmobilizerConfirmer) (*MQTTSubscriber, error) {
 	topics := []string{
 		"motoguard/v1/#",
 	}
@@ -72,6 +85,25 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		sensorID := ""
 		if len(parts) > 0 {
 			sensorID = strings.TrimSpace(parts[len(parts)-1])
+		}
+
+		// Immobilizer confirmation: the bike's state changes only when this arrives
+		if strings.Contains(topic, "/immobilizer/") {
+			var confirmation immobilizerConfirmation
+			if err := json.Unmarshal(m.Payload(), &confirmation); err != nil {
+				slog.Error("MQTT immobilizer invalid json payload", "topic", topic, "error", err, "raw", rawPayload)
+				return
+			}
+			if immobilizer == nil {
+				return
+			}
+
+			confirmCtx, confirmCancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer confirmCancel()
+			if err := immobilizer.ConfirmImmobilizer(confirmCtx, sensorID, confirmation.TS, confirmation.Immobilized); err != nil {
+				slog.Error("MQTT immobilizer confirmation failed", "imei", sensorID, "ts", confirmation.TS, "error", err)
+			}
+			return
 		}
 
 		// Handle Burglary & Tamper Alert (Instant Trigger)
@@ -199,6 +231,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		client:           client,
 		telemetryService: telemetryService,
 		cellResolver:     cellResolver,
+		immobilizer:      immobilizer,
 		topics:           topics,
 	}, nil
 }
@@ -221,14 +254,16 @@ func (s *MQTTSubscriber) Stop() {
 	}
 }
 
-func (s *MQTTSubscriber) PublishCommand(imei string, action string) error {
+// PublishCommand sends an action to the device. ts is echoed back in the device's confirmation,
+// so a resend must reuse the original timestamp.
+func (s *MQTTSubscriber) PublishCommand(imei string, action string, ts int64) error {
 	if !s.client.IsConnected() {
 		return errors.New("mqtt client is not connected")
 	}
 	topic := fmt.Sprintf("motoguard/v1/commands/%s", imei)
 	payload, err := json.Marshal(map[string]any{
 		"action":    action,
-		"timestamp": time.Now().Unix(),
+		"timestamp": ts,
 	})
 	if err != nil {
 		return err

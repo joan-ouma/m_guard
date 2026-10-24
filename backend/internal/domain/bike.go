@@ -31,6 +31,7 @@ type Bike struct {
 	GeofenceID         string
 	DriverContactID    string
 	IsImmobilized      bool
+	PendingCommand     string
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }
@@ -62,6 +63,7 @@ type BikeDTO struct {
 	GeofenceID         string     `json:"geofence_id,omitempty"`
 	DriverContactID    string     `json:"driver_contact_id,omitempty"`
 	IsImmobilized      bool       `json:"is_immobilized"`
+	PendingCommand     string     `json:"pending_command,omitempty"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 }

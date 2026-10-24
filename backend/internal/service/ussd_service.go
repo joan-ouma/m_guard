@@ -232,22 +232,28 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger s
 	}
 
 	if steps[0] == "1" {
-		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, true, trigger)
+		ts := time.Now().Unix()
+		imei, userID, err := s.repo.CreatePendingCommand(ctx, bike.ID, true, ts)
+		if errors.Is(err, repository.ErrCommandPending) {
+			return fmt.Sprintf("END A command for %s is still awaiting confirmation. Please wait.", bike.RegistrationNumber)
+		}
 		if err != nil {
-			slog.Error("Failed to immobilize bike via USSD", "bike_id", bike.ID, "error", err)
+			slog.Error("Failed to request immobilization via USSD", "bike_id", bike.ID, "error", err)
 			return "END Unable to immobilize bike at this time. Please try again."
 		}
 
 		if s.cmdPub != nil && imei != "" {
-			_ = s.cmdPub.PublishCommand(imei, "IMMOBILIZE")
+			if err := s.cmdPub.PublishCommand(imei, "IMMOBILIZE", ts); err != nil {
+				slog.Warn("USSD immobilize command not sent, will retry", "bike_id", bike.ID, "error", err)
+			}
 		}
 
 		if s.sseBroker != nil {
 			s.sseBroker.BroadcastAlert(userID, map[string]any{
 				"event_type":  "IMMOBILIZED",
 				"bike_id":     bike.ID,
-				"title":       "🔒 Engine Immobilized via USSD",
-				"activity":    fmt.Sprintf("Rider on %s engaged engine immobilization remotely.", phone),
+				"title":       "🔒 Engine Immobilization Requested via USSD",
+				"activity":    fmt.Sprintf("Rider on %s requested engine immobilization. Awaiting bike confirmation.", phone),
 				"recorded_at": time.Now().UTC(),
 			})
 		}
@@ -255,14 +261,14 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger s
 		if s.notifService != nil {
 			_ = s.notifService.DispatchSecurityAlert(ctx, userID, notification.SecurityAlert{
 				BikeID:     bike.ID,
-				Title:      "🔒 Engine Immobilized via USSD",
-				Body:       fmt.Sprintf("Motorcycle %s engine immobilized remotely via USSD by %s", bike.RegistrationNumber, phone),
+				Title:      "🔒 Engine Immobilization Requested via USSD",
+				Body:       fmt.Sprintf("Immobilization of motorcycle %s was requested via USSD by %s and is awaiting confirmation", bike.RegistrationNumber, phone),
 				EventType:  "IMMOBILIZE",
 				RecordedAt: time.Now().UTC(),
 			})
 		}
 
-		return "END Engine immobilized. Starter has been disabled safely."
+		return "END Immobilization requested. The starter is disabled once the bike confirms."
 	}
 
 	return "END Invalid option. Session ended."
@@ -279,22 +285,28 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger s
 	}
 
 	if steps[0] == "1" {
-		imei, userID, err := s.repo.SetBikeImmobilizedByRider(ctx, bike.ID, false, trigger)
+		ts := time.Now().Unix()
+		imei, userID, err := s.repo.CreatePendingCommand(ctx, bike.ID, false, ts)
+		if errors.Is(err, repository.ErrCommandPending) {
+			return fmt.Sprintf("END A command for %s is still awaiting confirmation. Please wait.", bike.RegistrationNumber)
+		}
 		if err != nil {
-			slog.Error("Failed to reactivate bike via USSD", "bike_id", bike.ID, "error", err)
+			slog.Error("Failed to request reactivation via USSD", "bike_id", bike.ID, "error", err)
 			return "END Unable to reactivate bike at this time. Please try again."
 		}
 
 		if s.cmdPub != nil && imei != "" {
-			_ = s.cmdPub.PublishCommand(imei, "REACTIVATE")
+			if err := s.cmdPub.PublishCommand(imei, "REACTIVATE", ts); err != nil {
+				slog.Warn("USSD reactivate command not sent, will retry", "bike_id", bike.ID, "error", err)
+			}
 		}
 
 		if s.sseBroker != nil {
 			s.sseBroker.BroadcastAlert(userID, map[string]any{
 				"event_type":  "REACTIVATED",
 				"bike_id":     bike.ID,
-				"title":       "🔓 Engine Reactivated via USSD",
-				"activity":    fmt.Sprintf("Rider on %s restored engine remotely.", phone),
+				"title":       "🔓 Engine Reactivation Requested via USSD",
+				"activity":    fmt.Sprintf("Rider on %s requested engine restore. Awaiting bike confirmation.", phone),
 				"recorded_at": time.Now().UTC(),
 			})
 		}
@@ -302,14 +314,14 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger s
 		if s.notifService != nil {
 			_ = s.notifService.DispatchSecurityAlert(ctx, userID, notification.SecurityAlert{
 				BikeID:     bike.ID,
-				Title:      "🔓 Engine Reactivated via USSD",
-				Body:       fmt.Sprintf("Motorcycle %s engine restored remotely via USSD by %s", bike.RegistrationNumber, phone),
+				Title:      "🔓 Engine Reactivation Requested via USSD",
+				Body:       fmt.Sprintf("Engine restore for motorcycle %s was requested via USSD by %s and is awaiting confirmation", bike.RegistrationNumber, phone),
 				EventType:  "REACTIVATED",
 				RecordedAt: time.Now().UTC(),
 			})
 		}
 
-		return "END Engine reactivated. Bike is ready to ride."
+		return "END Reactivation requested. The bike is ready to ride once it confirms."
 	}
 
 	return "END Invalid option. Session ended."
@@ -428,8 +440,6 @@ func searchPoliceStations(term string) string {
 	sb.WriteString("0. Back")
 	return sb.String()
 }
-
-
 
 func isAllDigits(str string) bool {
 	for _, c := range str {

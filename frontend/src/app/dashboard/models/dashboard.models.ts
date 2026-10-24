@@ -31,6 +31,7 @@ export interface FleetBike {
   email: string;
   lastSeenAt?: string;
   isImmobilized: boolean;
+  pendingCommand?: string;
   riderName: string;
   riderNationalId: string;
   riderPhone: string;

@@ -231,58 +231,10 @@ func (r *USSDRepository) ResetFailedPINAttempts(ctx context.Context, phone strin
 	return err
 }
 
-// SetBikeImmobilizedByRider immobilizes or mobilizes motorcycle directly via USSD/SMS.
-func (r *USSDRepository) SetBikeImmobilizedByRider(ctx context.Context, bikeID string, immobilize bool, triggeredBy string) (imei string, userID string, err error) {
-	tx, err := r.pool.Begin(ctx)
-	if err != nil {
-		return "", "", err
-	}
-	defer tx.Rollback(ctx)
-
-	var currentImmobilized bool
-	var lat, lng float64
-
-	checkQuery := `
-		SELECT is_immobilized, imei, user_id::text, latitude, longitude
-		FROM bikes
-		WHERE id = $1
-		FOR UPDATE
-	`
-	err = tx.QueryRow(ctx, checkQuery, bikeID).Scan(&currentImmobilized, &imei, &userID, &lat, &lng)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return "", "", ErrNotFound
-		}
-		return "", "", err
-	}
-
-	updateQuery := `
-		UPDATE bikes
-		SET is_immobilized = $1, updated_at = NOW()
-		WHERE id = $2
-	`
-	if _, err := tx.Exec(ctx, updateQuery, immobilize, bikeID); err != nil {
-		return "", "", err
-	}
-
-	eventType := "IMMOBILIZED"
-	if !immobilize {
-		eventType = "REACTIVATED"
-	}
-
-	eventQuery := `
-		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
-		VALUES ($1, $2, $3, $4, NOW())
-	`
-	if _, err := tx.Exec(ctx, eventQuery, bikeID, eventType, lat, lng); err != nil {
-		return "", "", err
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return "", "", err
-	}
-
-	return imei, userID, nil
+// CreatePendingCommand queues an immobilize or reactivate command for a bike from USSD.
+// The bike's state changes only when the device confirms the command.
+func (r *USSDRepository) CreatePendingCommand(ctx context.Context, bikeID string, immobilize bool, ts int64) (imei string, userID string, err error) {
+	return createPendingCommand(ctx, r.pool, "", bikeID, immobilize, ts)
 }
 
 // RecordEmergencySOS creates a high-priority security SOS alert record in the database.

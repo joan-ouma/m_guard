@@ -81,7 +81,7 @@ func main() {
 	telemetryService.SetNotificationService(notificationService)
 
 	var cmdPub service.CommandPublisher
-	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService)
+	mqttSubscriber, err := mqtt.NewMQTTSubscriber(cfg.MQTTBrokerURL, "motoguard-backend-ingest", cfg.MQTTUsername, cfg.MQTTPassword, telemetryService, bikeService)
 	if err != nil {
 		slog.Error("mqtt client error", "error", err)
 	} else {
@@ -92,6 +92,9 @@ func main() {
 		} else {
 			defer mqttSubscriber.Stop()
 		}
+
+		// Resend immobilizer commands the device has not confirmed
+		go bikeService.RunCommandRetries(ctx)
 	}
 
 	// Initialize USSD Service for non-smartphone riders

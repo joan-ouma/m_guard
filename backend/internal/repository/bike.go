@@ -23,12 +23,6 @@ type ListByOwnerParams struct {
 	Limit  int
 }
 
-type SetImmobilizedParams struct {
-	UserID        string
-	BikeID        string
-	IsImmobilized bool
-}
-
 type ExistsRegParams struct {
 	UserID        string
 	RegNumber     string
@@ -114,7 +108,7 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
 			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
-			COALESCE(is_immobilized, false), created_at, updated_at
+			COALESCE(is_immobilized, false), COALESCE((SELECT c.action FROM bike_commands c WHERE c.bike_id = bikes.id AND c.status = 'PENDING' LIMIT 1), ''), created_at, updated_at
 		FROM bikes
 		WHERE user_id = $1 AND id = $2
 		LIMIT 1
@@ -131,7 +125,7 @@ func (r *BikeRepository) GetByID(ctx context.Context, userID string, bikeID stri
 		&b.CurrentAddress, &b.SubCounty, &b.County,
 		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 		&b.GeofenceID, &b.DriverContactID,
-		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+		&b.IsImmobilized, &b.PendingCommand, &b.CreatedAt, &b.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -155,7 +149,7 @@ func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*dom
 			COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
 			COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 			COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
-			COALESCE(is_immobilized, false), created_at, updated_at
+			COALESCE(is_immobilized, false), COALESCE((SELECT c.action FROM bike_commands c WHERE c.bike_id = bikes.id AND c.status = 'PENDING' LIMIT 1), ''), created_at, updated_at
 		FROM bikes
 		WHERE id = $1
 		LIMIT 1
@@ -172,7 +166,7 @@ func (r *BikeRepository) GetByIDDirect(ctx context.Context, bikeID string) (*dom
 		&b.CurrentAddress, &b.SubCounty, &b.County,
 		&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 		&b.GeofenceID, &b.DriverContactID,
-		&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+		&b.IsImmobilized, &b.PendingCommand, &b.CreatedAt, &b.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -207,7 +201,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
 				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
-				COALESCE(is_immobilized, false), created_at, updated_at
+				COALESCE(is_immobilized, false), COALESCE((SELECT c.action FROM bike_commands c WHERE c.bike_id = bikes.id AND c.status = 'PENDING' LIMIT 1), ''), created_at, updated_at
 			FROM bikes
 			WHERE user_id = $1 AND (
 				created_at < (SELECT created_at FROM bikes WHERE id = $2)
@@ -229,7 +223,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 				COALESCE(current_address, ''), COALESCE(sub_county, ''), COALESCE(county, ''),
 				COALESCE(battery_percent, 0), COALESCE(signal_quality_csq, 0), last_telemetry_at,
 				COALESCE(geofence_id, ''), COALESCE(driver_contact_id, ''),
-				COALESCE(is_immobilized, false), created_at, updated_at
+				COALESCE(is_immobilized, false), COALESCE((SELECT c.action FROM bike_commands c WHERE c.bike_id = bikes.id AND c.status = 'PENDING' LIMIT 1), ''), created_at, updated_at
 			FROM bikes
 			WHERE user_id = $1
 			ORDER BY created_at DESC, id DESC
@@ -256,7 +250,7 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 			&b.CurrentAddress, &b.SubCounty, &b.County,
 			&b.BatteryPercent, &b.SignalQualityCSQ, &b.LastTelemetryAt,
 			&b.GeofenceID, &b.DriverContactID,
-			&b.IsImmobilized, &b.CreatedAt, &b.UpdatedAt,
+			&b.IsImmobilized, &b.PendingCommand, &b.CreatedAt, &b.UpdatedAt,
 		)
 		if err != nil {
 			return nil, domain.BikeListMeta{}, err
@@ -283,62 +277,6 @@ func (r *BikeRepository) ListByOwner(ctx context.Context, params ListByOwnerPara
 	}
 
 	return bikes, meta, nil
-}
-
-func (r *BikeRepository) SetImmobilized(ctx context.Context, params SetImmobilizedParams) (string, error) {
-	tx, err := r.pool.Begin(ctx)
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback(ctx)
-
-	var currentImmobilized bool
-	var imei string
-	var lat, lng float64
-	checkQuery := `
-		SELECT is_immobilized, imei, latitude, longitude
-		FROM bikes
-		WHERE user_id = $1 AND id = $2
-	`
-	err = tx.QueryRow(ctx, checkQuery, params.UserID, params.BikeID).Scan(&currentImmobilized, &imei, &lat, &lng)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return "", ErrNotFound
-		}
-		return "", err
-	}
-
-	if currentImmobilized == params.IsImmobilized {
-		return imei, nil
-	}
-
-	updateQuery := `
-		UPDATE bikes
-		SET is_immobilized = $1, updated_at = NOW()
-		WHERE user_id = $2 AND id = $3
-	`
-	if _, err := tx.Exec(ctx, updateQuery, params.IsImmobilized, params.UserID, params.BikeID); err != nil {
-		return "", err
-	}
-
-	eventType := "IMMOBILIZED"
-	if !params.IsImmobilized {
-		eventType = "REACTIVATED"
-	}
-
-	eventQuery := `
-		INSERT INTO bike_events (bike_id, event_type, latitude, longitude, recorded_at)
-		VALUES ($1, $2, $3, $4, NOW())
-	`
-	if _, err := tx.Exec(ctx, eventQuery, params.BikeID, eventType, lat, lng); err != nil {
-		return "", err
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return "", err
-	}
-
-	return imei, nil
 }
 
 func (r *BikeRepository) Update(ctx context.Context, tx pgx.Tx, b *domain.Bike) error {

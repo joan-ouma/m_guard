@@ -59,4 +59,7 @@
     <!-- 018. Mark incidents as found (resolved_at) -->
     <include file="changesets/018-resolve-incidents.xml" relativeToChangelogFile="true"/>
 
+    <!-- 019. Immobilizer commands awaiting device confirmation -->
+    <include file="changesets/019-bike-commands.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
