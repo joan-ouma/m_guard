@@ -353,48 +353,6 @@
         </div>
       </div>
 
-      <!-- Section 7.5 — Assigned Rider Identity -->
-      <div class="py-2 flex items-center gap-3">
-        <div
-          class="w-9 h-9 rounded-xl bg-info-soft border border-info-line flex items-center justify-center text-info-strong shrink-0"
-        >
-          <svg
-            class="w-4.5 h-4.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
-            >ASSIGNED RIDER</span
-          >
-          <p id="cardRiderName" class="font-sans text-sm font-bold text-ink mt-0.5 truncate">
-            {{ bike.riderName }}
-          </p>
-          <div class="flex items-center gap-1.5 mt-0.5 text-[0.7rem] text-muted font-semibold">
-            <span title="National ID">ID: {{ bike.riderNationalId }}</span>
-            <span>•</span>
-            <a
-              *ngIf="bike.riderPhone && bike.riderPhone !== 'N/A'"
-              [href]="'tel:' + bike.riderPhone"
-              class="text-info-strong hover:underline"
-              title="Call Rider"
-            >
-              {{ bike.riderPhone }}
-            </a>
-            <span *ngIf="!bike.riderPhone || bike.riderPhone === 'N/A'">N/A</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Section 8 — Immobilize Action -->
       @if (bike.id) {
         <div class="pt-2 pb-1">

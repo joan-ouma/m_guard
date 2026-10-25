@@ -266,9 +266,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const fallbackBike = this.bikeList().find((b) => b.lat !== 0 || b.lng !== 0);
     const hasBikeCoords = !!(bike && (bike.lat !== 0 || bike.lng !== 0));
-    const centerLat = hasBikeCoords ? bike!.lat : fallbackBike ? fallbackBike.lat : 0;
-    const centerLng = hasBikeCoords ? bike!.lng : fallbackBike ? fallbackBike.lng : 0;
-    const zoomLevel = hasBikeCoords || fallbackBike ? 14 : 2;
+    // Without any bike position, show the city rather than the whole world.
+    const NAIROBI = { lat: -1.2921, lng: 36.8219 };
+    const centerLat = hasBikeCoords ? bike!.lat : fallbackBike ? fallbackBike.lat : NAIROBI.lat;
+    const centerLng = hasBikeCoords ? bike!.lng : fallbackBike ? fallbackBike.lng : NAIROBI.lng;
+    const zoomLevel = hasBikeCoords || fallbackBike ? 14 : 12;
 
     this.map = L.map('map', {
       zoomControl: false,
