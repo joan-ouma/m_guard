@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BikeService } from '../core/services/bike.service';
 import { BikeEventDTO, PaginatedEventsResponse } from '../core/models/bike.models';
+import { TopBarService } from '../core/layout/top-bar.service';
 
 export interface DisplayAlert {
   id: string | number;
@@ -24,7 +25,7 @@ export interface DisplayAlert {
   imports: [CommonModule, RouterLink],
   templateUrl: './alerts.component.html'
 })
-export class AlertsComponent implements OnInit {
+export class AlertsComponent implements OnInit, OnDestroy {
   private readonly bikeService = inject(BikeService);
 
   readonly isLoading = signal<boolean>(true);
@@ -91,7 +92,15 @@ export class AlertsComponent implements OnInit {
     });
   }
 
+  @ViewChild('topBarContent', { static: true }) topBarContent!: TemplateRef<unknown>;
+  private readonly topBar = inject(TopBarService);
+
+  ngOnDestroy(): void {
+    if (this.topBar.content() === this.topBarContent) this.topBar.content.set(null);
+  }
+
   ngOnInit(): void {
+    this.topBar.content.set(this.topBarContent);
     // Load bikes count for top metric card
     this.bikeService.loadBikes().subscribe({
       next: (res) => this.activeBikesCount.set(res.data?.length || 0),

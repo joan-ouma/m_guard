@@ -3,6 +3,8 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
+  TemplateRef,
+  ViewChild,
   inject,
   signal,
   computed,
@@ -14,6 +16,7 @@ import { forkJoin, of, catchError } from 'rxjs';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BreadcrumbDTO, BikeEventDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
+import { TopBarService } from '../core/layout/top-bar.service';
 
 export interface TrailEvent {
   id: number | string;
@@ -36,6 +39,9 @@ export interface TrailEvent {
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('topBarContent', { static: true }) topBarContent!: TemplateRef<unknown>;
+  private readonly topBar = inject(TopBarService);
+
   readonly bikeService = inject(BikeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -343,6 +349,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.topBar.content.set(this.topBarContent);
     this.bikeService.loadBikes().subscribe({
       next: (res) => {
         this.bikes.set(res.data);
@@ -407,6 +414,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.topBar.content() === this.topBarContent) this.topBar.content.set(null);
     this.clearMapLayers();
     if (this.map) {
       this.map.remove();

@@ -29,12 +29,11 @@ import { TopBarService } from './top-bar.service';
       <div class="flex-1 min-w-0 flex flex-col h-full relative overflow-hidden">
         <header class="h-16 bg-surface border-b border-line px-4 lg:px-6 flex items-center gap-3 shrink-0 z-30 relative print:hidden">
           <app-mobile-nav class="shrink-0"></app-mobile-nav>
+          <h1 class="font-bold text-base text-ink truncate tracking-tight shrink-0 max-w-[40%]">{{ pageTitle() }}</h1>
           @if (topBar.content(); as content) {
             <div class="flex-1 min-w-0 h-full">
               <ng-container *ngTemplateOutlet="content"></ng-container>
             </div>
-          } @else {
-            <h1 class="font-bold text-base text-ink truncate tracking-tight">{{ pageTitle() }}</h1>
           }
         </header>
 

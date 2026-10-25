@@ -4,6 +4,17 @@
 @import 'leaflet/dist/leaflet.css';
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
+/* Routed page host inside the app shell: give it a definite height so page roots can use h-full. */
+router-outlet + * {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  width: 100%;
+}
+
 /* dark: applies only under an explicit .dark ancestor, not the OS setting */
 @custom-variant dark (&:where(.dark, .dark *));
 

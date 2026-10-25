@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 
     <div class="flex-1 overflow-y-auto bg-canvas p-4 lg:p-8">
       <div class="max-w-4xl mx-auto w-full">
-        <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-ink mb-2">Settings &amp; Emergency Contacts</h1>
+        <h2 class="text-lg lg:text-xl font-bold tracking-tight text-ink mb-2">Emergency contacts</h2>
         <p class="text-muted mb-8 text-sm lg:text-base">Manage your Sacco details and emergency escalation contacts.</p>
 
         <div class="bg-surface rounded-2xl border border-line p-5 lg:p-8 mb-6">
