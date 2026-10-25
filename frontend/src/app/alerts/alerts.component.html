@@ -1,31 +1,31 @@
-<div class="flex h-full w-full bg-white font-sans text-zinc-900 overflow-hidden">
+<div class="flex h-full w-full bg-surface font-sans text-ink overflow-hidden">
 
   <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
   <!-- MAIN VIEW -->
   <div class="flex-1 flex flex-col h-full overflow-hidden">
-    <div class="h-12 px-4 lg:px-6 flex items-center justify-end border-b border-zinc-200 bg-white shrink-0">
+    <div class="h-12 px-4 lg:px-6 flex items-center justify-end border-b border-line bg-surface shrink-0">
       <button
         type="button"
         (click)="loadAlerts()"
-        class="text-xs px-2.5 py-1 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+        class="text-xs px-2.5 py-1 rounded-lg border border-line text-ink-soft hover:bg-fill"
       >
         Refresh
       </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto bg-zinc-50 p-4 lg:p-8">
+    <div class="flex-1 overflow-y-auto bg-canvas p-4 lg:p-8">
       <div class="max-w-4xl mx-auto w-full">
         <!-- Title & Header -->
         <div class="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-zinc-900 mb-1">Security Alerts &amp; Incidents</h1>
-            <p class="text-zinc-500 text-sm">Real-time geofence breaches, tampering, theft triggers, and ignition events.</p>
+            <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-ink mb-1">Security Alerts &amp; Incidents</h1>
+            <p class="text-muted text-sm">Real-time geofence breaches, tampering, theft triggers, and ignition events.</p>
           </div>
           <button
             type="button"
             (click)="loadAlerts()"
             [disabled]="isLoading()"
-            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl border border-line bg-surface hover:bg-fill text-ink-soft transition-colors shadow-xs cursor-pointer disabled:opacity-50"
           >
             <svg class="w-4 h-4" [class.animate-spin]="isLoading()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -36,21 +36,21 @@
 
         <!-- Metric Badges -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs">
-            <span class="text-xs font-semibold text-zinc-400 block mb-1">Total Events</span>
-            <span class="text-2xl font-black text-zinc-900">{{ totalEvents() }}</span>
+          <div class="p-4 rounded-2xl bg-surface border border-line shadow-xs">
+            <span class="text-xs font-semibold text-subtle block mb-1">Total Events</span>
+            <span class="text-2xl font-black text-ink">{{ totalEvents() }}</span>
           </div>
-          <div class="p-4 rounded-2xl bg-white border border-rose-200/80 shadow-xs">
-            <span class="text-xs font-semibold text-rose-600 block mb-1">Critical (Breach/Theft)</span>
-            <span class="text-2xl font-black text-rose-600">{{ criticalCount() }}</span>
+          <div class="p-4 rounded-2xl bg-surface border border-brand-line/80 shadow-xs">
+            <span class="text-xs font-semibold text-brand block mb-1">Critical (Breach/Theft)</span>
+            <span class="text-2xl font-black text-brand">{{ criticalCount() }}</span>
           </div>
-          <div class="p-4 rounded-2xl bg-white border border-amber-200/80 shadow-xs">
-            <span class="text-xs font-semibold text-amber-600 block mb-1">Warnings (Tamper)</span>
-            <span class="text-2xl font-black text-amber-600">{{ warningCount() }}</span>
+          <div class="p-4 rounded-2xl bg-surface border border-warning-line/80 shadow-xs">
+            <span class="text-xs font-semibold text-warning block mb-1">Warnings (Tamper)</span>
+            <span class="text-2xl font-black text-warning">{{ warningCount() }}</span>
           </div>
-          <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs">
-            <span class="text-xs font-semibold text-zinc-500 block mb-1">Active Bikes</span>
-            <span class="text-2xl font-black text-zinc-900">{{ activeBikesCount() }}</span>
+          <div class="p-4 rounded-2xl bg-surface border border-line shadow-xs">
+            <span class="text-xs font-semibold text-muted block mb-1">Active Bikes</span>
+            <span class="text-2xl font-black text-ink">{{ activeBikesCount() }}</span>
           </div>
         </div>
 
@@ -60,97 +60,97 @@
             <button
               type="button"
               (click)="setSeverity('ALL')"
-              [class.bg-zinc-900]="selectedSeverity() === 'ALL'"
-              [class.text-white]="selectedSeverity() === 'ALL'"
-              [class.bg-white]="selectedSeverity() !== 'ALL'"
-              [class.text-zinc-600]="selectedSeverity() !== 'ALL'"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 hover:border-zinc-300 transition-colors cursor-pointer"
+              [class.bg-brand]="selectedSeverity() === 'ALL'"
+              [class.text-surface]="selectedSeverity() === 'ALL'"
+              [class.bg-surface]="selectedSeverity() !== 'ALL'"
+              [class.text-ink-soft]="selectedSeverity() !== 'ALL'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-line hover:border-line-strong transition-colors cursor-pointer"
             >
               All Alerts ({{ totalEvents() }})
             </button>
             <button
               type="button"
               (click)="setSeverity('critical')"
-              [class.bg-rose-600]="selectedSeverity() === 'critical'"
-              [class.text-white]="selectedSeverity() === 'critical'"
-              [class.bg-white]="selectedSeverity() !== 'critical'"
-              [class.text-rose-700]="selectedSeverity() !== 'critical'"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-rose-200 hover:border-rose-300 transition-colors cursor-pointer"
+              [class.bg-brand]="selectedSeverity() === 'critical'"
+              [class.text-surface]="selectedSeverity() === 'critical'"
+              [class.bg-surface]="selectedSeverity() !== 'critical'"
+              [class.text-brand-strong]="selectedSeverity() !== 'critical'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-brand-line hover:border-brand transition-colors cursor-pointer"
             >
               Critical ({{ criticalCount() }})
             </button>
             <button
               type="button"
               (click)="setSeverity('warning')"
-              [class.bg-amber-500]="selectedSeverity() === 'warning'"
-              [class.text-white]="selectedSeverity() === 'warning'"
-              [class.bg-white]="selectedSeverity() !== 'warning'"
-              [class.text-amber-800]="selectedSeverity() !== 'warning'"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-amber-200 hover:border-amber-300 transition-colors cursor-pointer"
+              [class.bg-warning]="selectedSeverity() === 'warning'"
+              [class.text-surface]="selectedSeverity() === 'warning'"
+              [class.bg-surface]="selectedSeverity() !== 'warning'"
+              [class.text-warning-strong]="selectedSeverity() !== 'warning'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-warning-line hover:border-warning transition-colors cursor-pointer"
             >
               Warnings ({{ warningCount() }})
             </button>
             <button
               type="button"
               (click)="setSeverity('info')"
-              [class.bg-zinc-700]="selectedSeverity() === 'info'"
-              [class.text-white]="selectedSeverity() === 'info'"
-              [class.bg-white]="selectedSeverity() !== 'info'"
-              [class.text-zinc-600]="selectedSeverity() !== 'info'"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-zinc-200 hover:border-zinc-300 transition-colors cursor-pointer"
+              [class.bg-brand-strong]="selectedSeverity() === 'info'"
+              [class.text-surface]="selectedSeverity() === 'info'"
+              [class.bg-surface]="selectedSeverity() !== 'info'"
+              [class.text-ink-soft]="selectedSeverity() !== 'info'"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-line hover:border-line-strong transition-colors cursor-pointer"
             >
               Info / Ignition ({{ infoCount() }})
             </button>
           </div>
 
           <!-- Show Entries (matching Bikes toolbar) -->
-          <div class="flex items-center gap-2 text-xs text-zinc-600 font-medium self-end sm:self-auto shrink-0">
-            <label for="alertPageSizeSelect" class="text-zinc-500 font-medium select-none">Show</label>
+          <div class="flex items-center gap-2 text-xs text-ink-soft font-medium self-end sm:self-auto shrink-0">
+            <label for="alertPageSizeSelect" class="text-muted font-medium select-none">Show</label>
             <div class="relative inline-flex items-center">
               <select
                 id="alertPageSizeSelect"
                 [value]="pageSize()"
                 (change)="onPageSizeChange($event)"
-                class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+                class="appearance-none bg-canvas hover:bg-fill border border-line rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-ink/10 focus:border-line-strong cursor-pointer transition-colors shadow-2xs"
               >
                 @for (size of pageSizes; track size) {
                   <option [value]="size">{{ size }}</option>
                 }
               </select>
-              <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+              <div class="pointer-events-none absolute right-2.5 flex items-center text-muted">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
             </div>
-            <span class="text-zinc-400 hidden sm:inline">entries</span>
+            <span class="text-subtle hidden sm:inline">entries</span>
           </div>
         </div>
 
         <!-- Alert Cards Feed -->
         @if (isLoading()) {
-          <div class="p-12 text-center text-zinc-400 text-sm flex flex-col items-center gap-3">
-            <svg class="w-8 h-8 animate-spin text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="p-12 text-center text-subtle text-sm flex flex-col items-center gap-3">
+            <svg class="w-8 h-8 animate-spin text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span>Loading security events...</span>
           </div>
         } @else if (alerts().length === 0) {
-          <div class="bg-white rounded-2xl border border-zinc-200 p-10 text-center">
-            <div class="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-400">
+          <div class="bg-surface rounded-2xl border border-line p-10 text-center">
+            <div class="w-16 h-16 bg-canvas rounded-full flex items-center justify-center mx-auto mb-4 text-subtle">
               <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 class="text-lg font-bold text-zinc-900 mb-1">No Alerts Recorded</h3>
-            <p class="text-zinc-500 text-sm max-w-sm mx-auto">
+            <h3 class="text-lg font-bold text-ink mb-1">No Alerts Recorded</h3>
+            <p class="text-muted text-sm max-w-sm mx-auto">
               No security breaches or incidents detected for the selected filter. Live alerts will trigger here in real time.
             </p>
           </div>
         } @else {
           <div class="space-y-3">
             @for (alert of alerts(); track alert.id) {
-              <div class="bg-white rounded-2xl border border-zinc-200/80 hover:border-zinc-300 p-4 sm:p-5 transition-all shadow-xs hover:shadow-sm">
+              <div class="bg-surface rounded-2xl border border-line/80 hover:border-line-strong p-4 sm:p-5 transition-all shadow-xs hover:shadow-sm">
                 <!-- TOP: Icon + Title & Description + Icon Action Buttons (Top Right) -->
                 <div class="flex items-start justify-between gap-3">
                   <!-- Icon + Text -->
@@ -158,15 +158,15 @@
                     <!-- Icon Pill with subtle ring -->
                     <div
                       class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ring-1"
-                      [class.bg-rose-50]="alert.severity === 'critical'"
-                      [class.text-rose-600]="alert.severity === 'critical'"
-                      [class.ring-rose-200]="alert.severity === 'critical'"
-                      [class.bg-amber-50]="alert.severity === 'warning'"
-                      [class.text-amber-600]="alert.severity === 'warning'"
-                      [class.ring-amber-200]="alert.severity === 'warning'"
-                      [class.bg-zinc-100]="alert.severity === 'info'"
-                      [class.text-zinc-700]="alert.severity === 'info'"
-                      [class.ring-zinc-200]="alert.severity === 'info'"
+                      [class.bg-brand-soft]="alert.severity === 'critical'"
+                      [class.text-brand]="alert.severity === 'critical'"
+                      [class.ring-brand]="alert.severity === 'critical'"
+                      [class.bg-warning-soft]="alert.severity === 'warning'"
+                      [class.text-warning]="alert.severity === 'warning'"
+                      [class.ring-warning]="alert.severity === 'warning'"
+                      [class.bg-fill]="alert.severity === 'info'"
+                      [class.text-ink-soft]="alert.severity === 'info'"
+                      [class.ring-line-soft]="alert.severity === 'info'"
                     >
                       @if (alert.severity === 'critical') {
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -185,10 +185,10 @@
 
                     <!-- Title & Description -->
                     <div class="min-w-0 flex-1">
-                      <h4 class="text-base font-bold text-zinc-900 tracking-tight">
+                      <h4 class="text-base font-bold text-ink tracking-tight">
                         {{ alert.title }}
                       </h4>
-                      <p class="text-xs sm:text-sm text-zinc-500 mt-0.5 leading-relaxed">
+                      <p class="text-xs sm:text-sm text-muted mt-0.5 leading-relaxed">
                         {{ alert.description }}
                       </p>
                     </div>
@@ -201,7 +201,7 @@
                       [queryParams]="{ bike: alert.bikeId }"
                       title="View History"
                       aria-label="View History"
-                      class="w-8 h-8 rounded-xl border border-zinc-200/80 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                      class="w-8 h-8 rounded-xl border border-line/80 bg-canvas hover:bg-fill text-ink-soft hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -212,7 +212,7 @@
                       [queryParams]="{ bike: alert.bikeId }"
                       title="Locate on Map"
                       aria-label="Locate on Map"
-                      class="w-8 h-8 rounded-xl bg-zinc-900 hover:bg-black text-white flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+                      class="w-8 h-8 rounded-xl bg-brand hover:bg-brand-strong text-surface flex items-center justify-center transition-colors shadow-xs cursor-pointer"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -223,19 +223,19 @@
                 </div>
 
                 <!-- BOTTOM: Metadata row only (never wraps buttons onto awkward lines) -->
-                <div class="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-zinc-100 text-xs text-zinc-500">
-                  <span class="px-2 py-0.5 rounded-md bg-zinc-900 text-white font-mono text-xs font-bold tracking-wider shrink-0">
+                <div class="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-line-soft text-xs text-muted">
+                  <span class="px-2 py-0.5 rounded-md bg-brand text-surface font-mono text-xs font-bold tracking-wider shrink-0">
                     {{ alert.plate }}
                   </span>
                   @if (alert.model) {
-                    <span class="font-medium text-zinc-600">{{ alert.model }}</span>
-                    <span class="text-zinc-300">•</span>
+                    <span class="font-medium text-ink-soft">{{ alert.model }}</span>
+                    <span class="text-faint">•</span>
                   }
-                  <span class="font-medium text-zinc-500">{{ formatTimestamp(alert.timestamp) }}</span>
+                  <span class="font-medium text-muted">{{ formatTimestamp(alert.timestamp) }}</span>
                   @if (alert.latitude && alert.longitude) {
-                    <span class="text-zinc-300">•</span>
-                    <span class="flex items-center gap-1 font-mono text-[11px] text-zinc-500">
-                      <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span class="text-faint">•</span>
+                    <span class="flex items-center gap-1 font-mono text-[11px] text-muted">
+                      <svg class="w-3.5 h-3.5 text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -248,9 +248,9 @@
           </div>
 
           <!-- Bottom Pagination Bar (Clean, Minimal, 100% Identical to Bikes) -->
-          <div class="p-3.5 sm:px-6 bg-zinc-50/70 rounded-2xl border border-zinc-200/80 flex items-center justify-between gap-3 text-xs shadow-xs mt-4">
-            <span class="text-zinc-500 font-medium">
-              Page <strong class="text-zinc-900 font-bold">{{ currentPage() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+          <div class="p-3.5 sm:px-6 bg-canvas/70 rounded-2xl border border-line/80 flex items-center justify-between gap-3 text-xs shadow-xs mt-4">
+            <span class="text-muted font-medium">
+              Page <strong class="text-ink font-bold">{{ currentPage() }}</strong> of <strong class="text-ink font-bold">{{ totalPages() }}</strong>
             </span>
 
             <div class="flex items-center gap-2">
@@ -258,7 +258,7 @@
                 type="button"
                 (click)="prevPage()"
                 [disabled]="!hasPrev()"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -270,7 +270,7 @@
                 type="button"
                 (click)="nextPage()"
                 [disabled]="!hasNext()"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <span>Next</span>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

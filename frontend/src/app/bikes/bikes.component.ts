@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
 import Swal from 'sweetalert2';
@@ -40,7 +39,6 @@ export interface MotorcycleAsset {
   templateUrl: './bikes.component.html',
 })
 export class BikesComponent implements OnInit {
-  readonly authService = inject(AuthService);
   readonly bikeService = inject(BikeService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -233,19 +231,7 @@ export class BikesComponent implements OnInit {
     this.selectedBikeForModal.set(null);
   }
 
-  getUserInitials(): string {
-    const raw = (this.authService.currentUser()?.name || this.authService.currentUser()?.email || '').trim();
-    if (!raw) return 'U';
-    const parts = raw.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return raw.slice(0, 2).toUpperCase();
-  }
 
-  handleLogout(): void {
-    this.authService.logout().subscribe();
-  }
 
   toggleImmobilize(bike: MotorcycleAsset, event: Event): void {
     event.stopPropagation();

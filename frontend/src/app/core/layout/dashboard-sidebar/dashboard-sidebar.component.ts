@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { PwaService } from '../../../core/services/pwa.service';
+import { PwaService } from '../../services/pwa.service';
 
 @Component({
   selector: 'app-dashboard-sidebar',

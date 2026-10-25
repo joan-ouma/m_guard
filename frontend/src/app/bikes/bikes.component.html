@@ -1,17 +1,17 @@
-<div class="flex h-full w-full bg-zinc-50/50 font-sans text-zinc-900 overflow-hidden select-none">
+<div class="flex h-full w-full bg-canvas/50 font-sans text-ink overflow-hidden select-none">
 
   <div class="flex-1 flex flex-col h-full relative overflow-y-auto">
 
 
     <div class="flex-1 p-4 lg:p-6 overflow-y-auto">
       <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center bg-zinc-100 p-1 rounded-full border border-zinc-200/80 shrink-0">
+        <div class="flex items-center bg-fill p-1 rounded-full border border-line/80 shrink-0">
           <button
             type="button"
             (click)="setFilter('ALL')"
             [ngClass]="{
-              'bg-white text-zinc-900 font-bold shadow-xs': selectedFilter() === 'ALL',
-              'text-zinc-500 hover:text-zinc-800': selectedFilter() !== 'ALL'
+              'bg-surface text-ink font-bold shadow-xs': selectedFilter() === 'ALL',
+              'text-muted hover:text-ink-soft': selectedFilter() !== 'ALL'
             }"
             class="px-3.5 py-1.5 text-xs rounded-full transition-all cursor-pointer"
           >
@@ -21,45 +21,45 @@
             type="button"
             (click)="setFilter('RUNNING')"
             [ngClass]="{
-              'bg-white text-zinc-900 font-bold shadow-xs': selectedFilter() === 'RUNNING',
-              'text-zinc-500 hover:text-zinc-800': selectedFilter() !== 'RUNNING'
+              'bg-surface text-ink font-bold shadow-xs': selectedFilter() === 'RUNNING',
+              'text-muted hover:text-ink-soft': selectedFilter() !== 'RUNNING'
             }"
             class="px-3.5 py-1.5 text-xs rounded-full transition-all cursor-pointer flex items-center gap-1.5"
           >
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
             Running ({{ runningCount() }})
           </button>
           <button
             type="button"
             (click)="setFilter('STOPPED')"
             [ngClass]="{
-              'bg-white text-zinc-900 font-bold shadow-xs': selectedFilter() === 'STOPPED',
-              'text-zinc-500 hover:text-zinc-800': selectedFilter() !== 'STOPPED'
+              'bg-surface text-ink font-bold shadow-xs': selectedFilter() === 'STOPPED',
+              'text-muted hover:text-ink-soft': selectedFilter() !== 'STOPPED'
             }"
             class="px-3.5 py-1.5 text-xs rounded-full transition-all cursor-pointer flex items-center gap-1.5"
           >
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-warning"></span>
             Stopped ({{ stoppedCount() }})
           </button>
         </div>
 
         <div class="flex items-center gap-2.5">
           <div class="relative flex-1 sm:w-64">
-            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 text-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
               placeholder="Search plate, model..."
               (input)="onSearch($event)"
-              class="w-full bg-white border border-zinc-200 rounded-full pl-9 pr-4 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors shadow-xs"
+              class="w-full bg-surface border border-line rounded-full pl-9 pr-4 py-1.5 text-xs text-ink placeholder:text-subtle focus:outline-none focus:border-brand transition-colors shadow-xs"
             />
           </div>
 
           <button
             type="button"
             (click)="openRegisterModal()"
-            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
+            class="bg-info hover:bg-info text-surface text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0"
           >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -71,48 +71,48 @@
       </div>
 
       @if (filteredBikes().length === 0) {
-        <div class="h-64 flex flex-col items-center justify-center text-center bg-white rounded-2xl border border-zinc-200/80 p-8 shadow-xs">
-          <div class="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 mb-3">
+        <div class="h-64 flex flex-col items-center justify-center text-center bg-surface rounded-2xl border border-line/80 p-8 shadow-xs">
+          <div class="w-12 h-12 rounded-full bg-fill flex items-center justify-center text-subtle mb-3">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <p class="text-sm font-bold text-zinc-900">No motorcycles match your filter</p>
-          <p class="text-xs text-zinc-500 mt-1">Try adjusting your search query or status filter.</p>
+          <p class="text-sm font-bold text-ink">No motorcycles match your filter</p>
+          <p class="text-xs text-muted mt-1">Try adjusting your search query or status filter.</p>
         </div>
       } @else {
-        <div class="bg-white rounded-2xl border border-zinc-200/90 shadow-xs overflow-hidden flex flex-col">
+        <div class="bg-surface rounded-2xl border border-line/90 shadow-xs overflow-hidden flex flex-col">
           <!-- Table Toolbar / Show Entries Selector Header -->
-          <div class="px-4 sm:px-6 py-3 bg-white border-b border-zinc-100 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 text-xs text-zinc-600 font-medium">
-              <label for="pageSizeSelect" class="text-zinc-500 font-medium select-none">Show</label>
+          <div class="px-4 sm:px-6 py-3 bg-surface border-b border-line-soft flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 text-xs text-ink-soft font-medium">
+              <label for="pageSizeSelect" class="text-muted font-medium select-none">Show</label>
               <div class="relative inline-flex items-center">
                 <select
                   id="pageSizeSelect"
                   [value]="pageSize()"
                   (change)="onPageSizeChange($event)"
-                  class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+                  class="appearance-none bg-canvas hover:bg-fill border border-line rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-ink/10 focus:border-line-strong cursor-pointer transition-colors shadow-2xs"
                 >
                   @for (size of pageSizes; track size) {
                     <option [value]="size">{{ size }}</option>
                   }
                 </select>
-                <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+                <div class="pointer-events-none absolute right-2.5 flex items-center text-muted">
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
-              <span class="text-zinc-400 hidden sm:inline">entries</span>
+              <span class="text-subtle hidden sm:inline">entries</span>
             </div>
 
-            <div class="text-xs font-medium text-zinc-500">
-              <span class="text-zinc-900 font-bold">{{ filteredBikes().length }}</span> {{ filteredBikes().length === 1 ? 'motorcycle' : 'motorcycles' }}
+            <div class="text-xs font-medium text-muted">
+              <span class="text-ink font-bold">{{ filteredBikes().length }}</span> {{ filteredBikes().length === 1 ? 'motorcycle' : 'motorcycles' }}
             </div>
           </div>
 
           <!-- Table Head (Visible on all devices for clear list structure) -->
-          <div class="grid grid-cols-12 px-4 sm:px-6 py-2.5 bg-zinc-50/90 border-b border-zinc-200/80 text-[11px] font-bold uppercase tracking-wider text-zinc-500 select-none">
+          <div class="grid grid-cols-12 px-4 sm:px-6 py-2.5 bg-canvas/90 border-b border-line/80 text-[11px] font-bold uppercase tracking-wider text-muted select-none">
             <div class="col-span-4 sm:col-span-4">
               <span>Plate</span>
             </div>
@@ -128,22 +128,22 @@
           </div>
 
           <!-- Motorcycle List Items -->
-          <div class="divide-y divide-zinc-100">
+          <div class="divide-y divide-line-soft">
             @for (bike of paginatedBikes(); track bike.id) {
               <div
                 (click)="openBikeDetails(bike)"
-                class="grid grid-cols-12 items-center px-4 sm:px-6 py-3.5 hover:bg-zinc-50/90 transition-colors group cursor-pointer"
+                class="grid grid-cols-12 items-center px-4 sm:px-6 py-3.5 hover:bg-canvas/90 transition-colors group cursor-pointer"
               >
                 <!-- Plate -->
                 <div class="col-span-4 flex items-center min-w-0 pr-2">
-                  <span class="plate-badge font-black text-xs sm:text-sm tracking-wider text-zinc-950 px-2.5 py-1 rounded-lg bg-zinc-100 border border-zinc-300/80 group-hover:bg-zinc-200/90 group-hover:border-zinc-400 transition-all truncate shadow-2xs">
+                  <span class="plate-badge font-black text-xs sm:text-sm tracking-wider text-ink px-2.5 py-1 rounded-lg bg-fill border border-line-strong/80 group-hover:bg-fill-strong/90 group-hover:border-line-strong transition-all truncate shadow-2xs">
                     {{ bike.plate }}
                   </span>
                 </div>
 
                 <!-- Model -->
                 <div class="col-span-4 min-w-0 pr-2">
-                  <p class="text-xs sm:text-sm font-medium text-zinc-800 truncate">
+                  <p class="text-xs sm:text-sm font-medium text-ink-soft truncate">
                     {{ bike.model }}
                   </p>
                 </div>
@@ -151,10 +151,10 @@
                 <!-- Status -->
                 <div class="col-span-3 flex items-center min-w-0">
                   @if (bike.isImmobilized) {
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-soft text-brand-strong border border-brand-line/80">
                       <span class="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"></span>
-                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-rose-600"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-brand"></span>
+                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-brand"></span>
                       </span>
                       <span>IMMOBILIZED</span>
                     </span>
@@ -162,18 +162,18 @@
                     <span
                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold border"
                       [ngClass]="{
-                        'bg-emerald-50 text-emerald-700 border-emerald-200/80': bike.status === 'RUNNING',
-                        'bg-amber-50 text-amber-700 border-amber-200/80': bike.status === 'STOPPED'
+                        'bg-success-soft text-success-strong border-success-line/80': bike.status === 'RUNNING',
+                        'bg-warning-soft text-warning-strong border-warning-line/80': bike.status === 'STOPPED'
                       }"
                     >
                       <span class="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                         <span
                           class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                          [ngClass]="bike.status === 'RUNNING' ? 'bg-emerald-400' : 'bg-amber-400'"
+                          [ngClass]="bike.status === 'RUNNING' ? 'bg-success' : 'bg-warning'"
                         ></span>
                         <span
                           class="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2"
-                          [ngClass]="bike.status === 'RUNNING' ? 'bg-emerald-600' : 'bg-amber-500'"
+                          [ngClass]="bike.status === 'RUNNING' ? 'bg-success' : 'bg-warning'"
                         ></span>
                       </span>
                       <span>{{ bike.status }}</span>
@@ -187,7 +187,7 @@
                     type="button"
                     (click)="$event.stopPropagation(); openBikeDetails(bike)"
                     title="View bike details"
-                    class="w-8 h-8 rounded-xl bg-zinc-100 hover:bg-zinc-900 hover:text-white text-zinc-600 flex items-center justify-center transition-all duration-150 cursor-pointer active:scale-95 shadow-xs"
+                    class="w-8 h-8 rounded-xl bg-fill hover:bg-brand-strong hover:text-surface text-ink-soft flex items-center justify-center transition-all duration-150 cursor-pointer active:scale-95 shadow-xs"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -200,9 +200,9 @@
           </div>
 
           <!-- Bottom Pagination Bar (Clean, Minimal, No "Showing x/y" clutter) -->
-          <div class="p-3.5 sm:px-6 bg-zinc-50/70 border-t border-zinc-200/80 flex items-center justify-between gap-3 text-xs">
-            <span class="text-zinc-500 font-medium">
-              Page <strong class="text-zinc-900 font-bold">{{ currentPage() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+          <div class="p-3.5 sm:px-6 bg-canvas/70 border-t border-line/80 flex items-center justify-between gap-3 text-xs">
+            <span class="text-muted font-medium">
+              Page <strong class="text-ink font-bold">{{ currentPage() }}</strong> of <strong class="text-ink font-bold">{{ totalPages() }}</strong>
             </span>
 
             <div class="flex items-center gap-2">
@@ -210,7 +210,7 @@
                 type="button"
                 (click)="prevPage()"
                 [disabled]="currentPage() <= 1"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -222,7 +222,7 @@
                 type="button"
                 (click)="nextPage()"
                 [disabled]="currentPage() >= totalPages()"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <span>Next</span>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -246,42 +246,42 @@
   <!-- Human-Crafted Motorcycle Details Dialog -->
   @if (showDetailsModal() && selectedBikeForModal(); as bike) {
     <div
-      class="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150"
+      class="fixed inset-0 bg-night/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150"
       (click)="closeBikeDetails()"
     >
       <div
-        class="bg-white border border-zinc-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col my-auto animate-in zoom-in-95 duration-150"
+        class="bg-surface border border-line rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col my-auto animate-in zoom-in-95 duration-150"
         (click)="$event.stopPropagation()"
       >
         <!-- Dialog Header -->
-        <div class="px-6 pt-5 pb-4 border-b border-zinc-100 flex items-start justify-between gap-3">
+        <div class="px-6 pt-5 pb-4 border-b border-line-soft flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex items-center gap-2.5">
-              <h2 class="text-2xl font-black font-plate tracking-wider text-zinc-950">
+              <h2 class="text-2xl font-black font-plate tracking-wider text-ink">
                 {{ bike.plate }}
               </h2>
               @if (bike.isImmobilized) {
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-soft text-brand-strong border border-brand-line/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-brand"></span>
                   IMMOBILIZED
                 </span>
               } @else {
                 <span
                   class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
                   [ngClass]="{
-                    'bg-emerald-50 text-emerald-700 border-emerald-200/80': bike.status === 'RUNNING',
-                    'bg-amber-50 text-amber-700 border-amber-200/80': bike.status === 'STOPPED'
+                    'bg-success-soft text-success-strong border-success-line/80': bike.status === 'RUNNING',
+                    'bg-warning-soft text-warning-strong border-warning-line/80': bike.status === 'STOPPED'
                   }"
                 >
                   <span
                     class="w-1.5 h-1.5 rounded-full"
-                    [ngClass]="bike.status === 'RUNNING' ? 'bg-emerald-600' : 'bg-amber-500'"
+                    [ngClass]="bike.status === 'RUNNING' ? 'bg-success' : 'bg-warning'"
                   ></span>
                   {{ bike.status }}
                 </span>
               }
             </div>
-            <p class="text-xs text-zinc-500 mt-0.5 font-medium">
+            <p class="text-xs text-muted mt-0.5 font-medium">
               {{ bike.model }}
             </p>
           </div>
@@ -290,7 +290,7 @@
             type="button"
             (click)="closeBikeDetails()"
             title="Close"
-            class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            class="w-8 h-8 rounded-lg text-subtle hover:text-ink-soft hover:bg-fill flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -301,54 +301,54 @@
         <!-- Dialog Body: Crisp Property Inspector -->
         <div class="p-6 space-y-4">
           <!-- Property Rows with delicate hairline dividers -->
-          <dl class="divide-y divide-zinc-100 text-xs sm:text-sm">
+          <dl class="divide-y divide-line-soft text-xs sm:text-sm">
             <!-- Telemetry -->
             <div class="pb-3 flex items-start justify-between gap-4">
-              <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Telemetry</dt>
+              <dt class="text-xs text-subtle font-medium shrink-0 pt-0.5">Telemetry</dt>
               <dd class="text-right min-w-0">
-                <span class="font-bold text-zinc-900">{{ bike.speedText }}</span>
-                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">Pinged {{ bike.lastPing }}</span>
+                <span class="font-bold text-ink">{{ bike.speedText }}</span>
+                <span class="text-[11px] text-muted font-medium block mt-0.5">Pinged {{ bike.lastPing }}</span>
               </dd>
             </div>
 
             <!-- Location -->
             <div class="py-3 flex items-start justify-between gap-4">
-              <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Location</dt>
+              <dt class="text-xs text-subtle font-medium shrink-0 pt-0.5">Location</dt>
               <dd class="text-right min-w-0">
-                <span class="font-semibold text-zinc-900 block truncate">{{ bike.address }}</span>
-                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">{{ bike.county }} • {{ bike.subCounty }}</span>
-                <span class="text-[11px] text-zinc-400 font-medium block mt-0.5">{{ bike.lat.toFixed(5) }}, {{ bike.lng.toFixed(5) }}</span>
+                <span class="font-semibold text-ink block truncate">{{ bike.address }}</span>
+                <span class="text-[11px] text-muted font-medium block mt-0.5">{{ bike.county }} • {{ bike.subCounty }}</span>
+                <span class="text-[11px] text-subtle font-medium block mt-0.5">{{ bike.lat.toFixed(5) }}, {{ bike.lng.toFixed(5) }}</span>
               </dd>
             </div>
 
             <!-- Geofence -->
             <div class="py-3 flex items-start justify-between gap-4">
-              <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Geofence</dt>
+              <dt class="text-xs text-subtle font-medium shrink-0 pt-0.5">Geofence</dt>
               <dd class="text-right min-w-0">
                 @if (bike.fenceRadius > 0 && bike.fenceName && bike.fenceName !== 'Not configured') {
-                  <span class="font-semibold text-zinc-900 block truncate">{{ bike.fenceName }}</span>
-                  <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">{{ (bike.fenceRadius / 1000).toFixed(1) }} km safe radius</span>
+                  <span class="font-semibold text-ink block truncate">{{ bike.fenceName }}</span>
+                  <span class="text-[11px] text-muted font-medium block mt-0.5">{{ (bike.fenceRadius / 1000).toFixed(1) }} km safe radius</span>
                 } @else {
-                  <span class="text-xs text-zinc-400 font-medium block">Not configured</span>
+                  <span class="text-xs text-subtle font-medium block">Not configured</span>
                 }
               </dd>
             </div>
 
             <!-- Hardware -->
             <div class="py-3 flex items-start justify-between gap-4">
-              <dt class="text-xs text-zinc-400 font-medium shrink-0 pt-0.5">Hardware</dt>
+              <dt class="text-xs text-subtle font-medium shrink-0 pt-0.5">Hardware</dt>
               <dd class="text-right min-w-0">
-                <span class="text-zinc-900 font-bold block">IMEI {{ bike.imei }}</span>
-                <span class="text-[11px] text-zinc-500 font-medium block mt-0.5">Battery {{ bike.batteryPercent }}% • Signal CSQ {{ bike.signalQuality }}/31</span>
+                <span class="text-ink font-bold block">IMEI {{ bike.imei }}</span>
+                <span class="text-[11px] text-muted font-medium block mt-0.5">Battery {{ bike.batteryPercent }}% • Signal CSQ {{ bike.signalQuality }}/31</span>
               </dd>
             </div>
           </dl>
 
           <!-- Starter Control Section -->
-          <div class="pt-3 border-t border-zinc-100 flex items-center justify-between gap-3">
+          <div class="pt-3 border-t border-line-soft flex items-center justify-between gap-3">
             <div>
-              <p class="text-xs font-semibold text-zinc-900">Engine Starter</p>
-              <p class="text-[11px] text-zinc-500">
+              <p class="text-xs font-semibold text-ink">Engine Starter</p>
+              <p class="text-[11px] text-muted">
                 {{ bike.isImmobilized ? 'Power cut off remotely' : 'Starter relay active' }}
               </p>
             </div>
@@ -356,7 +356,7 @@
             <button
               type="button"
               (click)="toggleImmobilize(bike, $event)"
-              [ngClass]="bike.isImmobilized ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'border border-rose-200 text-rose-600 hover:bg-rose-50'"
+              [ngClass]="bike.isImmobilized ? 'bg-success hover:bg-success-strong text-surface' : 'border border-brand-line text-brand hover:bg-brand-soft'"
               class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
             >
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -368,12 +368,12 @@
         </div>
 
         <!-- Dialog Footer: Navigation & Actions -->
-        <div class="px-6 py-3.5 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between gap-3">
+        <div class="px-6 py-3.5 bg-canvas border-t border-line-soft flex items-center justify-between gap-3">
           <div class="flex items-center gap-2">
             <button
               type="button"
               (click)="navigateToMap(bike.id)"
-              class="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              class="bg-brand hover:bg-brand-strong text-surface text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -384,7 +384,7 @@
             <button
               type="button"
               (click)="navigateToHistory(bike.id)"
-              class="bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200 text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              class="bg-surface hover:bg-fill text-ink-soft border border-line text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -396,7 +396,7 @@
           <button
             type="button"
             (click)="closeBikeDetails()"
-            class="text-xs font-medium text-zinc-500 hover:text-zinc-800 px-2.5 py-2 cursor-pointer transition-colors"
+            class="text-xs font-medium text-muted hover:text-ink-soft px-2.5 py-2 cursor-pointer transition-colors"
           >
             Done
           </button>

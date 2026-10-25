@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { filter, map, startWith } from 'rxjs';
-import { DashboardSidebarComponent } from '../../dashboard/components/dashboard-sidebar/dashboard-sidebar.component';
+import { DashboardSidebarComponent } from './dashboard-sidebar/dashboard-sidebar.component';
 import { MobileNavComponent } from '../../ui/mobile-nav/mobile-nav.component';
 import { AuthService } from '../services/auth.service';
 import { NavDrawerService } from './nav-drawer.service';

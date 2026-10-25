@@ -1,32 +1,32 @@
-<div class="flex h-full w-full bg-white font-sans text-zinc-900 overflow-hidden">
+<div class="flex h-full w-full bg-surface font-sans text-ink overflow-hidden">
 
   <!-- LEFT NAVIGATION SIDEBAR (DESKTOP) -->
   <!-- MAIN VIEW -->
   <div class="flex-1 flex flex-col h-full overflow-hidden">
 
-    <div class="flex-1 overflow-y-auto bg-zinc-50 p-4 lg:p-8">
+    <div class="flex-1 overflow-y-auto bg-canvas p-4 lg:p-8">
       <div class="max-w-4xl mx-auto w-full space-y-6">
 
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-zinc-900 mb-1">Contacts</h1>
-            <p class="text-zinc-500 text-sm">Emergency contacts and insurance brokers to notify when your bike is lost.</p>
+            <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-ink mb-1">Contacts</h1>
+            <p class="text-muted text-sm">Emergency contacts and insurance brokers to notify when your bike is lost.</p>
           </div>
-          <button type="button" (click)="openAdd()" class="shrink-0 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer">Add contact</button>
+          <button type="button" (click)="openAdd()" class="shrink-0 px-4 py-2.5 rounded-xl bg-brand hover:bg-brand-strong text-surface text-sm font-bold cursor-pointer">Add contact</button>
         </div>
 
         <!-- Add contact popup: bottom sheet on mobile, dialog on larger screens -->
         @if (addOpen()) {
-          <div class="fixed inset-0 z-50 bg-zinc-900/50" (click)="closeAdd()"></div>
-          <div class="fixed inset-x-0 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md z-50 bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div class="fixed inset-0 z-50 bg-ink/50" (click)="closeAdd()"></div>
+          <div class="fixed inset-x-0 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md z-50 bg-surface rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-bold text-zinc-900">{{ editingId() ? 'Edit contact' : 'Add contact' }}</h2>
-              <button type="button" (click)="closeAdd()" class="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 cursor-pointer">✕</button>
+              <h2 class="text-lg font-bold text-ink">{{ editingId() ? 'Edit contact' : 'Add contact' }}</h2>
+              <button type="button" (click)="closeAdd()" class="w-9 h-9 rounded-xl flex items-center justify-center text-subtle hover:text-ink hover:bg-fill cursor-pointer">✕</button>
             </div>
 
             <form (ngSubmit)="saveContact()" class="space-y-4">
               <div>
-                <label for="contactName" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Name</label>
+                <label for="contactName" class="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Name</label>
                 <input
                   id="contactName"
                   type="text"
@@ -34,11 +34,11 @@
                   [ngModel]="formName()"
                   (ngModelChange)="formName.set($event)"
                   placeholder="e.g. Jane Wanjiru"
-                  class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+                  class="w-full h-11 px-3 rounded-lg bg-canvas border border-line text-sm text-ink placeholder:text-subtle focus:outline-none focus:bg-surface focus:border-brand"
                 />
               </div>
               <div>
-                <label for="contactPhone" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Phone</label>
+                <label for="contactPhone" class="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Phone</label>
                 <input
                   id="contactPhone"
                   type="tel"
@@ -46,17 +46,17 @@
                   [ngModel]="formPhone()"
                   (ngModelChange)="formPhone.set($event)"
                   placeholder="0712 345 678"
-                  class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-900"
+                  class="w-full h-11 px-3 rounded-lg bg-canvas border border-line text-sm text-ink placeholder:text-subtle focus:outline-none focus:bg-surface focus:border-brand"
                 />
               </div>
               <div>
-                <label for="contactType" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Type</label>
+                <label for="contactType" class="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Type</label>
                 <select
                   id="contactType"
                   name="contactType"
                   [ngModel]="formCategory()"
                   (ngModelChange)="formCategory.set($event)"
-                  class="w-full h-11 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-sm text-zinc-900 focus:outline-none focus:bg-white focus:border-zinc-900 cursor-pointer"
+                  class="w-full h-11 px-3 rounded-lg bg-canvas border border-line text-sm text-ink focus:outline-none focus:bg-surface focus:border-brand cursor-pointer"
                 >
                   <option value="emergency">Emergency contact</option>
                   <option value="insurance">Insurance broker</option>
@@ -64,12 +64,12 @@
               </div>
 
               @if (formError()) {
-                <p class="text-sm font-semibold text-rose-600">{{ formError() }}</p>
+                <p class="text-sm font-semibold text-brand">{{ formError() }}</p>
               }
 
               <div class="flex items-center justify-end gap-2 pt-2">
-                <button type="button" (click)="closeAdd()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 hover:bg-zinc-100 cursor-pointer">Cancel</button>
-                <button type="submit" [disabled]="saving()" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold cursor-pointer disabled:opacity-50">{{ saving() ? 'Saving…' : 'Save contact' }}</button>
+                <button type="button" (click)="closeAdd()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-ink-soft hover:bg-fill cursor-pointer">Cancel</button>
+                <button type="submit" [disabled]="saving()" class="px-5 py-2.5 rounded-xl bg-brand hover:bg-brand-strong text-surface text-sm font-bold cursor-pointer disabled:opacity-50">{{ saving() ? 'Saving…' : 'Save contact' }}</button>
               </div>
             </form>
           </div>
@@ -77,44 +77,44 @@
 
         <!-- List toolbar -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="grid grid-cols-3 p-1 bg-zinc-100 rounded-lg text-xs font-semibold sm:w-96">
-            <button type="button" (click)="setFilter('ALL')" [class.bg-white]="filter() === 'ALL'" [class.shadow-2xs]="filter() === 'ALL'" [class.text-zinc-900]="filter() === 'ALL'" [class.text-zinc-500]="filter() !== 'ALL'" class="py-2 rounded-md transition-all cursor-pointer">All</button>
-            <button type="button" (click)="setFilter('emergency')" [class.bg-white]="filter() === 'emergency'" [class.shadow-2xs]="filter() === 'emergency'" [class.text-zinc-900]="filter() === 'emergency'" [class.text-zinc-500]="filter() !== 'emergency'" class="py-2 rounded-md transition-all cursor-pointer">Emergency</button>
-            <button type="button" (click)="setFilter('insurance')" [class.bg-white]="filter() === 'insurance'" [class.shadow-2xs]="filter() === 'insurance'" [class.text-zinc-900]="filter() === 'insurance'" [class.text-zinc-500]="filter() !== 'insurance'" class="py-2 rounded-md transition-all cursor-pointer">Insurance</button>
+          <div class="grid grid-cols-3 p-1 bg-fill rounded-lg text-xs font-semibold sm:w-96">
+            <button type="button" (click)="setFilter('ALL')" [class.bg-surface]="filter() === 'ALL'" [class.shadow-2xs]="filter() === 'ALL'" [class.text-ink]="filter() === 'ALL'" [class.text-muted]="filter() !== 'ALL'" class="py-2 rounded-md transition-all cursor-pointer">All</button>
+            <button type="button" (click)="setFilter('emergency')" [class.bg-surface]="filter() === 'emergency'" [class.shadow-2xs]="filter() === 'emergency'" [class.text-ink]="filter() === 'emergency'" [class.text-muted]="filter() !== 'emergency'" class="py-2 rounded-md transition-all cursor-pointer">Emergency</button>
+            <button type="button" (click)="setFilter('insurance')" [class.bg-surface]="filter() === 'insurance'" [class.shadow-2xs]="filter() === 'insurance'" [class.text-ink]="filter() === 'insurance'" [class.text-muted]="filter() !== 'insurance'" class="py-2 rounded-md transition-all cursor-pointer">Insurance</button>
           </div>
 
-          <div class="flex items-center gap-2 text-xs text-zinc-600 font-medium">
-            <label for="contactPageSize" class="text-zinc-500 font-medium select-none">Show</label>
+          <div class="flex items-center gap-2 text-xs text-ink-soft font-medium">
+            <label for="contactPageSize" class="text-muted font-medium select-none">Show</label>
             <div class="relative inline-flex items-center">
               <select
                 id="contactPageSize"
                 [value]="pageSize()"
                 (change)="onPageSizeChange($event)"
-                class="appearance-none bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 cursor-pointer transition-colors shadow-2xs"
+                class="appearance-none bg-canvas hover:bg-fill border border-line rounded-lg pl-3 pr-8 py-1.5 text-xs font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-ink/10 focus:border-line-strong cursor-pointer transition-colors shadow-2xs"
               >
                 @for (size of pageSizes; track size) {
                   <option [value]="size">{{ size }}</option>
                 }
               </select>
-              <div class="pointer-events-none absolute right-2.5 flex items-center text-zinc-500">
+              <div class="pointer-events-none absolute right-2.5 flex items-center text-muted">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
             </div>
-            <span class="text-zinc-400">entries</span>
+            <span class="text-subtle">entries</span>
           </div>
         </div>
 
         <!-- Contact list -->
         @if (pageItems().length === 0) {
-          <div class="bg-white border border-dashed border-zinc-300 rounded-2xl p-10 text-center text-sm text-zinc-500">
+          <div class="bg-surface border border-dashed border-line-strong rounded-2xl p-10 text-center text-sm text-muted">
             No contacts yet. Add one above.
           </div>
         } @else {
-          <div class="bg-white border border-zinc-200 rounded-2xl shadow-xs overflow-x-auto">
+          <div class="bg-surface border border-line rounded-2xl shadow-xs overflow-x-auto">
             <table class="w-full text-sm">
-              <thead class="bg-zinc-50 text-left text-xs font-bold uppercase tracking-wider text-zinc-500">
+              <thead class="bg-canvas text-left text-xs font-bold uppercase tracking-wider text-muted">
                 <tr>
                   <th class="px-4 py-3">Name</th>
                   <th class="px-4 py-3">Type</th>
@@ -122,37 +122,37 @@
                   <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-zinc-100">
+              <tbody class="divide-y divide-line-soft">
                 @for (c of pageItems(); track c.id) {
                   <tr>
-                    <td class="px-4 py-3 font-semibold text-zinc-900">{{ c.name }}</td>
+                    <td class="px-4 py-3 font-semibold text-ink">{{ c.name }}</td>
                     <td class="px-4 py-3">
                       <span
                         class="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md"
-                        [class.bg-emerald-50]="c.category === 'insurance'"
-                        [class.text-emerald-700]="c.category === 'insurance'"
-                        [class.bg-sky-50]="c.category === 'emergency'"
-                        [class.text-sky-700]="c.category === 'emergency'"
+                        [class.bg-success-soft]="c.category === 'insurance'"
+                        [class.text-success-strong]="c.category === 'insurance'"
+                        [class.bg-info-soft]="c.category === 'emergency'"
+                        [class.text-info-strong]="c.category === 'emergency'"
                       >
                         {{ categoryLabel(c) }}
                       </span>
                     </td>
                     <td class="px-4 py-3">
-                      <a [href]="'tel:' + c.phone" class="text-zinc-700 hover:text-zinc-900 underline-offset-2 hover:underline">{{ c.phone }}</a>
+                      <a [href]="'tel:' + c.phone" class="text-ink-soft hover:text-ink underline-offset-2 hover:underline">{{ c.phone }}</a>
                     </td>
                     <td class="px-4 py-3">
                       <div class="flex items-center justify-end gap-2">
                         <button
                           type="button"
                           (click)="openEdit(c)"
-                          class="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+                          class="px-3 py-1.5 rounded-lg border border-line text-xs font-bold text-ink-soft hover:bg-fill cursor-pointer"
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           (click)="removeContact(c)"
-                          class="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-bold text-zinc-600 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 cursor-pointer"
+                          class="px-3 py-1.5 rounded-lg border border-line text-xs font-bold text-ink-soft hover:text-brand hover:bg-brand-soft hover:border-brand-line cursor-pointer"
                         >
                           Delete
                         </button>
@@ -165,9 +165,9 @@
           </div>
 
           <!-- Pagination bar (same as Alerts) -->
-          <div class="p-3.5 sm:px-6 bg-zinc-50/70 rounded-2xl border border-zinc-200/80 flex items-center justify-between gap-3 text-xs shadow-xs">
-            <span class="text-zinc-500 font-medium">
-              Page <strong class="text-zinc-900 font-bold">{{ page() }}</strong> of <strong class="text-zinc-900 font-bold">{{ totalPages() }}</strong>
+          <div class="p-3.5 sm:px-6 bg-canvas/70 rounded-2xl border border-line/80 flex items-center justify-between gap-3 text-xs shadow-xs">
+            <span class="text-muted font-medium">
+              Page <strong class="text-ink font-bold">{{ page() }}</strong> of <strong class="text-ink font-bold">{{ totalPages() }}</strong>
             </span>
 
             <div class="flex items-center gap-2">
@@ -175,7 +175,7 @@
                 type="button"
                 (click)="prevPage()"
                 [disabled]="!hasPrev()"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -187,7 +187,7 @@
                 type="button"
                 (click)="nextPage()"
                 [disabled]="!hasNext()"
-                class="px-3 py-1.5 rounded-lg bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-700 font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                class="px-3 py-1.5 rounded-lg bg-surface hover:bg-fill border border-line text-ink-soft font-bold disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <span>Next</span>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

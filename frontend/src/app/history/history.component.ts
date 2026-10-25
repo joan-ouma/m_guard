@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of, catchError } from 'rxjs';
-import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BreadcrumbDTO, BikeEventDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
@@ -37,7 +36,6 @@ export interface TrailEvent {
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly authService = inject(AuthService);
   readonly bikeService = inject(BikeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -670,7 +668,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const startIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
-        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-lg border-2 border-white ring-2 ring-emerald-500/50">
+        <div class="w-8 h-8 rounded-full bg-success text-surface flex items-center justify-center font-bold text-xs shadow-lg border-2 border-surface ring-2 ring-success/50">
           A
         </div>
       `,
@@ -686,7 +684,7 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     const endIcon = L.divIcon({
       className: 'custom-trip-marker',
       html: `
-        <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs shadow-lg border-2 border-white ring-2 ring-rose-500/50">
+        <div class="w-8 h-8 rounded-full bg-brand text-surface flex items-center justify-center font-bold text-xs shadow-lg border-2 border-surface ring-2 ring-brand/50">
           B
         </div>
       `,
@@ -710,21 +708,21 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
       const isReactivated = sev.type === 'REACTIVATED';
       const isIncident = sev.type === 'THEFT' || sev.type === 'TAMPER' || sev.type === 'DURESS';
       const bgClass = isAccident
-        ? 'bg-red-600 ring-red-500/50 animate-bounce'
+        ? 'bg-brand ring-brand/50 animate-bounce'
         : isIncident
-        ? 'bg-rose-600 ring-rose-500/50 animate-pulse'
+        ? 'bg-brand ring-brand/50 animate-pulse'
         : isTouch
-        ? 'bg-rose-600 ring-rose-500/40 animate-pulse'
+        ? 'bg-brand ring-brand/40 animate-pulse'
         : isImmobilized
-        ? 'bg-rose-600 ring-rose-500/40'
+        ? 'bg-brand ring-brand/40'
         : isReactivated
-        ? 'bg-emerald-600 ring-emerald-500/40'
+        ? 'bg-success ring-success/40'
         : 'bg-violet-600 ring-violet-500/40';
 
       const sevIcon = L.divIcon({
         className: 'custom-event-marker',
         html: `
-          <div class="w-8 h-8 rounded-full ${bgClass} text-white flex items-center justify-center font-bold text-xs shadow-xl border-2 border-white ring-4">
+          <div class="w-8 h-8 rounded-full ${bgClass} text-surface flex items-center justify-center font-bold text-xs shadow-xl border-2 border-surface ring-4">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               ${isAccident
                 ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'
@@ -838,17 +836,5 @@ export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  getUserInitials(): string {
-    const user = this.authService.currentUser();
-    if (!user || !user.name) return 'R';
-    const parts = user.name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return user.name.slice(0, 2).toUpperCase();
-  }
 
-  logout(): void {
-    this.authService.logout().subscribe();
-  }
 }
