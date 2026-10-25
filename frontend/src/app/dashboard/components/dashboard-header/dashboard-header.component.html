@@ -1,23 +1,5 @@
-<header
-  class="h-14 lg:h-16 bg-surface border-b border-line px-4 lg:px-6 flex items-center justify-between shrink-0 z-30 relative"
->
+<div class="flex items-center justify-between w-full h-full min-w-0 gap-3">
   <div class="flex items-center gap-3 lg:gap-5 min-w-0">
-    <button
-      type="button"
-      (click)="toggleMobileDrawer.emit()"
-      title="Open Menu"
-      class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-ink-soft hover:bg-fill transition-colors cursor-pointer shrink-0"
-    >
-      <svg
-        class="w-5 h-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
 
     <!-- Mobile-Only Brand Icon & Bold Logo (Hidden on desktop where sidebar is visible) -->
     <div class="flex lg:hidden items-center gap-2.5 min-w-0">
@@ -84,4 +66,4 @@
       (markAllRead)="markAllRead.emit()"
     />
   </div>
-</header>
+</div>

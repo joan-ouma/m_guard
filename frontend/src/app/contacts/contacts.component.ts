@@ -2,9 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import Swal from 'sweetalert2';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { ContactCategory, RecoveryService, SavedContact } from '../core/services/recovery.service';
 
 type CategoryFilter = 'ALL' | ContactCategory;
@@ -17,7 +15,7 @@ const CATEGORY_LABELS: Record<ContactCategory, string> = {
 @Component({
   selector: 'app-contacts',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, MobileNavComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './contacts.component.html',
 })
 export class ContactsComponent implements OnInit {

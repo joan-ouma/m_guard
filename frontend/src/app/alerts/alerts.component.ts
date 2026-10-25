@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
+import { RouterLink } from '@angular/router';
 import { BikeService } from '../core/services/bike.service';
 import { BikeEventDTO, PaginatedEventsResponse } from '../core/models/bike.models';
 
@@ -22,7 +21,7 @@ export interface DisplayAlert {
 @Component({
   selector: 'app-alerts',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MobileNavComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './alerts.component.html'
 })
 export class AlertsComponent implements OnInit {

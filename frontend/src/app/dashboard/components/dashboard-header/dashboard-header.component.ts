@@ -17,7 +17,6 @@ export class DashboardHeaderComponent {
   readonly notifications = input<NotificationItem[]>([]);
   readonly unreadCount = input<number>(0);
 
-  readonly toggleMobileDrawer = output<void>();
   readonly openGeofenceModal = output<void>();
   readonly viewNotification = output<NotificationItem>();
   readonly markAllRead = output<void>();

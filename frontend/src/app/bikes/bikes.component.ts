@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO } from '../core/models/bike.models';
 import Swal from 'sweetalert2';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { OnboardingModalComponent } from '../dashboard/components/onboarding-modal/onboarding-modal.component';
 
 export interface MotorcycleAsset {
@@ -35,10 +34,7 @@ export interface MotorcycleAsset {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    RouterLinkActive,
     ReactiveFormsModule,
-    MobileNavComponent,
     OnboardingModalComponent,
   ],
   templateUrl: './bikes.component.html',

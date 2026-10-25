@@ -2,9 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import Swal from 'sweetalert2';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { BikeService } from '../core/services/bike.service';
 import { BikeListResponse } from '../core/models/bike.models';
 import { RecoveryService, THEFT_MODES, TheftIncident, TheftMode } from '../core/services/recovery.service';
@@ -21,7 +19,7 @@ export interface NearbyStation extends EmergencyContact {
 @Component({
   selector: 'app-recovery',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, MobileNavComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './recovery.component.html',
 })
 export class RecoveryComponent implements OnInit {

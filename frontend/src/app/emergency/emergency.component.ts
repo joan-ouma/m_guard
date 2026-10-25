@@ -1,8 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BikeListResponse } from '../core/models/bike.models';
 import { EMERGENCY_CONTACTS, EmergencyContact } from './emergency.data';
@@ -11,7 +9,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-emergency',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, MobileNavComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './emergency.component.html',
   styleUrl: './emergency.component.css',
   encapsulation: ViewEncapsulation.None,

@@ -3,6 +3,8 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
+  TemplateRef,
+  ViewChild,
   inject,
   signal,
   computed,
@@ -22,7 +24,8 @@ import {
   FleetBike,
   NotificationItem,
 } from './models/dashboard.models';
-import { DashboardSidebarComponent } from './components/dashboard-sidebar/dashboard-sidebar.component';
+import { NavDrawerService } from '../core/layout/nav-drawer.service';
+import { TopBarService } from '../core/layout/top-bar.service';
 import { DashboardHeaderComponent } from './components/dashboard-header/dashboard-header.component';
 import { BikeInspectorComponent } from './components/bike-inspector/bike-inspector.component';
 import {
@@ -40,7 +43,6 @@ export type { FleetBike, NotificationItem };
   standalone: true,
   imports: [
     CommonModule,
-    DashboardSidebarComponent,
     DashboardHeaderComponent,
     BikeInspectorComponent,
     GeofenceModalComponent,
@@ -56,6 +58,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly pwa = inject(PwaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  readonly drawer = inject(NavDrawerService);
+  private readonly topBar = inject(TopBarService);
+  @ViewChild('topBarContent', { static: true }) topBarContent!: TemplateRef<unknown>;
 
   private map: L.Map | null = null;
   private bikeMarker: L.Marker | null = null;
@@ -74,7 +79,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly duressCountdown = signal<number>(30);
   readonly copiedCoordinates = signal<boolean>(false);
   readonly currentTime = signal<number>(Date.now());
-  readonly mobileDrawerOpen = signal<boolean>(false);
   readonly mobileSheetExpanded = signal<boolean>(false);
   readonly notifications = signal<NotificationItem[]>([]);
   readonly unreadAlertCount = computed(() => this.notifications().filter((n) => !n.read).length);
@@ -180,6 +184,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.topBar.content.set(this.topBarContent);
     this.tickerInterval = setInterval(() => {
       this.currentTime.set(Date.now());
     }, 1000);
@@ -215,6 +220,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       if (bikeParam && this.fleet()[bikeParam]) {
         this.selectBike(bikeParam);
       }
+      if (params.get('geofence') === '1') {
+        this.toggleGeofenceModal(true);
+        this.router.navigate([], { queryParams: { geofence: null }, queryParamsHandling: 'merge', replaceUrl: true });
+      }
     });
 
     if (typeof window !== 'undefined') {
@@ -234,6 +243,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.topBar.content() === this.topBarContent) this.topBar.content.set(null);
     if (this.tickerInterval) {
       clearInterval(this.tickerInterval);
       this.tickerInterval = undefined;
@@ -635,16 +645,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.toggleGeofenceModal(false);
   }
 
-  toggleMobileDrawer(open?: boolean): void {
-    const nextState = open !== undefined ? open : !this.mobileDrawerOpen();
-    this.mobileDrawerOpen.set(nextState);
-    setTimeout(() => this.map?.invalidateSize(), 300);
-  }
-
-  closeMobileDrawer(): void {
-    this.mobileDrawerOpen.set(false);
-  }
-
   toggleMobileSheet(): void {
     this.mobileSheetExpanded.update((v) => !v);
     setTimeout(() => this.map?.invalidateSize(), 300);
@@ -826,10 +826,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (type.includes('CRASH')) return 'Collision impact detected';
     if (type.includes('THEFT') || type.includes('TAMPER')) return 'Unauthorized movement or tamper alert';
     return 'Security event detected';
-  }
-
-  handleLogout(): void {
-    this.authService.logout().subscribe();
   }
 
   toggleImmobilize(bike: FleetBike): void {

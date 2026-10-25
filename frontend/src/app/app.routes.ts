@@ -19,8 +19,101 @@ import { LandingComponent } from './landing/landing.component';
 import { AboutComponent } from './pages/about/about.component';
 import { ServicesComponent } from './pages/services/services.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { AppShellComponent } from './core/layout/app-shell.component';
 
 export const routes: Routes = [
+  {
+    path: '',
+    // Authenticated pages share one sidebar. A bare URL only renders the shell for signed-in users; otherwise it falls through to the landing page.
+    canMatch: [(_route, segments) => segments.length > 0 || inject(AuthService).isAuthenticated()],
+    component: AppShellComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        component: DashboardComponent,
+        title: 'Dashboard | MGuard',
+        data: {
+          description:
+            'Track your motorcycle in real-time with high-precision GPS, live telemetry, geofence boundary alerts, and remote anti-theft security lock.',
+          keywords: 'motorcycle GPS tracking, live bike location, rider dashboard, anti-theft, ignition control, Nairobi motorcycle tracking',
+        },
+      },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        title: 'Dashboard | MGuard',
+      },
+      {
+        path: 'bikes',
+        component: BikesComponent,
+        title: 'Bikes | MGuard',
+        data: {
+          description:
+            'Manage your motorcycle. Monitor connection health, GPS signal quality, battery voltage, and remote security lock status.',
+          keywords: 'motorcycle management, bike status, battery health, rider security',
+        },
+      },
+      {
+        path: 'history',
+        component: HistoryComponent,
+        title: 'History | MGuard',
+        data: {
+          description:
+            'Replay historical motorcycle routes, inspect speed records, identify idle times, and review verified incident logs and trip audit trails.',
+          keywords: 'motorcycle route history, GPS breadcrumbs, trip replay, speed tracking, bike incident audit',
+        },
+      },
+      {
+        path: 'alerts',
+        component: AlertsComponent,
+        title: 'Alerts | MGuard',
+        data: {
+          description:
+            'View critical motorcycle safety alerts including tilt tamper warnings, geofence breaches, duress escalation, and emergency accident notifications.',
+          keywords: 'motorcycle security alerts, bike theft notification, tamper alarm, geofence breach, duress alert',
+        },
+      },
+      {
+        path: 'emergency',
+        component: EmergencyComponent,
+        title: 'Emergency Contacts & Police | MGuard',
+        data: {
+          description:
+            'Quickly access police station hotlines, desk numbers, ambulance emergency services, and live motorcycle incident reporting across Kenya.',
+          keywords: 'police stations Kenya, motorcycle theft report, emergency contacts, ambulance dispatch, Nairobi police numbers',
+        },
+      },
+      {
+        path: 'recovery',
+        component: RecoveryComponent,
+        title: 'Bike Recovery | MGuard',
+        data: {
+          description: 'Report a lost or stolen motorcycle, record how and where it was lost, and file your police OB number.',
+          keywords: 'motorcycle recovery, bike theft report, OB number, police report Kenya',
+        },
+      },
+      {
+        path: 'contacts',
+        component: ContactsComponent,
+        title: 'Contacts | MGuard',
+        data: {
+          description: 'Manage emergency contacts and insurance brokers to notify when your motorcycle is lost or stolen.',
+          keywords: 'emergency contacts, insurance broker, motorcycle insurance contact',
+        },
+      },
+      {
+        path: 'settings',
+        component: SettingsComponent,
+        title: 'Settings | MGuard',
+        data: {
+          description:
+            'Configure your trusted emergency contacts, notification channels, and motorcycle security preferences.',
+          keywords: 'emergency contacts, motorcycle settings, alert escalation, security configuration',
+        },
+      },
+    ],
+  },
   {
     path: 'terms',
     component: LegalComponent,
@@ -52,71 +145,6 @@ export const routes: Routes = [
         'Access MGuard terms of service, privacy policy, and compliance standards for motorcycle security.',
       keywords: 'MGuard legal, compliance, terms, privacy, rider data protection',
       ogType: 'article',
-    },
-  },
-  {
-    path: 'alerts',
-    component: AlertsComponent,
-    canActivate: [authGuard],
-    title: 'Alerts | MGuard',
-    data: {
-      description:
-        'View critical motorcycle safety alerts including tilt tamper warnings, geofence breaches, duress escalation, and emergency accident notifications.',
-      keywords: 'motorcycle security alerts, bike theft notification, tamper alarm, geofence breach, duress alert',
-    },
-  },
-  {
-    path: 'emergency',
-    component: EmergencyComponent,
-    canActivate: [authGuard],
-    title: 'Emergency Contacts & Police | MGuard',
-    data: {
-      description:
-        'Quickly access police station hotlines, desk numbers, ambulance emergency services, and live motorcycle incident reporting across Kenya.',
-      keywords: 'police stations Kenya, motorcycle theft report, emergency contacts, ambulance dispatch, Nairobi police numbers',
-    },
-  },
-  {
-    path: 'recovery',
-    component: RecoveryComponent,
-    canActivate: [authGuard],
-    title: 'Bike Recovery | MGuard',
-    data: {
-      description: 'Report a lost or stolen motorcycle, record how and where it was lost, and file your police OB number.',
-      keywords: 'motorcycle recovery, bike theft report, OB number, police report Kenya',
-    },
-  },
-  {
-    path: 'contacts',
-    component: ContactsComponent,
-    canActivate: [authGuard],
-    title: 'Contacts | MGuard',
-    data: {
-      description: 'Manage emergency contacts and insurance brokers to notify when your motorcycle is lost or stolen.',
-      keywords: 'emergency contacts, insurance broker, motorcycle insurance contact',
-    },
-  },
-  {
-    path: 'settings',
-    component: SettingsComponent,
-    canActivate: [authGuard],
-    title: 'Settings | MGuard',
-    data: {
-      description:
-        'Configure your trusted emergency contacts, notification channels, and motorcycle security preferences.',
-      keywords: 'emergency contacts, motorcycle settings, alert escalation, security configuration',
-    },
-  },
-  {
-    path: '',
-    canMatch: [() => inject(AuthService).isAuthenticated()],
-    component: DashboardComponent,
-    canActivate: [authGuard],
-    title: 'Dashboard | MGuard',
-    data: {
-      description:
-        'Track your motorcycle in real-time with high-precision GPS, live telemetry, geofence boundary alerts, and remote anti-theft security lock.',
-      keywords: 'motorcycle GPS tracking, live bike location, rider dashboard, anti-theft, ignition control, Nairobi motorcycle tracking',
     },
   },
   {
@@ -162,34 +190,6 @@ export const routes: Routes = [
       description:
         'Get in touch with MGuard. Reach our support team in Nairobi for motorcycle security activation and technical support.',
       keywords: 'contact MGuard, motorcycle GPS Nairobi, tracker support',
-    },
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [authGuard],
-    title: 'Dashboard | MGuard',
-  },
-  {
-    path: 'bikes',
-    component: BikesComponent,
-    canActivate: [authGuard],
-    title: 'Bikes | MGuard',
-    data: {
-      description:
-        'Manage your motorcycle. Monitor connection health, GPS signal quality, battery voltage, and remote security lock status.',
-      keywords: 'motorcycle management, bike status, battery health, rider security',
-    },
-  },
-  {
-    path: 'history',
-    component: HistoryComponent,
-    canActivate: [authGuard],
-    title: 'History | MGuard',
-    data: {
-      description:
-        'Replay historical motorcycle routes, inspect speed records, identify idle times, and review verified incident logs and trip audit trails.',
-      keywords: 'motorcycle route history, GPS breadcrumbs, trip replay, speed tracking, bike incident audit',
     },
   },
   {

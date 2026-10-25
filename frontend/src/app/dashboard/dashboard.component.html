@@ -1,27 +1,19 @@
-<div class="fixed inset-0 h-full w-full h-[100dvh] bg-surface font-sans text-ink overflow-hidden select-none flex">
-  <!-- Sidebar (Desktop & Mobile Drawer) -->
-  <app-dashboard-sidebar
-    [mobileDrawerOpen]="mobileDrawerOpen()"
-    [user]="authService.currentUser()"
-    (closeMobileDrawer)="closeMobileDrawer()"
-    (openGeofenceModal)="toggleGeofenceModal(true)"
-    (logout)="handleLogout()"
-  />
+<ng-template #topBarContent>
+      <app-dashboard-header
+        [selectedBike]="selectedBike()"
+        [hasBikes]="bikeList().length > 0"
+        [isBreachActive]="isBreachActive()"
+        [alertBannerText]="alertBannerText()"
+        [notifications]="notifications()"
+        [unreadCount]="unreadAlertCount()"
+        (openGeofenceModal)="toggleGeofenceModal(true)"
+        (viewNotification)="viewNotification($event)"
+        (markAllRead)="markAllNotificationsRead()"
+      />
+</ng-template>
 
+<div class="flex h-full w-full bg-surface font-sans text-ink overflow-hidden select-none">
   <div class="flex-1 flex flex-col h-full relative overflow-hidden">
-    <app-dashboard-header
-      [selectedBike]="selectedBike()"
-      [hasBikes]="bikeList().length > 0"
-      [isBreachActive]="isBreachActive()"
-      [alertBannerText]="alertBannerText()"
-      [notifications]="notifications()"
-      [unreadCount]="unreadAlertCount()"
-      (toggleMobileDrawer)="toggleMobileDrawer()"
-      (openGeofenceModal)="toggleGeofenceModal(true)"
-      (viewNotification)="viewNotification($event)"
-      (markAllRead)="markAllNotificationsRead()"
-    />
-
     <div class="flex-1 relative w-full h-full overflow-hidden">
       <div
         id="map"

@@ -8,14 +8,13 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of, catchError } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { BikeService } from '../core/services/bike.service';
 import { BikeDTO, BreadcrumbDTO, BikeEventDTO } from '../core/models/bike.models';
 import * as L from 'leaflet';
-import { MobileNavComponent } from '../ui/mobile-nav/mobile-nav.component';
 
 export interface TrailEvent {
   id: number | string;
@@ -34,7 +33,7 @@ export interface TrailEvent {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, MobileNavComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit, AfterViewInit, OnDestroy {
