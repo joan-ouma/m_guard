@@ -233,7 +233,7 @@
           <button
             type="button"
             (click)="recenterMap.emit()"
-            class="mt-1.5 h-7 px-2.5 rounded-lg bg-fill hover:bg-ink text-ink hover:text-surface text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            class="mt-1.5 h-7 px-2.5 rounded-lg bg-fill hover:bg-brand-strong text-ink hover:text-surface text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <svg
               class="w-3.5 h-3.5 shrink-0"
@@ -325,7 +325,7 @@
             type="button"
             (click)="copyCoordinates.emit()"
             [title]="copiedCoordinates() ? 'Copied!' : 'Copy coordinates'"
-            class="w-8 h-8 rounded-lg bg-fill hover:bg-ink text-ink-soft hover:text-surface flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            class="w-8 h-8 rounded-lg bg-fill hover:bg-brand-strong text-ink-soft hover:text-surface flex items-center justify-center shrink-0 transition-colors cursor-pointer"
           >
             @if (copiedCoordinates()) {
               <svg
@@ -495,7 +495,7 @@
       <button
         type="button"
         (click)="openRegisterModal.emit()"
-        class="bg-ink hover:bg-ink-soft text-surface font-bold text-sm px-6 py-3.5 rounded-full transition-colors w-full cursor-pointer shadow-md flex items-center justify-center gap-2"
+        class="bg-brand hover:bg-brand-strong text-surface font-bold text-sm px-6 py-3.5 rounded-full transition-colors w-full cursor-pointer shadow-md flex items-center justify-center gap-2"
       >
         <svg
           class="w-5 h-5"
@@ -682,7 +682,7 @@
     <button
       type="button"
       (click)="openRegisterModal.emit()"
-      class="px-4 py-2 rounded-full bg-ink text-surface text-xs font-bold shrink-0 cursor-pointer"
+      class="px-4 py-2 rounded-full bg-brand text-surface text-xs font-bold shrink-0 cursor-pointer"
     >
       Register
     </button>

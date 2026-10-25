@@ -98,7 +98,7 @@
                 id="enableSnsPushBtn"
                 (click)="onEnableSns()"
                 [disabled]="notificationService.isRegistering()"
-                class="text-xs px-3 py-1 bg-ink hover:bg-night text-surface font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-brand hover:bg-night text-surface font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
               </button>
@@ -144,7 +144,7 @@
                 type="button"
                 (click)="onView(item)"
                 title="View activity"
-                class="shrink-0 w-8 h-8 rounded-lg border border-line hover:border-ink hover:bg-ink hover:text-surface flex items-center justify-center text-ink-soft transition-colors cursor-pointer"
+                class="shrink-0 w-8 h-8 rounded-lg border border-line hover:border-brand hover:bg-brand-strong hover:text-surface flex items-center justify-center text-ink-soft transition-colors cursor-pointer"
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

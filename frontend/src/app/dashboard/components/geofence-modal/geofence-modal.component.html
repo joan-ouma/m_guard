@@ -26,7 +26,7 @@
             id="fenceNameInput"
             formControlName="fenceName"
             required
-            class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:border-ink"
+            class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:border-brand"
           />
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -43,7 +43,7 @@
               required
               min="100"
               max="50000"
-              class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm font-semibold text-ink focus:outline-none focus:border-ink"
+              class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm font-semibold text-ink focus:outline-none focus:border-brand"
             />
           </div>
           <div>
@@ -55,7 +55,7 @@
             <select
               id="fenceTriggerInput"
               formControlName="fenceTrigger"
-              class="w-full bg-canvas border border-line rounded-xl px-3 py-2 text-sm text-ink focus:outline-none focus:border-ink cursor-pointer"
+              class="w-full bg-canvas border border-line rounded-xl px-3 py-2 text-sm text-ink focus:outline-none focus:border-brand cursor-pointer"
             >
               <option value="Alert on Exit">On Exit</option>
               <option value="Alert on Enter">On Enter</option>
@@ -72,7 +72,7 @@
             id="fenceEmailInput"
             formControlName="fenceEmail"
             required
-            class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:border-ink"
+            class="w-full bg-canvas border border-line rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:border-brand"
           />
         </div>
         <div class="pt-2 flex items-center justify-end gap-2">
@@ -86,7 +86,7 @@
           <button
             type="submit"
             [disabled]="form.invalid"
-            class="px-5 py-2 rounded-full bg-ink hover:bg-ink-soft disabled:opacity-50 text-surface text-xs font-semibold cursor-pointer"
+            class="px-5 py-2 rounded-full bg-brand hover:bg-brand-strong disabled:opacity-50 text-surface text-xs font-semibold cursor-pointer"
           >
             Save & Arm Zone
           </button>

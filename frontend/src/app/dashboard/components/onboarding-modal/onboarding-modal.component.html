@@ -7,7 +7,7 @@
       <div class="px-6 pt-6 pb-4 border-b border-line-soft flex flex-col gap-4 bg-canvas/50">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-ink text-surface flex items-center justify-center font-bold text-xs shadow-xs">
+            <div class="w-8 h-8 rounded-xl bg-brand text-surface flex items-center justify-center font-bold text-xs shadow-xs">
               MG
             </div>
             <div>
@@ -36,7 +36,7 @@
           <div class="flex flex-col gap-1">
             <div
               class="h-1.5 rounded-full transition-all duration-300"
-              [ngClass]="stepIndex() >= 0 ? 'bg-ink' : 'bg-fill-strong'"
+              [ngClass]="stepIndex() >= 0 ? 'bg-brand' : 'bg-fill-strong'"
             ></div>
             <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-muted truncate">1. Scan</span>
           </div>
@@ -44,7 +44,7 @@
           <div class="flex flex-col gap-1">
             <div
               class="h-1.5 rounded-full transition-all duration-300"
-              [ngClass]="stepIndex() >= 1 ? 'bg-ink' : 'bg-fill-strong'"
+              [ngClass]="stepIndex() >= 1 ? 'bg-brand' : 'bg-fill-strong'"
             ></div>
             <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-muted truncate">2. Details</span>
           </div>
@@ -52,7 +52,7 @@
           <div class="flex flex-col gap-1">
             <div
               class="h-1.5 rounded-full transition-all duration-300"
-              [ngClass]="stepIndex() >= 2 ? 'bg-ink' : 'bg-fill-strong'"
+              [ngClass]="stepIndex() >= 2 ? 'bg-brand' : 'bg-fill-strong'"
             ></div>
             <span class="text-[0.65rem] font-semibold tracking-wider uppercase text-muted truncate">3. Preview</span>
           </div>
@@ -139,7 +139,7 @@
                   <!-- Camera Inactive / Loading Prompt -->
                   @if (!isCameraActive()) {
                     <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-ink/90 text-surface gap-3">
-                      <div class="w-12 h-12 rounded-full bg-ink-soft flex items-center justify-center text-subtle">
+                      <div class="w-12 h-12 rounded-full bg-brand-strong flex items-center justify-center text-subtle">
                         <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -151,7 +151,7 @@
                       <button
                         type="button"
                         (click)="startCamera()"
-                        class="px-4 py-2 rounded-xl bg-ink-soft hover:bg-ink-soft text-xs font-semibold transition-colors cursor-pointer"
+                        class="px-4 py-2 rounded-xl bg-brand-strong hover:bg-brand-strong text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Retry Camera
                       </button>
@@ -197,7 +197,7 @@
                       (input)="onImeiInputChange($event)"
                       placeholder="Enter 15-digit IMEI"
                       maxlength="15"
-                      class="w-full px-4 py-3 rounded-2xl bg-canvas border border-line text-ink font-mono text-base font-semibold focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                      class="w-full px-4 py-3 rounded-2xl bg-canvas border border-line text-ink font-mono text-base font-semibold focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                     />
                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-subtle">
                       {{ imeiInput().length }}/15
@@ -239,7 +239,7 @@
                   type="button"
                   (click)="verifyTrackerCode()"
                   [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
-                  class="w-full py-3.5 rounded-2xl bg-ink hover:bg-ink-soft text-surface font-bold text-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs active:scale-[0.99]"
+                  class="w-full py-3.5 rounded-2xl bg-brand hover:bg-brand-strong text-surface font-bold text-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs active:scale-[0.99]"
                 >
                   @if (isVerifying()) {
                     <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -330,7 +330,7 @@
                     type="text"
                     formControlName="plate"
                     placeholder="e.g. KMDG 456X"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm font-semibold uppercase focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm font-semibold uppercase focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                   @if (detailsForm.get('plate')?.touched && detailsForm.get('plate')?.errors) {
                     <p class="text-xs text-brand mt-1">Valid plate required (e.g. KDA 123A)</p>
@@ -344,7 +344,7 @@
                   </label>
                   <select
                     formControlName="make"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ink transition-all"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                   >
                     <option value="Honda">Honda</option>
                     <option value="Boxer">Boxer (Bajaj)</option>
@@ -365,7 +365,7 @@
                     type="text"
                     formControlName="model"
                     placeholder="e.g. Ace 125, BM 150"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                 </div>
 
@@ -376,7 +376,7 @@
                     <input
                       type="number"
                       formControlName="year"
-                      class="w-full px-3 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all"
+                      class="w-full px-3 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                     />
                   </div>
                   <div>
@@ -385,7 +385,7 @@
                       type="text"
                       formControlName="color"
                       placeholder="e.g. Red"
-                      class="w-full px-3 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all"
+                      class="w-full px-3 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                     />
                   </div>
                 </div>
@@ -397,7 +397,7 @@
                     type="text"
                     formControlName="county"
                     placeholder="e.g. Nairobi County"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                   />
                 </div>
 
@@ -408,7 +408,7 @@
                     type="text"
                     formControlName="subCounty"
                     placeholder="e.g. Westlands"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all"
                   />
                 </div>
               </div>
@@ -430,7 +430,7 @@
                     type="checkbox"
                     formControlName="isSelfRider"
                     (change)="onToggleSelfRider($event)"
-                    class="w-4 h-4 rounded text-ink focus:ring-ink border-line-strong"
+                    class="w-4 h-4 rounded text-ink focus:ring-brand border-line-strong"
                   />
                   <span class="text-xs font-semibold text-ink-soft">I am the rider</span>
                 </label>
@@ -446,7 +446,7 @@
                     type="text"
                     formControlName="riderName"
                     placeholder="e.g. John Doe"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                 </div>
 
@@ -459,7 +459,7 @@
                     type="text"
                     formControlName="riderNationalId"
                     placeholder="e.g. 29384756"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                 </div>
 
@@ -472,7 +472,7 @@
                     type="tel"
                     formControlName="riderPhone"
                     placeholder="e.g. +254 712 345 678"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                 </div>
 
@@ -485,7 +485,7 @@
                     type="email"
                     formControlName="riderEmail"
                     placeholder="e.g. rider@example.com"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink transition-all placeholder:text-subtle"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-canvas border border-line text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-all placeholder:text-subtle"
                   />
                   <p class="text-xs text-muted mt-1">
                     An email will be sent to this address once attached.
@@ -507,7 +507,7 @@
               <button
                 type="button"
                 (click)="goToPreview()"
-                class="px-6 py-2.5 rounded-xl bg-ink hover:bg-ink-soft text-surface font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
+                class="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-strong text-surface font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 Preview Details &rarr;
               </button>
@@ -623,7 +623,7 @@
                 type="button"
                 (click)="confirmAndAttach()"
                 [disabled]="isSubmitting()"
-                class="px-6 py-2.5 rounded-xl bg-ink hover:bg-ink-soft text-surface font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                class="px-6 py-2.5 rounded-xl bg-brand hover:bg-brand-strong text-surface font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 flex items-center gap-2"
               >
                 @if (isSubmitting()) {
                   <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -681,7 +681,7 @@
             <button
               type="button"
               (click)="onFinishTracking()"
-              class="w-full max-w-sm py-3.5 rounded-2xl bg-ink hover:bg-ink-soft text-surface font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center justify-center gap-2"
+              class="w-full max-w-sm py-3.5 rounded-2xl bg-brand hover:bg-brand-strong text-surface font-bold text-sm transition-all cursor-pointer shadow-md active:scale-95 flex items-center justify-center gap-2"
             >
               <span>View Live on Map &rarr;</span>
             </button>
