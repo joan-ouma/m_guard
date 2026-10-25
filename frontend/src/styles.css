@@ -352,9 +352,9 @@ app-root {
   width: 38px;
   height: 38px;
   border-radius: 9999px;
-  background: #09090b;
-  border: 2px solid #38bdf8;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 12px rgba(14, 165, 233, 0.35);
+  background: var(--color-brand);
+  border: 2px solid var(--color-info);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-brand) 65%, transparent), 0 0 12px color-mix(in srgb, var(--color-info) 35%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,27 +364,27 @@ app-root {
 }
 
 .bike-marker-pin-body.stopped {
-  border-color: #f59e0b;
-  background: #271700;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 14px rgba(245, 158, 11, 0.45);
+  border-color: var(--color-warning-line);
+  background: var(--color-warning);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-warning) 50%, transparent), 0 0 14px color-mix(in srgb, var(--color-warning) 45%, transparent);
 }
 
 .bike-marker-pin-body.running {
-  border-color: #10b981;
-  background: #022616;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 16px rgba(16, 185, 129, 0.55);
+  border-color: var(--color-success-line);
+  background: var(--color-success);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-success) 50%, transparent), 0 0 16px color-mix(in srgb, var(--color-success) 55%, transparent);
 }
 
 .bike-marker-pin-body.immobilized {
-  border-color: #e11d48;
-  background: #2a040d;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 18px rgba(225, 29, 72, 0.6);
+  border-color: var(--color-brand-line);
+  background: var(--color-brand);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-brand) 50%, transparent), 0 0 18px color-mix(in srgb, var(--color-brand) 60%, transparent);
 }
 
 .bike-marker-pin-body.breached {
-  border-color: #f43f5e;
-  background: #2a040d;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65), 0 0 16px rgba(244, 63, 94, 0.6);
+  border-color: var(--color-brand-line);
+  background: var(--color-brand-strong);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-brand-strong) 50%, transparent), 0 0 16px color-mix(in srgb, var(--color-brand-strong) 60%, transparent);
 }
 
 .bike-marker-heading-arrow {
@@ -418,9 +418,9 @@ app-root {
 }
 
 .custom-pin {
-  background: #18181b;
-  color: #ffffff;
-  border: 2px solid #ffffff;
+  background: var(--color-brand);
+  color: var(--color-surface);
+  border: 2px solid var(--color-surface);
   border-radius: 9999px;
   font-family: var(--font-plate);
   font-weight: 900;
