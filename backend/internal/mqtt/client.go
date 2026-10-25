@@ -27,6 +27,17 @@ type MQTTSubscriber struct {
 // ImmobilizerConfirmer applies the device's confirmation of an immobilizer command.
 type ImmobilizerConfirmer interface {
 	ConfirmImmobilizer(ctx context.Context, imei string, ts int64, immobilized bool) error
+	DeliverPendingCommands(ctx context.Context, imei string)
+}
+
+// deliverOnContact sends a device's pending commands now that it has reported in.
+func deliverOnContact(immobilizer ImmobilizerConfirmer, imei string) {
+	if immobilizer == nil || imei == "" {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	immobilizer.DeliverPendingCommands(ctx, imei)
 }
 
 // immobilizerConfirmation is what the device publishes after the relay changes state.
@@ -79,6 +90,11 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 	handler := func(c pahomqtt.Client, m pahomqtt.Message) {
 		topic := m.Topic()
 		rawPayload := string(m.Payload())
+		// Our own outbound commands come back through the wildcard subscription. They are not device
+		// traffic, so they must not count as the bike reporting in.
+		if strings.Contains(topic, "/commands/") {
+			return
+		}
 		slog.Info("MQTT incoming message", "topic", topic, "bytes", len(m.Payload()), "raw", rawPayload)
 
 		parts := strings.Split(topic, "/")
@@ -170,6 +186,7 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 				Reason:         alert.Reason,
 			}
 			_ = telemetryService.IngestTelemetry(ingestCtx, telemetryPayload)
+			go deliverOnContact(immobilizer, sensorID)
 			return
 		}
 
@@ -211,6 +228,9 @@ func NewMQTTSubscriber(brokerURL string, clientID string, username string, passw
 		} else {
 			slog.Info("MQTT telemetry ingested", "sensor_id", payload.SensorID, "loc_type", payload.LocType, "lat", payload.Latitude, "lng", payload.Longitude, "ignition", payload.Ignition, "speed", payload.SpeedKMH, "raw", rawPayload)
 		}
+
+		// The device is reachable: deliver any immobilizer command it has not confirmed yet.
+		go deliverOnContact(immobilizer, sensorID)
 
 		// If telemetry also includes an active alert flag or reason
 		if payload.Alert && payload.Reason != "" {

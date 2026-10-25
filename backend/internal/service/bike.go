@@ -603,6 +603,34 @@ func (s *BikeService) resendUnconfirmedCommands(ctx context.Context) {
 	}
 }
 
+// pendingDeliveryMinAge stops a device's report-in from resending a command that was just sent.
+const pendingDeliveryMinAge = 10 * time.Second
+
+// DeliverPendingCommands sends a device's unconfirmed commands as soon as the device reports in,
+// so a bike that was offline gets its pending immobilize or reactivate when it comes back.
+func (s *BikeService) DeliverPendingCommands(ctx context.Context, imei string) {
+	if s.cmdPub == nil || imei == "" {
+		return
+	}
+
+	commands, err := s.repo.ListPendingForIMEI(ctx, imei, pendingDeliveryMinAge)
+	if err != nil {
+		slog.Error("immobilizer pending lookup failed", "imei", imei, "error", err)
+		return
+	}
+
+	for _, cmd := range commands {
+		if err := s.cmdPub.PublishCommand(cmd.IMEI, cmd.Action, cmd.TS); err != nil {
+			slog.Warn("immobilizer command delivery failed", "imei", cmd.IMEI, "action", cmd.Action, "error", err)
+			continue
+		}
+		if err := s.repo.MarkCommandResent(ctx, cmd.ID); err != nil {
+			slog.Error("immobilizer command delivery not recorded", "command_id", cmd.ID, "error", err)
+		}
+		slog.Info("immobilizer command delivered on device contact", "imei", cmd.IMEI, "action", cmd.Action)
+	}
+}
+
 func (s *BikeService) broadcastBike(ctx context.Context, bikeID string) {
 	if s.sseBroker == nil {
 		return

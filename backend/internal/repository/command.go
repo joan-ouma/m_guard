@@ -167,6 +167,31 @@ func (r *BikeRepository) ListStalePendingCommands(ctx context.Context, olderThan
 	return commands, rows.Err()
 }
 
+// ListPendingForIMEI returns a device's unconfirmed commands that were not sent again within minAge.
+func (r *BikeRepository) ListPendingForIMEI(ctx context.Context, imei string, minAge time.Duration) ([]PendingCommand, error) {
+	query := `
+		SELECT id::text, bike_id::text, imei, action, ts, attempts
+		FROM bike_commands
+		WHERE status = 'PENDING' AND imei = $1 AND last_sent_at < NOW() - make_interval(secs => $2)
+		ORDER BY last_sent_at
+	`
+	rows, err := r.pool.Query(ctx, query, imei, minAge.Seconds())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var commands []PendingCommand
+	for rows.Next() {
+		var c PendingCommand
+		if err := rows.Scan(&c.ID, &c.BikeID, &c.IMEI, &c.Action, &c.TS, &c.Attempts); err != nil {
+			return nil, err
+		}
+		commands = append(commands, c)
+	}
+	return commands, rows.Err()
+}
+
 // MarkCommandResent records another send of a pending command.
 func (r *BikeRepository) MarkCommandResent(ctx context.Context, commandID string) error {
 	_, err := r.pool.Exec(ctx, `UPDATE bike_commands SET attempts = attempts + 1, last_sent_at = NOW() WHERE id = $1`, commandID)
