@@ -23,12 +23,12 @@ export class BikeInspectorComponent {
   readonly dismiss = output<void>();
 
   formatLastSeen(dateStr?: string | null): string {
-    if (!dateStr) return '3s ago';
+    if (!dateStr) return 'Never reported';
     const timestamp = new Date(dateStr).getTime();
-    if (isNaN(timestamp)) return '3s ago';
+    if (isNaN(timestamp)) return 'Never reported';
 
     const diffSec = Math.max(0, Math.floor((this.currentTime() - timestamp) / 1000));
-    if (diffSec < 5) return '3s ago';
+    if (diffSec < 5) return 'Just now';
     if (diffSec < 60) return `${diffSec}s ago`;
     const diffMin = Math.floor(diffSec / 60);
     if (diffMin < 60) return `${diffMin}m ago`;
@@ -45,7 +45,7 @@ export class BikeInspectorComponent {
     const diffSec = (this.currentTime() - timestamp) / 1000;
     // When a device was last seen 5 min ago (300s), it's offline!
     if (diffSec > 300) return true;
-    if (bike.signalQuality === 0 || bike.signalQuality === 99) return true;
+    // Poor or unknown signal (CSQ 0 or 99) only drops the signal bars; the device is still reporting.
     return false;
   }
 
