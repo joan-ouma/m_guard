@@ -1,12 +1,12 @@
 <header
-  class="h-14 lg:h-16 bg-white border-b border-zinc-200 px-4 lg:px-6 flex items-center justify-between shrink-0 z-30 relative"
+  class="h-14 lg:h-16 bg-surface border-b border-line px-4 lg:px-6 flex items-center justify-between shrink-0 z-30 relative"
 >
   <div class="flex items-center gap-3 lg:gap-5 min-w-0">
     <button
       type="button"
       (click)="toggleMobileDrawer.emit()"
       title="Open Menu"
-      class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer shrink-0"
+      class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-ink-soft hover:bg-fill transition-colors cursor-pointer shrink-0"
     >
       <svg
         class="w-5 h-5"
@@ -22,7 +22,7 @@
     <!-- Mobile-Only Brand Icon & Bold Logo (Hidden on desktop where sidebar is visible) -->
     <div class="flex lg:hidden items-center gap-2.5 min-w-0">
       <div
-        class="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+        class="w-9 h-9 rounded-full bg-ink flex items-center justify-center text-surface shrink-0 shadow-xs"
       >
         <svg
           class="w-4 h-4"
@@ -38,7 +38,7 @@
           />
         </svg>
       </div>
-      <span id="headerPlateLabel" class="text-base sm:text-lg font-bold tracking-tight text-zinc-950 font-display">
+      <span id="headerPlateLabel" class="text-base sm:text-lg font-bold tracking-tight text-ink font-display">
         MGuard
       </span>
     </div>
@@ -46,9 +46,9 @@
     @if (isBreachActive()) {
       <div
         id="alertBanner"
-        class="flex items-center gap-1.5 lg:gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 px-2.5 lg:px-4 py-1 lg:py-2 rounded-full text-xs lg:text-sm font-semibold truncate"
+        class="flex items-center gap-1.5 lg:gap-2.5 bg-brand-soft border border-brand-line text-brand-strong px-2.5 lg:px-4 py-1 lg:py-2 rounded-full text-xs lg:text-sm font-semibold truncate"
       >
-        <span class="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-rose-600 shrink-0"></span>
+        <span class="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-brand shrink-0"></span>
         <span id="alertBannerText" class="truncate">{{ alertBannerText() }}</span>
       </div>
     }
@@ -60,7 +60,7 @@
       <button
         type="button"
         (click)="openGeofenceModal.emit()"
-        class="hidden sm:flex h-9 lg:h-10 px-3.5 lg:px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold items-center gap-1.5 lg:gap-2 cursor-pointer shadow-xs transition-colors"
+        class="hidden sm:flex h-9 lg:h-10 px-3.5 lg:px-4 rounded-full bg-ink hover:bg-ink-soft text-surface text-xs font-semibold items-center gap-1.5 lg:gap-2 cursor-pointer shadow-xs transition-colors"
       >
         <svg
           class="w-4 h-4 shrink-0"

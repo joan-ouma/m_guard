@@ -1,14 +1,14 @@
-<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-white md:bg-slate-50 dark:bg-slate-950 font-sans">
+<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-surface md:bg-canvas font-sans">
 
   <!-- ================================================================= -->
   <!-- ELEVATED FLOATING CARD (Matches exact screenshot layout)          -->
   <!-- ================================================================= -->
-  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[660px] md:h-auto md:max-h-[92vh] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
+  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[660px] md:h-auto md:max-h-[92vh] bg-surface rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-ink/10 border-0 md:border md:border-line-soft p-0 md:p-5 flex flex-col md:flex-row items-stretch my-auto">
 
     <!-- =============================================================== -->
     <!-- LEFT PANEL: Motorcycle Protection & MGuard Branding             -->
     <!-- =============================================================== -->
-    <div class="hidden md:flex md:w-[42%] md:min-h-[620px] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white bg-slate-950 shrink-0">
+    <div class="hidden md:flex md:w-[42%] md:min-h-[620px] relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-surface bg-night shrink-0">
       
       <!-- Motorcycle Photography Background -->
       <img
@@ -18,8 +18,8 @@
       />
 
       <!-- Dark Gradient Scrim Overlays -->
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40" aria-hidden="true"></div>
-      <div class="absolute inset-0 bg-slate-950/25" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/40" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-night/25" aria-hidden="true"></div>
 
       <!-- Left Panel Content (sitting above layers) -->
       <div class="relative z-10 flex flex-col justify-between h-full flex-1">
@@ -32,10 +32,10 @@
 
         <!-- Bottom-Left: Brand Description -->
         <div class="pt-20 md:pt-0">
-          <h2 class="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
+          <h2 class="text-2xl sm:text-3xl font-bold text-surface leading-tight tracking-tight">
             Real-time GPS tracking and anti-theft security for your motorcycle.
           </h2>
-          <p class="mt-2.5 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+          <p class="mt-2.5 text-xs sm:text-sm text-faint font-normal leading-relaxed">
             Built specifically for boda boda riders to secure their motorcycle 24/7 with live location and instant protection.
           </p>
         </div>
@@ -51,8 +51,8 @@
         <div class="flex items-center justify-between mb-4">
           <!-- MGuard Logo -->
           <a routerLink="/" class="inline-flex items-center gap-2 group cursor-pointer" title="MGuard Home">
-            <img src="/assets/landing/logo.svg" alt="MGuard" class="h-7 w-auto dark:hidden" />
-            <img src="/assets/landing/footer-logo.svg" alt="MGuard" class="h-7 w-auto hidden dark:block" />
+            <img src="/assets/landing/logo.svg" alt="MGuard" class="h-7 w-auto " />
+            <img src="/assets/landing/footer-logo.svg" alt="MGuard" class="h-7 w-auto hidden " />
           </a>
 
           <!-- Stepper Node Dots -->
@@ -61,61 +61,61 @@
             <div class="flex items-center justify-center">
               <div
                 class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
-                [ngClass]="stepIndex() === 0 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-slate-900' : (stepIndex() > 0 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-slate-300 dark:border-slate-700')"
+                [ngClass]="stepIndex() === 0 ? 'border-2 border-brand bg-surface ' : (stepIndex() > 0 ? 'bg-brand border-2 border-brand' : 'border-2 border-line-strong ')"
               >
                   @if (stepIndex() === 0) {
-                    <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-brand "></div>
                   } @else if (stepIndex() > 0) {
-                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <svg class="w-2.5 h-2.5 text-surface" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   }
                 </div>
               </div>
-              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 1 ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'"></div>
+              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 1 ? 'bg-brand' : 'bg-fill-strong '"></div>
 
               <!-- Node 2 -->
               <div class="flex items-center justify-center">
                 <div
                   class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
-                  [ngClass]="stepIndex() === 1 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-slate-900' : (stepIndex() > 1 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-slate-300 dark:border-slate-700')"
+                  [ngClass]="stepIndex() === 1 ? 'border-2 border-brand bg-surface ' : (stepIndex() > 1 ? 'bg-brand border-2 border-brand' : 'border-2 border-line-strong ')"
                 >
                   @if (stepIndex() === 1) {
-                    <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-brand "></div>
                   } @else if (stepIndex() > 1) {
-                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <svg class="w-2.5 h-2.5 text-surface" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   }
                 </div>
               </div>
-              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 2 ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'"></div>
+              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 2 ? 'bg-brand' : 'bg-fill-strong '"></div>
 
               <!-- Node 3 -->
               <div class="flex items-center justify-center">
                 <div
                   class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
-                  [ngClass]="stepIndex() === 2 ? 'border-2 border-indigo-600 dark:border-indigo-400 bg-white dark:bg-slate-900' : (stepIndex() > 2 ? 'bg-indigo-600 border-2 border-indigo-600' : 'border-2 border-slate-300 dark:border-slate-700')"
+                  [ngClass]="stepIndex() === 2 ? 'border-2 border-brand bg-surface ' : (stepIndex() > 2 ? 'bg-brand border-2 border-brand' : 'border-2 border-line-strong ')"
                 >
                   @if (stepIndex() === 2) {
-                    <div class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-brand "></div>
                   } @else if (stepIndex() > 2) {
-                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <svg class="w-2.5 h-2.5 text-surface" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   }
                 </div>
               </div>
-              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 3 ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-800'"></div>
+              <div class="w-5 sm:w-7 h-0.5" [ngClass]="stepIndex() >= 3 ? 'bg-success' : 'bg-fill-strong '"></div>
 
               <!-- Node 4 -->
               <div class="flex items-center justify-center">
                 <div
                   class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300"
-                  [ngClass]="stepIndex() >= 3 ? 'border-2 border-emerald-600 bg-emerald-600' : 'border-2 border-slate-300 dark:border-slate-700'"
+                  [ngClass]="stepIndex() >= 3 ? 'border-2 border-success bg-success' : 'border-2 border-line-strong '"
                 >
                   @if (stepIndex() === 3) {
-                    <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <svg class="w-2.5 h-2.5 text-surface" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   }
@@ -126,18 +126,18 @@
 
         <!-- Step Title & Subtitle -->
         <div class="mb-4">
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
             {{ stepTitle() }}
           </h1>
-          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+          <p class="text-xs sm:text-sm text-muted mt-1 leading-relaxed">
             {{ stepSubtitle() }}
           </p>
         </div>
 
         <!-- Global Error Notification -->
         @if (errorMessage()) {
-          <div class="mb-5 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-xs flex items-start gap-2.5">
-            <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="mb-5 p-3.5 rounded-xl bg-brand-soft border border-brand-line text-brand-strong text-xs flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-brand shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <span class="leading-relaxed">{{ errorMessage() }}</span>
@@ -150,12 +150,12 @@
         @if (currentStep() === 'SCAN') {
           <div class="space-y-3.5">
             <!-- Camera / Manual Tabs -->
-            <div class="inline-flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 w-full sm:w-auto">
+            <div class="inline-flex p-1 rounded-2xl bg-fill border border-line w-full sm:w-auto">
               <button
                 type="button"
                 (click)="setTab('CAMERA')"
                 class="flex-1 sm:flex-initial py-2 px-5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                [ngClass]="activeInputTab() === 'CAMERA' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                [ngClass]="activeInputTab() === 'CAMERA' ? 'bg-surface text-ink shadow-xs' : 'text-muted hover:text-ink '"
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -168,7 +168,7 @@
                 type="button"
                 (click)="setTab('MANUAL')"
                 class="flex-1 sm:flex-initial py-2 px-5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                [ngClass]="activeInputTab() === 'MANUAL' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                [ngClass]="activeInputTab() === 'MANUAL' ? 'bg-surface text-ink shadow-xs' : 'text-muted hover:text-ink '"
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -182,7 +182,7 @@
               <!-- TAB 1: Live Camera Scanner -->
               @if (activeInputTab() === 'CAMERA') {
                 <div class="space-y-2">
-                  <div class="relative w-full aspect-[16/9] max-h-[160px] rounded-2xl bg-black overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-inner">
+                  <div class="relative w-full aspect-[16/9] max-h-[160px] rounded-2xl bg-night overflow-hidden flex items-center justify-center border border-line shadow-inner">
                     <video
                       #scannerVideo
                       playsinline
@@ -191,14 +191,14 @@
                     ></video>
 
                     @if (!isCameraActive()) {
-                      <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 text-white gap-3">
-                        <p class="text-xs text-slate-400 max-w-xs">
+                      <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-night/90 text-surface gap-3">
+                        <p class="text-xs text-subtle max-w-xs">
                           Initializing camera... Please allow camera access in your browser.
                         </p>
                         <button
                           type="button"
                           (click)="startCamera()"
-                          class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold cursor-pointer"
+                          class="px-4 py-2 rounded-xl bg-ink-soft hover:bg-brand-strong text-xs font-semibold cursor-pointer"
                         >
                           Retry Camera
                         </button>
@@ -207,15 +207,15 @@
                   </div>
 
                   @if (cooldownSeconds() > 0) {
-                    <p class="text-xs font-semibold text-red-600 dark:text-red-400">
+                    <p class="text-xs font-semibold text-brand ">
                       Retry in {{ cooldownSeconds() }} {{ cooldownSeconds() === 1 ? 'second' : 'seconds' }}
                     </p>
                   } @else if (verifyError()) {
-                    <p class="text-xs font-semibold text-red-600 dark:text-red-400">
+                    <p class="text-xs font-semibold text-brand ">
                       {{ verifyError() }}
                     </p>
                   } @else {
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                    <p class="text-xs text-muted ">
                       Point camera at the QR code on your hardware unit or packaging.
                     </p>
                   }
@@ -226,7 +226,7 @@
               @if (activeInputTab() === 'MANUAL') {
                 <div class="space-y-4">
                   <div>
-                    <label for="imeiInput" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label for="imeiInput" class="block text-xs font-semibold text-ink-soft mb-1.5">
                       15-Digit Hardware IMEI
                     </label>
                     <div class="relative">
@@ -238,19 +238,19 @@
                         [value]="imeiInput()"
                         (input)="onImeiInputChange($event)"
                         maxlength="15"
-                        class="w-full px-4 py-3.5 font-mono text-sm font-semibold rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white transition"
+                        class="w-full px-4 py-3.5 font-mono text-sm font-semibold rounded-xl bg-field border border-line text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
                       />
-                      <div class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">
+                      <div class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-subtle">
                         {{ imeiInput().length }}/15
                       </div>
                     </div>
 
                     @if (cooldownSeconds() > 0) {
-                      <p class="text-xs font-semibold text-red-600 dark:text-red-400 mt-2">
+                      <p class="text-xs font-semibold text-brand mt-2">
                         Retry in {{ cooldownSeconds() }} {{ cooldownSeconds() === 1 ? 'second' : 'seconds' }}
                       </p>
                     } @else if (verifyError()) {
-                      <p class="text-xs font-semibold text-red-600 dark:text-red-400 mt-2">
+                      <p class="text-xs font-semibold text-brand mt-2">
                         {{ verifyError() }}
                       </p>
                     }
@@ -261,7 +261,7 @@
                     type="button"
                     (click)="verifyTrackerCode()"
                     [disabled]="imeiInput().length !== 15 || isVerifying() || cooldownSeconds() > 0 || isLockedOut()"
-                    class="w-full py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 text-sm font-semibold shadow-none border-0 active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none transition duration-150 cursor-pointer flex items-center justify-center gap-2"
+                    class="w-full py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-strong text-surface text-sm font-semibold shadow-none border-0 active:scale-[0.99] disabled:opacity-40 disabled:pointer-events-none transition duration-150 cursor-pointer flex items-center justify-center gap-2"
                   >
                     @if (isVerifying()) {
                       <span>Verifying...</span>
@@ -281,17 +281,17 @@
         @if (currentStep() === 'DETAILS') {
           <form [formGroup]="form" class="space-y-5">
             <!-- Tracker Tag -->
-            <div class="p-3.5 rounded-xl bg-[#eef4ff] dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
+            <div class="p-3.5 rounded-xl bg-field border border-line flex items-center justify-between text-xs">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span class="font-semibold text-slate-900 dark:text-white">
+                <span class="w-2 h-2 rounded-full bg-success"></span>
+                <span class="font-semibold text-ink ">
                   Tracker: <span class="font-mono">{{ verifiedTracker()?.imei }}</span>
                 </span>
               </div>
               <button
                 type="button"
                 (click)="backToStep('SCAN')"
-                class="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                class="text-xs font-semibold text-muted hover:text-ink cursor-pointer"
               >
                 Change
               </button>
@@ -299,67 +299,67 @@
 
             <!-- Section 1: Account -->
             <div class="space-y-3">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-subtle block">
                 Account Information
               </span>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label for="name" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                  <label for="name" class="block text-xs font-semibold text-ink-soft mb-1">Full Name</label>
                   <input
                     id="name"
                     type="text"
                     formControlName="name"
                     (input)="onAccountFieldChange()"
                     placeholder="Brian Ouma"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('name')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('name')"
                   />
                 </div>
 
                 <div>
-                  <label for="email" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                  <label for="email" class="block text-xs font-semibold text-ink-soft mb-1">Email</label>
                   <input
                     id="email"
                     type="email"
                     formControlName="email"
                     (input)="onAccountFieldChange()"
                     placeholder="name@example.com"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('email')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('email')"
                   />
                 </div>
               </div>
 
               <div>
-                <label for="phoneNumber" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
+                <label for="phoneNumber" class="block text-xs font-semibold text-ink-soft mb-1">Phone Number</label>
                 <input
                   id="phoneNumber"
                   type="tel"
                   formControlName="phoneNumber"
                   (input)="onAccountFieldChange()"
                   placeholder="0712 345 678"
-                  class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                  [class.border-red-400]="isFieldInvalid('phoneNumber')"
+                  class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                  [class.border-brand]="isFieldInvalid('phoneNumber')"
                 />
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label for="password" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                  <label for="password" class="block text-xs font-semibold text-ink-soft mb-1">Password</label>
                   <div class="relative">
                     <input
                       id="password"
                       [type]="showPassword() ? 'text' : 'password'"
                       formControlName="password"
                       placeholder="••••••••"
-                      class="w-full pl-4 pr-10 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                      [class.border-red-400]="isFieldInvalid('password')"
+                      class="w-full pl-4 pr-10 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                      [class.border-brand]="isFieldInvalid('password')"
                     />
                     <button
                       type="button"
                       (click)="togglePasswordVisibility()"
-                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-subtle hover:text-brand p-1 cursor-pointer"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -370,45 +370,45 @@
                 </div>
 
                 <div>
-                  <label for="confirmPassword" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm</label>
+                  <label for="confirmPassword" class="block text-xs font-semibold text-ink-soft mb-1">Confirm</label>
                   <input
                     id="confirmPassword"
                     [type]="showConfirmPassword() ? 'text' : 'password'"
                     formControlName="confirmPassword"
                     placeholder="••••••••"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('confirmPassword') || form.hasError('passwordMismatch')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('confirmPassword') || form.hasError('passwordMismatch')"
                   />
                 </div>
               </div>
             </div>
 
             <!-- Section 2: Motorcycle -->
-            <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+            <div class="space-y-3 pt-3 border-t border-line-soft ">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-subtle block">
                 Motorcycle
               </span>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label for="plate" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Number Plate *</label>
+                  <label for="plate" class="block text-xs font-semibold text-ink-soft mb-1">Number Plate *</label>
                   <input
                     id="plate"
                     type="text"
                     formControlName="plate"
                     placeholder="KMDG 456X"
-                    class="w-full px-4 py-3 font-mono text-sm font-bold uppercase rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('plate')"
+                    class="w-full px-4 py-3 font-mono text-sm font-bold uppercase rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('plate')"
                   />
                 </div>
 
                 <div>
-                  <label for="make" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Make *</label>
+                  <label for="make" class="block text-xs font-semibold text-ink-soft mb-1">Make *</label>
                   <select
                     id="make"
                     formControlName="make"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition cursor-pointer"
-                    [class.border-red-400]="isFieldInvalid('make')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink focus:outline-none focus:ring-2 focus:ring-brand transition cursor-pointer"
+                    [class.border-brand]="isFieldInvalid('make')"
                   >
                     <option value="" disabled selected>Select Make</option>
                     <option value="Honda">Honda</option>
@@ -422,77 +422,77 @@
                 </div>
 
                 <div>
-                  <label for="model" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Model *</label>
+                  <label for="model" class="block text-xs font-semibold text-ink-soft mb-1">Model *</label>
                   <input
                     id="model"
                     type="text"
                     formControlName="model"
                     placeholder="e.g. Ace 125, BM 150"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('model')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('model')"
                   />
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                   <div>
-                    <label for="year" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Year</label>
+                    <label for="year" class="block text-xs font-semibold text-ink-soft mb-1">Year</label>
                     <input
                       id="year"
                       type="number"
                       formControlName="year"
                       placeholder="2024"
-                      class="w-full px-3 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                      class="w-full px-3 py-3 text-sm rounded-xl border border-line bg-field text-ink focus:outline-none focus:ring-2 focus:ring-brand transition"
                     />
                   </div>
                   <div>
-                    <label for="color" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Color</label>
+                    <label for="color" class="block text-xs font-semibold text-ink-soft mb-1">Color</label>
                     <input
                       id="color"
                       type="text"
                       formControlName="color"
                       placeholder="Red"
-                      class="w-full px-3 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                      class="w-full px-3 py-3 text-sm rounded-xl border border-line bg-field text-ink focus:outline-none focus:ring-2 focus:ring-brand transition"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label for="county" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">County</label>
+                  <label for="county" class="block text-xs font-semibold text-ink-soft mb-1">County</label>
                   <input
                     id="county"
                     type="text"
                     formControlName="county"
                     placeholder="Nairobi"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
                   />
                 </div>
 
                 <div>
-                  <label for="subCounty" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Sub-County</label>
+                  <label for="subCounty" class="block text-xs font-semibold text-ink-soft mb-1">Sub-County</label>
                   <input
                     id="subCounty"
                     type="text"
                     formControlName="subCounty"
                     placeholder="Westlands"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
                   />
                 </div>
               </div>
             </div>
 
             <!-- Section 3: Rider -->
-            <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div class="space-y-3 pt-3 border-t border-line-soft ">
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-subtle block">
                   Assigned Rider
                 </span>
 
-                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-900 dark:text-white select-none">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-ink select-none">
                   <input
                     type="checkbox"
                     [checked]="form.get('isSelfRider')?.value"
                     (change)="onToggleSelfRider($event)"
-                    class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-600 border-slate-300"
+                    class="w-4 h-4 rounded text-brand focus:ring-brand border-line-strong"
                   />
                   I am the rider
                 </label>
@@ -500,50 +500,50 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label for="riderName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Rider Name</label>
+                  <label for="riderName" class="block text-xs font-semibold text-ink-soft mb-1">Rider Name</label>
                   <input
                     id="riderName"
                     type="text"
                     formControlName="riderName"
                     placeholder="John Doe"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('riderName')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('riderName')"
                   />
                 </div>
 
                 <div>
-                  <label for="riderNationalId" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">National ID</label>
+                  <label for="riderNationalId" class="block text-xs font-semibold text-ink-soft mb-1">National ID</label>
                   <input
                     id="riderNationalId"
                     type="text"
                     formControlName="riderNationalId"
                     placeholder="29384756"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('riderNationalId')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('riderNationalId')"
                   />
                 </div>
 
                 <div>
-                  <label for="riderPhone" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone</label>
+                  <label for="riderPhone" class="block text-xs font-semibold text-ink-soft mb-1">Phone</label>
                   <input
                     id="riderPhone"
                     type="tel"
                     formControlName="riderPhone"
                     placeholder="0712 345 678"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('riderPhone')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('riderPhone')"
                   />
                 </div>
 
                 <div>
-                  <label for="riderEmail" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                  <label for="riderEmail" class="block text-xs font-semibold text-ink-soft mb-1">Email</label>
                   <input
                     id="riderEmail"
                     type="email"
                     formControlName="riderEmail"
                     placeholder="rider@example.com"
-                    class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-[#eef4ff] dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
-                    [class.border-red-400]="isFieldInvalid('riderEmail')"
+                    class="w-full px-4 py-3 text-sm rounded-xl border border-line bg-field text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand transition"
+                    [class.border-brand]="isFieldInvalid('riderEmail')"
                   />
                 </div>
               </div>
@@ -556,56 +556,56 @@
         <!-- ============================================================= -->
         @if (currentStep() === 'PREVIEW') {
           <div class="space-y-3.5">
-            <div class="p-4 rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-field border border-line flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Account</span>
-                <p class="font-bold text-slate-900 dark:text-white text-sm">{{ form.get('name')?.value }}</p>
-                <p class="text-xs text-slate-500 font-mono">{{ form.get('email')?.value }}</p>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-subtle block">Account</span>
+                <p class="font-bold text-ink text-sm">{{ form.get('name')?.value }}</p>
+                <p class="text-xs text-muted font-mono">{{ form.get('email')?.value }}</p>
               </div>
-              <button (click)="backToStep('DETAILS')" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+              <button (click)="backToStep('DETAILS')" class="text-subtle hover:text-ink-soft p-1 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
             </div>
 
-            <div class="p-4 rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-field border border-line flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Motorcycle</span>
-                <p class="font-bold text-slate-900 dark:text-white text-sm">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-subtle block">Motorcycle</span>
+                <p class="font-bold text-ink text-sm">
                   {{ form.get('plate')?.value | uppercase }} &bull; {{ form.get('make')?.value }} {{ form.get('model')?.value }}
                 </p>
-                <p class="text-xs text-slate-500">{{ form.get('year')?.value }} &bull; {{ form.get('color')?.value }} &bull; {{ form.get('county')?.value }}</p>
+                <p class="text-xs text-muted">{{ form.get('year')?.value }} &bull; {{ form.get('color')?.value }} &bull; {{ form.get('county')?.value }}</p>
               </div>
-              <button (click)="backToStep('DETAILS')" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+              <button (click)="backToStep('DETAILS')" class="text-subtle hover:text-ink-soft p-1 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
             </div>
 
-            <div class="p-4 rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-field border border-line flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Hardware Tracker</span>
-                <p class="font-bold text-slate-900 dark:text-white text-sm font-mono">{{ verifiedTracker()?.imei || imeiInput() }}</p>
-                <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified &amp; Ready
+                <span class="text-[10px] font-bold uppercase tracking-wider text-subtle block">Hardware Tracker</span>
+                <p class="font-bold text-ink text-sm font-mono">{{ verifiedTracker()?.imei || imeiInput() }}</p>
+                <p class="text-xs text-success font-semibold flex items-center gap-1 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Verified &amp; Ready
                 </p>
               </div>
-              <button (click)="backToStep('SCAN')" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+              <button (click)="backToStep('SCAN')" class="text-subtle hover:text-ink-soft p-1 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
             </div>
 
-            <div class="p-4 rounded-xl bg-[#eef4ff] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-field border border-line flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Assigned Rider</span>
-                <p class="font-bold text-slate-900 dark:text-white text-sm">{{ form.get('riderName')?.value }}</p>
-                <p class="text-xs text-slate-500">ID: {{ form.get('riderNationalId')?.value }} &bull; {{ form.get('riderPhone')?.value }}</p>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-subtle block">Assigned Rider</span>
+                <p class="font-bold text-ink text-sm">{{ form.get('riderName')?.value }}</p>
+                <p class="text-xs text-muted">ID: {{ form.get('riderNationalId')?.value }} &bull; {{ form.get('riderPhone')?.value }}</p>
               </div>
-              <button (click)="backToStep('DETAILS')" class="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+              <button (click)="backToStep('DETAILS')" class="text-subtle hover:text-ink-soft p-1 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
@@ -619,25 +619,25 @@
         <!-- ============================================================= -->
         @if (currentStep() === 'ATTACHED') {
           <div class="py-6 flex flex-col items-center justify-center text-center space-y-4">
-            <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border-2 border-emerald-500 text-emerald-600 flex items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-success-soft border-2 border-success text-success flex items-center justify-center">
               <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
             <div>
-              <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+              <h3 class="text-2xl font-bold text-ink ">
                 Tracker Activated
               </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Motorcycle <strong class="font-mono text-slate-900 dark:text-white">{{ form.get('plate')?.value }}</strong> is online with tracker <strong class="font-mono text-slate-900 dark:text-white">{{ verifiedTracker()?.imei || imeiInput() }}</strong>.
+              <p class="text-xs text-muted mt-1 leading-relaxed">
+                Motorcycle <strong class="font-mono text-ink ">{{ form.get('plate')?.value }}</strong> is online with tracker <strong class="font-mono text-ink ">{{ verifiedTracker()?.imei || imeiInput() }}</strong>.
               </p>
             </div>
 
             <button
               type="button"
               (click)="navigateToDashboard()"
-              class="w-full py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 font-semibold text-sm shadow-none border-0 active:scale-[0.99] transition cursor-pointer"
+              class="w-full py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-strong text-surface font-semibold text-sm shadow-none border-0 active:scale-[0.99] transition cursor-pointer"
             >
               Finish
             </button>
@@ -646,13 +646,13 @@
       </div>
 
       <!-- Navigation & Action Buttons for Step 2 and 3 -->
-      <div class="pt-5 mt-6 border-t border-slate-100 dark:border-slate-800">
+      <div class="pt-5 mt-6 border-t border-line-soft ">
         @if (currentStep() === 'DETAILS') {
           <div class="flex items-center gap-3">
             <button
               type="button"
               (click)="backToStep('SCAN')"
-              class="px-5 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+              class="px-5 py-3.5 rounded-xl border border-line text-ink-soft text-xs font-bold hover:bg-canvas transition cursor-pointer"
             >
               Back
             </button>
@@ -660,7 +660,7 @@
             <button
               type="button"
               (click)="goToPreview()"
-              class="flex-1 py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white active:scale-[0.99] text-white dark:text-slate-900 text-sm font-semibold shadow-none border-0 transition cursor-pointer flex items-center justify-center gap-2"
+              class="flex-1 py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-strong active:scale-[0.99] text-surface text-sm font-semibold shadow-none border-0 transition cursor-pointer flex items-center justify-center gap-2"
             >
               <span>Continue</span>
             </button>
@@ -671,7 +671,7 @@
               type="button"
               (click)="backToStep('DETAILS')"
               [disabled]="isSubmitting()"
-              class="px-5 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-50"
+              class="px-5 py-3.5 rounded-xl border border-line text-ink-soft text-xs font-bold hover:bg-canvas transition cursor-pointer disabled:opacity-50"
             >
               Back
             </button>
@@ -680,10 +680,10 @@
               type="button"
               (click)="confirmAndComplete()"
               [disabled]="isSubmitting()"
-              class="flex-1 py-3.5 px-6 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white active:scale-[0.99] text-white dark:text-slate-900 text-sm font-semibold shadow-none border-0 transition cursor-pointer disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
+              class="flex-1 py-3.5 px-6 rounded-xl bg-brand hover:bg-brand-strong active:scale-[0.99] text-surface text-sm font-semibold shadow-none border-0 transition cursor-pointer disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
             >
               @if (isSubmitting()) {
-                <svg class="animate-spin w-4 h-4 text-white dark:text-slate-900" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin w-4 h-4 text-surface " fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -697,21 +697,21 @@
 
         <!-- Sign In Redirect -->
         <div class="mt-4 text-center">
-          <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+          <p class="text-xs text-muted mb-2">
             Already have an account?
           </p>
           <a
             routerLink="/login"
-            class="w-full py-3.5 px-6 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold shadow-none transition cursor-pointer flex items-center justify-center"
+            class="w-full py-3.5 px-6 rounded-xl border border-line-strong hover:bg-canvas text-ink text-sm font-semibold shadow-none transition cursor-pointer flex items-center justify-center"
           >
             Sign In
           </a>
 
           <!-- Legal Links -->
-          <div class="mt-4 flex items-center justify-center gap-3 text-[11px] text-slate-400">
-            <a routerLink="/terms" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-300 hover:underline cursor-pointer">Terms & Conditions</a>
+          <div class="mt-4 flex items-center justify-center gap-3 text-[11px] text-subtle">
+            <a routerLink="/terms" target="_blank" class="hover:text-ink-soft hover:underline cursor-pointer">Terms & Conditions</a>
             <span>&bull;</span>
-            <a routerLink="/privacy" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-300 hover:underline cursor-pointer">Privacy Policy</a>
+            <a routerLink="/privacy" target="_blank" class="hover:text-ink-soft hover:underline cursor-pointer">Privacy Policy</a>
           </div>
         </div>
       </div>

@@ -4,6 +4,9 @@
 @import 'leaflet/dist/leaflet.css';
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
+/* dark: applies only under an explicit .dark ancestor, not the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html, body {
   min-height: 100%;
   width: 100%;
@@ -443,6 +446,42 @@ html {
 
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Neutrals */
+  --color-ink: #18181b;
+  --color-ink-soft: #3f3f46;
+  --color-muted: #71717a;
+  --color-subtle: #a1a1aa;
+  --color-faint: #d4d4d8;
+  --color-night: #09090b;
+  --color-canvas: #fafafa;
+  --color-fill: #f4f4f5;
+  --color-fill-strong: #e4e4e7;
+  --color-field: #eef4ff;
+  --color-surface: #ffffff;
+  --color-line: #e4e4e7;
+  --color-line-soft: #f4f4f5;
+  --color-line-strong: #d4d4d8;
+
+  /* Brand (rose) - actions, focus, emphasis, alerts */
+  --color-brand: #e11d48;
+  --color-brand-strong: #be123c;
+  --color-brand-soft: #fff1f2;
+  --color-brand-line: #fecdd3;
+
+  /* Status */
+  --color-success: #059669;
+  --color-success-strong: #047857;
+  --color-success-soft: #ecfdf5;
+  --color-success-line: #a7f3d0;
+  --color-warning: #d97706;
+  --color-warning-strong: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-warning-line: #fde68a;
+  --color-info: #0ea5e9;
+  --color-info-strong: #0369a1;
+  --color-info-soft: #f0f9ff;
+  --color-info-line: #bae6fd;
 }
 
 :root {

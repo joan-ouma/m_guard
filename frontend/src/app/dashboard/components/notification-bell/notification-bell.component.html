@@ -3,7 +3,7 @@
     type="button"
     id="notificationBellBtn"
     (click)="togglePopover()"
-    class="relative w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-700 hover:text-zinc-900 transition-colors cursor-pointer"
+    class="relative w-9 h-9 lg:w-10 lg:h-10 rounded-full border border-line hover:bg-fill flex items-center justify-center text-ink-soft hover:text-ink transition-colors cursor-pointer"
     title="Notifications"
     aria-label="Notifications"
   >
@@ -23,7 +23,7 @@
     @if (unreadCount() > 0) {
       <span
         id="notificationBellBadge"
-        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[0.65rem] font-bold flex items-center justify-center shadow-xs"
+        class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-surface text-[0.65rem] font-bold flex items-center justify-center shadow-xs"
       >
         {{ unreadCount() > 99 ? '99+' : unreadCount() }}
       </span>
@@ -40,13 +40,13 @@
     <!-- Simple Notification Popover -->
     <div
       id="notificationsPopover"
-      class="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-zinc-200 z-50 overflow-hidden divide-y divide-zinc-100 animate-in fade-in duration-150"
+      class="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-surface rounded-2xl shadow-2xl border border-line z-50 overflow-hidden divide-y divide-line-soft animate-in fade-in duration-150"
     >
-      <div class="p-3.5 px-4 bg-zinc-50 flex items-center justify-between">
+      <div class="p-3.5 px-4 bg-canvas flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-sm font-bold text-zinc-900">Notifications</span>
+          <span class="text-sm font-bold text-ink">Notifications</span>
           @if (unreadCount() > 0) {
-            <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold">
+            <span class="px-2 py-0.5 rounded-full bg-brand-soft text-brand-strong text-xs font-semibold">
               {{ unreadCount() }} new
             </span>
           }
@@ -55,7 +55,7 @@
           <button
             type="button"
             (click)="onMarkAllRead()"
-            class="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
+            class="text-xs font-medium text-muted hover:text-ink transition-colors cursor-pointer"
           >
             Mark all read
           </button>
@@ -65,55 +65,55 @@
       <!-- Push Notification Subscription Banner -->
       @if (notificationService.isSupported()) {
         @if (notificationService.permission() === 'denied') {
-          <div class="px-4 py-2.5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between gap-2 text-xs text-zinc-600">
+          <div class="px-4 py-2.5 bg-canvas border-b border-line flex items-center justify-between gap-2 text-xs text-ink-soft">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+              <span class="w-2 h-2 rounded-full bg-brand shrink-0"></span>
               <span class="font-medium truncate">Notifications off in browser</span>
             </div>
-            <span class="text-[0.65rem] px-2 py-0.5 rounded bg-zinc-200 text-zinc-700 font-medium shrink-0">Disabled</span>
+            <span class="text-[0.65rem] px-2 py-0.5 rounded bg-fill-strong text-ink-soft font-medium shrink-0">Disabled</span>
           </div>
         } @else if (notificationService.isSnsSubscribed()) {
-          <div class="px-4 py-2 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between text-xs text-emerald-800 font-semibold">
+          <div class="px-4 py-2 bg-success-soft/70 border-b border-success-line flex items-center justify-between text-xs text-success-strong font-semibold">
             <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
               <span>Alerts Active</span>
             </div>
             <button
               type="button"
               (click)="onDisableSns()"
-              class="text-xs font-medium text-emerald-700 hover:text-rose-600 transition-colors cursor-pointer"
+              class="text-xs font-medium text-success-strong hover:text-brand transition-colors cursor-pointer"
             >
               Turn off
             </button>
           </div>
         } @else {
-          <div class="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex flex-col gap-2">
+          <div class="px-4 py-3 bg-canvas border-b border-line flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span class="text-xs font-bold text-zinc-900">Push Notifications</span>
+                <span class="w-2 h-2 rounded-full bg-success"></span>
+                <span class="text-xs font-bold text-ink">Push Notifications</span>
               </div>
               <button
                 type="button"
                 id="enableSnsPushBtn"
                 (click)="onEnableSns()"
                 [disabled]="notificationService.isRegistering()"
-                class="text-xs px-3 py-1 bg-zinc-900 hover:bg-black text-white font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-ink hover:bg-night text-surface font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
               </button>
             </div>
-            <p class="text-xs text-zinc-500 leading-tight">
+            <p class="text-xs text-muted leading-tight">
               Get instant lockscreen and background alerts when motorcycles are tampered with or breached.
             </p>
           </div>
         }
       }
 
-      <div class="max-h-80 overflow-y-auto divide-y divide-zinc-100">
+      <div class="max-h-80 overflow-y-auto divide-y divide-line-soft">
         @if (notifications().length === 0) {
-          <div class="p-8 text-center text-zinc-400 text-xs flex flex-col items-center gap-2">
-            <svg class="w-8 h-8 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="p-8 text-center text-subtle text-xs flex flex-col items-center gap-2">
+            <svg class="w-8 h-8 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -126,25 +126,25 @@
         } @else {
           @for (item of notifications(); track item.id) {
             <div
-              class="p-3.5 px-4 flex items-center justify-between gap-3 hover:bg-zinc-50 transition-colors"
-              [class.bg-rose-50/40]="!item.read"
+              class="p-3.5 px-4 flex items-center justify-between gap-3 hover:bg-canvas transition-colors"
+              [class.bg-brand-soft/40]="!item.read"
             >
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
                   @if (!item.read) {
-                    <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                    <span class="w-2 h-2 rounded-full bg-brand shrink-0"></span>
                   }
-                  <h4 class="text-xs font-bold text-zinc-900 truncate">{{ item.title }}</h4>
+                  <h4 class="text-xs font-bold text-ink truncate">{{ item.title }}</h4>
                 </div>
-                <p class="text-xs text-zinc-500 mt-0.5 truncate">{{ item.activity }}</p>
-                <span class="text-[0.65rem] text-zinc-400 mt-0.5 block">{{ item.time }}</span>
+                <p class="text-xs text-muted mt-0.5 truncate">{{ item.activity }}</p>
+                <span class="text-[0.65rem] text-subtle mt-0.5 block">{{ item.time }}</span>
               </div>
 
               <button
                 type="button"
                 (click)="onView(item)"
                 title="View activity"
-                class="shrink-0 w-8 h-8 rounded-lg border border-zinc-200 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white flex items-center justify-center text-zinc-600 transition-colors cursor-pointer"
+                class="shrink-0 w-8 h-8 rounded-lg border border-line hover:border-ink hover:bg-ink hover:text-surface flex items-center justify-center text-ink-soft transition-colors cursor-pointer"
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

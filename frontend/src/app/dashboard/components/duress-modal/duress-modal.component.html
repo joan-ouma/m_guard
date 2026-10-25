@@ -4,22 +4,22 @@
     style="
       background: radial-gradient(
         circle at center,
-        rgba(0, 0, 0, 0.6) 0%,
-        rgba(0, 0, 0, 0.95) 100%
+        color-mix(in srgb, var(--color-night) 60%, transparent) 0%,
+        color-mix(in srgb, var(--color-night) 95%, transparent) 100%
       );
     "
   >
     <div
-      class="bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl text-center p-8 animate-in zoom-in-95 duration-200 relative"
+      class="bg-ink border border-line-strong rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl text-center p-8 animate-in zoom-in-95 duration-200 relative"
     >
       <!-- Pulsing ring background -->
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="w-48 h-48 rounded-full bg-rose-500/10 animate-ping"></div>
+        <div class="w-48 h-48 rounded-full bg-brand/10 animate-ping"></div>
       </div>
 
       <div class="relative z-10">
         <div
-          class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto mb-6"
+          class="w-20 h-20 rounded-full bg-brand/20 text-brand flex items-center justify-center mx-auto mb-6"
         >
           <svg
             class="w-10 h-10"
@@ -36,10 +36,10 @@
           </svg>
         </div>
 
-        <h2 class="text-2xl font-bold text-white mb-2 tracking-tight">Sudden Stop Detected</h2>
-        <p class="text-zinc-400 text-sm mb-8 font-medium">Are you okay? Checking in.</p>
+        <h2 class="text-2xl font-bold text-surface mb-2 tracking-tight">Sudden Stop Detected</h2>
+        <p class="text-subtle text-sm mb-8 font-medium">Are you okay? Checking in.</p>
 
-        <div class="text-6xl font-plate font-black text-rose-500 mb-8 tracking-wider">
+        <div class="text-6xl font-plate font-black text-brand mb-8 tracking-wider">
           00:{{ countdown() < 10 ? '0' + countdown() : countdown() }}
         </div>
 
@@ -47,7 +47,7 @@
           <button
             type="button"
             (click)="cancel.emit()"
-            class="w-full h-14 rounded-2xl bg-white text-zinc-900 font-bold text-lg hover:bg-zinc-100 transition-colors active:scale-95 cursor-pointer shadow-lg"
+            class="w-full h-14 rounded-2xl bg-surface text-ink font-bold text-lg hover:bg-fill transition-colors active:scale-95 cursor-pointer shadow-lg"
           >
             Yes, I'm Okay
           </button>
@@ -55,7 +55,7 @@
           <button
             type="button"
             (click)="escalate.emit()"
-            class="w-full h-14 rounded-2xl bg-rose-600/10 border border-rose-500/30 text-rose-500 font-bold text-lg hover:bg-rose-600 hover:text-white transition-colors active:scale-95 cursor-pointer"
+            class="w-full h-14 rounded-2xl bg-brand/10 border border-brand/30 text-brand font-bold text-lg hover:bg-brand-strong hover:text-surface transition-colors active:scale-95 cursor-pointer"
           >
             I Need Help
           </button>

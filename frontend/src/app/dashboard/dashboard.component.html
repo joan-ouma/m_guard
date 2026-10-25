@@ -1,4 +1,4 @@
-<div class="fixed inset-0 h-full w-full h-[100dvh] bg-white font-sans text-zinc-900 overflow-hidden select-none flex">
+<div class="fixed inset-0 h-full w-full h-[100dvh] bg-surface font-sans text-ink overflow-hidden select-none flex">
   <!-- Sidebar (Desktop & Mobile Drawer) -->
   <app-dashboard-sidebar
     [mobileDrawerOpen]="mobileDrawerOpen()"
@@ -45,19 +45,19 @@
       }
 
       <div
-        class="absolute bottom-36 md:bottom-5 right-4 md:right-5 flex flex-col bg-white border border-zinc-200 rounded-xl shadow-md overflow-hidden z-10"
+        class="absolute bottom-36 md:bottom-5 right-4 md:right-5 flex flex-col bg-surface border border-line rounded-xl shadow-md overflow-hidden z-10"
       >
         <button
           type="button"
           (click)="zoomIn()"
-          class="w-8 h-8 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-semibold text-base border-b border-zinc-100 cursor-pointer"
+          class="w-8 h-8 flex items-center justify-center text-ink-soft hover:bg-fill font-semibold text-base border-b border-line-soft cursor-pointer"
         >
           +
         </button>
         <button
           type="button"
           (click)="zoomOut()"
-          class="w-8 h-8 flex items-center justify-center text-zinc-700 hover:bg-zinc-100 font-semibold text-base cursor-pointer"
+          class="w-8 h-8 flex items-center justify-center text-ink-soft hover:bg-fill font-semibold text-base cursor-pointer"
         >
           −
         </button>

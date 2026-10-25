@@ -2,17 +2,17 @@
 @if (mobileDrawerOpen()) {
   <div
     (click)="closeMobileDrawer.emit()"
-    class="fixed inset-0 bg-zinc-900/50 backdrop-blur-xs z-50 lg:hidden transition-opacity"
+    class="fixed inset-0 bg-ink/50 backdrop-blur-xs z-50 lg:hidden transition-opacity"
   ></div>
 
   <aside
-    class="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white z-50 lg:hidden flex flex-col justify-between shadow-2xl border-r border-zinc-200 animate-in slide-in-from-left duration-200"
+    class="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-surface z-50 lg:hidden flex flex-col justify-between shadow-2xl border-r border-line animate-in slide-in-from-left duration-200"
   >
     <div>
-      <div class="h-16 px-6 flex items-center justify-between border-b border-zinc-100">
+      <div class="h-16 px-6 flex items-center justify-between border-b border-line-soft">
         <div class="flex items-center gap-3.5">
           <div
-            class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+            class="w-10 h-10 rounded-full bg-ink flex items-center justify-center text-surface shrink-0 shadow-xs"
           >
             <svg
               class="w-5 h-5"
@@ -28,12 +28,12 @@
               />
             </svg>
           </div>
-          <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+          <span class="font-bold text-xl tracking-tight text-ink">MGuard</span>
         </div>
         <button
           type="button"
           (click)="closeMobileDrawer.emit()"
-          class="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors cursor-pointer"
+          class="w-9 h-9 rounded-xl flex items-center justify-center text-subtle hover:text-ink hover:bg-fill transition-colors cursor-pointer"
         >
           ✕
         </button>
@@ -42,13 +42,13 @@
       <nav class="p-3.5 space-y-1">
         <a
           routerLink="/"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
-            class="w-5 h-5 text-white shrink-0"
+            class="w-5 h-5 text-surface shrink-0"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -65,10 +65,10 @@
 
         <a
           routerLink="/bikes"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -93,10 +93,10 @@
 
         <a
           routerLink="/history"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -117,7 +117,7 @@
         <a
           href="javascript:void(0)"
           (click)="closeMobileDrawer.emit(); openGeofenceModal.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -137,10 +137,10 @@
 
         <a
           routerLink="/alerts"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -160,10 +160,10 @@
 
         <a
           routerLink="/emergency"
-          routerLinkActive="bg-rose-600 text-white shadow-xs"
+          routerLinkActive="bg-brand text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-brand hover:bg-brand-soft transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -183,10 +183,10 @@
 
         <a
           routerLink="/recovery"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -196,10 +196,10 @@
 
         <a
           routerLink="/contacts"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -209,10 +209,10 @@
 
         <a
           routerLink="/settings"
-          routerLinkActive="bg-zinc-900 text-white shadow-xs"
+          routerLinkActive="bg-ink text-surface shadow-xs"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMobileDrawer.emit()"
-          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+          class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
         >
           <svg
             class="w-5 h-5 shrink-0"
@@ -239,7 +239,7 @@
           <button
             type="button"
             (click)="pwa.installApp(); closeMobileDrawer.emit()"
-            class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
+            class="w-full min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-success-strong bg-success-soft hover:bg-success-soft transition-colors cursor-pointer border border-success-line/80"
           >
             <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -250,21 +250,21 @@
       </nav>
     </div>
 
-    <div class="p-4 border-t border-zinc-100">
+    <div class="p-4 border-t border-line-soft">
       <div
-        class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80"
+        class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-canvas border border-line/80"
       >
         <div class="flex items-center gap-3 min-w-0">
           <div
-            class="w-10 h-10 rounded-full bg-zinc-900 text-white font-bold text-sm flex items-center justify-center shrink-0"
+            class="w-10 h-10 rounded-full bg-ink text-surface font-bold text-sm flex items-center justify-center shrink-0"
           >
             {{ getUserInitials() }}
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-zinc-900 truncate">
+            <p class="text-sm font-bold text-ink truncate">
               {{ user()?.name || user()?.email || 'User' }}
             </p>
-            <p class="text-xs text-zinc-500 truncate">
+            <p class="text-xs text-muted truncate">
               {{ user()?.email || '' }}
             </p>
           </div>
@@ -273,7 +273,7 @@
           type="button"
           (click)="logout.emit()"
           title="Log out"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+          class="w-10 h-10 rounded-xl flex items-center justify-center text-subtle hover:text-brand hover:bg-brand-soft transition-colors shrink-0 cursor-pointer"
         >
           <svg
             class="w-5 h-5"
@@ -296,12 +296,12 @@
 
 <!-- Desktop Sidebar (Hidden on mobile) -->
 <aside
-  class="hidden lg:flex w-64 h-full bg-white flex-col justify-between border-r border-zinc-200 shrink-0 z-20"
+  class="hidden lg:flex w-64 h-full bg-surface flex-col justify-between border-r border-line shrink-0 z-20"
 >
   <div>
-    <div class="h-16 px-6 flex items-center gap-3 border-b border-zinc-100">
+    <div class="h-16 px-6 flex items-center gap-3 border-b border-line-soft">
       <div
-        class="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-xs"
+        class="w-9 h-9 rounded-full bg-ink flex items-center justify-center text-surface shrink-0 shadow-xs"
       >
         <svg
           class="w-5 h-5"
@@ -317,18 +317,18 @@
           />
         </svg>
       </div>
-      <span class="font-bold text-xl tracking-tight text-zinc-900">MGuard</span>
+      <span class="font-bold text-xl tracking-tight text-ink">MGuard</span>
     </div>
 
     <nav class="p-3.5 space-y-1">
       <a
         routerLink="/"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
-          class="w-5 h-5 text-white shrink-0"
+          class="w-5 h-5 text-surface shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -345,9 +345,9 @@
 
       <a
         routerLink="/bikes"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -372,9 +372,9 @@
 
       <a
         routerLink="/history"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -395,7 +395,7 @@
       <a
         href="javascript:void(0)"
         (click)="openGeofenceModal.emit()"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -415,9 +415,9 @@
 
       <a
         routerLink="/alerts"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -437,9 +437,9 @@
 
       <a
         routerLink="/emergency"
-        routerLinkActive="bg-rose-600 text-white shadow-xs"
+        routerLinkActive="bg-brand text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-brand hover:bg-brand-soft transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -459,9 +459,9 @@
 
       <a
         routerLink="/recovery"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -471,9 +471,9 @@
 
       <a
         routerLink="/contacts"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2.5 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -483,9 +483,9 @@
 
       <a
         routerLink="/settings"
-        routerLinkActive="bg-zinc-900 text-white shadow-xs"
+        routerLinkActive="bg-ink text-surface shadow-xs"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors cursor-pointer"
+        class="min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-muted hover:bg-fill hover:text-ink transition-colors cursor-pointer"
       >
         <svg
           class="w-5 h-5 shrink-0"
@@ -512,7 +512,7 @@
         <button
           type="button"
           (click)="pwa.installApp()"
-          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200/80"
+          class="w-full min-h-[42px] px-3.5 py-2 rounded-xl flex items-center gap-3 text-sm font-semibold text-success-strong bg-success-soft hover:bg-success-soft transition-colors cursor-pointer border border-success-line/80"
         >
           <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -523,21 +523,21 @@
     </nav>
   </div>
 
-  <div class="p-3 border-t border-zinc-100">
+  <div class="p-3 border-t border-line-soft">
     <div
-      class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-zinc-50 border border-zinc-200/80"
+      class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-canvas border border-line/80"
     >
       <div class="flex items-center gap-2.5 min-w-0">
         <div
-          class="w-9 h-9 rounded-full bg-zinc-900 text-white font-bold text-xs flex items-center justify-center shrink-0"
+          class="w-9 h-9 rounded-full bg-ink text-surface font-bold text-xs flex items-center justify-center shrink-0"
         >
           {{ getUserInitials() }}
         </div>
         <div class="min-w-0">
-          <p class="text-xs font-bold text-zinc-900 truncate">
+          <p class="text-xs font-bold text-ink truncate">
             {{ user()?.name || user()?.email || 'User' }}
           </p>
-          <p class="text-[0.7rem] text-zinc-500 truncate">
+          <p class="text-[0.7rem] text-muted truncate">
             {{ user()?.email || '' }}
           </p>
         </div>
@@ -546,7 +546,7 @@
         type="button"
         (click)="logout.emit()"
         title="Log out"
-        class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 cursor-pointer"
+        class="w-8 h-8 rounded-lg flex items-center justify-center text-subtle hover:text-brand hover:bg-brand-soft transition-colors shrink-0 cursor-pointer"
       >
         <svg
           class="w-6 h-6"

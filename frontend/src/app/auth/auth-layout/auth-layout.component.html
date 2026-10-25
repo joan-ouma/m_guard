@@ -1,10 +1,10 @@
-<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-white md:bg-slate-50 dark:bg-slate-950 font-sans">
+<div class="min-h-screen w-full flex items-center justify-center p-0 md:p-6 lg:p-10 bg-surface md:bg-canvas font-sans">
   
   <!-- Centered Elevated Card with generous proportions and white framing padding on desktop, seamless on mobile -->
-  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[680px] md:h-[680px] bg-white dark:bg-slate-900 rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-slate-900/10 border-0 md:border md:border-slate-100 dark:border-slate-800 p-0 md:p-5 flex flex-col md:flex-row items-stretch">
+  <div class="w-full max-w-[1100px] min-h-screen md:min-h-[680px] md:h-[680px] bg-surface rounded-none md:rounded-3xl shadow-none md:shadow-2xl md:shadow-ink/10 border-0 md:border md:border-line-soft p-0 md:p-5 flex flex-col md:flex-row items-stretch">
     
     <!-- Left Side: Branding Panel (Hidden on mobile, approx 42% width on desktop) -->
-    <div class="hidden md:flex md:w-[42%] md:h-full relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-white bg-slate-950">
+    <div class="hidden md:flex md:w-[42%] md:h-full relative overflow-hidden rounded-2xl md:rounded-[1.75rem] flex-col justify-between p-8 sm:p-10 text-surface bg-night">
       <!-- Motorcycle Photography Background -->
       <img
         src="/assets/landing/motorbike-parked.jpg"
@@ -13,8 +13,8 @@
       />
 
       <!-- Dark Gradient Overlay for Maximum Text Contrast and Readability -->
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40" aria-hidden="true"></div>
-      <div class="absolute inset-0 bg-slate-950/25" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/40" aria-hidden="true"></div>
+      <div class="absolute inset-0 bg-night/25" aria-hidden="true"></div>
 
       <!-- Left Panel Clean Content (sitting above layers) -->
       <div class="relative z-10 flex flex-col justify-between h-full">
@@ -27,10 +27,10 @@
 
         <!-- Bottom-Left: Brand Description -->
         <div class="pt-24 md:pt-0">
-          <h2 class="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
+          <h2 class="text-2xl sm:text-3xl font-bold text-surface leading-tight tracking-tight">
             Real-time GPS tracking and anti-theft security for your motorcycle.
           </h2>
-          <p class="mt-2.5 text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+          <p class="mt-2.5 text-xs sm:text-sm text-faint font-normal leading-relaxed">
             Built specifically for boda boda riders to secure their motorcycle 24/7 with live location and instant protection.
           </p>
         </div>
@@ -44,17 +44,16 @@
         <!-- Top Left: MGuard Brand Logo (Links to Home) -->
         <div class="mb-5">
           <a routerLink="/" class="inline-flex items-center gap-2 group cursor-pointer" title="MGuard Home">
-            <img src="/assets/landing/logo.svg" alt="MGuard" class="h-8 w-auto dark:hidden" />
-            <img src="/assets/landing/footer-logo.svg" alt="MGuard" class="h-8 w-auto hidden dark:block" />
+            <img src="/assets/landing/logo.svg" alt="MGuard" class="h-8 w-auto " />
           </a>
         </div>
 
         <!-- Strictly Left-Aligned Header Titles -->
         <div class="mb-7">
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
             {{ heading }}
           </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+          <p class="text-sm text-muted mt-2 leading-relaxed">
             {{ subHeading }}
           </p>
         </div>

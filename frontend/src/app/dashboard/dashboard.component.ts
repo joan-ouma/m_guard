@@ -31,6 +31,7 @@ import {
 } from './components/geofence-modal/geofence-modal.component';
 import { RegisterBikeModalComponent } from './components/register-bike-modal/register-bike-modal.component';
 import { DuressModalComponent } from './components/duress-modal/duress-modal.component';
+import { themeColor } from '../core/theme/theme-color';
 
 export type { FleetBike, NotificationItem };
 
@@ -289,8 +290,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (bike.hasGeofence && bike.fenceRadius > 0 && bike.fenceCenterLat !== undefined && bike.fenceCenterLng !== undefined) {
         this.geofenceLayer = L.circle([bike.fenceCenterLat, bike.fenceCenterLng], {
-          color: '#0EA5E9',
-          fillColor: '#0EA5E9',
+          color: themeColor('--color-info'),
+          fillColor: themeColor('--color-info'),
           fillOpacity: 0.08,
           weight: 2,
           dashArray: '6, 6',
@@ -335,8 +336,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (bike.hasGeofence && bike.fenceRadius > 0 && bike.fenceCenterLat !== undefined && bike.fenceCenterLng !== undefined) {
       if (!this.geofenceLayer) {
         this.geofenceLayer = L.circle([bike.fenceCenterLat, bike.fenceCenterLng], {
-          color: '#0EA5E9',
-          fillColor: '#0EA5E9',
+          color: themeColor('--color-info'),
+          fillColor: themeColor('--color-info'),
           fillOpacity: 0.08,
           weight: 2,
           dashArray: '6, 6',
@@ -347,8 +348,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           .setLatLng([bike.fenceCenterLat, bike.fenceCenterLng])
           .setRadius(bike.fenceRadius)
           .setStyle({
-            color: '#0EA5E9',
-            fillColor: '#0EA5E9',
+            color: themeColor('--color-info'),
+            fillColor: themeColor('--color-info'),
             fillOpacity: 0.08,
             weight: 2,
             dashArray: '6, 6',
@@ -420,7 +421,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (coords.length > 1) {
       this.pathGlow = L.polyline(coords, {
-        color: '#38BDF8',
+        color: themeColor('--color-info'),
         weight: 6,
         opacity: 0.35,
         lineCap: 'round',
@@ -428,7 +429,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }).addTo(this.map);
 
       this.pathPolyline = L.polyline(coords, {
-        color: '#0EA5E9',
+        color: themeColor('--color-info'),
         weight: 3,
         opacity: 0.95,
         dashArray: '6, 6',
@@ -438,8 +439,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.pathOriginMarker = L.circleMarker(coords[0], {
         radius: 5,
-        color: '#38BDF8',
-        fillColor: '#09090b',
+        color: themeColor('--color-info'),
+        fillColor: themeColor('--color-night'),
         fillOpacity: 1,
         weight: 2,
       })
@@ -497,10 +498,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const pinIconSvg = isImmobilizedState
-      ? `<svg style="width: 26px; height: 26px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      ? `<svg style="width: 26px; height: 26px; color: var(--color-surface);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
            <path d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/>
          </svg>`
-      : `<svg style="width: 26px; height: 26px; color: #ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      : `<svg style="width: 26px; height: 26px; color: var(--color-surface);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
            <circle cx="5.5" cy="17.5" r="3.5"/>
            <circle cx="18.5" cy="17.5" r="3.5"/>
            <path d="M15 6h-3l-2.5 5h6.5"/>
@@ -511,7 +512,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <div style="background: rgba(9, 9, 11, 0.94); backdrop-filter: blur(4px); color: #ffffff; font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
+          <div style="background: color-mix(in srgb, var(--color-night) 94%, transparent); backdrop-filter: blur(4px); color: var(--color-surface); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent); box-shadow: 0 4px 10px color-mix(in srgb, var(--color-night) 40%, transparent); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
             <span>${plate}</span>
           </div>
           <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
@@ -610,8 +611,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map) {
       if (!this.geofenceLayer) {
         this.geofenceLayer = L.circle([centerLat, centerLng], {
-          color: '#0EA5E9',
-          fillColor: '#0EA5E9',
+          color: themeColor('--color-info'),
+          fillColor: themeColor('--color-info'),
           fillOpacity: 0.08,
           weight: 2,
           dashArray: '6, 6',
@@ -622,8 +623,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           .setLatLng([centerLat, centerLng])
           .setRadius(data.fenceRadius)
           .setStyle({
-            color: '#0EA5E9',
-            fillColor: '#0EA5E9',
+            color: themeColor('--color-info'),
+            fillColor: themeColor('--color-info'),
             fillOpacity: 0.08,
             weight: 2,
             dashArray: '6, 6',
@@ -760,7 +761,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       icon: 'error',
       title: 'Emergency Alert Sent',
       text: 'Your Sacco and emergency contacts have been notified of a potential incident.',
-      confirmButtonColor: '#e11d48',
+      confirmButtonColor: themeColor('--color-brand'),
     });
   }
 
@@ -858,10 +859,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       title: isImmobilizing ? `Immobilize ${bike.plate}?` : `Reactivate ${bike.plate}?`,
       html: `
         <div class="text-left mb-5">
-          <p class="mb-4 text-zinc-600 text-sm">${actionText}</p>
-          <div class="p-3 bg-zinc-50 border border-zinc-200 rounded-lg">
-            <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Security Authorization</label>
-            <p class="text-sm font-medium text-zinc-700">Enter your 4-digit operator PIN to confirm this action.</p>
+          <p class="mb-4 text-ink-soft text-sm">${actionText}</p>
+          <div class="p-3 bg-canvas border border-line rounded-lg">
+            <label class="block text-xs font-bold text-muted uppercase tracking-wider mb-1">Security Authorization</label>
+            <p class="text-sm font-medium text-ink-soft">Enter your 4-digit operator PIN to confirm this action.</p>
           </div>
         </div>
       `,
@@ -876,16 +877,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       customClass: {
         input:
-          'text-center tracking-[0.5em] text-2xl font-bold rounded-xl border-zinc-300 focus:border-rose-500 focus:ring-rose-500',
+          'text-center tracking-[0.5em] text-2xl font-bold rounded-xl border-line-strong focus:border-brand focus:ring-brand',
       },
       icon: isImmobilizing ? 'warning' : 'question',
       showCancelButton: true,
       confirmButtonColor: isImmobilizing
         ? isMoving
-          ? '#f59e0b'
-          : '#e11d48'
-        : '#059669',
-      cancelButtonColor: '#71717a',
+          ? themeColor('--color-warning')
+          : themeColor('--color-brand')
+        : themeColor('--color-success'),
+      cancelButtonColor: themeColor('--color-muted'),
       confirmButtonText: isImmobilizing
         ? isMoving
           ? 'Queue Immobilization'
@@ -937,7 +938,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               icon: 'error',
               title: 'Action Failed',
               text: err?.error?.detail || 'Failed to update immobilization status',
-              confirmButtonColor: '#09090b',
+              confirmButtonColor: themeColor('--color-night'),
             });
           },
         });

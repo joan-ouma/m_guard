@@ -1,21 +1,21 @@
 <!-- Left Floating Card (Tablet & Desktop: lg:w-[350px], md:w-[310px]) -->
 <div
   id="floatingInspector"
-  class="hidden md:flex absolute top-4 left-4 bottom-4 w-[310px] lg:w-[350px] bg-white rounded-2xl border border-zinc-200/90 shadow-xl flex-col z-10 overflow-hidden"
+  class="hidden md:flex absolute top-4 left-4 bottom-4 w-[310px] lg:w-[350px] bg-surface rounded-2xl border border-line/90 shadow-xl flex-col z-10 overflow-hidden"
 >
   @if (bikeList().length > 0 && selectedBike(); as bike) {
-    <div class="p-4 pb-3 divide-y divide-zinc-100 overflow-y-auto max-h-full">
+    <div class="p-4 pb-3 divide-y divide-line-soft overflow-y-auto max-h-full">
       <!-- Section 1 — Header & Live Status -->
       <div class="pb-2.5">
         <div class="flex items-start justify-between gap-2.5">
           <div class="min-w-0">
             <h2
               id="cardBikeTitle"
-              class="font-plate text-xl lg:text-2xl font-black text-zinc-950 tracking-wider leading-none truncate"
+              class="font-plate text-xl lg:text-2xl font-black text-ink tracking-wider leading-none truncate"
             >
               {{ bike.plate }}
             </h2>
-            <p class="font-sans text-xs lg:text-sm font-medium text-zinc-400 mt-1 truncate">
+            <p class="font-sans text-xs lg:text-sm font-medium text-subtle mt-1 truncate">
               {{ bike.model }}
             </p>
           </div>
@@ -23,7 +23,7 @@
           <div class="flex items-center gap-1.5 shrink-0">
             <!-- 5-bar Network Strength -->
             <div
-              class="h-7 px-2 rounded-full border border-zinc-200/90 bg-zinc-50 flex items-center justify-center shrink-0"
+              class="h-7 px-2 rounded-full border border-line/90 bg-canvas flex items-center justify-center shrink-0"
               [title]="getSignalLabel(bike)"
             >
               <svg
@@ -32,13 +32,13 @@
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <rect x="0" y="12" width="3.2" height="4" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#A1A1AA'" />
-                <rect x="5.2" y="9" width="3.2" height="7" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#A1A1AA'" />
-                <rect x="10.4" y="6" width="3.2" height="10" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#A1A1AA'" />
-                <rect x="15.6" y="3" width="3.2" height="13" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#A1A1AA'" />
-                <rect x="20.8" y="0" width="3.2" height="16" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#A1A1AA'" />
+                <rect x="0" y="12" width="3.2" height="4" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+                <rect x="5.2" y="9" width="3.2" height="7" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+                <rect x="10.4" y="6" width="3.2" height="10" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+                <rect x="15.6" y="3" width="3.2" height="13" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+                <rect x="20.8" y="0" width="3.2" height="16" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? 'var(--color-success)' : 'var(--color-subtle)'" />
                 @if (isOffline(bike)) {
-                  <line x1="-1" y1="17" x2="25" y2="-1" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="-1" y1="17" x2="25" y2="-1" style="stroke: var(--color-brand)" stroke-width="2.5" stroke-linecap="round" />
                 }
               </svg>
             </div>
@@ -46,13 +46,13 @@
             @if (bike.isImmobilized) {
               <span
                 id="statusPill"
-                class="h-7 px-2.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
+                class="h-7 px-2.5 rounded-full bg-brand-soft border border-brand-line text-brand-strong text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
               >
                 <span class="relative flex h-2 w-2">
                   <span
-                    class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-brand"
                   ></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
                 </span>
                 <span id="statusText">IMMOBILIZED</span>
               </span>
@@ -62,8 +62,8 @@
                 class="h-7 px-2.5 rounded-full border text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
                 [ngClass]="
                   bike.movementStatus === 'Moving'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                    : 'bg-zinc-100 border-zinc-200 text-zinc-900'
+                    ? 'bg-success-soft border-success-line text-success-strong'
+                    : 'bg-fill border-line text-ink'
                 "
               >
                 <span class="relative flex h-2 w-2">
@@ -71,8 +71,8 @@
                     class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                     [ngClass]="
                       bike.movementStatus === 'Moving'
-                        ? 'bg-emerald-400'
-                        : 'bg-zinc-400'
+                        ? 'bg-success'
+                        : 'bg-muted'
                     "
                   ></span>
                   <span
@@ -80,8 +80,8 @@
                     class="relative inline-flex rounded-full h-2 w-2 status-dot-pulse"
                     [ngClass]="
                       bike.movementStatus === 'Moving'
-                        ? 'bg-emerald-500'
-                        : 'bg-zinc-500'
+                        ? 'bg-success'
+                        : 'bg-muted'
                     "
                   ></span>
                 </span>
@@ -96,9 +96,9 @@
       <div class="py-2 flex items-center justify-between">
         <div class="flex items-center gap-3 min-w-0">
           <div
-            class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
+            class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center shrink-0"
             [ngClass]="
-              bike.status === 'RUNNING' ? 'text-emerald-600' : 'text-amber-600'
+              bike.status === 'RUNNING' ? 'text-success' : 'text-warning'
             "
           >
             <svg
@@ -117,10 +117,10 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
               >CURRENT SPEED</span
             >
-            <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
+            <p class="font-bold text-sm text-ink mt-0.5 truncate">
               {{ bike.speedText.split('•')[0].trim() || bike.speedText }}
             </p>
           </div>
@@ -130,9 +130,9 @@
       <!-- Section 3 — Ignition Row -->
       <div class="py-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center shrink-0"
+          class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center shrink-0"
           [ngClass]="
-            bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'
+            bike.speedText.includes('ON') ? 'text-success' : 'text-warning'
           "
         >
           <svg
@@ -150,17 +150,17 @@
           </svg>
         </div>
         <div class="min-w-0 flex-1">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
             >IGNITION STATE</span
           >
-          <p class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
+          <p class="font-sans text-sm font-bold text-ink mt-0.5 truncate">
             Switched
             <span
               class="font-black tracking-wide"
               [ngClass]="
                 bike.speedText.includes('ON')
-                  ? 'text-emerald-600'
-                  : 'text-amber-600'
+                  ? 'text-success'
+                  : 'text-warning'
               "
             >
               {{ bike.speedText.includes('ON') ? 'ON' : 'OFF' }}
@@ -172,7 +172,7 @@
       <!-- Section 4 — Last Seen Row -->
       <div class="py-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center text-ink-soft shrink-0"
         >
           <svg
             class="w-4.5 h-4.5"
@@ -186,10 +186,10 @@
           </svg>
         </div>
         <div class="min-w-0 flex-1">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
             >LAST SEEN</span
           >
-          <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
+          <p class="font-bold text-sm text-ink mt-0.5 truncate">
             {{ formatLastSeen(bike.lastSeenAt) }}
           </p>
         </div>
@@ -198,7 +198,7 @@
       <!-- Section 5 — Current Location -->
       <div class="py-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center text-ink-soft shrink-0"
         >
           <svg
             class="w-4.5 h-4.5"
@@ -220,12 +220,12 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
             >CURRENT LOCATION</span
           >
           <p
             id="cardAddress"
-            class="font-sans text-sm font-bold text-zinc-950 leading-snug mt-0.5 truncate"
+            class="font-sans text-sm font-bold text-ink leading-snug mt-0.5 truncate"
             [title]="bike.address"
           >
             {{ bike.address }}
@@ -233,7 +233,7 @@
           <button
             type="button"
             (click)="recenterMap.emit()"
-            class="mt-1.5 h-7 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-900 text-zinc-900 hover:text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            class="mt-1.5 h-7 px-2.5 rounded-lg bg-fill hover:bg-ink text-ink hover:text-surface text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <svg
               class="w-3.5 h-3.5 shrink-0"
@@ -259,7 +259,7 @@
       <!-- Section 6 — County & Sub-County -->
       <div class="py-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center text-ink-soft shrink-0"
         >
           <svg
             class="w-4.5 h-4.5"
@@ -276,15 +276,15 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
             >COUNTY & SUB-COUNTY</span
           >
-          <p id="cardCounty" class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
+          <p id="cardCounty" class="font-sans text-sm font-bold text-ink mt-0.5 truncate">
             {{ bike.county }}
           </p>
           <p
             id="cardSubCounty"
-            class="font-sans text-xs font-medium text-zinc-500 mt-0.5 truncate"
+            class="font-sans text-xs font-medium text-muted mt-0.5 truncate"
           >
             {{ bike.subCounty }}
           </p>
@@ -294,7 +294,7 @@
       <!-- Section 7 — GPS Coordinates -->
       <div class="pt-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200/80 flex items-center justify-center text-zinc-800 shrink-0"
+          class="w-9 h-9 rounded-xl bg-fill border border-line/80 flex items-center justify-center text-ink-soft shrink-0"
         >
           <svg
             class="w-4.5 h-4.5"
@@ -313,10 +313,10 @@
         </div>
         <div class="flex-1 flex items-center justify-between gap-2.5 min-w-0">
           <div class="min-w-0">
-            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
               >GPS COORDINATES</span
             >
-            <p class="font-bold text-sm text-zinc-950 mt-0.5 truncate">
+            <p class="font-bold text-sm text-ink mt-0.5 truncate">
               <span id="cardLat">{{ bike.lat.toFixed(6) }}</span
               >, <span id="cardLng">{{ bike.lng.toFixed(6) }}</span>
             </p>
@@ -325,11 +325,11 @@
             type="button"
             (click)="copyCoordinates.emit()"
             [title]="copiedCoordinates() ? 'Copied!' : 'Copy coordinates'"
-            class="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-900 text-zinc-700 hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            class="w-8 h-8 rounded-lg bg-fill hover:bg-ink text-ink-soft hover:text-surface flex items-center justify-center shrink-0 transition-colors cursor-pointer"
           >
             @if (copiedCoordinates()) {
               <svg
-                class="w-4 h-4 text-emerald-600"
+                class="w-4 h-4 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -356,7 +356,7 @@
       <!-- Section 7.5 — Assigned Rider Identity -->
       <div class="py-2 flex items-center gap-3">
         <div
-          class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0"
+          class="w-9 h-9 rounded-xl bg-info-soft border border-info-line flex items-center justify-center text-info-strong shrink-0"
         >
           <svg
             class="w-4.5 h-4.5"
@@ -373,19 +373,19 @@
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle"
             >ASSIGNED RIDER</span
           >
-          <p id="cardRiderName" class="font-sans text-sm font-bold text-zinc-950 mt-0.5 truncate">
+          <p id="cardRiderName" class="font-sans text-sm font-bold text-ink mt-0.5 truncate">
             {{ bike.riderName }}
           </p>
-          <div class="flex items-center gap-1.5 mt-0.5 text-[0.7rem] text-zinc-500 font-semibold">
+          <div class="flex items-center gap-1.5 mt-0.5 text-[0.7rem] text-muted font-semibold">
             <span title="National ID">ID: {{ bike.riderNationalId }}</span>
             <span>•</span>
             <a
               *ngIf="bike.riderPhone && bike.riderPhone !== 'N/A'"
               [href]="'tel:' + bike.riderPhone"
-              class="text-indigo-600 hover:underline"
+              class="text-info-strong hover:underline"
               title="Call Rider"
             >
               {{ bike.riderPhone }}
@@ -398,7 +398,7 @@
       <!-- Section 8 — Immobilize Action -->
       @if (bike.id) {
         <div class="pt-2 pb-1">
-          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400 mb-1.5"
+          <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle mb-1.5"
             >Security Controls</span
           >
 
@@ -407,12 +407,12 @@
             (click)="toggleImmobilize.emit(bike)"
             class="w-full relative overflow-hidden rounded-xl p-3 text-left flex items-center justify-between transition-all group cursor-pointer"
             [ngClass]="{
-              'bg-rose-600 hover:bg-rose-700 text-white shadow-[0_4px_12px_-4px_rgba(225,29,72,0.4)]':
+              'bg-brand hover:bg-brand-strong text-surface shadow-[0_4px_12px_-4px_color-mix(in_srgb,var(--color-brand)_40%,transparent)]':
                 !bike.isImmobilized &&
                 bike.movementStatus === 'Stationary',
-              'bg-amber-500 hover:bg-amber-600 text-white shadow-[0_4px_12px_-4px_rgba(245,158,11,0.4)]':
+              'bg-warning hover:bg-warning-strong text-surface shadow-[0_4px_12px_-4px_color-mix(in_srgb,var(--color-warning)_40%,transparent)]':
                 !bike.isImmobilized && bike.movementStatus === 'Moving',
-              'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_4px_12px_-4px_rgba(16,185,129,0.4)]':
+              'bg-success hover:bg-success-strong text-surface shadow-[0_4px_12px_-4px_color-mix(in_srgb,var(--color-success)_40%,transparent)]':
                 bike.isImmobilized,
             }"
           >
@@ -421,7 +421,7 @@
               <h3 class="font-bold text-sm tracking-tight">
                 {{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}
               </h3>
-              <p class="font-medium text-xs text-white/80 mt-0.5">
+              <p class="font-medium text-xs text-surface/80 mt-0.5">
                 @if (bike.pendingCommand) {
                   Sent to the bike. Waiting for it to confirm.
                 } @else if (bike.isImmobilized) {
@@ -436,11 +436,11 @@
 
             <!-- Icon container -->
             <div
-              class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"
+              class="w-8 h-8 rounded-full bg-surface/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"
             >
               @if (bike.isImmobilized) {
                 <svg
-                  class="w-4 h-4 text-white"
+                  class="w-4 h-4 text-surface"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -454,7 +454,7 @@
                 </svg>
               } @else {
                 <svg
-                  class="w-4 h-4 text-white"
+                  class="w-4 h-4 text-surface"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -475,7 +475,7 @@
   } @else {
     <div class="p-8 shrink-0 flex flex-col items-center justify-center text-center h-full">
       <div
-        class="w-20 h-20 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-6 shadow-inner"
+        class="w-20 h-20 rounded-full bg-info-soft text-info-strong flex items-center justify-center mb-6 shadow-inner"
       >
         <svg
           class="w-10 h-10"
@@ -487,15 +487,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-zinc-950 tracking-tight">No Motorcycle Found</h2>
-      <p class="text-sm text-zinc-500 mt-3 mb-8 leading-relaxed">
+      <h2 class="text-2xl font-bold text-ink tracking-tight">No Motorcycle Found</h2>
+      <p class="text-sm text-muted mt-3 mb-8 leading-relaxed">
         Register your motorcycle to start tracking its live location and control the ignition
         from this dashboard.
       </p>
       <button
         type="button"
         (click)="openRegisterModal.emit()"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-3.5 rounded-full transition-colors w-full cursor-pointer shadow-md flex items-center justify-center gap-2"
+        class="bg-ink hover:bg-ink-soft text-surface font-bold text-sm px-6 py-3.5 rounded-full transition-colors w-full cursor-pointer shadow-md flex items-center justify-center gap-2"
       >
         <svg
           class="w-5 h-5"
@@ -516,22 +516,22 @@
 @if (bikeList().length > 0 && selectedBike(); as bike) {
   <div
     id="mobileBottomSheet"
-    class="md:hidden absolute bottom-0 inset-x-0 bg-white rounded-t-3xl border-t border-zinc-200/90 shadow-2xl flex flex-col z-20 transition-all duration-300 ease-in-out overscroll-contain"
+    class="md:hidden absolute bottom-0 inset-x-0 bg-surface rounded-t-3xl border-t border-line/90 shadow-2xl flex flex-col z-20 transition-all duration-300 ease-in-out overscroll-contain"
     [ngClass]="mobileSheetExpanded() ? 'max-h-[75dvh]' : 'max-h-24 pb-2'"
   >
     <!-- Grab Handle & Peek Row -->
     <div
       (click)="toggleMobileSheet.emit()"
-      class="pt-2.5 pb-2 px-5 cursor-pointer shrink-0 border-b border-zinc-100 flex flex-col items-center select-none touch-pan-y"
+      class="pt-2.5 pb-2 px-5 cursor-pointer shrink-0 border-b border-line-soft flex flex-col items-center select-none touch-pan-y"
     >
-      <div class="w-10 h-1 bg-zinc-300 rounded-full mb-2"></div>
+      <div class="w-10 h-1 bg-fill-strong rounded-full mb-2"></div>
 
       <div class="w-full flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="text-2xl font-black text-zinc-950 tracking-wider leading-none truncate font-plate">
+          <h2 class="text-2xl font-black text-ink tracking-wider leading-none truncate font-plate">
             {{ bike.plate }}
           </h2>
-          <p class="text-xs font-semibold text-zinc-500 mt-1 truncate">
+          <p class="text-xs font-semibold text-muted mt-1 truncate">
             {{ bike.speedText.split('•')[0].trim() || bike.speedText }} • {{ formatLastSeen(bike.lastSeenAt) }}
           </p>
         </div>
@@ -539,7 +539,7 @@
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <!-- 5-bar Network Strength (Self-explanatory Icon Only) -->
           <div
-            class="h-8 px-2.5 rounded-full border border-zinc-200/90 bg-zinc-100 flex items-center justify-center shrink-0"
+            class="h-8 px-2.5 rounded-full border border-line/90 bg-fill flex items-center justify-center shrink-0"
             [title]="getSignalLabel(bike)"
           >
             <svg
@@ -548,38 +548,38 @@
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <rect x="0" y="12" width="3.2" height="4" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? '#10B981' : '#A1A1AA'" />
-              <rect x="5.2" y="9" width="3.2" height="7" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? '#10B981' : '#A1A1AA'" />
-              <rect x="10.4" y="6" width="3.2" height="10" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? '#10B981' : '#A1A1AA'" />
-              <rect x="15.6" y="3" width="3.2" height="13" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? '#10B981' : '#A1A1AA'" />
-              <rect x="20.8" y="0" width="3.2" height="16" rx="1" [attr.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? '#10B981' : '#A1A1AA'" />
+              <rect x="0" y="12" width="3.2" height="4" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 1 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+              <rect x="5.2" y="9" width="3.2" height="7" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 2 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+              <rect x="10.4" y="6" width="3.2" height="10" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 3 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+              <rect x="15.6" y="3" width="3.2" height="13" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 4 ? 'var(--color-success)' : 'var(--color-subtle)'" />
+              <rect x="20.8" y="0" width="3.2" height="16" rx="1" [style.fill]="!isOffline(bike) && getSignalBars(bike) >= 5 ? 'var(--color-success)' : 'var(--color-subtle)'" />
               @if (isOffline(bike)) {
-                <line x1="-1" y1="17" x2="25" y2="-1" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="-1" y1="17" x2="25" y2="-1" style="stroke: var(--color-brand)" stroke-width="2.5" stroke-linecap="round" />
               }
             </svg>
           </div>
 
           @if (bike.isImmobilized) {
-            <span class="h-8 px-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 shrink-0">
+            <span class="h-8 px-3 rounded-full bg-brand-soft border border-brand-line text-brand-strong text-xs font-bold inline-flex items-center gap-1.5 shrink-0">
               <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-400"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-brand"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
               </span>
               IMMOBILIZED
             </span>
           } @else {
             <span
               class="h-8 px-3 rounded-full border text-xs font-bold inline-flex items-center gap-1.5 shrink-0"
-              [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-zinc-100 border-zinc-200 text-zinc-900'"
+              [ngClass]="bike.movementStatus === 'Moving' ? 'bg-success-soft border-success-line text-success-strong' : 'bg-fill border-line text-ink'"
             >
               <span class="relative flex h-2 w-2">
                 <span
                   class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-400' : 'bg-zinc-400'"
+                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-success' : 'bg-muted'"
                 ></span>
                 <span
                   class="relative inline-flex rounded-full h-2 w-2"
-                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-emerald-500' : 'bg-zinc-500'"
+                  [ngClass]="bike.movementStatus === 'Moving' ? 'bg-success' : 'bg-muted'"
                 ></span>
               </span>
               {{ bike.movementStatus | uppercase }}
@@ -588,7 +588,7 @@
 
           <button
             type="button"
-            class="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 cursor-pointer shrink-0"
+            class="w-8 h-8 rounded-full bg-fill flex items-center justify-center text-muted cursor-pointer shrink-0"
             [title]="mobileSheetExpanded() ? 'Collapse' : 'Expand'"
           >
             <svg
@@ -608,7 +608,7 @@
             (click)="$event.stopPropagation(); dismiss.emit()"
             aria-label="Hide motorcycle details"
             title="Hide details"
-            class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 cursor-pointer shrink-0 transition-colors"
+            class="w-8 h-8 rounded-full bg-fill hover:bg-fill-strong flex items-center justify-center text-muted hover:text-ink cursor-pointer shrink-0 transition-colors"
           >
             <svg
               class="w-4 h-4"
@@ -627,26 +627,26 @@
     <!-- Expanded Telemetry Details -->
     @if (mobileSheetExpanded()) {
       <div class="p-4 space-y-3 overflow-y-auto flex-1 overscroll-contain touch-pan-y">
-        <div class="flex items-center gap-2.5 p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
-          <svg class="w-4 h-4 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="flex items-center gap-2.5 p-3 bg-canvas rounded-2xl border border-line/80">
+          <svg class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <p class="text-xs font-bold text-zinc-800 truncate">
+          <p class="text-xs font-bold text-ink-soft truncate">
             {{ bike.address || 'Awaiting GPS lock...' }}
           </p>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
-          <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
-            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Ignition</span>
-            <p class="text-xs font-bold mt-0.5" [ngClass]="bike.speedText.includes('ON') ? 'text-emerald-600' : 'text-amber-600'">
+          <div class="p-3 bg-canvas rounded-2xl border border-line/80">
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle">Ignition</span>
+            <p class="text-xs font-bold mt-0.5" [ngClass]="bike.speedText.includes('ON') ? 'text-success' : 'text-warning'">
               {{ bike.speedText.includes('ON') ? 'Engine ON' : 'Engine OFF' }}
             </p>
           </div>
-          <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200/80">
-            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-zinc-400">Speed</span>
-            <p class="text-xs font-bold text-zinc-900 mt-0.5">
+          <div class="p-3 bg-canvas rounded-2xl border border-line/80">
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider text-subtle">Speed</span>
+            <p class="text-xs font-bold text-ink mt-0.5">
               {{ bike.speedText.split('•')[0].trim() || '0.0 km/h' }}
             </p>
           </div>
@@ -656,14 +656,14 @@
           <button
             type="button"
             (click)="toggleImmobilize.emit(bike)"
-            class="w-full h-11 rounded-xl text-center font-bold text-xs sm:text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+            class="w-full h-11 rounded-xl text-center font-bold text-xs sm:text-sm text-surface flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
             [ngClass]="{
-              'bg-rose-600 hover:bg-rose-700': !bike.isImmobilized && bike.movementStatus === 'Stationary',
-              'bg-amber-500 hover:bg-amber-600': !bike.isImmobilized && bike.movementStatus === 'Moving',
-              'bg-emerald-600 hover:bg-emerald-700': bike.isImmobilized
+              'bg-brand hover:bg-brand-strong': !bike.isImmobilized && bike.movementStatus === 'Stationary',
+              'bg-warning hover:bg-warning-strong': !bike.isImmobilized && bike.movementStatus === 'Moving',
+              'bg-success hover:bg-success-strong': bike.isImmobilized
             }"
           >
-            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <svg class="w-4 h-4 text-surface" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             <span>{{ bike.isImmobilized ? 'Restore Ignition' : 'Immobilize Engine' }}</span>
@@ -674,15 +674,15 @@
   </div>
 } @else {
   <!-- Mobile No Motorcycle Banner -->
-  <div class="md:hidden absolute bottom-4 inset-x-4 bg-white rounded-2xl border border-zinc-200 shadow-xl p-4 flex items-center justify-between gap-3 z-20">
+  <div class="md:hidden absolute bottom-4 inset-x-4 bg-surface rounded-2xl border border-line shadow-xl p-4 flex items-center justify-between gap-3 z-20">
     <div>
-      <h3 class="font-bold text-sm text-zinc-900">No Motorcycle Found</h3>
-      <p class="text-xs text-zinc-500">Register to start tracking.</p>
+      <h3 class="font-bold text-sm text-ink">No Motorcycle Found</h3>
+      <p class="text-xs text-muted">Register to start tracking.</p>
     </div>
     <button
       type="button"
       (click)="openRegisterModal.emit()"
-      class="px-4 py-2 rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 cursor-pointer"
+      class="px-4 py-2 rounded-full bg-ink text-surface text-xs font-bold shrink-0 cursor-pointer"
     >
       Register
     </button>
