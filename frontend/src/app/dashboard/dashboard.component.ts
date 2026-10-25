@@ -440,7 +440,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.pathOriginMarker = L.circleMarker(coords[0], {
         radius: 5,
         color: themeColor('--color-info'),
-        fillColor: themeColor('--color-night'),
+        fillColor: themeColor('--color-brand'),
         fillOpacity: 1,
         weight: 2,
       })
@@ -512,7 +512,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <div style="background: color-mix(in srgb, var(--color-night) 94%, transparent); backdrop-filter: blur(4px); color: var(--color-surface); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent); box-shadow: 0 4px 10px color-mix(in srgb, var(--color-night) 40%, transparent); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
+          <div style="background: color-mix(in srgb, var(--color-brand) 94%, transparent); backdrop-filter: blur(4px); color: var(--color-surface); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent); box-shadow: 0 4px 10px color-mix(in srgb, var(--color-brand) 40%, transparent); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
             <span>${plate}</span>
           </div>
           <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
@@ -938,7 +938,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               icon: 'error',
               title: 'Action Failed',
               text: err?.error?.detail || 'Failed to update immobilization status',
-              confirmButtonColor: themeColor('--color-night'),
+              confirmButtonColor: themeColor('--color-brand'),
             });
           },
         });

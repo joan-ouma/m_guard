@@ -1,5 +1,5 @@
 @if (isOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-night/70 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-brand/70 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
     <div
       class="relative w-full max-w-xl bg-surface rounded-3xl shadow-2xl border border-line overflow-hidden flex flex-col my-auto animate-in zoom-in-95 duration-200"
     >
@@ -113,7 +113,7 @@
             <!-- TAB 1: Live Camera Scanner View -->
             @if (activeInputTab() === 'SCAN') {
               <div class="space-y-3">
-                <div class="relative w-full aspect-4/3 sm:aspect-16/10 rounded-2xl bg-night overflow-hidden flex items-center justify-center border border-line-strong">
+                <div class="relative w-full aspect-4/3 sm:aspect-16/10 rounded-2xl bg-brand overflow-hidden flex items-center justify-center border border-line-strong">
                   <video
                     #scannerVideo
                     playsinline
@@ -138,7 +138,7 @@
 
                   <!-- Camera Inactive / Loading Prompt -->
                   @if (!isCameraActive()) {
-                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-ink/90 text-surface gap-3">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-brand/90 text-surface gap-3">
                       <div class="w-12 h-12 rounded-full bg-brand-strong flex items-center justify-center text-subtle">
                         <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

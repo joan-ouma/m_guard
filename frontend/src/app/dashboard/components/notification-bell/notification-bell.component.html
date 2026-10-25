@@ -98,7 +98,7 @@
                 id="enableSnsPushBtn"
                 (click)="onEnableSns()"
                 [disabled]="notificationService.isRegistering()"
-                class="text-xs px-3 py-1 bg-brand hover:bg-night text-surface font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-brand hover:bg-brand text-surface font-bold rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {{ notificationService.isRegistering() ? 'Connecting...' : 'Enable Alerts' }}
               </button>
