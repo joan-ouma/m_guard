@@ -1,30 +1,6 @@
 <div class="flex items-center justify-between w-full h-full min-w-0 gap-3">
   <div class="flex items-center gap-3 lg:gap-5 min-w-0">
 
-    <!-- Mobile-Only Brand Icon & Bold Logo (Hidden on desktop where sidebar is visible) -->
-    <div class="flex lg:hidden items-center gap-2.5 min-w-0">
-      <div
-        class="w-9 h-9 rounded-full bg-brand flex items-center justify-center text-surface shrink-0 shadow-xs"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2.2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-          />
-        </svg>
-      </div>
-      <span id="headerPlateLabel" class="text-base sm:text-lg font-bold tracking-tight text-ink font-display">
-        MGuard
-      </span>
-    </div>
-
     @if (isBreachActive()) {
       <div
         id="alertBanner"
