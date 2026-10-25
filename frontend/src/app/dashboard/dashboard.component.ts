@@ -64,6 +64,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private map: L.Map | null = null;
   private bikeMarker: L.Marker | null = null;
+  /** True once the map is framed on a real bike position; until then the map waits for one. */
+  private hasCenteredOnPin = false;
   private geofenceLayer: L.Circle | null = null;
   private pathPolyline: L.Polyline | null = null;
   private pathGlow: L.Polyline | null = null;
@@ -266,11 +268,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const fallbackBike = this.bikeList().find((b) => b.lat !== 0 || b.lng !== 0);
     const hasBikeCoords = !!(bike && (bike.lat !== 0 || bike.lng !== 0));
-    // Without any bike position, show the city rather than the whole world.
-    const NAIROBI = { lat: -1.2921, lng: 36.8219 };
-    const centerLat = hasBikeCoords ? bike!.lat : fallbackBike ? fallbackBike.lat : NAIROBI.lat;
-    const centerLng = hasBikeCoords ? bike!.lng : fallbackBike ? fallbackBike.lng : NAIROBI.lng;
-    const zoomLevel = hasBikeCoords || fallbackBike ? 14 : 12;
+    // No position yet: a placeholder view that updateMapForCurrentBike replaces with the bike's pin.
+    const hasPosition = hasBikeCoords || !!fallbackBike;
+    const centerLat = hasBikeCoords ? bike!.lat : fallbackBike ? fallbackBike.lat : 0;
+    const centerLng = hasBikeCoords ? bike!.lng : fallbackBike ? fallbackBike.lng : 0;
+    const zoomLevel = hasPosition ? 14 : 2;
+    this.hasCenteredOnPin = hasPosition;
 
     this.map = L.map('map', {
       zoomControl: false,
@@ -372,10 +375,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.geofenceLayer = null;
     }
 
-    if (recenter && hasCoordinates) {
-      const currentZoom = this.map.getZoom() || 14;
-      this.map.setView([bike.lat, bike.lng], currentZoom);
+    if (hasCoordinates && (recenter || !this.hasCenteredOnPin)) {
+      const zoom = this.hasCenteredOnPin ? this.map.getZoom() || 14 : 14;
+      this.map.setView([bike.lat, bike.lng], zoom);
       this.map.invalidateSize();
+      this.hasCenteredOnPin = true;
     }
     this.loadAndDrawPath(bike);
   }
@@ -524,7 +528,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       className: 'bike-marker-pin',
       html: `
         <div class="bike-marker-badge">
-          <div style="background: color-mix(in srgb, var(--color-brand) 94%, transparent); backdrop-filter: blur(4px); color: var(--color-surface); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent); box-shadow: 0 4px 10px color-mix(in srgb, var(--color-brand) 40%, transparent); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
+          <div style="background: color-mix(in srgb, var(--color-brand) 94%, transparent); backdrop-filter: blur(4px); color: var(--color-surface); font-family: 'Barlow Semi Condensed', sans-serif; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 10px; border-radius: 9999px; border: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent); box-shadow: 0 4px 10px color-mix(in srgb, var(--color-ink) 40%, transparent); display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-bottom: 5px;">
             <span>${plate}</span>
           </div>
           <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
