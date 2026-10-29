@@ -1,3 +1,4 @@
+import { PublicFooterComponent } from '../../shared/public-footer/public-footer.component';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
@@ -84,7 +85,7 @@ const SERVICES: Record<string, ServiceDetail> = {
 @Component({
   selector: 'app-service-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, PublicFooterComponent],
   templateUrl: './service-detail.component.html',
   styleUrls: ['./service-detail.component.css', '../services/services.component.css', '../public-theme.css'],
 })

@@ -1,0 +1,115 @@
+/* Shared footer for the public pages: brand, three link columns, and a bottom bar. */
+.public-footer {
+  background-color: var(--text-dark);
+  color: var(--white);
+  padding: 72px 0 32px;
+}
+
+.public-footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  gap: 48px;
+}
+
+.public-footer-logo {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.public-footer-tagline {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 320px;
+}
+
+.public-footer-heading {
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+}
+
+.public-footer-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.public-footer-link {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.public-footer-link:hover,
+.public-footer-link:focus-visible {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.public-footer-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  margin: 0;
+}
+
+.public-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.public-footer-copyright {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0;
+}
+
+.public-footer-legal {
+  display: flex;
+  gap: 24px;
+}
+
+.public-footer-legal .public-footer-link {
+  font-size: 14px;
+}
+
+@media (max-width: 991px) {
+  .public-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 575px) {
+  .public-footer {
+    padding-top: 56px;
+  }
+
+  .public-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .public-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* The shared container classes come from the public theme, which this component does not load. */
+.public-footer .base-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}

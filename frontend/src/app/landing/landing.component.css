@@ -6188,14 +6188,14 @@ blockquote {
 .footer-with-cta {
   background-color: var(--text-dark);
   padding-top: 80px;
-  padding-bottom: 80px;
+  padding-bottom: 0;
 }
 
 .cta-wrapper {
   background-color: var(--primary);
   border-radius: 10px;
   margin-top: 0;
-  margin-bottom: 80px;
+  margin-bottom: 0;
   padding-top: 50px;
   padding-bottom: 50px;
   padding-left: 100px;
@@ -7520,11 +7520,11 @@ blockquote {
   }
 
   .footer-with-cta {
-    padding-bottom: 130px;
+    padding-bottom: 0;
   }
 
   .cta-wrapper {
-    margin-bottom: 130px;
+    margin-bottom: 0;
   }
 
   .comming-soon-wrap {
