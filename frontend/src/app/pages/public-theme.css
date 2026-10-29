@@ -316,8 +316,6 @@ p {
 }
 
 .testimonials-track {
-  margin-right: -48px;
-  padding-right: 48px;
   padding-top: 4px;
   padding-bottom: 12px;
   scroll-snap-type: x mandatory;
@@ -340,10 +338,21 @@ p {
   border-radius: 16px;
   flex-direction: column;
   justify-content: space-between;
-  flex: 0 0 min(440px, 84%);
+  flex: 0 0 84%;
   gap: 32px;
   padding: 36px;
   display: flex;
+}
+
+/* Desktop: three cards sit fully inside the container, none cut off */
+@media (min-width: 992px) {
+  .testimonial-card {
+    flex-basis: calc((100% - 48px) / 3);
+  }
+
+  .testimonials-dots {
+    display: none;
+  }
 }
 
 .testimonial-text {
