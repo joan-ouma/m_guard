@@ -40,7 +40,7 @@
       </p>
     </div>
   </div>
-  <img class="banner-image" src="/assets/landing/motorbike-urban.jpg" alt="Contact MGuard" loading="lazy">
+  <img class="banner-image" src="/assets/landing/service-motion-alert.jpg" alt="Contact MGuard" loading="lazy">
 </div>
 
 <div class="inner-section">
@@ -51,81 +51,55 @@
           <h6 class="section-subtitle">get in touch</h6>
           <h2>We safeguard motorcycle riders across Kenya</h2>
           <p class="paragraph-large dark-gray">
-            Whether you need emergency police assistance, device pairing support, or account setup, our support desk is active 24/7 across Nairobi, Mombasa, and Kisumu.
+            Whether you need emergency police assistance, device pairing support, or account setup, our support desk is available to riders across Kenya.
           </p>
         </div>
         <div class="contacts-divider"></div>
-        <div class="contacts-location-slider w-slider">
-          <div class="w-slider-mask">
-            <div class="w-slide" [style.display]="activeLocation() === 0 ? 'block' : 'none'">
-              <div class="contacts-detail-wrapper">
-                <h3>Nairobi HQ</h3>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <p class="paragraph-large paragraph-no-margin">Commercial Street, Industrial Area, Nairobi</p>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="tel:+254700000000" class="paragraph-no-margin">+254 700 000 000</a>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="mailto:support@motoguard.co.ke" class="paragraph-no-margin">support&#64;motoguard.co.ke</a>
-                </div>
-              </div>
-            </div>
-            <div class="w-slide" [style.display]="activeLocation() === 1 ? 'block' : 'none'">
-              <div class="contacts-detail-wrapper">
-                <h3>Mombasa Branch</h3>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <p class="paragraph-large paragraph-no-margin">Moi Avenue, City Centre, Mombasa</p>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="tel:+254711000000" class="paragraph-no-margin">+254 711 000 000</a>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="mailto:mombasa@motoguard.co.ke" class="paragraph-no-margin">mombasa&#64;motoguard.co.ke</a>
-                </div>
-              </div>
-            </div>
-            <div class="w-slide" [style.display]="activeLocation() === 2 ? 'block' : 'none'">
-              <div class="contacts-detail-wrapper">
-                <h3>Kisumu Office</h3>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <p class="paragraph-large paragraph-no-margin">Oginga Odinga Street, CBD, Kisumu</p>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="tel:+254722000000" class="paragraph-no-margin">+254 722 000 000</a>
-                </div>
-                <div class="contacts-detail">
-                  <p class="contacts-icon"></p>
-                  <a href="mailto:kisumu@motoguard.co.ke" class="paragraph-no-margin">kisumu&#64;motoguard.co.ke</a>
-                </div>
-              </div>
-            </div>
+        <div class="contacts-office">
+          <h3>Nairobi HQ</h3>
+          <div class="contacts-detail">
+            <p class="contacts-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></p>
+            <p class="paragraph-large paragraph-no-margin">Commercial Street, Industrial Area, Nairobi</p>
           </div>
-          <div class="contacts-left-arrow w-slider-arrow-left" (click)="prevLocation()" role="button" tabindex="0">
-            <div class="contacts-slider-arrow-icon"></div>
+          <div class="contacts-detail">
+            <p class="contacts-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg></p>
+            <a href="tel:+254114333909" class="paragraph-no-margin">+254 114 333 909</a>
           </div>
-          <div class="contacts-right-arrow w-slider-arrow-right" (click)="nextLocation()" role="button" tabindex="0">
-            <div class="contacts-slider-arrow-icon"></div>
+          <div class="contacts-detail">
+            <p class="contacts-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></svg></p>
+            <a href="mailto:mguard@outlook.com" class="paragraph-no-margin">mguard&#64;outlook.com</a>
           </div>
-          <div class="contacts-arrows-divider"></div>
         </div>
       </div>
       <div class="contacts-form-wrapper">
         <h3 class="contacts-form-title">Send Us a Message</h3>
         <div class="w-form">
-          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
-            <input class="contacts-input w-input" maxlength="256" name="name" placeholder="Your name" type="text" id="name" required="">
-            <input class="contacts-input w-input" maxlength="256" name="email" placeholder="Your email" type="email" id="email" required="">
-            <textarea placeholder="Tell us about your motorcycle security requirements..." maxlength="5000" id="field" name="field" class="contacts-textarea w-input"></textarea>
-            <input type="submit" class="primary-button full-width-mobile w-button" value="Submit Message">
+          <form id="contact-form" name="contact-form" class="contact-form" ngNativeValidate (ngSubmit)="sendMessage()">
+            <label class="contact-field">
+              <span class="contact-label">Full name</span>
+              <input class="contacts-input w-input" maxlength="256" name="name" placeholder="Your name" type="text" required [(ngModel)]="enquiry.name">
+            </label>
+            <label class="contact-field">
+              <span class="contact-label">Email address</span>
+              <input class="contacts-input w-input" maxlength="256" name="email" placeholder="you@example.com" type="email" required [(ngModel)]="enquiry.email">
+            </label>
+            <label class="contact-field">
+              <span class="contact-label">How can we help?</span>
+              <select class="contacts-input" name="topic" required [(ngModel)]="enquiry.topic">
+                <option value="" disabled>Select a topic</option>
+                <option value="Device activation">Device activation</option>
+                <option value="Technical support">Technical support</option>
+                <option value="Emergency escalation">Emergency escalation</option>
+                <option value="Billing or account">Billing or account</option>
+                <option value="General enquiry">General enquiry</option>
+              </select>
+            </label>
+            <label class="contact-field">
+              <span class="contact-label">Message</span>
+              <textarea placeholder="Tell us about your motorcycle security requirements..." maxlength="5000" name="message" class="contacts-textarea w-input" required [(ngModel)]="enquiry.message"></textarea>
+            </label>
+            <button type="submit" class="primary-button full-width-mobile w-button">Send Message</button>
+            <p class="contact-form-note">Your email app will open with your message ready to send.</p>
           </form>
         </div>
       </div>
@@ -192,8 +166,7 @@
       </div>
       <div class="footer-location-wrap">
         <p class="footer-location">Nairobi, Kenya</p>
-        <a href="tel:+254700000000" class="footer-number">+254 700 000 000</a>
-        <a href="tel:+254711000000" class="footer-number">+254 711 000 000</a>
+        <a href="tel:+254114333909" class="footer-number">+254 114 333 909</a>
       </div>
       <div class="footer-contact-wrap">
         <h2 class="footer-title">Contact Us</h2>

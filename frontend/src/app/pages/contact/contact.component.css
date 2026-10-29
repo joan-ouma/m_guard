@@ -3459,12 +3459,18 @@ blockquote {
 
 .contacts-icon {
   color: var(--primary);
-  min-width: 17px;
+  min-width: 18px;
+  min-height: 24px;
   margin-top: 0;
   margin-bottom: 0;
   margin-right: 15px;
-  font-family: "Fa solid 900", sans-serif;
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.contacts-icon svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .paragraph-no-margin {
@@ -3560,6 +3566,31 @@ blockquote {
 .contacts-form-title {
   text-align: center;
   margin-bottom: 40px;
+}
+
+.contact-field {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.contact-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.contact-form select.contacts-input {
+  width: 100%;
+  font-weight: 400;
+}
+
+.contact-form-note {
+  margin: 16px 0 0;
+  color: var(--dark-gray);
+  font-size: 14px;
+  text-align: center;
 }
 
 .contacts-title {
