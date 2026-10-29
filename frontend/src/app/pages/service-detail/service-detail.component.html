@@ -66,47 +66,4 @@
   </div>
 }
 
-<div class="footer">
-  <div class="base-container w-container">
-    <div class="footer-wrapper">
-      <div class="footer-brand-wrapper">
-        <div class="footer-logo-wrapper">
-          <a routerLink="/" class="footer-brand w-nav-brand">
-            <img src="/assets/landing/footer-logo.svg" loading="lazy" alt="MGuard Logo" height="30" class="footer-logo">
-          </a>
-          <p class="footer-brand-description">Smart motorcycle tracking, anti-theft security lock, and rider protection built for Kenya.</p>
-        </div>
-        <div class="footer-social-icons-wrapper">
-          <a href="https://www.instagram.com/" target="_blank" class="footer-social-icon"></a>
-          <a href="https://www.facebook.com/" target="_blank" class="footer-social-icon"></a>
-          <a href="https://twitter.com/" target="_blank" class="footer-social-icon"></a>
-        </div>
-      </div>
-      <div class="footer-location-wrap">
-        <p class="footer-location">Nairobi, Kenya</p>
-        <a href="tel:+254114333909" class="footer-number">+254 114 333 909</a>
-      </div>
-      <div class="footer-contact-wrap">
-        <h2 class="footer-title">Contact Us</h2>
-        <p class="footer-description">Subscribe to our newsletter for rider security advisories and updates.</p>
-        <div class="w-form">
-          <form id="email-form" name="email-form" class="form" (submit)="$event.preventDefault()">
-            <input class="footer-text-field w-input" maxlength="256" name="Email" placeholder="Email" type="email" id="Email" required="">
-            <input type="submit" class="primary-button-white full-width w-button" value="Subscribe">
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="footer-nav-wrap">
-      <a routerLink="/" class="footer-link">Home</a>
-      <a routerLink="/about" class="footer-link">About Us</a>
-      <a routerLink="/services" class="footer-link w--current">Services</a>
-      <a routerLink="/contact" class="footer-link">Contact Us</a>
-      <a routerLink="/terms" class="footer-link">Terms</a>
-      <a routerLink="/privacy" class="footer-link">Privacy</a>
-    </div>
-    <div class="footer-rights-wrapper">
-      <div class="footer-copyright">© MGuard Technologies. All Rights Reserved.</div>
-    </div>
-  </div>
-</div>
+<app-public-footer></app-public-footer>

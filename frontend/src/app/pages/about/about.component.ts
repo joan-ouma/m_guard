@@ -1,3 +1,4 @@
+import { PublicFooterComponent } from '../../shared/public-footer/public-footer.component';
 import { Component, signal, AfterViewInit, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -5,7 +6,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PublicFooterComponent],
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.css', '../public-theme.css'],
 })

@@ -1,3 +1,4 @@
+import { PublicFooterComponent } from '../../shared/public-footer/public-footer.component';
 import { Component, signal, AfterViewInit, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, PublicFooterComponent],
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.css', '../public-theme.css'],
 })
