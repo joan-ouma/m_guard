@@ -1,0 +1,71 @@
+/* Service detail: photo and benefits side by side on desktop, stacked on mobile. */
+.service-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.service-detail-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(23, 32, 57, 0.12);
+  display: block;
+}
+
+.service-detail-content h2 {
+  margin: 0 0 20px;
+}
+
+.service-detail-points {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.service-detail-points li {
+  position: relative;
+  padding-left: 28px;
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+.service-detail-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+
+.service-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.service-detail-secondary {
+  color: var(--text-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.service-detail-secondary:hover {
+  color: var(--primary);
+}
+
+@media (max-width: 991px) {
+  .service-detail {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
