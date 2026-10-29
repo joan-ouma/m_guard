@@ -4,6 +4,17 @@
 @import 'leaflet/dist/leaflet.css';
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
+/* Smooth in-page scrolling for anchor links; respects reduced-motion preferences. */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* SweetAlert2: neutral popup and focus shadows; its default focus ring takes the red button color. */
 .swal2-popup {
   box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--color-ink) 25%, transparent) !important;

@@ -3680,11 +3680,18 @@ blockquote {
   font-size: 18px;
 }
 
+.service-list li {
+  align-items: flex-start;
+  display: flex;
+}
+
 .list-item-circle {
   background-color: var(--primary);
   border-radius: 50%;
+  flex-shrink: 0;
   width: 8px;
   height: 8px;
+  margin-top: 0.55em;
   margin-right: 15px;
   display: block;
 }

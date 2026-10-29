@@ -6040,14 +6040,14 @@ blockquote {
 
 .footer-with-cta {
   background-color: var(--text-dark);
-  margin-top: 190px;
+  padding-top: 80px;
   padding-bottom: 80px;
 }
 
 .cta-wrapper {
   background-color: var(--primary);
   border-radius: 10px;
-  margin-top: -190px;
+  margin-top: 0;
   margin-bottom: 80px;
   padding-top: 50px;
   padding-bottom: 50px;
