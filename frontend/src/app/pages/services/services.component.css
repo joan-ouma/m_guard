@@ -10887,3 +10887,13 @@ blockquote {
     height: 280px;
   }
 }
+
+/* The service cards sit close under the heading, so the gap reads as one block. */
+.inner-section.services-cards-section {
+  padding-top: 24px;
+}
+
+/* The banner's legacy bottom margin added space above the cards. */
+.inner-banner .inner-banner-wrap {
+  margin-bottom: 0;
+}
