@@ -1,33 +1,31 @@
 import { Component, signal, AfterViewInit, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.css', '../public-theme.css'],
 })
 export class ContactComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);
   mobileMenuOpen = signal<boolean>(false);
-  activeLocation = signal<number>(0);
+  enquiry = { name: '', email: '', topic: '', message: '' };
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
   }
 
-  nextLocation(): void {
-    this.activeLocation.update((curr) => (curr + 1) % 3);
-  }
-
-  prevLocation(): void {
-    this.activeLocation.update((curr) => (curr - 1 + 3) % 3);
-  }
-
-  setLocation(index: number): void {
-    this.activeLocation.set(index);
+  sendMessage(): void {
+    const { name, email, topic, message } = this.enquiry;
+    const subject = `${topic} enquiry from ${name}`;
+    const body = `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`;
+    window.location.href =
+      `mailto:mguard@outlook.com?subject=${encodeURIComponent(subject)}` +
+      `&body=${encodeURIComponent(body)}`;
   }
 
   ngAfterViewInit(): void {
