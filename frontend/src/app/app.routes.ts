@@ -18,6 +18,7 @@ import { ContactsComponent } from './contacts/contacts.component';
 import { LandingComponent } from './landing/landing.component';
 import { AboutComponent } from './pages/about/about.component';
 import { ServicesComponent } from './pages/services/services.component';
+import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { AppShellComponent } from './core/layout/app-shell.component';
 
@@ -180,6 +181,15 @@ export const routes: Routes = [
       description:
         'Explore MGuard services: real-time GPS tracking, remote security lock, instant motion alerts, and route history.',
       keywords: 'motorcycle tracking services, remote engine cutoff, boda boda tracking, GPS telemetry',
+    },
+  },
+  {
+    path: 'services/:slug',
+    component: ServiceDetailComponent,
+    title: 'Service | MGuard',
+    data: {
+      description: 'Learn what this MGuard service does for your motorcycle and how it protects your ride.',
+      keywords: 'motorcycle tracking, remote engine cutoff, motion alerts, boda boda security',
     },
   },
   {

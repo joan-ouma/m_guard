@@ -70,7 +70,8 @@ p {
 
 /* Inner page banner: title and intro stacked, then a contained photo */
 .inner-banner {
-  padding-top: clamp(48px, 6vw, 80px);
+  /* Clears the fixed navbar on phones, where it is about 70px tall. */
+  padding-top: clamp(104px, 8vw, 120px);
 }
 
 .inner-banner .inner-banner-wrap {
