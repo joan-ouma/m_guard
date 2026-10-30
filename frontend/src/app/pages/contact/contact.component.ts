@@ -1,7 +1,7 @@
 import { PublicFooterComponent } from '../../shared/public-footer/public-footer.component';
 import { Component, signal, AfterViewInit, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,8 +13,15 @@ import { FormsModule } from '@angular/forms';
 })
 export class ContactComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);
+  private route = inject(ActivatedRoute);
   mobileMenuOpen = signal<boolean>(false);
   enquiry = { name: '', email: '', topic: '', message: '' };
+
+  constructor() {
+    // Links such as /contact?topic=Partner%20with%20us preselect the matching topic.
+    const topic = this.route.snapshot.queryParamMap.get('topic');
+    if (topic) this.enquiry.topic = topic;
+  }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);

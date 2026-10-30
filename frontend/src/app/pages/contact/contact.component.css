@@ -3423,10 +3423,16 @@ blockquote {
   font-size: 18px;
 }
 
+/* Top-aligned so the intro sits level with the form instead of floating mid-row. */
 .contacts-wrapper {
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   display: flex;
+}
+
+/* The banner already leaves space below the title, so the form starts closer to it. */
+.inner-section.contact-section {
+  padding-top: 0;
 }
 
 .contacts-content-wrapper {
@@ -3526,8 +3532,8 @@ blockquote {
 
 .contacts-textarea {
   border: 1px solid var(--white);
-  min-height: 200px;
-  margin-bottom: 30px;
+  min-height: 140px;
+  margin-bottom: 24px;
   padding: 16px 18px;
   font-family: Inter, sans-serif;
   font-size: 16px;
@@ -10749,4 +10755,40 @@ blockquote {
     animation-timeline: view();
     animation-range: entry 10% cover 30%;
   }
+}
+/* Emergency line card that fills the space under the office details. */
+.contacts-emergency {
+  margin-top: 40px;
+  padding: 28px;
+  border-radius: 16px;
+  background-color: var(--text-dark);
+  color: var(--white);
+}
+
+.contacts-emergency h3 {
+  margin: 0 0 10px;
+  color: var(--white);
+}
+
+.contacts-emergency p {
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+.contacts-emergency-number {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 60px;
+  background-color: #ff3841;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Support capabilities: white band so its cards separate from the grey form area above. */
+.support-section {
+  background-color: #ffffff;
+  border-top: 1px solid #e4e4e7;
+  padding: 96px 0;
 }
