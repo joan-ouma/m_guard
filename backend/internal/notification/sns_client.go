@@ -168,7 +168,6 @@ func (c *AWSSNSClient) PublishToEndpoint(ctx context.Context, endpointARN string
 	return resp.Result.MessageID, nil
 }
 
-
 func (c *AWSSNSClient) PublishToTopic(ctx context.Context, topicARN string, subject, rawMessage, gcmPayload string) (string, error) {
 	params := url.Values{}
 	params.Set("Action", "Publish")

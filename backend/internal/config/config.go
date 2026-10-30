@@ -7,22 +7,22 @@ import (
 )
 
 type Config struct {
-	Port                string
-	DatabaseURL         string
-	JWTSecret           string
-	MQTTBrokerURL       string
-	MQTTUsername        string
-	MQTTPassword        string
-	MailjetAPIKey       string
-	MailjetSecretKey    string
-	MailjetSenderEmail  string
-	MailjetReplyToEmail string
-	MailjetSenderName   string
-	FrontendURL         string
-	LogFile             string
-	AWSRegion           string
-	AWSAccessKeyID      string
-	AWSSecretAccessKey  string
+	Port                 string
+	DatabaseURL          string
+	JWTSecret            string
+	MQTTBrokerURL        string
+	MQTTUsername         string
+	MQTTPassword         string
+	MailjetAPIKey        string
+	MailjetSecretKey     string
+	MailjetSenderEmail   string
+	MailjetReplyToEmail  string
+	MailjetSenderName    string
+	FrontendURL          string
+	LogFile              string
+	AWSRegion            string
+	AWSAccessKeyID       string
+	AWSSecretAccessKey   string
 	AWSSNSPlatformAppARN string
 	AWSSNSTopicARN       string
 }

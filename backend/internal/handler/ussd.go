@@ -30,7 +30,6 @@ func (h *USSDHandler) Routes() chi.Router {
 	return r
 }
 
-
 // HandleUSSD processes Africa's Talking USSD callback.
 func (h *USSDHandler) HandleUSSD(w http.ResponseWriter, r *http.Request) {
 	var req domain.USSDRequest
@@ -68,8 +67,6 @@ func (h *USSDHandler) HandleUSSD(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(respText))
 }
-
-
 
 func getParam(r *http.Request, keys ...string) string {
 	for _, k := range keys {

@@ -101,9 +101,9 @@ type TelemetryPayload struct {
 func (p *TelemetryPayload) UnmarshalJSON(data []byte) error {
 	type Alias TelemetryPayload
 	aux := &struct {
-		Spd     *float64 `json:"spd"`
-		Hdg     *float64 `json:"hdg"`
-		Event   *string  `json:"event"`
+		Spd   *float64 `json:"spd"`
+		Hdg   *float64 `json:"hdg"`
+		Event *string  `json:"event"`
 		*Alias
 	}{
 		Alias: (*Alias)(p),

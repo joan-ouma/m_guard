@@ -6,13 +6,13 @@ import (
 )
 
 type SecurityAlert struct {
-	BikeID      string    `json:"bike_id"`
-	Title       string    `json:"title"`
-	Body        string    `json:"body"`
-	EventType   string    `json:"event_type"`
-	Latitude    float64   `json:"latitude,omitempty"`
-	Longitude   float64   `json:"longitude,omitempty"`
-	RecordedAt  time.Time `json:"recorded_at"`
+	BikeID     string    `json:"bike_id"`
+	Title      string    `json:"title"`
+	Body       string    `json:"body"`
+	EventType  string    `json:"event_type"`
+	Latitude   float64   `json:"latitude,omitempty"`
+	Longitude  float64   `json:"longitude,omitempty"`
+	RecordedAt time.Time `json:"recorded_at"`
 }
 
 type DeviceEndpoint struct {

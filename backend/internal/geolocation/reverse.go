@@ -118,13 +118,13 @@ func (g *ReverseGeocoder) fromNominatim(ctx context.Context, lat, lng float64) (
 		DisplayName string `json:"display_name"`
 		Name        string `json:"name"`
 		Address     struct {
-			Road         string `json:"road"`
+			Road          string `json:"road"`
 			Neighbourhood string `json:"neighbourhood"`
-			Suburb       string `json:"suburb"`
-			CityDistrict string `json:"city_district"`
-			City         string `json:"city"`
-			County       string `json:"county"`
-			State        string `json:"state"`
+			Suburb        string `json:"suburb"`
+			CityDistrict  string `json:"city_district"`
+			City          string `json:"city"`
+			County        string `json:"county"`
+			State         string `json:"state"`
 		} `json:"address"`
 	}
 

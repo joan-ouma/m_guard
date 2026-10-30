@@ -51,7 +51,6 @@ func TestRenderBikeStatus(t *testing.T) {
 	}
 }
 
-
 func TestParseUSSDStack(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -62,7 +61,7 @@ func TestParseUSSDStack(t *testing.T) {
 		{"1*0", nil},             // Pressed 1, then went back
 		{"1*0*2", []string{"2"}}, // Pressed 1, went back, then pressed 2
 		{"2*1", []string{"2", "1"}},
-		{"4*0", nil},             // Pressed emergency phones, then went back
+		{"4*0", nil}, // Pressed emergency phones, then went back
 	}
 
 	for _, tt := range tests {
@@ -157,4 +156,3 @@ func stringIndex(s, substr string) int {
 	}
 	return -1
 }
-

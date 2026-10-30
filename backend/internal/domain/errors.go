@@ -121,4 +121,3 @@ func NewConflictError(detail string, instance string) ProblemDetails {
 		Instance: instance,
 	}
 }
-
