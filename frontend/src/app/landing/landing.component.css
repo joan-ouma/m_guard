@@ -6481,7 +6481,7 @@ blockquote {
 
 .home-banner-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+  grid-template-columns: 0.9fr 1.1fr;
   align-items: center;
   gap: 40px;
   width: 100%;
@@ -6501,9 +6501,9 @@ blockquote {
 .bunner-building {
   z-index: 2;
   width: 100%;
-  height: auto;
+  height: 100%;
   max-height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   position: absolute;
   inset: 0;
@@ -6515,8 +6515,8 @@ blockquote {
   justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 560px;
-  height: 480px;
+  max-width: 100%;
+  height: 600px;
   display: flex;
   position: relative;
   margin: 0 auto;
@@ -11106,7 +11106,7 @@ blockquote {
 /* --- Hero Banner Responsive Grid --- */
 .home-banner-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+  grid-template-columns: 0.9fr 1.1fr;
   align-items: center;
   gap: 48px;
   width: 100%;
@@ -11122,8 +11122,8 @@ blockquote {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 560px;
-  height: 480px;
+  max-width: 100%;
+  height: 460px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11140,6 +11140,8 @@ blockquote {
   object-position: center;
   z-index: 2;
   pointer-events: none;
+  transform: scale(1.2);
+  transform-origin: center;
 }
 
 .home-banner-grid .circle-relative {
@@ -11533,4 +11535,523 @@ blockquote {
   margin: 32px 0 0;
   font-size: 13px;
   line-height: 1.6;
+}
+
+
+/* Phones: service cards grow with their text instead of clipping it. */
+@media (max-width: 991px) {
+  .service-card-wrap,
+  .service-card {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .service-card {
+    overflow: visible;
+  }
+}
+
+/* Home Our Services: heading and button centred on top, the three cards in one row below. */
+#services .services-wrap {
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+#services .service-text-wrap {
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#services .service-text-wrap h2 {
+  margin: 0 0 32px;
+}
+
+#services .service-info {
+  width: 100%;
+}
+
+#services .service-card-wrap {
+  justify-content: center;
+  align-items: stretch;
+}
+
+#services .service-card {
+  width: calc(33.33% - 20px);
+}
+
+#services .service-info-wrap {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 991px) {
+  #services .service-card {
+    width: 100%;
+  }
+}
+
+/* Home Our Services: tighter so the whole section fits one screen. */
+#services {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+#services .services-wrap {
+  gap: 32px;
+}
+
+#services .service-text-wrap h2 {
+  margin-bottom: 16px;
+}
+
+#services .svc-lead {
+  max-width: 620px;
+  margin: 0 0 24px;
+}
+
+#services .service-card-content {
+  padding: 22px 22px 20px;
+}
+
+/* Keep the whole home Services section within one screen on desktop. */
+#services {
+  padding-top: 48px;
+  padding-bottom: 40px;
+}
+
+#services .services-wrap {
+  gap: 24px;
+}
+
+#services .service-text-wrap h2 {
+  margin-bottom: 12px;
+}
+
+#services .svc-lead {
+  margin-bottom: 20px;
+}
+
+#services .service-card-media {
+  height: 165px;
+}
+
+#services .service-info-wrap {
+  margin-top: 0;
+}
+
+/* Home Our Services: the single supporting line under the label. */
+#services .svc-lead {
+  margin: 0 auto 28px;
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #5e5e5e;
+  text-align: center;
+}
+
+/* Home Our Services: polished call to action under the cards. */
+#services .service-info-wrap {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+}
+
+#services .svc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 30px;
+  border-radius: 60px;
+  background-color: #ff3841;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 10px 24px -10px rgba(255, 56, 65, 0.6);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#services .svc-cta:hover {
+  background-color: #e0262e;
+  transform: translateY(-1px);
+}
+
+#services .svc-cta img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+}
+
+/* Home Our Services: full desktop-screen composition on a dark band, with vivid accents. */
+#services {
+  padding: 80px 0 88px;
+  background-color: #172039;
+}
+
+#services .base-container {
+  width: 100%;
+}
+
+#services .services-wrap {
+  gap: 56px;
+}
+
+#services .section-subtitle {
+  color: #ff3841;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+}
+
+#services .svc-lead {
+  margin: 14px auto 0;
+  max-width: 900px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+#services .service-info {
+  width: 100%;
+}
+
+#services .service-card-wrap {
+  gap: 28px;
+  justify-content: stretch;
+}
+
+#services .service-card {
+  width: calc(33.33% - 19px);
+  background-color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+#services .service-card-media {
+  height: 260px;
+}
+
+#services .service-card-content {
+  padding: 28px 28px 30px;
+}
+
+#services .service-card-content h3 {
+  font-size: 22px;
+}
+
+#services .service-card-content p {
+  font-size: 15.5px;
+}
+
+#services .service-info-wrap {
+  margin-top: 48px;
+}
+
+#services .svc-cta {
+  padding: 16px 36px;
+  font-size: 17px;
+  box-shadow: none;
+}
+
+@media (max-width: 991px) {
+  #services {
+    padding: 64px 0;
+  }
+
+  #services .service-card {
+    width: 100%;
+  }
+
+  #services .service-card-media {
+    height: 220px;
+  }
+}
+
+/* Continuous 24/7 Protection: icon points under the paragraph. */
+.solution-points {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.solution-points li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 16px;
+  color: #172039;
+}
+
+.solution-point-icon {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #fff1f2;
+  color: #ff3841;
+}
+
+
+/* Closing call to action: the navy band around the card becomes the light page colour,
+   so the card reads as a badge above the navy footer. The card and its illustration keep their original look. */
+.footer-with-cta {
+  background-color: #f1f2f4;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+/* How we protect riders: the branching diagram is replaced by a numbered sequence that flows
+   top to bottom, with a downward arrow between steps. */
+#process .help-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+#process .help-animation {
+  display: none !important;
+}
+
+#process .help-wrap {
+  width: 42%;
+}
+
+#process .help-details-wrap {
+  width: 48%;
+  gap: 0;
+  counter-reset: step;
+}
+
+#process .help-details-wrap > div {
+  position: relative;
+  padding: 0 0 40px 68px;
+  counter-increment: step;
+}
+
+#process .help-details-wrap > div:last-child {
+  padding-bottom: 0;
+}
+
+#process .help-details-wrap > div::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #fff1f2;
+  color: #ff3841;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+#process .help-details-wrap > div:not(:last-child) {
+  background: linear-gradient(#ff3841, #ff3841) 21px 56px / 2px calc(100% - 64px) no-repeat;
+}
+
+#process .help-details-wrap > div:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #ff3841;
+}
+
+@media (max-width: 991px) {
+  #process .help-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 48px;
+  }
+
+  #process .help-wrap,
+  #process .help-details-wrap {
+    width: 100%;
+  }
+}
+
+/* How we protect riders: alternate colours down the sequence (red, navy, red). */
+#process .help-details-wrap > div:nth-child(even)::before {
+  background-color: #e8ebf3;
+  color: #172039;
+}
+
+#process .help-details-wrap > div:nth-child(even):not(:last-child) {
+  background: linear-gradient(#172039, #172039) 21px 56px / 2px calc(100% - 64px) no-repeat;
+}
+
+#process .help-details-wrap > div:nth-child(even):not(:last-child)::after {
+  border-top-color: #172039;
+}
+
+
+/* How we protect riders: light grey band, matching the hero. */
+#process {
+  background-color: #f1f2f4;
+}
+
+/* Partners email: outlined pill beside the primary button, same height. */
+.partners-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.partners-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: 2px solid #172039;
+  border-radius: 60px;
+  color: #172039;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.partners-email:hover {
+  background-color: #172039;
+  color: #ffffff;
+}
+
+/* How we protect riders: tighter gap between the label and heading, larger gap above the photo. */
+#process .help-wrap {
+  row-gap: 20px;
+}
+
+#process .help-wrap h2 {
+  margin-top: 0;
+}
+
+#process .help-media {
+  margin-top: 30px;
+}
+
+/* How we protect riders: larger photo, heading lifted closer to its label. */
+#process .help-media {
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  margin-top: 30px;
+}
+
+#process .help-wrap h2 {
+  margin-top: -14px;
+}
+
+/* Continuous 24/7 Protection: label spacing matches the other sections. */
+#solutions .solution-text .section-subtitle {
+  margin-bottom: 16px;
+}
+
+/* Continuous 24/7 Protection: the photo stretches to the height of the text column. */
+#solutions .solutions-wrap {
+  align-items: stretch;
+}
+
+#solutions .solution-video {
+  display: flex;
+}
+
+#solutions .solution-media {
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 440px;
+}
+
+/* Partner cards: icon tile above each title, matching the site's icon style. */
+.partners-points li {
+  padding: 24px 26px;
+}
+
+.partners-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #fff1f2;
+  color: #ff3841;
+}
+
+/* Partners: compact cards with the icon beside the title, columns centred against each other. */
+#partners .partners-wrap {
+  align-items: center;
+}
+
+#partners .partners-points {
+  gap: 14px;
+}
+
+#partners .partners-points li {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 16px;
+  align-items: start;
+  padding: 18px 22px;
+}
+
+#partners .partners-icon {
+  grid-row: span 2;
+  margin: 0;
+}
+
+#partners .partners-points h3 {
+  margin: 0 0 4px;
+}
+
+#partners .partners-points p {
+  margin: 0;
+}
+
+/* Partners: tighter vertical padding so the whole section fits one laptop screen. */
+#partners {
+  padding-top: 72px;
+  padding-bottom: 72px;
+}
+
+/* Partners: fills the full screen height, with the content centred vertically. */
+#partners {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+#partners > .base-container {
+  width: 100%;
+}
+
+/* Phones: the process heading wraps naturally instead of breaking at the desktop line break. */
+@media (max-width: 575px) {
+  #process .help-wrap h2 br {
+    display: none;
+  }
 }
