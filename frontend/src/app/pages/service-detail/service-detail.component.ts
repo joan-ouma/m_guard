@@ -26,8 +26,8 @@ const SERVICES: Record<string, ServiceDetail> = {
     ],
   },
   'engine-cut-off': {
-    title: 'Remote Engine Cut-Off',
-    intro: 'Instantly turn off your motorcycle engine remotely from your phone with a single tap. Disables the bike immediately in case of theft or hijacking.',
+    title: 'Remote Lock',
+    intro: 'Lock your motorcycle remotely from your phone with a single tap. The bike is locked straight away if it is taken.',
     image: '/assets/landing/svc-engine-cutoff.jpg',
     imageAlt: 'Motorcycle ignition key',
     points: [
