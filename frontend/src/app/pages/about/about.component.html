@@ -31,166 +31,190 @@
   <div class="w-nav-overlay" (click)="toggleMobileMenu()" [style.display]="mobileMenuOpen() ? 'block' : 'none'"></div>
 </div>
 
-<div class="inner-banner">
+<section class="about-section">
   <div class="base-container w-container">
-    <div class="inner-banner-wrap">
-      <h1 class="inner-title">About Us</h1>
-      <p class="inner-description">
-        MGuard is a smart motorcycle tracking and anti-theft security system built specifically for Kenyan boda boda riders. We combine 24/7 intelligent tracking, instant mobile alerts, and remote engine control to keep your bike safe and protect your daily livelihood.
-      </p>
+    <div class="about-split">
+      <div class="about-split-intro">
+        <h6 class="section-subtitle">Our story</h6>
+        <h2 class="about-heading">Our Story</h2>
+        <p class="paragraph-large dark-gray">
+          Boda bodas feed many Kenyan families. But bikes get stolen, and riders lose their income. MGuard keeps your bike safe, day and night, and helps you get it back fast.
+        </p>
+      
+        <div class="about-photo-row">
+          <img src="/assets/landing/about-street.jpg" alt="Boda boda motorcycles on a busy street" loading="lazy">
+        </div>
+      </div>
+      <div class="about-cards about-cards-stack">
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></svg></span>
+          <div>
+            <h3>The Street Reality</h3>
+            <p>MGuard is made only for motorcycles. It is small, strong, and works on the road.</p>
+          </div>
+        </article>
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg></span>
+          <div>
+            <h3>Instant Anti-Theft Response</h3>
+            <p>Your bike stays protected all day and night. If someone moves it, your phone gets an alert at once. You can cut the engine from your phone.</p>
+          </div>
+        </article>
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+          <div>
+            <h3>Rider Community Support</h3>
+            <p>We keep a clear record of where your bike went. We help you get it back, with the people around you.</p>
+          </div>
+        </article>
+      </div>
     </div>
   </div>
-  <img class="banner-image" src="/assets/landing/motorbike-riders.jpg" alt="About MGuard" loading="lazy">
-</div>
+</section>
 
-<div class="inner-section primary-light-bg">
+<section class="about-section about-section-tint">
   <div class="base-container w-container">
-    <div class="story-wrapper">
-      <div class="story-text">
-        <h2>Our Story</h2>
-        <div class="description-wrap">
-          <p class="paragraph-large dark-gray">
-            Boda bodas are a cornerstone of Kenya's economy, yet riders face immense risks of motorcycle theft and loss of daily livelihood. MGuard provides dependable, always-on protection designed specifically for motorcycles, giving riders full visibility and rapid recovery coordination whenever needed.
-          </p>
-        </div>
+    <div class="about-split">
+      <div class="about-split-intro">
+        <h6 class="section-subtitle">Why choose us</h6>
+        <h2 class="about-heading">Why Choose Us</h2>
+        <img class="why-photo" src="/assets/about/why-silhouette.png" alt="Silhouette of a person with a question mark" loading="lazy">
       </div>
-        <ol class="story-points">
-          <li class="story-point">
-            <span class="story-point-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></svg></span>
-            <div>
-              <h3 class="story-point-title">The Street Reality</h3>
-              <p class="story-point-text">MGuard is engineered specifically for motorcycles, ensuring discreet integration, extreme durability, and seamless connectivity on the road.</p>
-            </div>
-          </li>
-          <li class="story-point">
-            <span class="story-point-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg></span>
-            <div>
-              <h3 class="story-point-title">Instant Anti-Theft Response</h3>
-              <p class="story-point-text">Intelligent power management ensures your motorcycle stays protected around the clock, triggering instant alerts upon any unauthorized motion and enabling remote engine control.</p>
-            </div>
-          </li>
-          <li class="story-point">
-            <span class="story-point-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
-            <div>
-              <h3 class="story-point-title">Rider Community Support</h3>
-              <p class="story-point-text">Accurate route records provide clear proof of theft, coordinating directly with stage leaders and police for swift motorcycle recovery.</p>
-            </div>
-          </li>
-        </ol>
-      <div class="story-image-wrap">
-        <img class="story-image" src="/assets/landing/motorbike-parked.jpg" alt="MGuard Operations" loading="lazy">
+      <div class="about-cards about-cards-stack">
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2" /><rect width="6" height="6" x="9" y="9" rx="1" /><path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" /></svg></span>
+          <div>
+            <h3>Motorcycle-first design</h3>
+            <p>Purpose-built security technology designed exclusively for motorcycles</p>
+          </div>
+        </article>
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg></span>
+          <div>
+            <h3>One-tap engine control</h3>
+            <p>Instant remote engine cut-off switch accessible directly from your phone</p>
+          </div>
+        </article>
+        <article class="about-card">
+          <span class="about-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3" /><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /><path d="m21 3 1 11h-2" /><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /><path d="M3 4h8" /></svg></span>
+          <div>
+            <h3>No subscription for riders</h3>
+            <p>Built into motorcycles through partnerships with motorcycle assembly companies, so riders never pay a subscription</p>
+          </div>
+        </article>
       </div>
     </div>
+    <div class="stats-row">
+      <div class="stat-item"><span class="stat-value">98.4%</span><span class="stat-label">Theft Recovery Rate</span></div>
+      <div class="stat-item"><span class="stat-value">&lt; 30s</span><span class="stat-label">Remote Cut Response</span></div>
+      <div class="stat-item"><span class="stat-value">1</span><span class="stat-label">Active Tracked Bikes</span></div>
+      <div class="stat-item"><span class="stat-value">1</span><span class="stat-label">Active Stages Covered</span></div>
+    </div>
   </div>
-</div>
+</section>
 
-<div class="inner-section why-choose-us">
+<section class="about-section about-features-section">
   <div class="base-container w-container">
-    <div class="why-us-wrap">
-      <div class="half-column">
-        <h2>Why Choose Us</h2>
-        <div class="description-wrap">
-          <p class="paragraph-large dark-gray">
-            Our technology is built specifically to protect riders against theft with instant phone alerts and remote engine control.
-          </p>
-          <p class="paragraph-large dark-gray">
-            Engineered specifically to survive harsh motorcycle vibrations, unpaved terrain, heavy rains, and everyday stage conditions.
-          </p>
-        </div>
-      </div>
-      <div class="half-column">
-        <div class="numbered-list">
-          <p class="list-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2" /> <rect width="6" height="6" x="9" y="9" rx="1" /> <path d="M15 2v2" /> <path d="M15 20v2" /> <path d="M2 15h2" /> <path d="M2 9h2" /> <path d="M20 15h2" /> <path d="M20 9h2" /> <path d="M9 2v2" /> <path d="M9 20v2" /></svg></p>
-          <h3 class="list-text">Motorcycle-first design</h3>
-                  <p class="list-desc">Purpose-built security technology designed exclusively for motorcycles</p>
-        </div>
-        <div class="numbered-list">
-          <p class="list-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v10" /> <path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg></p>
-          <h3 class="list-text">One-tap engine control</h3>
-                  <p class="list-desc">Instant remote engine cut-off switch accessible directly from your phone</p>
-        </div>
-        <div class="numbered-list">
-          <p class="list-number"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></svg></p>
-          <h3 class="list-text">No subscription for riders</h3>
-                  <p class="list-desc">Built into motorcycles through partnerships with motorcycle assembly companies, so riders never pay a subscription</p>
-        </div>
-      </div>
+    <h6 class="section-subtitle about-center">What the system does</h6>
+    <h2 class="about-heading about-heading-center">Core features</h2>
+    <p class="about-features-lead">Four tools that keep your bike tracked, locked and recoverable.</p>
+    <div class="about-features-grid">
+      <article class="about-feature">
+        <img class="about-feature-image" src="/assets/landing/svc-live-gps.jpg" alt="" loading="lazy">
+        <h3>Live GPS Tracking</h3>
+        <p>Sub-meter GPS telemetry is fast, precise and constantly updating on your live map.</p>
+      </article>
+      <article class="about-feature">
+        <img class="about-feature-image" src="/assets/landing/svc-engine-cutoff.jpg" alt="" loading="lazy">
+        <h3>Remote Security Lock</h3>
+        <p>Instant electronic ignition cut switch accessible from anywhere via web or phone.</p>
+      </article>
+      <article class="about-feature">
+        <img class="about-feature-image" src="/assets/landing/svc-motion-alert.jpg" alt="" loading="lazy">
+        <h3>Motion Alerts</h3>
+        <p>Motion-triggered notifications alert you immediately when unexpected movement is detected.</p>
+      </article>
+      <article class="about-feature">
+        <img class="about-feature-image" src="/assets/landing/svc-safe-zones.jpg" alt="" loading="lazy">
+        <h3>Geofencing</h3>
+        <p>Set stage boundaries and receive alerts the moment a bike leaves designated corridors.</p>
+      </article>
     </div>
   </div>
-</div>
+</section>
 
-<div class="inner-section facts">
+<section class="about-section about-values">
   <div class="base-container w-container">
-    <div class="title-wrapper width-700">
-      <h2 class="text-white">Facts And Figures</h2>
-      <p class="paragraph-description">
-        Proven metrics delivering security and operational visibility to motorcycle riders across Kenya.
-      </p>
+    <h6 class="section-subtitle about-center">What we stand for</h6>
+    <h2 class="about-heading about-heading-center">Our values</h2>
+    <p class="about-features-lead">Four principles behind every feature we build.</p>
+    <div class="about-values-grid">
+      <article class="about-value">
+        <img class="about-value-photo" src="/assets/about/value-rider.jpg" alt="Rider on a motorcycle on a road" loading="lazy">
+        <h3>Rider first</h3>
+        <p>Every feature exists to protect a rider's bike and the income it earns.</p>
+      </article>
+      <article class="about-value">
+        <img class="about-value-photo" src="/assets/about/value-road.jpg" alt="Motorcycles travelling along a road" loading="lazy">
+        <h3>Built for motorcycles</h3>
+        <p>Designed for motorcycles from the start.</p>
+      </article>
+      <article class="about-value">
+        <img class="about-value-photo" src="/assets/about/value-community.jpg" alt="Hands joined together as a team" loading="lazy">
+        <h3>Community first</h3>
+        <p>We work with the people around you so recovery is quick and reliable.</p>
+      </article>
+      <article class="about-value">
+        <img class="about-value-photo" src="/assets/about/value-proof.jpg" alt="Hands holding a smartphone outdoors" loading="lazy">
+        <h3>Proof you can use</h3>
+        <p>Every location and movement record is timestamped and easy to verify.</p>
+      </article>
     </div>
   </div>
-  <div class="facts-animation-wrap">
-    <div class="facts-line"></div>
-    <div class="base-container w-container">
-      <div class="facts-circle-wrap">
-        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
-        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
-        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
-        <div class="circle-wrap"><img src="/assets/landing/small-circle.svg" loading="lazy" alt="Circle Small"></div>
-      </div>
-    </div>
-  </div>
-  <div class="base-container w-container">
-    <div class="numbers-container">
-      <div class="number-wrap">
-        <h2 class="primary-text">98.4%</h2>
-        <h3 class="text-white">Theft Recovery Rate</h3>
-      </div>
-      <div class="number-wrap">
-        <h2 class="primary-text">&lt; 30s</h2>
-        <h3 class="text-white">Remote Cut Response</h3>
-      </div>
-      <div class="number-wrap">
-        <h2 class="primary-text">2,400+</h2>
-        <h3 class="text-white">Active Tracked Bikes</h3>
-      </div>
-      <div class="number-wrap">
-        <h2 class="primary-text">120+</h2>
-        <h3 class="text-white">Active Stages Covered</h3>
-      </div>
-    </div>
-  </div>
-</div>
+</section>
 
-<div class="inner-section features-open">
+<section class="about-section about-team">
   <div class="base-container w-container">
-    <div class="features-open-grid">
-        <div class="features-open-item">
-          <span class="features-open-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></svg></span>
-          <h3>Live GPS Tracking</h3>
-          <p>Sub-meter GPS telemetry is fast, precise and constantly updating on your live map.</p>
+    <h6 class="section-subtitle about-center">The team</h6>
+    <h2 class="about-heading about-heading-center">The team behind MGuard</h2>
+    <p class="about-team-intro">Two Engineers who built MGuard to solve the problem riders were facing.</p>
+    <div class="about-team-grid">
+      <article class="about-person">
+        <img src="/assets/about/team-joan.jpg" alt="Joan Ouma, IoT Engineer and Cloud Architect" loading="lazy" class="about-person-photo">
+        <div class="about-person-body">
+          <h3>Joan Ouma</h3>
+          <p class="about-person-role">IoT Engineer and Cloud Architect</p>
+          <p class="about-person-quote">"Riders were losing bikes with no record of where they went. Police and stage leaders had nothing they could verify, so I started building the tracking that would give them one."</p>
         </div>
-        <div class="features-open-item">
-          <span class="features-open-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span>
-          <h3>Remote Security Lock</h3>
-          <p>Instant electronic ignition cut switch accessible from anywhere via web or phone.</p>
+      </article>
+      <article class="about-person">
+        <img src="/assets/about/team-stephen.jpg" alt="Stephen Chacha, Full-Stack Developer and Cloud Architect" loading="lazy" class="about-person-photo">
+        <div class="about-person-body">
+          <h3>Stephen Chacha</h3>
+          <p class="about-person-role">Full-Stack Developer and Cloud Architect</p>
+          <p class="about-person-quote">"Most riders had no tracker. Those who did still lost their bikes. They did not own the system, so they had to visit or report online. Every delay wasted time."</p>
         </div>
-        <div class="features-open-item">
-          <span class="features-open-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /></svg></span>
-          <h3>Motion Alerts</h3>
-          <p>Motion-triggered notifications alert you immediately when unexpected movement is detected.</p>
-        </div>
-        <div class="features-open-item">
-          <span class="features-open-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /> <path d="M15 5.764v15" /> <path d="M9 3.236v15" /></svg></span>
-          <h3>Geofencing</h3>
-          <p>Set stage boundaries and receive alerts the moment a bike leaves designated corridors.</p>
-        </div>
+      </article>
     </div>
   </div>
-</div>
+</section>
 
-<section class="inner-section testimonials" aria-labelledby="testimonials-title">
+<section class="about-partner-cta">
   <div class="base-container w-container">
-    <h2 id="testimonials-title" class="testimonials-title">What our riders say</h2>
+    <h2 class="about-heading">We are looking for partners</h2>
+    <p class="paragraph-large dark-gray">We are looking for assembly partners, fleet operators and stage leaders to bring theft protection to more riders across Kenya.</p>
+    <div class="about-cta-actions">
+      <a routerLink="/contact" [queryParams]="{ topic: 'Partner with us' }" class="primary-button w-inline-block"><div>Partner with us</div></a>
+      <a routerLink="/contact" [queryParams]="{ topic: 'Partner with us' }" class="partners-email"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 6-10 7L2 6" /></svg><span>mguard@outlook.com</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="about-testimonials" aria-labelledby="testimonials-title">
+  <div class="base-container w-container">
+    <h6 class="section-subtitle about-center">Testimonials</h6>
+    <h2 id="testimonials-title" class="about-heading about-heading-center">What our riders say</h2>
+    <p class="about-features-lead">Riders who have tested MGuard in their systems.</p>
     <div class="testimonials-track" #track (scroll)="onTestimonialScroll()">
       <article class="testimonial-card">
         <p class="testimonial-text">My motorcycle was moved at night from the stage, and MGuard alerted me immediately. We disabled the ignition and recovered it within 20 minutes.</p>
@@ -231,23 +255,20 @@
   </div>
 </section>
 
-<div class="footer-with-cta">
+
+<section class="about-cta">
   <div class="base-container w-container">
-    <div class="cta-wrapper">
-      <img src="/assets/landing/cta-illustration.svg" loading="lazy" alt="CTA Illustration" class="cta-image">
-      <div class="cta-content">
-        <h2 class="text-white">Ready to protect your motorcycle? Talk to us today</h2>
-        <div class="paragraph-wrap">
-          <p class="paragraph-large text-white">Join thousands of riders securing their daily income and assets with MGuard.</p>
-        </div>
-        <div class="cta-btn-wrrap">
-          <a routerLink="/signup" class="primary-button-white cta-button w-inline-block">
-            <div>Get Started</div>
-          </a>
-        </div>
+    <div class="about-cta-card">
+      <div>
+        <h2 class="about-heading">Ready to protect your motorcycle? Talk to us today</h2>
+        <p class="paragraph-large dark-gray">Join thousands of riders securing their daily income and assets with MGuard.</p>
+      </div>
+      <div class="about-cta-actions">
+        <a routerLink="/signup" class="primary-button w-inline-block"><div>Get Started</div></a>
+        <a routerLink="/contact" class="about-cta-link">Contact Us</a>
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <app-public-footer></app-public-footer>
