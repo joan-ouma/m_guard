@@ -47,6 +47,8 @@ html, body {
   padding: 0;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  /* Stops a sideways trackpad or touch swipe from triggering the browser's back/forward slide. */
+  overscroll-behavior-x: none;
 }
 
 :root {
