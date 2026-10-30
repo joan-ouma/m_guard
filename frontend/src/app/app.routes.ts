@@ -20,6 +20,7 @@ import { AboutComponent } from './pages/about/about.component';
 import { ServicesComponent } from './pages/services/services.component';
 import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { HowItWorksComponent } from './pages/how-it-works/how-it-works.component';
 import { AppShellComponent } from './core/layout/app-shell.component';
 
 export const routes: Routes = [
@@ -191,6 +192,11 @@ export const routes: Routes = [
       description: 'Learn what this MGuard service does for your motorcycle and how it protects your ride.',
       keywords: 'motorcycle tracking, remote engine cutoff, motion alerts, boda boda security',
     },
+  },
+  {
+    path: 'how-it-works',
+    component: HowItWorksComponent,
+    title: 'How It Works | MGuard',
   },
   {
     path: 'contact',
