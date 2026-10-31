@@ -35,15 +35,11 @@
   <div class="base-container w-container">
     <div class="inner-banner-wrap">
       <h1 class="inner-title">Contact Us</h1>
-      <p class="inner-description">
-        Connect with the MGuard team, activate your motorcycle security, or get technical support for your bike. Our emergency support operates round the clock.
-      </p>
     </div>
   </div>
-  <img class="banner-image" src="/assets/landing/service-motion-alert.jpg" alt="Contact MGuard" loading="lazy">
 </div>
 
-<div class="inner-section">
+<div class="inner-section contact-section">
   <div class="base-container w-container">
     <div class="contacts-wrapper">
       <div class="contacts-content-wrapper">
@@ -54,7 +50,6 @@
             Whether you need emergency police assistance, device pairing support, or account setup, our support desk is available to riders across Kenya.
           </p>
         </div>
-        <div class="contacts-divider"></div>
         <div class="contacts-office">
           <h3>Nairobi HQ</h3>
           <div class="contacts-detail">
@@ -70,6 +65,11 @@
             <a href="mailto:mguard@outlook.com" class="paragraph-no-margin">mguard&#64;outlook.com</a>
           </div>
         </div>
+        <div class="contacts-emergency">
+          <h3>Emergency line</h3>
+          <p>Stolen or moving bike? Call our emergency line straight away.</p>
+          <a href="tel:07000000000" class="contacts-emergency-number">07000000000</a>
+        </div>
       </div>
       <div class="contacts-form-wrapper">
         <h3 class="contacts-form-title">Send Us a Message</h3>
@@ -81,7 +81,7 @@
             </label>
             <label class="contact-field">
               <span class="contact-label">Email address</span>
-              <input class="contacts-input w-input" maxlength="256" name="email" placeholder="you@example.com" type="email" required [(ngModel)]="enquiry.email">
+              <input class="contacts-input w-input" maxlength="256" name="email" placeholder="you@gmail.com" type="email" required [(ngModel)]="enquiry.email">
             </label>
             <label class="contact-field">
               <span class="contact-label">How can we help?</span>
@@ -91,6 +91,7 @@
                 <option value="Technical support">Technical support</option>
                 <option value="Emergency escalation">Emergency escalation</option>
                 <option value="Billing or account">Billing or account</option>
+                <option value="Partner with us">Partner with us</option>
                 <option value="General enquiry">General enquiry</option>
               </select>
             </label>
@@ -107,7 +108,7 @@
   </div>
 </div>
 
-<div>
+<div class="support-section">
   <div class="base-container w-container">
     <div class="section-title-wrapper">
       <h6 class="section-subtitle">support capabilities</h6>

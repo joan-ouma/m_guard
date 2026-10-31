@@ -10772,3 +10772,1249 @@ blockquote {
     animation-range: entry 10% cover 30%;
   }
 }
+/* ---- About page layout ----
+   Explicit colours are used because the theme variables resolve differently in this scope.
+   Content sits in the same 1168px column as the other public pages. */
+
+.about-hero {
+  padding: 150px 0 72px;
+  background-color: #f8f9fb;
+}
+
+.about-title {
+  margin: 0 0 20px;
+  font-size: 56px;
+  line-height: 1.1;
+  color: #172039;
+}
+
+.about-lead {
+  max-width: 760px;
+  margin: 0 0 48px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: #5e5e5e;
+}
+
+.about-hero-image {
+  display: block;
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.about-section {
+  padding: 96px 0;
+  background-color: #ffffff;
+}
+
+.about-section-tint {
+  background-color: #f1f2f4;
+}
+
+.about-heading {
+  margin: 0 0 24px;
+  font-size: 40px;
+  line-height: 1.15;
+  color: #172039;
+}
+
+.about-heading-center {
+  text-align: center;
+}
+
+.about-heading-light {
+  color: #ffffff;
+}
+
+.about-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.about-split-intro p + p {
+  margin-top: 16px;
+}
+
+.about-cards {
+  display: grid;
+  gap: 16px;
+}
+
+.about-card {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(23, 32, 57, 0.06), 0 8px 24px -12px rgba(23, 32, 57, 0.12);
+}
+
+.about-section-tint .about-card {
+  background-color: #ffffff;
+}
+
+.about-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #172039;
+}
+
+.about-card p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #5e5e5e;
+}
+
+.about-icon {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background-color: #fff1f2;
+  color: #ff3841;
+}
+
+/* Facts band */
+.about-facts {
+  padding: 96px 0;
+  background-color: #172039;
+}
+
+.about-facts-head {
+  max-width: 640px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+
+.about-facts-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.about-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.about-fact {
+  padding: 32px 24px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.about-fact-value {
+  display: block;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ff3841;
+}
+
+.about-fact-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Features grid */
+.about-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.about-feature {
+  padding: 32px 28px;
+  border-radius: 16px;
+  background-color: #f8f9fb;
+}
+
+.about-feature h3 {
+  margin: 20px 0 8px;
+  font-size: 19px;
+  color: #172039;
+}
+
+.about-feature p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #5e5e5e;
+}
+
+/* Testimonials: own band with the same vertical rhythm as the other sections */
+.about-testimonials {
+  padding: 96px 0 40px;
+  background-color: #f8f9fb;
+}
+
+.about-testimonials .about-heading {
+  margin-bottom: 40px;
+}
+
+/* Closing call to action: a light card on the page, no full-width band */
+.about-cta {
+  padding: 40px 0 96px;
+  background-color: #ffffff;
+}
+
+.about-cta-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 48px;
+  border-radius: 24px;
+  background-color: #f8f9fb;
+}
+
+.about-cta-card .about-heading {
+  margin-bottom: 12px;
+  font-size: 32px;
+  max-width: 620px;
+}
+
+.about-cta-card p {
+  margin: 0;
+  max-width: 560px;
+}
+
+.about-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.about-cta-link {
+  color: #172039;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid #ff3841;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 991px) {
+  .about-hero {
+    padding-top: 120px;
+  }
+
+  .about-title {
+    font-size: 44px;
+  }
+
+  .about-hero-image {
+    height: 320px;
+  }
+
+  .about-split {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-facts-grid,
+  .about-features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .about-section,
+  .about-facts {
+    padding: 64px 0;
+  }
+
+  .about-title {
+    font-size: 36px;
+  }
+
+  .about-heading {
+    font-size: 30px;
+  }
+
+  .about-hero-image {
+    height: 220px;
+    border-radius: 14px;
+  }
+
+  .about-facts-grid,
+  .about-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cta-card {
+    padding: 28px;
+  }
+}
+
+/* Photos used in the story and feature sections */
+.about-photo-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.about-photo-row img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.about-feature-image {
+  display: block;
+  width: calc(100% + 56px);
+  max-width: none;
+  height: 180px;
+  margin: -32px -28px 24px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+}
+
+@media (max-width: 575px) {
+  .about-photo-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Values, team and partner call to action ---- */
+.about-center {
+  display: block;
+  text-align: center;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.about-value {
+  padding: 28px;
+  border-radius: 16px;
+  background-color: #f8f9fb;
+}
+
+.about-value h3 {
+  margin: 20px 0 8px;
+  font-size: 19px;
+  color: #172039;
+}
+
+.about-value p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #5e5e5e;
+}
+
+.about-team {
+  background-color: #f8f9fb;
+}
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  max-width: 880px;
+  margin: 48px auto 0;
+}
+
+.about-person {
+  text-align: center;
+}
+
+.about-person-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.about-person h3 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #172039;
+}
+
+.about-person-role {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff3841;
+}
+
+.about-person-quote {
+  margin: 0 auto;
+  max-width: 380px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-style: italic;
+  color: #5e5e5e;
+}
+
+.about-partner-cta {
+  padding: 80px 0;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.about-partner-cta .about-heading {
+  margin-bottom: 16px;
+}
+
+.about-partner-cta .paragraph-large {
+  max-width: 640px;
+  margin: 0 auto 32px;
+}
+
+.about-partner-cta .about-cta-actions {
+  justify-content: center;
+}
+
+@media (max-width: 991px) {
+  .about-values-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .about-values-grid,
+  .about-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Partner email: outlined pill beside the primary button, matching the home page. */
+.about-partner-cta .partners-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: 2px solid #172039;
+  border-radius: 60px;
+  color: #172039;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-partner-cta .partners-email:hover {
+  background-color: #172039;
+  color: #ffffff;
+}
+
+/* Team: a shared portrait frame so both photos show in full, and an introduction line. */
+.about-team-intro {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #5e5e5e;
+}
+
+.about-person-photo {
+  aspect-ratio: 2 / 3;
+  object-position: center top;
+}
+
+/* Team: each person as a horizontal card (portrait photo beside the text) so the section fits one screen. */
+.about-team {
+  padding: 72px 0;
+}
+
+.about-team .about-heading {
+  margin-bottom: 12px;
+}
+
+.about-team-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 40px auto 0;
+}
+
+.about-person {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  text-align: left;
+}
+
+.about-person-photo {
+  flex: 0 0 200px;
+  width: 200px;
+  height: 260px;
+  aspect-ratio: auto;
+  margin: 0;
+  object-position: center top;
+}
+
+.about-person h3 {
+  font-size: 22px;
+}
+
+.about-person-quote {
+  margin: 0;
+  max-width: none;
+  font-size: 15px;
+}
+
+@media (max-width: 767px) {
+  .about-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575px) {
+  .about-person {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about-person-photo {
+    width: 100%;
+    flex: none;
+    height: 300px;
+  }
+}
+
+.about-person-body {
+  min-width: 0;
+}
+
+.about-person-body .about-person-role {
+  margin-bottom: 12px;
+}
+
+/* Team: photo on top, words below, so each card uses its space and the section fits one screen. */
+.about-team {
+  padding: 56px 0;
+}
+
+.about-team-grid {
+  max-width: 980px;
+  gap: 24px;
+  margin-top: 36px;
+}
+
+.about-person {
+  display: block;
+  padding: 28px;
+  text-align: center;
+}
+
+.about-person-photo {
+  flex: none;
+  width: 240px;
+  height: 300px;
+  margin: 0 auto 20px;
+}
+
+.about-person-body {
+  text-align: center;
+}
+
+.about-person-body .about-person-role {
+  margin-bottom: 10px;
+}
+
+.about-person-quote {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+@media (max-width: 575px) {
+  .about-person {
+    display: block;
+    text-align: center;
+  }
+
+  .about-person-photo {
+    width: 100%;
+    height: 300px;
+  }
+}
+
+/* Team: tighter sizes so the whole section fits a 768px laptop screen. */
+.about-team {
+  padding: 40px 0;
+}
+
+.about-team-grid {
+  margin-top: 28px;
+}
+
+.about-person {
+  padding: 22px;
+}
+
+.about-person-photo {
+  width: 220px;
+  height: 275px;
+  margin-bottom: 16px;
+}
+
+/* Core features: taller photos and fuller cards so the row uses the section's height. */
+.about-features-grid {
+  gap: 28px;
+  margin-top: 48px;
+}
+
+.about-feature {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background-color: #f8f9fb;
+  border-radius: 20px;
+}
+
+.about-feature-image {
+  display: block;
+  width: 100%;
+  height: 300px;
+  margin: 0;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.about-feature h3 {
+  margin: 24px 26px 10px;
+  font-size: 21px;
+}
+
+.about-feature p {
+  margin: 0 26px 30px;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* Core features: tighter section so the whole block fits a laptop screen. */
+.about-features-section {
+  padding: 56px 0;
+}
+
+.about-feature-image {
+  height: 250px;
+}
+
+.about-features-grid {
+  margin-top: 36px;
+}
+
+/* One-line sentence under the Core features heading. */
+.about-features-lead {
+  margin: 0 auto;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #5e5e5e;
+  white-space: nowrap;
+}
+
+/* Section rhythm: light grey and white alternate down the page, as on the home page.
+   Order: hero grey, story white, why grey, facts white, features grey, values white,
+   team grey, partners white, testimonials grey, closing call to action white. */
+.about-section {
+  background-color: #ffffff;
+}
+
+.about-section-tint,
+.about-features-section,
+.about-team,
+.about-testimonials {
+  background-color: #f1f2f4;
+}
+
+.about-team {
+  background-color: #f8f9fb;
+}
+
+.about-facts {
+  background-color: #ffffff;
+}
+
+.about-facts .about-heading,
+.about-facts .about-heading-light {
+  color: #172039;
+}
+
+.about-facts-head p {
+  color: #5e5e5e;
+}
+
+.about-fact {
+  background-color: #f8f9fb;
+}
+
+.about-fact-value {
+  color: #ff3841;
+}
+
+.about-fact-label {
+  color: #172039;
+}
+
+.about-features-section .about-feature {
+  background-color: #ffffff;
+}
+
+.about-partner-cta,
+.about-cta {
+  background-color: #ffffff;
+}
+
+/* Our Values: numbered cards, larger icons and text, equal heights so the row fills the section. */
+.about-values-grid {
+  counter-reset: value;
+  gap: 24px;
+  margin-top: 52px;
+}
+
+.about-value {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  padding: 36px 30px 32px;
+  background-color: #f8f9fb;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px;
+  counter-increment: value;
+}
+
+.about-value::before {
+  content: counter(value, decimal-leading-zero);
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a2a6b0;
+}
+
+.about-value .about-icon {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+}
+
+.about-value .about-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.about-value h3 {
+  margin: auto 0 12px;
+  padding-top: 24px;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.about-value p {
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* Our Values: titles start at the same height on every card. */
+.about-value h3 {
+  margin: 40px 0 12px;
+  padding-top: 0;
+  min-height: 56px;
+}
+
+/* Our Values: closer title-to-text spacing; titles still start at the same height. */
+.about-value h3 {
+  margin: 40px 0 10px;
+  min-height: 0;
+}
+
+/* Our Values: photos replace the icons, sitting at the top of each card. */
+.about-value {
+  padding: 0 0 30px;
+  overflow: hidden;
+}
+
+.about-value-photo {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  margin: 0;
+}
+
+.about-value h3,
+.about-value p {
+  margin-left: 26px;
+  margin-right: 26px;
+}
+
+.about-value h3 {
+  margin-top: 26px;
+}
+
+.about-value::before {
+  top: 14px;
+  right: 16px;
+  color: #ffffff;
+  background-color: rgba(23, 32, 57, 0.6);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* Partner call to action: a red badge card on the white section, so it reads as the page's call to action. */
+.about-partner-cta {
+  padding: 56px 16px;
+  background-color: #ffffff;
+}
+
+.about-partner-cta > .base-container {
+  max-width: 880px;
+  padding: 56px 48px;
+  border-radius: 24px;
+  background-color: #ff3841;
+  box-shadow: 0 24px 48px -24px rgba(255, 56, 65, 0.55);
+}
+
+.about-partner-cta .about-heading {
+  color: #ffffff;
+}
+
+.about-partner-cta .paragraph-large {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.about-partner-cta .primary-button {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.about-partner-cta .primary-button div {
+  color: #ff3841 !important;
+}
+
+.about-partner-cta .partners-email {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.about-partner-cta .partners-email:hover {
+  background-color: #ffffff;
+  color: #ff3841;
+}
+
+/* Closing call to action: centred block across the card, buttons together underneath. */
+.about-cta-card {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 64px 48px;
+  gap: 28px;
+}
+
+.about-cta-card .about-heading {
+  max-width: 760px;
+  margin: 0 auto 12px;
+  font-size: 40px;
+}
+
+.about-cta-card p {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.about-cta-card .about-cta-actions {
+  justify-content: center;
+  gap: 28px;
+}
+
+/* Closing call to action: red badge, matching the partners call to action. */
+.about-cta {
+  padding: 40px 16px 96px;
+  background-color: #ffffff;
+}
+
+.about-cta-card {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 56px 48px;
+  border-radius: 24px;
+  background-color: #ff3841;
+  box-shadow: 0 24px 48px -24px rgba(255, 56, 65, 0.55);
+}
+
+.about-cta-card .about-heading,
+.about-cta-card p {
+  color: #ffffff;
+}
+
+.about-cta-card p {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.about-cta-card .primary-button {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.about-cta-card .primary-button div {
+  color: #ff3841 !important;
+}
+
+/* Contact Us: outlined white pill, sized to match the Get Started button. */
+.about-cta-card .about-cta-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 36px;
+  border: 2px solid #ffffff;
+  border-radius: 60px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid #ffffff;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.about-cta-card .about-cta-link:hover {
+  background-color: #ffffff;
+  color: #ff3841;
+}
+
+/* Our Values: tighter spacing between the heading, sentence and cards. */
+.about-values .about-heading {
+  margin-bottom: 10px;
+}
+
+.about-values .about-features-lead {
+  margin-bottom: 0;
+}
+
+.about-values .about-values-grid {
+  margin-top: 36px;
+}
+
+.about-values {
+  padding: 64px 0;
+}
+
+/* Facts and Figures: polished tiles, tighter spacing, fits one screen. */
+.about-facts-polished {
+  padding: 64px 0;
+}
+
+.about-facts-polished .about-facts-head {
+  margin-bottom: 36px;
+}
+
+.about-facts-polished .about-facts-head .about-heading {
+  margin-bottom: 10px;
+}
+
+.about-facts-polished .about-fact {
+  position: relative;
+  padding: 36px 24px 30px;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(23, 32, 57, 0.05), 0 12px 28px -18px rgba(23, 32, 57, 0.25);
+}
+
+
+.about-facts-polished .about-fact-value {
+  font-size: 48px;
+  letter-spacing: -0.02em;
+}
+
+.about-facts-polished .about-fact-label {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5e5e5e;
+}
+
+/* Stats strip: one thin row of figures with light dividers, no heading. */
+.stats-strip {
+  padding: 28px 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e4e4e7;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.stat-item + .stat-item {
+  border-left: 1px solid #e4e4e7;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ff3841;
+}
+
+.stat-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5e5e5e;
+}
+
+@media (max-width: 767px) {
+  .stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 20px;
+  }
+
+  .stat-item:nth-child(3) {
+    border-left: none;
+  }
+}
+
+/* Stats bar inside Why Choose Us: sits within the section, no divider. */
+.why-stats {
+  margin-top: auto;
+}
+
+.why-stats .stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Why Choose Us: the stats bar sits under the left column text, filling its space, as part of this section. */
+.why-stats {
+  margin-top: auto;
+}
+
+.why-stats .stats-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  padding: 18px 0;
+}
+
+.why-stats .stat-item {
+  padding: 6px 10px;
+}
+
+.why-stats .stat-value {
+  font-size: 28px;
+}
+
+.why-stats .stat-label {
+  font-size: 13px;
+}
+
+/* Why Choose Us: the left column stretches to the right column, so the stats bar's bottom lines up with the last card. */
+.about-split:has(.why-stats) {
+  align-items: stretch;
+}
+
+.about-split:has(.why-stats) .about-split-intro {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section alternation fix: Why Choose Us grey, Core Features white, Our Values grey, Team white. */
+.about-features-section {
+  background-color: #ffffff;
+}
+
+.about-features-section .about-feature {
+  background-color: #f8f9fb;
+}
+
+.about-values {
+  background-color: #f1f2f4;
+}
+
+.about-values .about-value {
+  background-color: #ffffff;
+}
+
+.about-team {
+  background-color: #ffffff;
+}
+
+
+/* Why Choose Us stats: one full-width row beneath the grid, with dividers and no extra decoration. */
+.about-section-tint .stats-row {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 36px 0;
+  box-shadow: 0 1px 2px rgba(23, 32, 57, 0.05), 0 12px 28px -18px rgba(23, 32, 57, 0.25);
+}
+
+.about-section-tint .stat-item {
+  padding: 4px 24px;
+}
+
+.about-section-tint .stat-value {
+  font-size: 44px;
+}
+
+.about-section-tint .stat-label {
+  font-size: 15px;
+}
+
+@media (max-width: 767px) {
+  .about-section-tint .stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 24px;
+  }
+
+  .about-section-tint .stat-item:nth-child(3) {
+    border-left: none;
+  }
+}
+
+/* Why Choose Us: photo fills the empty space under the intro paragraph. */
+.why-photo {
+  display: block;
+  width: 100%;
+  height: 300px;
+  margin-top: 32px;
+  object-fit: contain;
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-radius: 20px;
+}
+
+/* Our Story: one photo, filling the row's width. */
+.about-photo-row img {
+  height: 300px;
+}
+
+/* Our Story: the photo stretches to the height of the cards beside it, so both columns end together. */
+.about-split:has(.about-photo-row) {
+  align-items: stretch;
+}
+
+.about-split:has(.about-photo-row) .about-split-intro {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-split .about-photo-row {
+  flex: 1 1 auto;
+  display: flex;
+  margin-top: 32px;
+}
+
+.about-split .about-photo-row img {
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+  object-fit: cover;
+}
+
+/* Our Story: cards share the column height evenly, with content centred vertically in each. */
+.about-split:has(.about-photo-row) .about-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-split:has(.about-photo-row) .about-card {
+  flex: 1 1 0;
+  align-items: center;
+}
+
+/* Story position: the title sits close to the story, and card text starts at the top of each card. */
+.about-hero {
+  padding-bottom: 32px;
+}
+
+.about-section:first-of-type,
+.about-hero + .about-section {
+  padding-top: 64px;
+}
+
+.about-split:has(.about-photo-row) .about-card {
+  align-items: flex-start;
+  padding-top: 28px;
+}
+
+/* The About Us band is removed, so the first section clears the fixed navbar itself. */
+.about-hero + .about-section,
+.about-section:first-of-type {
+  padding-top: 150px;
+}
+
+/* Testimonial quotes: same typeface and weight as the body text on the rest of the page. */
+.about-testimonials .testimonial-text {
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+/* Testimonials: space between the sentence under the heading and the cards. */
+.about-testimonials .about-features-lead {
+  margin-bottom: 40px;
+}
+
+/* Testimonials: tighter stack of heading, sentence and cards, with less section padding. */
+.about-testimonials {
+  padding-top: 72px;
+  padding-bottom: 72px;
+}
+
+.about-testimonials .about-heading {
+  margin-bottom: 8px;
+}
+
+.about-testimonials .about-features-lead {
+  margin-bottom: 32px;
+}
+
