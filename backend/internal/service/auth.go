@@ -14,6 +14,7 @@ import (
 	"motoguard-backend/internal/security"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -550,4 +551,19 @@ func (s *AuthService) deleteAllData(ctx context.Context, userID string) error {
 	}
 	slog.Info("account deleted", "user_id", userID)
 	return nil
+}
+
+// ExportUserData returns everything held for the signed-in rider.
+func (s *AuthService) ExportUserData(ctx context.Context, userID string) (*domain.UserExport, error) {
+	instance := "/v1/users/me/export"
+	export, err := s.repo.ExportUserData(ctx, userID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.NewUnauthorizedError("Authentication token is invalid or expired", instance)
+		}
+		slog.Error("ExportUserData failed", "user_id", userID, "error", err)
+		return nil, domain.NewInternalServerError(instance)
+	}
+	slog.Info("user data exported", "user_id", userID)
+	return export, nil
 }

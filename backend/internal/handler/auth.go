@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -32,6 +33,7 @@ func (h *AuthHandler) UserRoutes(rateLimit, auth func(http.Handler) http.Handler
 
 	r.Group(func(pr chi.Router) {
 		pr.Use(auth)
+		pr.Get("/me/export", h.ExportData)
 		pr.Delete("/me", h.DeleteAccount)
 	})
 
@@ -378,4 +380,23 @@ func setAccessTokenCookie(w http.ResponseWriter, r *http.Request, value string, 
 		cookie.SameSite = http.SameSiteLaxMode
 	}
 	http.SetCookie(w, cookie)
+}
+
+// ExportData returns everything held about the signed-in rider as a downloadable JSON file.
+func (h *AuthHandler) ExportData(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middleware.GetClaims(r.Context())
+	if !ok {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	export, err := h.service.ExportUserData(r.Context(), claims.UserID)
+	if err != nil {
+		writeError(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="mguard-data-%s.json"`, time.Now().Format("2006-01-02")))
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, export)
 }
