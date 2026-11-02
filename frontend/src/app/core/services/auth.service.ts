@@ -152,6 +152,14 @@ export class AuthService {
     );
   }
 
+  /** GET /v1/users/me/export. Returns the rider's data as a JSON file. */
+  exportData(): Observable<Blob> {
+    return this.http.get(`${environment.apiBaseUrl}/v1/users/me/export`, {
+      responseType: 'blob',
+      withCredentials: true,
+    });
+  }
+
   /**
    * DELETE /v1/users/me
    * Permanently deletes the signed-in account after the password is confirmed, then clears local state.

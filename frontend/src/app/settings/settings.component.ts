@@ -48,6 +48,24 @@ import { AuthService } from '../core/services/auth.service';
           <button class="px-6 py-3 bg-success text-surface font-bold rounded-xl hover:bg-success-strong transition-colors cursor-pointer text-sm">Save Settings</button>
         </div>
 
+        <div class="mt-10 bg-surface rounded-2xl border border-line p-5 lg:p-8">
+          <h3 class="text-lg font-bold text-ink mb-2">Your data</h3>
+          <p class="text-sm text-muted mb-4">
+            Download a copy of the information we hold about you: your profile, bikes, 90 days of location history, bike events, theft reports, contacts, and assistant history.
+          </p>
+          <button
+            type="button"
+            class="px-6 py-3 border border-line text-ink font-bold rounded-xl hover:bg-fill transition-colors cursor-pointer text-sm disabled:opacity-50"
+            [disabled]="exporting()"
+            (click)="downloadData()"
+          >
+            {{ exporting() ? 'Preparing…' : 'Download my data' }}
+          </button>
+          @if (exportError()) {
+            <p class="text-sm text-brand mt-3" role="alert">{{ exportError() }}</p>
+          }
+        </div>
+
         <div class="mt-10 bg-surface rounded-2xl border border-brand-line p-5 lg:p-8">
           <h3 class="text-lg font-bold text-ink mb-2">Delete account</h3>
           <p class="text-sm text-muted mb-4">
@@ -108,6 +126,31 @@ export class SettingsComponent {
   readonly deletePassword = signal('');
   readonly deleting = signal(false);
   readonly deleteError = signal<string | null>(null);
+  readonly exporting = signal(false);
+  readonly exportError = signal<string | null>(null);
+
+  downloadData(): void {
+    if (this.exporting()) {
+      return;
+    }
+    this.exporting.set(true);
+    this.exportError.set(null);
+    this.auth.exportData().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mguard-data-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.exporting.set(false);
+      },
+      error: () => {
+        this.exporting.set(false);
+        this.exportError.set('Could not prepare your data. Please try again.');
+      },
+    });
+  }
 
   startDelete(): void {
     this.confirmingDelete.set(true);
