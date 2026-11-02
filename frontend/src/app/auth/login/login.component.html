@@ -69,6 +69,10 @@
         <p class="mt-2 text-xs font-semibold text-brand ">
           Retry in {{ cooldownSeconds() }} {{ cooldownSeconds() === 1 ? 'second' : 'seconds' }}
         </p>
+      } @else if (notice()) {
+        <div class="mb-4 p-3 rounded-lg bg-warning-soft text-warning-strong text-sm" role="status">
+          {{ notice() }}
+        </div>
       } @else if (errorMessage()) {
         <p class="mt-2 text-xs font-semibold text-brand ">
           {{ errorMessage() }}

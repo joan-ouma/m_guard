@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, of } from 'rxjs';
+import { Observable, map, tap, catchError, throwError, of } from 'rxjs';
 import {
   AuthResponse,
   JwtClaims,
@@ -156,13 +156,16 @@ export class AuthService {
    * DELETE /v1/users/me
    * Permanently deletes the signed-in account after the password is confirmed, then clears local state.
    */
-  deleteAccount(password: string): Observable<void> {
+  deleteAccount(password: string): Observable<{ scheduled_for: string }> {
     return this.http
-      .request<void>('DELETE', `${environment.apiBaseUrl}/v1/users/me`, { body: { password }, withCredentials: true })
+      .request<{ data: { scheduled_for: string } }>('DELETE', `${environment.apiBaseUrl}/v1/users/me`, { body: { password }, withCredentials: true })
       .pipe(
-        tap(() => {
+        map((res) => res.data),
+        tap((res) => {
           this.clearSession();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], {
+            state: { notice: `Your account is scheduled for deletion on ${new Date(res.scheduled_for).toLocaleDateString()}. Sign in before then to cancel.` },
+          });
         })
       );
   }

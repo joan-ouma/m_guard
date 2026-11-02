@@ -19,6 +19,10 @@ export class LoginComponent implements OnDestroy {
 
   readonly showPassword = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  /** Set when the rider was sent here after scheduling an account deletion. */
+  readonly notice = signal<string | null>(
+    typeof history !== 'undefined' ? (history.state?.notice as string | undefined) ?? null : null
+  );
   readonly formSubmitted = signal<boolean>(false);
   readonly cooldownSeconds = signal<number>(0);
   readonly attemptsUsed = signal<number>(0);
