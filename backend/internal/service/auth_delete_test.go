@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
@@ -68,17 +69,59 @@ func TestDeleteAccountRemovesOnlyThatUsersData(t *testing.T) {
 	mustExec(`INSERT INTO user_contacts (id, user_id, name, phone, category) VALUES ($1, $2, 'Mine', '0700000001', 'emergency'), ($3, $4, 'Theirs', '0700000002', 'emergency')`, doomedContct, doomed, keeperContct, keeper)
 	mustExec(`INSERT INTO driver_contacts (user_id, name, phone) VALUES ($1, 'Mine', '0700000003'), ($2, 'Theirs', '0700000004')`, doomed, keeper)
 
-	svc := NewAuthService(pool, repository.NewAuthRepository(pool), security.NewJWTManager("test-secret-key-with-at-least-32-bytes!!", 0), nil, nil, "")
+	repo := repository.NewAuthRepository(pool)
+	svc := NewAuthService(pool, repo, security.NewJWTManager("test-secret-key-with-at-least-32-bytes!!", 0), nil, nil, "")
+	exists := func() int { return count(t, pool, `SELECT count(*) FROM users WHERE id = $1`, doomed) }
 
-	if err := svc.DeleteAccount(ctx, doomed, "wrong-password"); err == nil {
-		t.Fatal("a wrong password must not delete the account")
-	}
-	if n := count(t, pool, `SELECT count(*) FROM users WHERE id = $1`, doomed); n != 1 {
-		t.Fatal("account was deleted despite the wrong password")
+	// A wrong password changes nothing.
+	if _, err := svc.DeleteAccount(ctx, doomed, "wrong-password"); err == nil {
+		t.Fatal("a wrong password must not schedule deletion")
 	}
 
-	if err := svc.DeleteAccount(ctx, doomed, password); err != nil {
-		t.Fatalf("delete with the correct password failed: %v", err)
+	// An open theft report blocks deletion.
+	if _, err := svc.DeleteAccount(ctx, doomed, password); err == nil {
+		t.Fatal("deletion must be refused while a theft report is open")
+	}
+	if n := count(t, pool, `SELECT count(*) FROM users WHERE id = $1 AND deletion_scheduled_at IS NULL`, doomed); n != 1 {
+		t.Fatal("account was scheduled despite an open theft report")
+	}
+
+	// Once the report is resolved, deletion is scheduled but not carried out yet.
+	mustExec(`UPDATE theft_incidents SET resolved_at = NOW() WHERE id = $1`, doomedIncid)
+	if _, err := svc.DeleteAccount(ctx, doomed, password); err != nil {
+		t.Fatalf("scheduling deletion failed: %v", err)
+	}
+	if exists() != 1 {
+		t.Fatal("account must still exist during the grace period")
+	}
+
+	// Signing in during the grace period cancels the deletion.
+	if err := repo.CancelAccountDeletion(ctx, doomed); err != nil {
+		t.Fatalf("cancel failed: %v", err)
+	}
+	if n, _ := svc.PurgeScheduledAccounts(ctx, time.Now().Add(time.Hour)); n != 0 {
+		t.Fatalf("a cancelled deletion was carried out (%d purged)", n)
+	}
+	if exists() != 1 {
+		t.Fatal("a cancelled deletion removed the account")
+	}
+
+	// Scheduled again: nothing is purged before the grace period ends, then it is purged.
+	if _, err := svc.DeleteAccount(ctx, doomed, password); err != nil {
+		t.Fatalf("rescheduling failed: %v", err)
+	}
+	if _, err := svc.PurgeScheduledAccounts(ctx, time.Now().Add(-repository.AccountDeletionGrace)); err != nil {
+		t.Fatalf("purge failed: %v", err)
+	}
+	if exists() != 1 {
+		t.Fatal("account was purged before the grace period ended")
+	}
+	purged, err := svc.PurgeScheduledAccounts(ctx, time.Now().Add(time.Hour))
+	if err != nil {
+		t.Fatalf("purge failed: %v", err)
+	}
+	if purged != 1 || exists() != 0 {
+		t.Fatalf("expected the scheduled account to be purged, purged=%d exists=%d", purged, exists())
 	}
 
 	// Everything belonging to the deleted account must be gone.

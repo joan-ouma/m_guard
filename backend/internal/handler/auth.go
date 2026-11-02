@@ -38,7 +38,7 @@ func (h *AuthHandler) UserRoutes(rateLimit, auth func(http.Handler) http.Handler
 	return r
 }
 
-// DeleteAccount permanently removes the signed-in user's account. The rider must re-enter their password.
+// DeleteAccount schedules the signed-in user's account for deletion. The rider must re-enter their password.
 func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	claims, ok := middleware.GetClaims(r.Context())
 	if !ok {
@@ -55,15 +55,16 @@ func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.DeleteAccount(r.Context(), claims.UserID, req.Password); err != nil {
+	scheduledFor, err := h.service.DeleteAccount(r.Context(), claims.UserID, req.Password)
+	if err != nil {
 		writeError(w, r, err)
 		return
 	}
 
-	// Clear the browser's session cookies; the account no longer exists.
+	// Sign the browser out. Signing in again before the date cancels the deletion.
 	setSessionCookie(w, r, "", time.Unix(0, 0), -1)
 	setAccessTokenCookie(w, r, "", time.Unix(0, 0), -1)
-	w.WriteHeader(http.StatusNoContent)
+	writeJSON(w, http.StatusAccepted, map[string]any{"data": map[string]any{"scheduled_for": scheduledFor}})
 }
 
 func (h *AuthHandler) SessionRoutes(rateLimit func(http.Handler) http.Handler, auth func(http.Handler) http.Handler) chi.Router {

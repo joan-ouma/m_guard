@@ -13,6 +13,8 @@ type User struct {
 	PhoneNumber  string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	// DeletionScheduledAt is set when the account is awaiting deletion; signing in clears it.
+	DeletionScheduledAt *time.Time
 }
 
 type Session struct {

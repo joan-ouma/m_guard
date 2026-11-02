@@ -24,7 +24,7 @@ func NewAuthRepository(pool *pgxpool.Pool) *AuthRepository {
 
 func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW())
+		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW()), deletion_scheduled_at
 		FROM users
 		WHERE LOWER(email) = LOWER($1)
 		LIMIT 1
@@ -33,7 +33,8 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 
 	var u domain.User
 	var nationalID, phone sql.NullString
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt)
+	var scheduled sql.NullTime
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt, &scheduled)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
@@ -45,6 +46,10 @@ func (r *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 	}
 	if phone.Valid {
 		u.PhoneNumber = phone.String
+	}
+	if scheduled.Valid {
+		t := scheduled.Time
+		u.DeletionScheduledAt = &t
 	}
 	return &u, nil
 }
@@ -69,7 +74,7 @@ func (r *AuthRepository) CreateUser(ctx context.Context, u *domain.User) error {
 
 func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW())
+		SELECT id, email, password_hash, COALESCE(name, ''), COALESCE(national_id, ''), COALESCE(phone_number, ''), COALESCE(created_at, NOW()), COALESCE(updated_at, NOW()), deletion_scheduled_at
 		FROM users
 		WHERE id = $1
 		LIMIT 1
@@ -78,7 +83,8 @@ func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domai
 
 	var u domain.User
 	var nationalID, phone sql.NullString
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt)
+	var scheduled sql.NullTime
+	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &nationalID, &phone, &u.CreatedAt, &u.UpdatedAt, &scheduled)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
@@ -90,6 +96,10 @@ func (r *AuthRepository) GetUserByID(ctx context.Context, userID string) (*domai
 	}
 	if phone.Valid {
 		u.PhoneNumber = phone.String
+	}
+	if scheduled.Valid {
+		t := scheduled.Time
+		u.DeletionScheduledAt = &t
 	}
 	return &u, nil
 }
@@ -223,6 +233,9 @@ func (r *AuthRepository) RevokeAllUserSessions(ctx context.Context, tx pgx.Tx, u
 	return err
 }
 
+// AccountDeletionGrace is how long a deletion waits before it is carried out.
+const AccountDeletionGrace = 30 * 24 * time.Hour
+
 // DeleteAccount removes a user and everything they own, inside the caller's transaction.
 // Tables with no foreign key to users are cleared explicitly; the rest cascade from users.
 func (r *AuthRepository) DeleteAccount(ctx context.Context, tx pgx.Tx, userID string) error {
@@ -239,4 +252,57 @@ func (r *AuthRepository) DeleteAccount(ctx context.Context, tx pgx.Tx, userID st
 		}
 	}
 	return nil
+}
+
+// ScheduleAccountDeletion marks the account for deletion and returns when it will be carried out.
+func (r *AuthRepository) ScheduleAccountDeletion(ctx context.Context, userID string) (time.Time, error) {
+	var scheduledFor time.Time
+	err := r.pool.QueryRow(ctx,
+		`UPDATE users SET deletion_scheduled_at = COALESCE(deletion_scheduled_at, NOW()) WHERE id = $1 RETURNING deletion_scheduled_at`,
+		userID).Scan(&scheduledFor)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return scheduledFor.Add(AccountDeletionGrace), nil
+}
+
+// CancelAccountDeletion clears a pending deletion, for example when the rider signs in again.
+func (r *AuthRepository) CancelAccountDeletion(ctx context.Context, userID string) error {
+	_, err := r.pool.Exec(ctx, `UPDATE users SET deletion_scheduled_at = NULL WHERE id = $1`, userID)
+	return err
+}
+
+// HasOpenTheftReport reports whether the user has a theft report that the bike has not been found for.
+func (r *AuthRepository) HasOpenTheftReport(ctx context.Context, userID string) (bool, error) {
+	var open bool
+	err := r.pool.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM theft_incidents WHERE user_id = $1 AND resolved_at IS NULL)`,
+		userID).Scan(&open)
+	return open, err
+}
+
+// ListAccountsDueForDeletion returns scheduled accounts whose grace period ended before `before`.
+// Accounts with an open theft report are kept, so evidence is not removed.
+func (r *AuthRepository) ListAccountsDueForDeletion(ctx context.Context, before time.Time) ([]string, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT u.id FROM users u
+		WHERE u.deletion_scheduled_at IS NOT NULL
+		  AND u.deletion_scheduled_at < $1
+		  AND NOT EXISTS (SELECT 1 FROM theft_incidents i WHERE i.user_id = u.id::text AND i.resolved_at IS NULL)
+		ORDER BY u.deletion_scheduled_at
+	`, before)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ids := []string{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
 }

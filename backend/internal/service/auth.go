@@ -113,6 +113,15 @@ func (s *AuthService) Login(ctx context.Context, email, password, ip, userAgent 
 		return nil, "", domain.NewUnauthorizedError("Invalid email or password", instance)
 	}
 
+	// Signing in during the grace period cancels a scheduled account deletion.
+	if user.DeletionScheduledAt != nil {
+		if err := s.repo.CancelAccountDeletion(ctx, user.ID); err != nil {
+			slog.Error("Login could not cancel scheduled deletion", "user_id", user.ID, "error", err)
+		} else {
+			slog.Info("scheduled account deletion cancelled by sign-in", "user_id", user.ID)
+		}
+	}
+
 	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID)
 	if err != nil {
 		slog.Error("Login failed: access token error", "error", err)
@@ -444,40 +453,101 @@ func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*do
 	return userDTO, nil
 }
 
-// DeleteAccount permanently deletes the signed-in user's account and data after re-checking the password.
-func (s *AuthService) DeleteAccount(ctx context.Context, userID, password string) error {
+// DeleteAccount schedules the signed-in user's account for deletion after the grace period.
+// The password is re-checked, and deletion is refused while a theft report is open.
+func (s *AuthService) DeleteAccount(ctx context.Context, userID, password string) (time.Time, error) {
 	instance := "/v1/users/me"
 
 	user, err := s.repo.GetUserByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			return domain.NewUnauthorizedError("Authentication token is invalid or expired", instance)
+			return time.Time{}, domain.NewUnauthorizedError("Authentication token is invalid or expired", instance)
 		}
 		slog.Error("DeleteAccount GetUserByID failed", "user_id", userID, "error", err)
-		return domain.NewInternalServerError(instance)
+		return time.Time{}, domain.NewInternalServerError(instance)
 	}
 
 	matched, err := security.VerifyPassword(password, user.PasswordHash)
 	if err != nil || !matched {
-		return domain.NewUnauthorizedError("Password is incorrect", instance)
+		return time.Time{}, domain.NewUnauthorizedError("Password is incorrect", instance)
 	}
 
+	open, err := s.repo.HasOpenTheftReport(ctx, userID)
+	if err != nil {
+		slog.Error("DeleteAccount open report check failed", "user_id", userID, "error", err)
+		return time.Time{}, domain.NewInternalServerError(instance)
+	}
+	if open {
+		return time.Time{}, domain.NewConflictError(
+			"You have an open theft report. Mark the bike as found or contact support before deleting your account.", instance)
+	}
+
+	scheduledFor, err := s.repo.ScheduleAccountDeletion(ctx, userID)
+	if err != nil {
+		slog.Error("DeleteAccount scheduling failed", "user_id", userID, "error", err)
+		return time.Time{}, domain.NewInternalServerError(instance)
+	}
+	slog.Info("account deletion scheduled", "user_id", userID, "scheduled_for", scheduledFor)
+	return scheduledFor, nil
+}
+
+// PurgeScheduledAccounts permanently deletes accounts whose grace period ended before `before`.
+func (s *AuthService) PurgeScheduledAccounts(ctx context.Context, before time.Time) (int, error) {
+	ids, err := s.repo.ListAccountsDueForDeletion(ctx, before)
+	if err != nil {
+		return 0, err
+	}
+	purged := 0
+	for _, id := range ids {
+		if err := s.deleteAllData(ctx, id); err != nil {
+			slog.Error("account purge failed", "user_id", id, "error", err)
+			continue
+		}
+		purged++
+	}
+	return purged, nil
+}
+
+// RunAccountCleanup purges scheduled deletions once a day, once their grace period has ended.
+// It stops when ctx is cancelled.
+func (s *AuthService) RunAccountCleanup(ctx context.Context) {
+	run := func() {
+		purged, err := s.PurgeScheduledAccounts(ctx, time.Now().Add(-repository.AccountDeletionGrace))
+		if err != nil {
+			slog.Error("account cleanup failed", "error", err)
+			return
+		}
+		if purged > 0 {
+			slog.Info("scheduled accounts deleted", "count", purged)
+		}
+	}
+	run()
+	ticker := time.NewTicker(24 * time.Hour)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			run()
+		}
+	}
+}
+
+// deleteAllData removes the user and everything they own, in one transaction.
+func (s *AuthService) deleteAllData(ctx context.Context, userID string) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		slog.Error("DeleteAccount pool.Begin failed", "user_id", userID, "error", err)
-		return domain.NewInternalServerError(instance)
+		return err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	if err := s.repo.DeleteAccount(ctx, tx, userID); err != nil {
-		slog.Error("DeleteAccount failed", "user_id", userID, "error", err)
-		return domain.NewInternalServerError(instance)
+		return err
 	}
 	if err := tx.Commit(ctx); err != nil {
-		slog.Error("DeleteAccount commit failed", "user_id", userID, "error", err)
-		return domain.NewInternalServerError(instance)
+		return err
 	}
-
 	slog.Info("account deleted", "user_id", userID)
 	return nil
 }

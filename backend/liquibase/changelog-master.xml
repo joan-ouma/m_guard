@@ -68,4 +68,7 @@
     <!-- 021. Daily OpenAI call counter -->
     <include file="changesets/021-chat-ai-usage.xml" relativeToChangelogFile="true"/>
 
+    <!-- 022. Scheduled account deletion -->
+    <include file="changesets/022-account-deletion.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

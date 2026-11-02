@@ -56,6 +56,7 @@ func main() {
 	authRepo := repository.NewAuthRepository(pool)
 	authService := service.NewAuthService(pool, authRepo, jwtManager, nil, mailClient, cfg.FrontendURL)
 	authHandler := handler.NewAuthHandler(authService)
+	go authService.RunAccountCleanup(ctx)
 
 	sseBroker := sse.NewBroker()
 	defer sseBroker.Stop()
