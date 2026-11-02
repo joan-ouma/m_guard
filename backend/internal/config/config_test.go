@@ -46,10 +46,11 @@ func TestConfigLoad_Mailjet(t *testing.T) {
 	if cfg.MQTTBrokerURL != "tcp://localhost:1883" {
 		t.Errorf("expected default MQTTBrokerURL, got %q", cfg.MQTTBrokerURL)
 	}
-	if cfg.MQTTUsername != "tracker" {
-		t.Errorf("expected default MQTTUsername tracker, got %q", cfg.MQTTUsername)
+	// MQTT credentials must come from the environment; no default is hard-coded.
+	if cfg.MQTTUsername != "" {
+		t.Errorf("expected no default MQTTUsername, got %q", cfg.MQTTUsername)
 	}
-	if cfg.MQTTPassword != "~:!Nu2>#6TDe5Y+" {
-		t.Errorf("expected default MQTTPassword, got %q", cfg.MQTTPassword)
+	if cfg.MQTTPassword != "" {
+		t.Errorf("expected no default MQTTPassword, got %q", cfg.MQTTPassword)
 	}
 }

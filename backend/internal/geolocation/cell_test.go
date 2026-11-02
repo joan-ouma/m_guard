@@ -145,7 +145,7 @@ func TestCellResolver_FallbackToLastKnownCell(t *testing.T) {
 		t.Fatalf("expected fallback to last known cell, got (%f, %f, %v)", lat2, lng2, ok2)
 	}
 
-	lat3, lng3, ok3 := resolver.ResolveMulti(ctx, 639, 2, []domain.CellTower{
+	lat3, lng3, _, ok3 := resolver.ResolveMulti(ctx, 639, 2, []domain.CellTower{
 		{LAC: 8888, CID: 7777, RSSIDBm: -80},
 	})
 	if !ok3 || lat3 != -1.413026 || lng3 != 36.750668 {
