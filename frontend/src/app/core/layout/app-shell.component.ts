@@ -5,6 +5,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { filter, map, startWith } from 'rxjs';
 import { DashboardSidebarComponent } from './dashboard-sidebar/dashboard-sidebar.component';
 import { MobileNavComponent } from '../../ui/mobile-nav/mobile-nav.component';
+import { ChatWidgetComponent } from '../../chat-widget/chat-widget.component';
 import { AuthService } from '../services/auth.service';
 import { NavDrawerService } from './nav-drawer.service';
 import { TopBarService } from './top-bar.service';
@@ -13,7 +14,7 @@ import { TopBarService } from './top-bar.service';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, NgTemplateOutlet, DashboardSidebarComponent, MobileNavComponent],
+  imports: [RouterOutlet, NgTemplateOutlet, DashboardSidebarComponent, MobileNavComponent, ChatWidgetComponent],
   template: `
     <div class="flex h-[100dvh] w-screen bg-surface font-sans text-ink overflow-hidden select-none">
       <div class="contents print:hidden">
@@ -41,6 +42,7 @@ import { TopBarService } from './top-bar.service';
           <router-outlet />
         </div>
       </div>
+      <app-chat-widget />
     </div>
   `,
 })

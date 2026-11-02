@@ -38,6 +38,9 @@ services:
       MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
       MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MGuard}
       LOG_FILE: ${LOG_FILE:-/var/log/fleet/fleet.log}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      CHAT_AI_DAILY_LIMIT: ${CHAT_AI_DAILY_LIMIT:-1000}
     volumes:
       - ./logs:/var/log/fleet
     ports:
