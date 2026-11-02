@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"log/slog"
 	"strings"
 	"time"
@@ -109,7 +110,7 @@ func (s *BikeService) CreateBike(ctx context.Context, claims *security.JWTClaims
 	}
 
 	now := time.Now().UTC()
-	bikeID := security.NewID("bik_")
+	bikeID := uuid.NewString()
 
 	bike := domain.Bike{
 		ID:                 bikeID,

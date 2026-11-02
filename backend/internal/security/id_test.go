@@ -5,11 +5,10 @@ import (
 	"testing"
 )
 
-// TestNewIDFitsVarchar32 guards the users/bikes primary keys, which are
-// declared VARCHAR(32). A plain UUID (36 chars) overflows them and makes
-// registration and bike creation fail with a 500.
+// TestNewIDFitsVarchar32 guards the recovery and contact primary keys, which are
+// declared VARCHAR(32). Users and bikes use UUIDs, matching their migrations.
 func TestNewIDFitsVarchar32(t *testing.T) {
-	for _, prefix := range []string{"usr_", "bik_"} {
+	for _, prefix := range []string{"inc_", "con_"} {
 		for i := 0; i < 500; i++ {
 			id := NewID(prefix)
 			if len(id) > 32 {

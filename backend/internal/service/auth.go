@@ -66,7 +66,7 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 	}
 
 	user := &domain.User{
-		ID:           security.NewID("usr_"),
+		ID:           uuid.NewString(),
 		Email:        req.Email,
 		Name:         req.Name,
 		NationalID:   req.NationalID,
