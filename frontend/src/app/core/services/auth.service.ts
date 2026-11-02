@@ -153,6 +153,21 @@ export class AuthService {
   }
 
   /**
+   * DELETE /v1/users/me
+   * Permanently deletes the signed-in account after the password is confirmed, then clears local state.
+   */
+  deleteAccount(password: string): Observable<void> {
+    return this.http
+      .request<void>('DELETE', `${environment.apiBaseUrl}/v1/users/me`, { body: { password }, withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.clearSession();
+          this.router.navigate(['/login']);
+        })
+      );
+  }
+
+  /**
    * DELETE /v1/sessions/current
    * Revoke current session on server and clear local state
    */
