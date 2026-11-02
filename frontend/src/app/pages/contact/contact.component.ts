@@ -32,7 +32,7 @@ export class ContactComponent implements AfterViewInit {
     const subject = `${topic} enquiry from ${name}`;
     const body = `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`;
     window.location.href =
-      `mailto:mguard@outlook.com?subject=${encodeURIComponent(subject)}` +
+      `mailto:hello@jullie.tech?subject=${encodeURIComponent(subject)}` +
       `&body=${encodeURIComponent(body)}`;
   }
 
