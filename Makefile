@@ -47,11 +47,13 @@ clean: stop
 
 DB_USER ?= postgres
 DB_PASSWORD ?= postgres
+# PostgreSQL JDBC driver mounted into the Liquibase container (the image does not bundle it)
+LIQUIBASE_PG_JAR ?= $(HOME)/.local/liquibase-drivers/postgresql-42.7.4.jar
 
 migrate:
 	@echo "==> Running Liquibase migrations..."
-	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) update
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog -v $(LIQUIBASE_PG_JAR):/liquibase/lib/postgresql.jar liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) update
 
 migrate-status:
 	@echo "==> Checking Liquibase migration status..."
-	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) status
+	@docker run --rm --network="host" -v $$(pwd)/backend/liquibase:/liquibase/changelog -v $(LIQUIBASE_PG_JAR):/liquibase/lib/postgresql.jar liquibase/liquibase --changelog-file=changelog-master.xml --url="jdbc:postgresql://localhost:5433/motoguard" --username=$(DB_USER) --password=$(DB_PASSWORD) status
