@@ -12055,3 +12055,55 @@ blockquote {
     display: none;
   }
 }
+
+/* Mobile menu drawer: start at the top, keep the logo row and close button together, and keep the
+   Get Started button fully on screen (the base .nav-menu rule pushes content to the bottom). */
+@media screen and (max-width: 991px) {
+  .nav-menu.w--open {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    text-align: left;
+    width: min(320px, 85vw);
+    height: 100vh;
+    height: 100dvh;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-menu.w--open .tablet-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: max(16px, env(safe-area-inset-top)) 20px 16px;
+    border-bottom: 1px solid #e4e4e7;
+  }
+
+  .nav-menu.w--open .menu-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 20px 0;
+  }
+
+  .nav-menu.w--open .nav-link {
+    display: block;
+    padding: 16px 4px;
+    font-size: 15px;
+    letter-spacing: .08em;
+    border-bottom: 1px solid #f4f4f5;
+  }
+
+  .nav-menu.w--open .get-started-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 24px 0 0 !important;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
