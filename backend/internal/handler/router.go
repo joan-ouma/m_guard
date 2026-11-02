@@ -17,6 +17,7 @@ type RouterConfig struct {
 	SSEHandler          *SSEHandler
 	USSDHandler         *USSDHandler
 	RecoveryHandler     *RecoveryHandler
+	ChatHandler         *ChatHandler
 	AuthMiddleware      func(http.Handler) http.Handler
 	RateLimitMiddleware func(http.Handler) http.Handler
 }
@@ -41,6 +42,10 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 
 	if cfg.USSDHandler != nil {
 		r.Mount("/ussd", cfg.USSDHandler.Routes())
+	}
+
+	if cfg.ChatHandler != nil {
+		r.Mount("/v1/chat", cfg.ChatHandler.Routes(cfg.AuthMiddleware))
 	}
 
 	if cfg.RecoveryHandler != nil {

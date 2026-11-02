@@ -53,3 +53,28 @@ func TestRateLimitMiddleware(t *testing.T) {
 		t.Fatalf("request after window expiry expected status 200, got %d", rr5.Code)
 	}
 }
+
+func TestRateLimitByKeyTracksEachKeySeparately(t *testing.T) {
+	keyFn := func(r *http.Request) string { return r.Header.Get("X-Test-Key") }
+	handler := RateLimitByKey(keyFn, 1, time.Minute)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	send := func(key string) int {
+		req := httptest.NewRequest(http.MethodPost, "/v1/chat", nil)
+		req.Header.Set("X-Test-Key", key)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+		return rec.Code
+	}
+
+	if code := send("user:a"); code != http.StatusOK {
+		t.Fatalf("first request for user a: got %d", code)
+	}
+	if code := send("user:a"); code != http.StatusTooManyRequests {
+		t.Fatalf("second request for user a should be limited: got %d", code)
+	}
+	if code := send("user:b"); code != http.StatusOK {
+		t.Fatalf("user b should not share user a's limit: got %d", code)
+	}
+}

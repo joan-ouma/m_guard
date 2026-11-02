@@ -62,4 +62,10 @@
     <!-- 019. Immobilizer commands awaiting device confirmation -->
     <include file="changesets/019-bike-commands.xml" relativeToChangelogFile="true"/>
 
+    <!-- 020. Guided chatbot history -->
+    <include file="changesets/020-chat-messages.xml" relativeToChangelogFile="true"/>
+
+    <!-- 021. Daily OpenAI call counter -->
+    <include file="changesets/021-chat-ai-usage.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"motoguard-backend/internal/assistant"
 	"motoguard-backend/internal/config"
 	"motoguard-backend/internal/database"
 	"motoguard-backend/internal/handler"
@@ -107,6 +108,22 @@ func main() {
 	recoveryService := service.NewRecoveryService(recoveryRepo)
 	recoveryHandler := handler.NewRecoveryHandler(recoveryService)
 
+	// Guided chatbot: menu answers come from the same user-scoped bike data
+	chatRepo := repository.NewChatRepository(pool)
+	var chatComposer service.ChatComposer
+	if cfg.OpenAIAPIKey != "" {
+		chatComposer = assistant.NewBudgetedComposer(
+			assistant.NewOpenAIComposer(cfg.OpenAIAPIKey, cfg.OpenAIModel, cfg.OpenAIBaseURL),
+			chatRepo,
+			cfg.ChatAIDailyLimit,
+		)
+	} else {
+		slog.Warn("OPENAI_API_KEY not set; chatbot will use built-in wording")
+	}
+	chatService := service.NewChatService(bikeService, recoveryService, chatRepo, chatComposer)
+	go chatService.RunRetention(ctx)
+	chatHandler := handler.NewChatHandler(chatService)
+
 	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
 
@@ -118,6 +135,7 @@ func main() {
 		SSEHandler:          sseHandler,
 		USSDHandler:         ussdHandler,
 		RecoveryHandler:     recoveryHandler,
+		ChatHandler:         chatHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
 		RateLimitMiddleware: middleware.RateLimitMiddleware(5, time.Minute),
 	})

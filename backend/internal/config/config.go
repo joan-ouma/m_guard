@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -25,6 +26,10 @@ type Config struct {
 	AWSSecretAccessKey  string
 	AWSSNSPlatformAppARN string
 	AWSSNSTopicARN       string
+	OpenAIAPIKey         string
+	OpenAIModel          string
+	OpenAIBaseURL        string
+	ChatAIDailyLimit     int
 }
 
 func getEnv(key, fallback string) string {
@@ -47,6 +52,11 @@ func Load() (Config, error) {
 
 	defaultFrontendURL := "https://mxguard.jullie.tech"
 
+	chatAILimit, err := strconv.Atoi(getEnv("CHAT_AI_DAILY_LIMIT", "1000"))
+	if err != nil || chatAILimit < 0 {
+		return Config{}, fmt.Errorf("CHAT_AI_DAILY_LIMIT must be a non-negative whole number")
+	}
+
 	return Config{
 		Port:                 getEnv("PORT", "8080"),
 		DatabaseURL:          dbURL,
@@ -66,5 +76,9 @@ func Load() (Config, error) {
 		AWSSecretAccessKey:   getEnv("AWS_SECRET_ACCESS_KEY", ""),
 		AWSSNSPlatformAppARN: getEnv("AWS_SNS_PLATFORM_APP_ARN", ""),
 		AWSSNSTopicARN:       getEnv("AWS_SNS_TOPIC_ARN", ""),
+		OpenAIAPIKey:         getEnv("OPENAI_API_KEY", ""),
+		OpenAIModel:          getEnv("OPENAI_MODEL", "gpt-4o-mini"),
+		OpenAIBaseURL:        getEnv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+		ChatAIDailyLimit:     chatAILimit,
 	}, nil
 }

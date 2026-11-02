@@ -34,6 +34,11 @@ type rateLimiter struct {
 }
 
 func RateLimitMiddleware(limit int, window time.Duration) func(http.Handler) http.Handler {
+	return RateLimitByKey(GetClientIP, limit, window)
+}
+
+// RateLimitByKey limits requests per key (for example per signed-in user) within a sliding window.
+func RateLimitByKey(keyFn func(*http.Request) string, limit int, window time.Duration) func(http.Handler) http.Handler {
 	rl := &rateLimiter{
 		history: make(map[string][]time.Time),
 		limit:   limit,
@@ -42,7 +47,7 @@ func RateLimitMiddleware(limit int, window time.Duration) func(http.Handler) htt
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ip := GetClientIP(r)
+			ip := keyFn(r)
 			now := time.Now()
 
 			rl.mu.Lock()
