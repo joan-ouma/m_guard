@@ -19,7 +19,7 @@ const (
 	MaxAttachmentBytes = 5 << 20 // 5 MiB receipt photo or PDF
 	MaxContactsPerUser = 50
 	maxFutureSkew      = 5 * time.Minute
-	maxIDLength        = 32
+	maxIDLength        = 36 // bike and user IDs are UUIDs (36 characters)
 )
 
 var (
@@ -377,7 +377,7 @@ func toContactDTO(c domain.UserContact) domain.UserContactDTO {
 	}
 }
 
-// isValidID accepts the prefixed IDs the app generates (for example "bik_..."), at most 32 characters.
+// isValidID accepts the IDs the app stores (prefixed IDs and UUIDs), at most 36 characters.
 func isValidID(id string) bool {
 	return id != "" && len(id) <= maxIDLength
 }

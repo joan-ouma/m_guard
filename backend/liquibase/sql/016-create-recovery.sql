@@ -1,7 +1,8 @@
+-- user_id and bike_id are text (36-character IDs), not foreign keys: users.id and bikes.id are UUID columns.
 CREATE TABLE IF NOT EXISTS theft_incidents (
     id VARCHAR(32) PRIMARY KEY,
-    user_id VARCHAR(32) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    bike_id VARCHAR(32) REFERENCES bikes(id) ON DELETE SET NULL,
+    user_id VARCHAR(36) NOT NULL,
+    bike_id VARCHAR(36),
     mode VARCHAR(32) NOT NULL CHECK (mode IN ('violent_robbery', 'theft_from_parking', 'theft_unattended', 'hijacking', 'other')),
     lost_at TIMESTAMPTZ NOT NULL,
     location_lost TEXT NOT NULL,
@@ -25,7 +26,7 @@ CREATE TABLE IF NOT EXISTS incident_attachments (
 
 CREATE TABLE IF NOT EXISTS user_contacts (
     id VARCHAR(32) PRIMARY KEY,
-    user_id VARCHAR(32) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id VARCHAR(36) NOT NULL,
     name VARCHAR(120) NOT NULL,
     phone VARCHAR(32) NOT NULL,
     category VARCHAR(16) NOT NULL CHECK (category IN ('emergency', 'insurance')),
