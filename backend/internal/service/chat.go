@@ -487,7 +487,11 @@ func clauseRoute(lang string, clauses []content.Clause, rest []string) (*domain.
 		return nil, invalidChatPath()
 	}
 	c := clauses[i-1]
-	text := fmt.Sprintf("%d. %s\n\n%s", i, c.Title, c.Body)
+	title, body := c.Title, c.Body
+	if lang == "sw" {
+		title, body = c.TitleSW, c.BodySW
+	}
+	text := fmt.Sprintf("%d. %s\n\n%s", i, title, body)
 	if lang == "sw" {
 		text = chatText(lang, "legalNote") + "\n\n" + text
 	}
@@ -825,7 +829,7 @@ var chatMessages = map[string]map[string]string{
 		"answer:support":    "Msaada wa MGuard: %s.",
 		"answer:station":    "%s: %s.",
 		"clausePrompt":      "Chagua sehemu ya kusoma.",
-		"legalNote":         "Maandishi haya kwa sasa yako kwa Kiingereza pekee.",
+		"legalNote":         "Tafsiri hii ni rasimu na inasubiri ukaguzi wa kisheria.",
 	},
 }
 

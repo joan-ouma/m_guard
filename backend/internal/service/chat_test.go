@@ -302,7 +302,7 @@ func TestTermsAndPrivacyClauses(t *testing.T) {
 	}
 
 	sw := rig.respond(t, []string{"lang:sw", "section:privacy", "clause:4"}, "")
-	if !strings.Contains(sw.Message, "MGuard Assistant") || !strings.Contains(sw.Message, "kwa Kiingereza pekee") {
+	if !strings.Contains(sw.Message, "Msaidizi wa MGuard") || !strings.Contains(sw.Message, "rasimu") {
 		t.Fatalf("expected assistant paragraph and Swahili note, got %q", sw.Message)
 	}
 
