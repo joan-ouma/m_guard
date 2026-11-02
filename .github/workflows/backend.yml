@@ -25,5 +25,4 @@ jobs:
         run: go build ./...
 
       - name: Test
-        # Skipped until fixed: internal/geolocation (test compile error), internal/config (MQTT default test).
-        run: go test $(go list ./... | grep -v -e /internal/geolocation -e /internal/config)
+        run: go test ./...
