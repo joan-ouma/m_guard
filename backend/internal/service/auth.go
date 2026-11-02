@@ -443,3 +443,41 @@ func (s *AuthService) GetCurrentSession(ctx context.Context, userID string) (*do
 
 	return userDTO, nil
 }
+
+// DeleteAccount permanently deletes the signed-in user's account and data after re-checking the password.
+func (s *AuthService) DeleteAccount(ctx context.Context, userID, password string) error {
+	instance := "/v1/users/me"
+
+	user, err := s.repo.GetUserByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return domain.NewUnauthorizedError("Authentication token is invalid or expired", instance)
+		}
+		slog.Error("DeleteAccount GetUserByID failed", "user_id", userID, "error", err)
+		return domain.NewInternalServerError(instance)
+	}
+
+	matched, err := security.VerifyPassword(password, user.PasswordHash)
+	if err != nil || !matched {
+		return domain.NewUnauthorizedError("Password is incorrect", instance)
+	}
+
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		slog.Error("DeleteAccount pool.Begin failed", "user_id", userID, "error", err)
+		return domain.NewInternalServerError(instance)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	if err := s.repo.DeleteAccount(ctx, tx, userID); err != nil {
+		slog.Error("DeleteAccount failed", "user_id", userID, "error", err)
+		return domain.NewInternalServerError(instance)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		slog.Error("DeleteAccount commit failed", "user_id", userID, "error", err)
+		return domain.NewInternalServerError(instance)
+	}
+
+	slog.Info("account deleted", "user_id", userID)
+	return nil
+}

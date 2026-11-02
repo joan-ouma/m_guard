@@ -222,3 +222,21 @@ func (r *AuthRepository) RevokeAllUserSessions(ctx context.Context, tx pgx.Tx, u
 	_, err := tx.Exec(ctx, query, userID)
 	return err
 }
+
+// DeleteAccount removes a user and everything they own, inside the caller's transaction.
+// Tables with no foreign key to users are cleared explicitly; the rest cascade from users.
+func (r *AuthRepository) DeleteAccount(ctx context.Context, tx pgx.Tx, userID string) error {
+	statements := []string{
+		`DELETE FROM chat_messages WHERE user_id = $1`,
+		`DELETE FROM theft_incidents WHERE user_id = $1`,
+		`DELETE FROM user_contacts WHERE user_id = $1`,
+		`DELETE FROM driver_contacts WHERE user_id = $1`,
+		`DELETE FROM users WHERE id = $1`,
+	}
+	for _, stmt := range statements {
+		if _, err := tx.Exec(ctx, stmt, userID); err != nil {
+			return err
+		}
+	}
+	return nil
+}

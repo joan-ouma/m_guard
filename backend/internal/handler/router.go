@@ -32,7 +32,7 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 	r.Get("/health", cfg.HealthHandler.Check)
 	r.Get("/v1/health", cfg.HealthHandler.Check)
 
-	r.Mount("/v1/users", cfg.AuthHandler.UserRoutes(cfg.RateLimitMiddleware))
+	r.Mount("/v1/users", cfg.AuthHandler.UserRoutes(cfg.RateLimitMiddleware, cfg.AuthMiddleware))
 	r.Mount("/v1/sessions", cfg.AuthHandler.SessionRoutes(cfg.RateLimitMiddleware, cfg.AuthMiddleware))
 	r.Mount("/v1/password-resets", cfg.AuthHandler.PasswordResetRoutes(cfg.RateLimitMiddleware))
 	r.Mount("/v1/bikes", cfg.BikeHandler.Routes(cfg.AuthMiddleware, cfg.SSEHandler.Stream))

@@ -23,14 +23,47 @@ func NewAuthHandler(s *service.AuthService) *AuthHandler {
 	return &AuthHandler{service: s}
 }
 
-func (h *AuthHandler) UserRoutes(rateLimit func(http.Handler) http.Handler) chi.Router {
+func (h *AuthHandler) UserRoutes(rateLimit, auth func(http.Handler) http.Handler) chi.Router {
 	r := chi.NewRouter()
 	r.Use(rateLimit)
 
 	r.Post("/register", h.Register)
 	r.Post("/", h.Register)
 
+	r.Group(func(pr chi.Router) {
+		pr.Use(auth)
+		pr.Delete("/me", h.DeleteAccount)
+	})
+
 	return r
+}
+
+// DeleteAccount permanently removes the signed-in user's account. The rider must re-enter their password.
+func (h *AuthHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+	claims, ok := middleware.GetClaims(r.Context())
+	if !ok {
+		domain.NewUnauthorizedError("Authentication required", r.URL.Path).WriteJSON(w)
+		return
+	}
+
+	var req struct {
+		Password string `json:"password"`
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4<<10)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Password == "" {
+		domain.NewBadRequestError("Password is required to delete your account", r.URL.Path, nil).WriteJSON(w)
+		return
+	}
+
+	if err := h.service.DeleteAccount(r.Context(), claims.UserID, req.Password); err != nil {
+		writeError(w, r, err)
+		return
+	}
+
+	// Clear the browser's session cookies; the account no longer exists.
+	setSessionCookie(w, r, "", time.Unix(0, 0), -1)
+	setAccessTokenCookie(w, r, "", time.Unix(0, 0), -1)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *AuthHandler) SessionRoutes(rateLimit func(http.Handler) http.Handler, auth func(http.Handler) http.Handler) chi.Router {
