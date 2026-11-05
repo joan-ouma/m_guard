@@ -25,6 +25,11 @@ type Config struct {
 	AWSSecretAccessKey  string
 	AWSSNSPlatformAppARN string
 	AWSSNSTopicARN       string
+	ATUsername           string
+	ATAPIKey             string
+	ATSMSFrom            string
+	SMSRoutingKeyword    string
+	SMSProjectKeyword    string
 }
 
 func getEnv(key, fallback string) string {
@@ -66,5 +71,10 @@ func Load() (Config, error) {
 		AWSSecretAccessKey:   getEnv("AWS_SECRET_ACCESS_KEY", ""),
 		AWSSNSPlatformAppARN: getEnv("AWS_SNS_PLATFORM_APP_ARN", ""),
 		AWSSNSTopicARN:       getEnv("AWS_SNS_TOPIC_ARN", ""),
+		ATUsername:           getEnv("AT_USERNAME", ""),
+		ATAPIKey:             getEnv("AT_API_KEY", ""),
+		ATSMSFrom:            getEnv("AT_SMS_FROM", "20384"),
+		SMSRoutingKeyword:    getEnv("SMS_ROUTING_KEYWORD", "kamilimu"),
+		SMSProjectKeyword:    getEnv("SMS_PROJECT_KEYWORD", "ignition"),
 	}, nil
 }

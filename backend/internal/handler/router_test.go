@@ -1,10 +1,19 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
+
+	"motoguard-backend/internal/service"
 )
+
+type routerSMSSender struct{}
+
+func (routerSMSSender) SendSMS(context.Context, string, string) error { return nil }
 
 func TestNewRouter(t *testing.T) {
 	passthroughMW := func(next http.Handler) http.Handler {
@@ -18,6 +27,7 @@ func TestNewRouter(t *testing.T) {
 		BikeHandler:         &BikeHandler{},
 		HealthHandler:       healthH,
 		SSEHandler:          &SSEHandler{},
+		SMSHandler:          NewSMSHandler(service.NewSMSService(routerSMSSender{}, "kamilimu", "ignition")),
 		AuthMiddleware:      passthroughMW,
 		RateLimitMiddleware: passthroughMW,
 	})
@@ -28,6 +38,18 @@ func TestNewRouter(t *testing.T) {
 
 	if rrHealth.Code != http.StatusOK {
 		t.Fatalf("expected status 200 for /health, got %d", rrHealth.Code)
+	}
+
+	callbackForm := url.Values{
+		"from": {" +254712345678 "},
+		"text": {"kamilimu ignition police Rongai"},
+	}
+	reqSMS := httptest.NewRequest(http.MethodPost, "/sms/africastalking", strings.NewReader(callbackForm.Encode()))
+	reqSMS.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rrSMS := httptest.NewRecorder()
+	router.ServeHTTP(rrSMS, reqSMS)
+	if rrSMS.Code != http.StatusOK {
+		t.Fatalf("expected status 200 for SMS callback, got %d", rrSMS.Code)
 	}
 
 	reqV1Health := httptest.NewRequest(http.MethodGet, "/v1/health", nil)

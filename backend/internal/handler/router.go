@@ -14,6 +14,7 @@ type RouterConfig struct {
 	BikeHandler         *BikeHandler
 	HealthHandler       *HealthHandler
 	NotificationHandler *NotificationHandler
+	SMSHandler          *SMSHandler
 	SSEHandler          *SSEHandler
 	USSDHandler         *USSDHandler
 	AuthMiddleware      func(http.Handler) http.Handler
@@ -40,6 +41,9 @@ func NewRouter(cfg RouterConfig) *chi.Mux {
 
 	if cfg.USSDHandler != nil {
 		r.Mount("/ussd", cfg.USSDHandler.Routes())
+	}
+	if cfg.SMSHandler != nil {
+		r.Post("/sms/africastalking", cfg.SMSHandler.HandleAfricaTalking)
 	}
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

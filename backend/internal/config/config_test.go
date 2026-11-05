@@ -15,6 +15,9 @@ func TestConfigLoad_Mailjet(t *testing.T) {
 	os.Setenv("MAILJET_SENDER_NAME", "MotoGuard")
 	os.Setenv("FRONTEND_URL", "http://localhost:4200")
 	os.Setenv("LOG_FILE", "/var/log/motoguard.log")
+	os.Setenv("AT_USERNAME", "buildathon-voice")
+	os.Setenv("AT_API_KEY", "test-at-key")
+	os.Setenv("AT_SMS_FROM", "20384")
 
 	cfg, err := Load()
 	if err != nil {
@@ -51,5 +54,11 @@ func TestConfigLoad_Mailjet(t *testing.T) {
 	}
 	if cfg.MQTTPassword != "~:!Nu2>#6TDe5Y+" {
 		t.Errorf("expected default MQTTPassword, got %q", cfg.MQTTPassword)
+	}
+	if cfg.ATUsername != "buildathon-voice" || cfg.ATAPIKey != "test-at-key" || cfg.ATSMSFrom != "20384" {
+		t.Errorf("unexpected Africa's Talking configuration: username=%q from=%q", cfg.ATUsername, cfg.ATSMSFrom)
+	}
+	if cfg.SMSRoutingKeyword != "kamilimu" || cfg.SMSProjectKeyword != "ignition" {
+		t.Errorf("unexpected SMS routing defaults: routing=%q project=%q", cfg.SMSRoutingKeyword, cfg.SMSProjectKeyword)
 	}
 }

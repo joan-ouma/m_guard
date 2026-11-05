@@ -38,6 +38,11 @@ services:
       MAILJET_REPLY_TO_EMAIL: ${MAILJET_REPLY_TO_EMAIL:-hello@jullie.tech}
       MAILJET_SENDER_NAME: ${MAILJET_SENDER_NAME:-MGuard}
       LOG_FILE: ${LOG_FILE:-/var/log/fleet/fleet.log}
+      AT_USERNAME: ${AT_USERNAME:-}
+      AT_API_KEY: ${AT_API_KEY:-}
+      AT_SMS_FROM: ${AT_SMS_FROM:-20384}
+      SMS_ROUTING_KEYWORD: ${SMS_ROUTING_KEYWORD:-kamilimu}
+      SMS_PROJECT_KEYWORD: ${SMS_PROJECT_KEYWORD:-ignition}
     volumes:
       - ./logs:/var/log/fleet
     ports:

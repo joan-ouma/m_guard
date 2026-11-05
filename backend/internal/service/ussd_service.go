@@ -399,23 +399,7 @@ func searchPoliceStations(term string) string {
 		return "CON Enter a valid town or station name:\n0. Back"
 	}
 
-	var matched []policeStationEntry
-	for _, st := range kenyaPoliceStations {
-		if strings.Contains(strings.ToLower(st.Name), q) {
-			matched = append(matched, st)
-			continue
-		}
-		for _, kw := range st.Keywords {
-			if strings.Contains(kw, q) || strings.Contains(q, kw) {
-				matched = append(matched, st)
-				break
-			}
-		}
-		if len(matched) >= 3 {
-			break
-		}
-	}
-
+	matched := findPoliceStations(q)
 	if len(matched) == 0 {
 		return fmt.Sprintf("CON No station found for %q.\nNational Hotline: 999 / 112\nDCI Hotline: 0800 722 203\n0. Back", term)
 	}
@@ -427,6 +411,31 @@ func searchPoliceStations(term string) string {
 	}
 	sb.WriteString("0. Back")
 	return sb.String()
+}
+
+func findPoliceStations(term string) []policeStationEntry {
+	q := strings.ToLower(strings.TrimSpace(term))
+	if q == "" {
+		return nil
+	}
+
+	var matched []policeStationEntry
+	for _, st := range kenyaPoliceStations {
+		if strings.Contains(strings.ToLower(st.Name), q) {
+			matched = append(matched, st)
+		} else {
+			for _, kw := range st.Keywords {
+				if strings.Contains(kw, q) || strings.Contains(q, kw) {
+					matched = append(matched, st)
+					break
+				}
+			}
+		}
+		if len(matched) >= 3 {
+			break
+		}
+	}
+	return matched
 }
 
 

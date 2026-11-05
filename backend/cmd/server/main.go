@@ -19,6 +19,7 @@ import (
 	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
+	"motoguard-backend/internal/sms"
 	"motoguard-backend/internal/service"
 	"motoguard-backend/internal/sse"
 )
@@ -98,6 +99,9 @@ func main() {
 	ussdRepo := repository.NewUSSDRepository(pool)
 	ussdService := service.NewUSSDService(ussdRepo, cmdPub, sseBroker, notificationService)
 	ussdHandler := handler.NewUSSDHandler(ussdService)
+	smsClient := sms.NewClient(cfg.ATUsername, cfg.ATAPIKey, cfg.ATSMSFrom)
+	smsService := service.NewSMSService(smsClient, cfg.SMSRoutingKeyword, cfg.SMSProjectKeyword)
+	smsHandler := handler.NewSMSHandler(smsService)
 
 	sseHandler := handler.NewSSEHandler(sseBroker, bikeService)
 	healthHandler := handler.NewHealthHandler(pool)
@@ -107,6 +111,7 @@ func main() {
 		BikeHandler:         bikeHandler,
 		HealthHandler:       healthHandler,
 		NotificationHandler: notificationHandler,
+		SMSHandler:          smsHandler,
 		SSEHandler:          sseHandler,
 		USSDHandler:         ussdHandler,
 		AuthMiddleware:      middleware.AuthMiddleware(jwtManager),
