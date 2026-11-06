@@ -13,6 +13,7 @@ import (
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
+	"motoguard-backend/internal/sms"
 )
 
 const (
@@ -43,10 +44,16 @@ var (
 
 type RecoveryService struct {
 	repo *repository.RecoveryRepository
+	sms  sms.Sender
 }
 
 func NewRecoveryService(repo *repository.RecoveryRepository) *RecoveryService {
 	return &RecoveryService{repo: repo}
+}
+
+// SetSMSSender enables the lost-bike text to the rider's saved contacts. Without it, no texts are sent.
+func (s *RecoveryService) SetSMSSender(sender sms.Sender) {
+	s.sms = sender
 }
 
 type IncidentListResult struct {
@@ -119,6 +126,10 @@ func (s *RecoveryService) CreateIncident(ctx context.Context, userID string, req
 		}
 		slog.Error("CreateIncident insert failed", "user_id", userID, "error", err)
 		return domain.TheftIncidentDTO{}, domain.NewInternalServerError(instance)
+	}
+
+	if bikeID != "" && s.sms != nil {
+		go s.notifyContactsBikeLost(userID, bikeID, location)
 	}
 
 	return toIncidentDTO(created), nil

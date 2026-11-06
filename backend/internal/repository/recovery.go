@@ -31,6 +31,21 @@ func (r *RecoveryRepository) BikeOwnedBy(ctx context.Context, userID, bikeID str
 	return exists, err
 }
 
+// LostBikeDetails returns what a contact needs to know about a bike the rider owns.
+func (r *RecoveryRepository) LostBikeDetails(ctx context.Context, userID, bikeID string) (domain.LostBikeDetails, error) {
+	var d domain.LostBikeDetails
+	err := r.pool.QueryRow(ctx, `
+		SELECT b.registration_number, COALESCE(b.current_address, ''), COALESCE(u.name, '')
+		FROM bikes b
+		JOIN users u ON u.id = b.user_id
+		WHERE b.id = $1 AND b.user_id = $2
+	`, bikeID, userID).Scan(&d.Plate, &d.LastAddress, &d.OwnerName)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return d, ErrNotFound
+	}
+	return d, err
+}
+
 func (r *RecoveryRepository) CreateIncident(ctx context.Context, in domain.TheftIncident) (domain.TheftIncident, error) {
 	var out domain.TheftIncident
 	err := r.pool.QueryRow(ctx, `

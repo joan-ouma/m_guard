@@ -21,6 +21,7 @@ import (
 	"motoguard-backend/internal/repository"
 	"motoguard-backend/internal/security"
 	"motoguard-backend/internal/service"
+	"motoguard-backend/internal/sms"
 	"motoguard-backend/internal/sse"
 )
 
@@ -107,6 +108,12 @@ func main() {
 	// Bike recovery: theft reports and saved contacts
 	recoveryRepo := repository.NewRecoveryRepository(pool)
 	recoveryService := service.NewRecoveryService(recoveryRepo)
+	if cfg.SMSAPIKey != "" && cfg.SMSUsername != "" {
+		slog.Info("Initializing SMS sender for lost-bike alerts", "username", cfg.SMSUsername, "shortcode", cfg.SMSShortcode)
+		recoveryService.SetSMSSender(sms.NewAfricasTalkingClient(cfg.SMSUsername, cfg.SMSAPIKey, cfg.SMSShortcode))
+	} else {
+		slog.Warn("SMS_API_KEY or SMS_USERNAME not set; lost-bike texts to contacts are disabled")
+	}
 	recoveryHandler := handler.NewRecoveryHandler(recoveryService)
 
 	// Guided chatbot: menu answers come from the same user-scoped bike data

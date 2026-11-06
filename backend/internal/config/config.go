@@ -30,6 +30,9 @@ type Config struct {
 	OpenAIModel          string
 	OpenAIBaseURL        string
 	ChatAIDailyLimit     int
+	SMSAPIKey            string
+	SMSUsername          string
+	SMSShortcode         string
 }
 
 func getEnv(key, fallback string) string {
@@ -80,5 +83,8 @@ func Load() (Config, error) {
 		OpenAIModel:          getEnv("OPENAI_MODEL", "gpt-4o-mini"),
 		OpenAIBaseURL:        getEnv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
 		ChatAIDailyLimit:     chatAILimit,
+		SMSAPIKey:            getEnv("SMS_API_KEY", ""),
+		SMSUsername:          getEnv("SMS_USERNAME", ""),
+		SMSShortcode:         getEnv("SMS_SHORTCODE", ""),
 	}, nil
 }

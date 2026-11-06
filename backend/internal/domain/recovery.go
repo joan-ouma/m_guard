@@ -46,6 +46,13 @@ type CreateIncidentRequest struct {
 	Longitude    *float64 `json:"longitude"`
 }
 
+// LostBikeDetails is the bike and owner information sent to contacts when a bike is reported lost.
+type LostBikeDetails struct {
+	OwnerName   string
+	Plate       string
+	LastAddress string
+}
+
 type UserContact struct {
 	ID        string
 	UserID    string
