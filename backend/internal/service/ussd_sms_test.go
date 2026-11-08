@@ -102,12 +102,12 @@ func TestRouteSMSText(t *testing.T) {
 		rest  string
 		forUs bool
 	}{
-		{"full prefix routes to us", "kamilimu ignition police Rongai", "police Rongai", true},
-		{"prefix only opens the menu", "kamilimu ignition", "menu", true},
-		{"prefix is case-insensitive", "KAMILIMU Ignition 2", "2", true},
-		{"another project is ignored", "kamilimu mguard police Rongai", "", false},
+		{"full prefix routes to us", "kamilimu mguard police Rongai", "police Rongai", true},
+		{"prefix only opens the menu", "kamilimu mguard", "menu", true},
+		{"prefix is case-insensitive", "KAMILIMU MGuard 2", "2", true},
+		{"another project is ignored", "kamilimu ignition police Rongai", "", false},
 		{"routing word without project is ignored", "kamilimu", "", false},
-		{"gateway-stripped project prefix", "ignition 1", "1", true},
+		{"gateway-stripped project prefix", "mguard 1", "1", true},
 		{"bare text passes through", "2*1", "2*1", true},
 	}
 	for _, tt := range tests {

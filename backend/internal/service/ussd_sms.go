@@ -18,8 +18,8 @@ const (
 	smsSessionIdle = 5 * time.Minute
 	// smsMaxInput caps one rider reply so a stored conversation stays small.
 	smsMaxInput = 40
-	// SMSProjectKeyword is M-Guard's keyword on the shared SMS gateway. Riders text "kamilimu ignition <command>".
-	SMSProjectKeyword = "ignition"
+	// SMSProjectKeyword is M-Guard's keyword on the shared SMS gateway. Riders text "kamilimu mguard <command>".
+	SMSProjectKeyword = "mguard"
 )
 
 // smsStartWords open the menu, or restart it when one is already open.
