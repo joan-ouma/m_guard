@@ -237,6 +237,48 @@ func (r *USSDRepository) CreatePendingCommand(ctx context.Context, bikeID string
 	return createPendingCommand(ctx, r.pool, "", bikeID, immobilize, ts)
 }
 
+// GetSMSSession returns the open SMS menu conversation for a phone number, if one exists.
+func (r *USSDRepository) GetSMSSession(ctx context.Context, phone string) (steps string, updatedAt time.Time, err error) {
+	normalized, _ := NormalizePhoneNumber(phone)
+
+	query := `SELECT steps, updated_at FROM sms_sessions WHERE phone_number = $1`
+	err = r.pool.QueryRow(ctx, query, normalized).Scan(&steps, &updatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", time.Time{}, ErrNotFound
+		}
+		return "", time.Time{}, fmt.Errorf("get sms session error: %w", err)
+	}
+	return steps, updatedAt, nil
+}
+
+// SaveSMSSession stores the accumulated menu steps for a phone's SMS conversation.
+func (r *USSDRepository) SaveSMSSession(ctx context.Context, phone, steps string) error {
+	normalized, _ := NormalizePhoneNumber(phone)
+
+	query := `
+		INSERT INTO sms_sessions (phone_number, steps, updated_at)
+		VALUES ($1, $2, NOW())
+		ON CONFLICT (phone_number) DO UPDATE
+		SET steps = EXCLUDED.steps,
+		    updated_at = NOW()
+	`
+	if _, err := r.pool.Exec(ctx, query, normalized, steps); err != nil {
+		return fmt.Errorf("save sms session error: %w", err)
+	}
+	return nil
+}
+
+// DeleteSMSSession closes a phone's SMS conversation once the menu ends.
+func (r *USSDRepository) DeleteSMSSession(ctx context.Context, phone string) error {
+	normalized, _ := NormalizePhoneNumber(phone)
+
+	if _, err := r.pool.Exec(ctx, `DELETE FROM sms_sessions WHERE phone_number = $1`, normalized); err != nil {
+		return fmt.Errorf("delete sms session error: %w", err)
+	}
+	return nil
+}
+
 // RecordEmergencySOS creates a high-priority security SOS alert record in the database.
 func (r *USSDRepository) RecordEmergencySOS(ctx context.Context, bikeID, userID string, lat, lng float64, details string) error {
 	query := `

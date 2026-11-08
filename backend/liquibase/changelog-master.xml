@@ -71,4 +71,7 @@
     <!-- 022. Scheduled account deletion -->
     <include file="changesets/022-account-deletion.xml" relativeToChangelogFile="true"/>
 
+    <!-- 023. SMS menu conversation state -->
+    <include file="changesets/023-ussd-sms-sessions.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -26,8 +27,44 @@ func (h *USSDHandler) Routes() chi.Router {
 
 	r.Post("/", h.HandleUSSD)
 	r.Get("/", h.HandleUSSD) // Support GET test pings
+	r.Post("/sms", h.HandleSMS)
 
 	return r
+}
+
+// HandleSMS processes Africa's Talking 2-way SMS callback for the same menu as USSD.
+// Replies are sent through the SMS API, so the callback itself returns no menu text.
+func (h *USSDHandler) HandleSMS(w http.ResponseWriter, r *http.Request) {
+	var req domain.SMSIncomingRequest
+	r.Body = http.MaxBytesReader(w, r.Body, 16*1024)
+
+	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		_ = json.NewDecoder(r.Body).Decode(&req)
+	}
+	_ = r.ParseForm()
+
+	if req.From == "" {
+		req.From = getParam(r, "from")
+	}
+	if req.Text == "" {
+		req.Text = getParam(r, "text")
+	}
+
+	if req.From == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Sender 'from' number is required"})
+		return
+	}
+
+	if err := h.ussdService.HandleSMS(r.Context(), req); err != nil {
+		slog.Error("SMS menu reply failed", "from", req.From, "error", err)
+	}
+
+	// Acknowledge the callback even when the reply fails, so the gateway does not resend it.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "received"})
 }
 
 

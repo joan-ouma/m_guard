@@ -100,19 +100,27 @@ func main() {
 		go bikeService.RunCommandRetries(ctx)
 	}
 
-	// Initialize USSD Service for non-smartphone riders
+	// Outbound SMS, shared by the SMS menu replies and lost-bike texts to contacts
+	var smsSender sms.Sender
+	if cfg.SMSAPIKey != "" && cfg.SMSUsername != "" {
+		slog.Info("Initializing SMS sender", "username", cfg.SMSUsername, "shortcode", cfg.SMSShortcode)
+		smsSender = sms.NewAfricasTalkingClient(cfg.SMSUsername, cfg.SMSAPIKey, cfg.SMSShortcode)
+	} else {
+		slog.Warn("SMS_API_KEY or SMS_USERNAME not set; SMS menu replies and lost-bike texts to contacts are disabled")
+	}
+
+	// Initialize USSD Service for non-smartphone riders (also serves the SMS menu)
 	ussdRepo := repository.NewUSSDRepository(pool)
 	ussdService := service.NewUSSDService(ussdRepo, cmdPub, sseBroker, notificationService)
+	ussdService.SetSMSSender(smsSender)
+	ussdService.SetSMSRouting(cfg.SMSRoutingKeyword)
 	ussdHandler := handler.NewUSSDHandler(ussdService)
 
 	// Bike recovery: theft reports and saved contacts
 	recoveryRepo := repository.NewRecoveryRepository(pool)
 	recoveryService := service.NewRecoveryService(recoveryRepo)
-	if cfg.SMSAPIKey != "" && cfg.SMSUsername != "" {
-		slog.Info("Initializing SMS sender for lost-bike alerts", "username", cfg.SMSUsername, "shortcode", cfg.SMSShortcode)
-		recoveryService.SetSMSSender(sms.NewAfricasTalkingClient(cfg.SMSUsername, cfg.SMSAPIKey, cfg.SMSShortcode))
-	} else {
-		slog.Warn("SMS_API_KEY or SMS_USERNAME not set; lost-bike texts to contacts are disabled")
+	if smsSender != nil {
+		recoveryService.SetSMSSender(smsSender)
 	}
 	recoveryHandler := handler.NewRecoveryHandler(recoveryService)
 

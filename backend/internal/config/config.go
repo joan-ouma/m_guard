@@ -33,6 +33,7 @@ type Config struct {
 	SMSAPIKey            string
 	SMSUsername          string
 	SMSShortcode         string
+	SMSRoutingKeyword    string
 }
 
 func getEnv(key, fallback string) string {
@@ -86,5 +87,6 @@ func Load() (Config, error) {
 		SMSAPIKey:            getEnv("SMS_API_KEY", ""),
 		SMSUsername:          getEnv("SMS_USERNAME", ""),
 		SMSShortcode:         getEnv("SMS_SHORTCODE", ""),
+		SMSRoutingKeyword:    getEnv("SMS_ROUTING_KEYWORD", "kamilimu"),
 	}, nil
 }

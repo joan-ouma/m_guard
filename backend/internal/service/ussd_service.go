@@ -15,6 +15,7 @@ import (
 	"motoguard-backend/internal/domain"
 	"motoguard-backend/internal/notification"
 	"motoguard-backend/internal/repository"
+	"motoguard-backend/internal/sms"
 	"motoguard-backend/internal/sse"
 )
 
@@ -23,6 +24,9 @@ type USSDService struct {
 	cmdPub       CommandPublisher
 	sseBroker    *sse.Broker
 	notifService *notification.Service
+	smsSender    sms.Sender
+	// smsRouting is the shared gateway's routing keyword (for example "kamilimu").
+	smsRouting string
 }
 
 func NewUSSDService(
