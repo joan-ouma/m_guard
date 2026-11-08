@@ -77,29 +77,43 @@ func (s *USSDService) routeSMSText(text string) (rest string, forUs bool) {
 // It uses the same menu tree as USSD: each text is one menu reply, appended to the
 // conversation's steps, and the reply starts with the same CON/END markers.
 func (s *USSDService) HandleSMS(ctx context.Context, req domain.SMSIncomingRequest) error {
+	slog.Info("SMS received", "from", req.From, "id", req.ID, "text", req.Text)
+
 	to, ok := sms.NormalizePhone(req.From)
 	if !ok {
+		slog.Warn("SMS ignored: sender number not valid", "from", req.From)
 		return fmt.Errorf("sms sender number is not valid: %q", req.From)
 	}
 	if s.smsSender == nil {
+		slog.Error("SMS not sent: sender not configured", "from", req.From)
 		return errors.New("sms sender is not configured")
 	}
 
 	reply, err := s.smsReply(ctx, req.From, req.Text)
 	if err != nil {
+		slog.Error("SMS menu failed", "from", req.From, "error", err)
 		return err
 	}
 	if reply == "" {
+		slog.Info("SMS menu: nothing to send", "from", req.From, "text", req.Text)
 		return nil
 	}
 
 	results, err := s.smsSender.Send(ctx, []string{to}, reply)
 	if err != nil {
+		slog.Error("SMS menu reply send failed", "to", to, "error", err)
 		return fmt.Errorf("send sms menu reply: %w", err)
 	}
 	if len(results) > 0 && !results[0].IsAccepted() {
+		slog.Error("SMS menu reply rejected by gateway", "to", to, "status_code", results[0].StatusCode,
+			"status", results[0].Status)
 		return fmt.Errorf("sms menu reply rejected: status %d %s", results[0].StatusCode, results[0].Status)
 	}
+	msgID := ""
+	if len(results) > 0 {
+		msgID = results[0].MessageID
+	}
+	slog.Info("SMS menu reply sent", "to", to, "message_id", msgID, "reply", reply)
 	return nil
 }
 
@@ -128,8 +142,9 @@ func (s *USSDService) smsReply(ctx context.Context, phone, text string) (string,
 		}
 	}
 
-	body := s.HandleUSSD(ctx, domain.USSDRequest{PhoneNumber: phone, Text: steps})
+	body := s.ussdMenu(ctx, domain.USSDRequest{PhoneNumber: phone, Text: steps})
 	reply, open := splitSMSReply(body)
+	slog.Info("SMS menu step", "phone", phone, "input", input, "steps", steps, "open", open, "reply", reply)
 
 	if open {
 		if err := s.repo.SaveSMSSession(ctx, phone, steps); err != nil {

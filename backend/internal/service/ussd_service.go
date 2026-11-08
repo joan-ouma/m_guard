@@ -115,6 +115,14 @@ func parseUSSDStack(text string) []string {
 
 // HandleUSSD processes Africa's Talking USSD callback and returns the session response.
 func (s *USSDService) HandleUSSD(ctx context.Context, req domain.USSDRequest) string {
+	reply := s.ussdMenu(ctx, req)
+	slog.Info("USSD menu", "phone", req.PhoneNumber, "session_id", req.SessionID,
+		"service_code", req.ServiceCode, "input", req.Text, "reply", reply)
+	return reply
+}
+
+// ussdMenu renders the menu reply for a USSD request. It is shared by USSD and the SMS menu.
+func (s *USSDService) ussdMenu(ctx context.Context, req domain.USSDRequest) string {
 	phone := req.PhoneNumber
 
 	// Lookup bikes registered to this caller's phone number
