@@ -486,7 +486,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (coords.length > 1) {
       this.pathGlow = L.polyline(coords, {
         color: themeColor('--color-info'),
-        weight: 6,
+        weight: 10,
         opacity: 0.35,
         lineCap: 'round',
         lineJoin: 'round',
@@ -494,7 +494,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.pathPolyline = L.polyline(coords, {
         color: themeColor('--color-info'),
-        weight: 3,
+        weight: 6,
         opacity: 0.95,
         dashArray: '6, 6',
         lineCap: 'round',
