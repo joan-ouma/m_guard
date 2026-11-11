@@ -406,16 +406,19 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.trailLoading = true;
 
     // First load: start from today's midnight so the trail is today's journey, not the bike's history.
+    // The service only sends startDate together with endDate, so both are set on the first load.
     let startDate: string | undefined;
+    let endDate: string | undefined;
     if (this.trailCursor === undefined) {
       const midnight = new Date();
       midnight.setHours(0, 0, 0, 0);
       startDate = midnight.toISOString();
+      endDate = new Date().toISOString();
     }
 
     const fetchNext = (): void => {
       this.bikeService
-        .getBikeBreadcrumbs(id, 25, undefined, startDate, undefined, this.trailCursor)
+        .getBikeBreadcrumbs(id, 25, undefined, startDate, endDate, this.trailCursor)
         .subscribe({
           next: (res) => {
             const data = res.data ?? [];
@@ -424,6 +427,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
               this.trailCursor = String(data[data.length - 1].id);
             }
             startDate = undefined;
+            endDate = undefined;
             if (res.pagination?.has_more && data.length > 0) {
               fetchNext();
             } else {
@@ -496,16 +500,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(this.map);
-
-      this.pathOriginMarker = L.circleMarker(coords[0], {
-        radius: 5,
-        color: themeColor('--color-info'),
-        fillColor: themeColor('--color-brand'),
-        fillOpacity: 1,
-        weight: 2,
-      })
-        .addTo(this.map)
-        .bindTooltip('Trip Origin', { direction: 'top', offset: [0, -6] });
     }
   }
 
