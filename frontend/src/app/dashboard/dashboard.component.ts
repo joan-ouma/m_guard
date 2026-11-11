@@ -92,6 +92,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private tickerInterval?: ReturnType<typeof setInterval>;
   private duressInterval?: ReturnType<typeof setInterval>;
 
+  // In-memory trail for the bike on screen; lives until the page is refreshed or left.
+  private trailBikeId: string | null = null;
+  private trailPoints: BreadcrumbDTO[] = [];
+  private trailCursor?: string;
+  private trailLoading = false;
+
   constructor() {
     effect(() => {
       const alert = this.bikeService.latestAlert();
@@ -384,17 +390,55 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAndDrawPath(bike);
   }
 
+  // Trail kept in memory for the current bike. Each refresh only asks for points newer than the
+  // last one already held, 25 at a time. A page refresh or leaving the page clears it.
   private loadAndDrawPath(bike: FleetBike): void {
     if (!bike.id || !this.map) return;
+    const id = bike.id;
 
-    this.bikeService.getBikeBreadcrumbs(bike.id).subscribe({
-      next: (res) => {
-        this.drawPathOnMap(res.data, bike);
-      },
-      error: () => {
-        this.drawPathOnMap([], bike);
-      },
-    });
+    if (this.trailBikeId !== id) {
+      this.trailBikeId = id;
+      this.trailPoints = [];
+      this.trailCursor = undefined;
+      this.trailLoading = false;
+    }
+    if (this.trailLoading) return;
+    this.trailLoading = true;
+
+    // First load: start from today's midnight so the trail is today's journey, not the bike's history.
+    let startDate: string | undefined;
+    if (this.trailCursor === undefined) {
+      const midnight = new Date();
+      midnight.setHours(0, 0, 0, 0);
+      startDate = midnight.toISOString();
+    }
+
+    const fetchNext = (): void => {
+      this.bikeService
+        .getBikeBreadcrumbs(id, 25, undefined, startDate, undefined, this.trailCursor)
+        .subscribe({
+          next: (res) => {
+            const data = res.data ?? [];
+            this.trailPoints.push(...data);
+            if (data.length > 0) {
+              this.trailCursor = String(data[data.length - 1].id);
+            }
+            startDate = undefined;
+            if (res.pagination?.has_more && data.length > 0) {
+              fetchNext();
+            } else {
+              this.trailLoading = false;
+              this.drawPathOnMap(this.trailPoints, bike);
+            }
+          },
+          error: () => {
+            this.trailLoading = false;
+            this.drawPathOnMap(this.trailPoints, bike);
+          },
+        });
+    };
+
+    fetchNext();
   }
 
   private drawPathOnMap(points: BreadcrumbDTO[], currentBike: FleetBike): void {
