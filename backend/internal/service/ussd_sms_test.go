@@ -76,7 +76,7 @@ func TestSMSMenuMatchesUSSDMenu(t *testing.T) {
 	s := &USSDService{}
 	bike := testSMSBike()
 
-	ussd := s.handleSingleBikeMenu(nil, "+254712345678", "", bike, nil)
+	ussd := s.handleSingleBikeMenu(nil, "+254712345678", "", "en", bike, nil)
 	body, open := splitSMSReply(ussd)
 	if !open || !strings.Contains(body, "1. Find bike") || !strings.Contains(body, "4. Emergency phones") {
 		t.Fatalf("SMS welcome body does not match USSD menu: %q", body)

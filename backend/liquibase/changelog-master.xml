@@ -74,4 +74,7 @@
     <!-- 023. SMS menu conversation state -->
     <include file="changesets/023-ussd-sms-sessions.xml" relativeToChangelogFile="true"/>
 
+    <!-- 024. SMS language preference (English or Kiswahili) -->
+    <include file="changesets/024-sms-preferences.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

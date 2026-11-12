@@ -63,7 +63,18 @@ func (s *RecoveryService) notifyContactsBikeLost(userID, bikeID, reportedLocatio
 		address = strings.TrimSpace(reportedLocation)
 	}
 
-	message := lostBikeMessage(details.OwnerName, details.Plate, address)
+	// The alert is written in the language the rider chose for SMS.
+	lang := langEN
+	if details.OwnerPhone != "" {
+		saved, err := s.repo.SMSLanguage(ctx, details.OwnerPhone)
+		if err != nil {
+			slog.Warn("lost bike SMS: could not load language, using English", "user_id", userID, "error", err)
+		} else {
+			lang = normalizeLang(saved)
+		}
+	}
+
+	message := lostBikeMessage(lang, details.OwnerName, details.Plate, address)
 	results, err := s.sms.Send(ctx, recipients, message)
 	if err != nil {
 		slog.Error("lost bike SMS failed", "user_id", userID, "bike_id", bikeID, "recipients", len(recipients), "error", err)
@@ -82,17 +93,20 @@ func (s *RecoveryService) notifyContactsBikeLost(userID, bikeID, reportedLocatio
 }
 
 // lostBikeMessage builds: "<NAME> has lost their bike <PLATE>. Last location is <ADDRESS>."
+// In Kiswahili: "<NAME> amepoteza pikipiki yake <PLATE>. Mahali pa mwisho ni <ADDRESS>."
 // The address is shortened so the whole message fits in one SMS segment.
-func lostBikeMessage(ownerName, plate, address string) string {
+func lostBikeMessage(lang, ownerName, plate, address string) string {
 	name := strings.TrimSpace(ownerName)
 	if name == "" {
-		name = "A MotorGuard rider"
+		name = ussdText(lang, "A MotorGuard rider", "Mpanda pikipiki wa MotorGuard")
 	}
 	if address == "" {
-		address = unknownLocation
+		address = ussdText(lang, unknownLocation, "haijulikani")
 	}
 
-	prefix := fmt.Sprintf("%s has lost their bike %s. Last location is ", name, strings.TrimSpace(plate))
+	prefix := fmt.Sprintf(ussdText(lang,
+		"%s has lost their bike %s. Last location is ",
+		"%s amepoteza pikipiki yake %s. Mahali pa mwisho ni "), name, strings.TrimSpace(plate))
 	suffix := "."
 	room := lostBikeSMSMaxLength - len(prefix) - len(suffix)
 

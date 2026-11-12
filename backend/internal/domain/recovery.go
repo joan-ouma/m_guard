@@ -49,6 +49,7 @@ type CreateIncidentRequest struct {
 // LostBikeDetails is the bike and owner information sent to contacts when a bike is reported lost.
 type LostBikeDetails struct {
 	OwnerName   string
+	OwnerPhone  string
 	Plate       string
 	LastAddress string
 }

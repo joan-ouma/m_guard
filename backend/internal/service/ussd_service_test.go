@@ -39,7 +39,7 @@ func TestRenderBikeStatus(t *testing.T) {
 		CurrentAddress:     "Magadi Road, Ongata Rongai",
 	}
 
-	statusStr := s.renderBikeStatus(bike)
+	statusStr := s.renderBikeStatus(bike, "en")
 	if !containsString(statusStr, "KME 123A") {
 		t.Errorf("expected registration in status string: %s", statusStr)
 	}
@@ -91,7 +91,7 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	}
 
 	// 1. Root Welcome menu
-	welcome := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, nil)
+	welcome := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", bike, nil)
 	if !containsString(welcome, "CON Welcome to M-Guard") ||
 		!containsString(welcome, "1. Find bike") ||
 		!containsString(welcome, "2. Immobilize bike") ||
@@ -101,13 +101,13 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	}
 
 	// 2. Option 1: Find bike
-	findBike := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, []string{"1"})
+	findBike := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", bike, []string{"1"})
 	if !containsString(findBike, "CON Bike KMDF 123X") || !containsString(findBike, "0. Back") {
 		t.Fatalf("unexpected find bike response: %s", findBike)
 	}
 
 	// 3. Option 2: Immobilize bike confirmation
-	immob := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bike, []string{"2"})
+	immob := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", bike, []string{"2"})
 	if !containsString(immob, "CON Turn off engine for KMDF 123X?") || !containsString(immob, "0. Back") {
 		t.Fatalf("unexpected immobilize confirmation: %s", immob)
 	}
@@ -115,7 +115,7 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	// 4. Option 3: Reactivate bike (when bike is immobilized)
 	bikeImmob := bike
 	bikeImmob.IsImmobilized = true
-	react := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", bikeImmob, []string{"3"})
+	react := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", bikeImmob, []string{"3"})
 	if !containsString(react, "CON Restore engine for KMDF 123X?") || !containsString(react, "0. Back") {
 		t.Fatalf("unexpected reactivate confirmation: %s", react)
 	}
@@ -124,22 +124,22 @@ func TestUSSDSingleBikeMenuFlow(t *testing.T) {
 	emergBike := bike
 	emergBike.OwnerName = "Alpha Fleet"
 	emergBike.OwnerPhone = "+254700000000"
-	emergMenu := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4"})
+	emergMenu := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", emergBike, []string{"4"})
 	if !containsString(emergMenu, "CON Emergency Directory:") || !containsString(emergMenu, "1. Fleet Owner") || !containsString(emergMenu, "2. Search Police Station") {
 		t.Fatalf("unexpected emergency directory menu: %s", emergMenu)
 	}
 
-	emergOwner := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "1"})
+	emergOwner := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", emergBike, []string{"4", "1"})
 	if !containsString(emergOwner, "CON Fleet Owner:") || !containsString(emergOwner, "Alpha Fleet: +254700000000") {
 		t.Fatalf("unexpected fleet owner response: %s", emergOwner)
 	}
 
-	emergSearchPrompt := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "2"})
+	emergSearchPrompt := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", emergBike, []string{"4", "2"})
 	if !containsString(emergSearchPrompt, "CON Enter town or station name") {
 		t.Fatalf("unexpected search prompt: %s", emergSearchPrompt)
 	}
 
-	emergSearchRes := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", emergBike, []string{"4", "2", "rongai"})
+	emergSearchRes := s.handleSingleBikeMenu(nil, "+254712345678", "USSD (*384#)", "en", emergBike, []string{"4", "2", "rongai"})
 	if !containsString(emergSearchRes, "Ongata Rongai Police") || !containsString(emergSearchRes, "0721 334 999") {
 		t.Fatalf("unexpected search results: %s", emergSearchRes)
 	}

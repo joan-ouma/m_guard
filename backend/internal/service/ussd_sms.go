@@ -129,6 +129,21 @@ func (s *USSDService) smsReply(ctx context.Context, phone, text string) (string,
 		return "", nil
 	}
 
+	// "SW" or "EN" picks the language for this rider's texts. It does not touch an open menu.
+	if lang, ok := smsLanguageCommand(input); ok {
+		if err := s.repo.SaveSMSLanguage(ctx, phone, lang); err != nil {
+			slog.Error("SMS language save failed", "phone", phone, "error", err)
+			return "", err
+		}
+		slog.Info("SMS language set", "phone", phone, "lang", lang)
+		return languageChangedText(lang), nil
+	}
+
+	lang, err := s.repo.GetSMSLanguage(ctx, phone)
+	if err != nil {
+		return "", err
+	}
+
 	// Like dialling USSD: with no open menu, any text shows the numbered welcome menu.
 	// Inside an open menu, the text is the rider's reply to it.
 	steps := ""
@@ -142,8 +157,11 @@ func (s *USSDService) smsReply(ctx context.Context, phone, text string) (string,
 		}
 	}
 
-	body := s.ussdMenu(ctx, domain.USSDRequest{PhoneNumber: phone, Text: steps})
+	body := s.ussdMenu(ctx, domain.USSDRequest{PhoneNumber: phone, Text: steps}, lang)
 	reply, open := splitSMSReply(body)
+	if open && steps == "" {
+		reply += "\n" + languageHint(lang)
+	}
 	slog.Info("SMS menu step", "phone", phone, "input", input, "steps", steps, "open", open, "reply", reply)
 
 	if open {

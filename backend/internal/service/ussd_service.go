@@ -115,26 +115,31 @@ func parseUSSDStack(text string) []string {
 
 // HandleUSSD processes Africa's Talking USSD callback and returns the session response.
 func (s *USSDService) HandleUSSD(ctx context.Context, req domain.USSDRequest) string {
-	reply := s.ussdMenu(ctx, req)
+	reply := s.ussdMenu(ctx, req, langEN)
 	slog.Info("USSD menu", "phone", req.PhoneNumber, "session_id", req.SessionID,
 		"service_code", req.ServiceCode, "input", req.Text, "reply", reply)
 	return reply
 }
 
 // ussdMenu renders the menu reply for a USSD request. It is shared by USSD and the SMS menu.
-func (s *USSDService) ussdMenu(ctx context.Context, req domain.USSDRequest) string {
+// lang selects the wording: langEN for USSD, the rider's chosen language for SMS.
+func (s *USSDService) ussdMenu(ctx context.Context, req domain.USSDRequest, lang string) string {
 	phone := req.PhoneNumber
 
 	// Lookup bikes registered to this caller's phone number
 	bikes, err := s.repo.GetBikesByPhone(ctx, phone)
 	if err != nil {
 		slog.Error("USSD lookup bikes error", "phone", phone, "error", err)
-		return "END System temporarily unavailable. Please try again shortly."
+		return "END " + ussdText(lang,
+			"System temporarily unavailable. Please try again shortly.",
+			"Huduma haipatikani kwa sasa. Tafadhali jaribu tena baadaye.")
 	}
 
 	// 1. If phone number is not registered on the platform, do NOT allow procession
 	if len(bikes) == 0 {
-		return "END Phone number not registered on M-Guard. Please contact your administrator."
+		return "END " + ussdText(lang,
+			"Phone number not registered on M-Guard. Please contact your administrator.",
+			"Namba ya simu haijasajiliwa kwenye M-Guard. Tafadhali wasiliana na msimamizi wako.")
 	}
 
 	// 2. Parse multi-level USSD inputs with stack back-navigation
@@ -148,59 +153,68 @@ func (s *USSDService) ussdMenu(ctx context.Context, req domain.USSDRequest) stri
 
 	// Single bike flow vs Multi-bike flow
 	if len(bikes) == 1 {
-		return s.handleSingleBikeMenu(ctx, phone, trigger, bikes[0], steps)
+		return s.handleSingleBikeMenu(ctx, phone, trigger, lang, bikes[0], steps)
 	}
 
-	return s.handleMultiBikeMenu(ctx, phone, trigger, bikes, steps)
+	return s.handleMultiBikeMenu(ctx, phone, trigger, lang, bikes, steps)
 }
 
-func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleSingleBikeMenu(ctx context.Context, phone, trigger, lang string, bike domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
-		return "CON Welcome to M-Guard\n1. Find bike\n2. Immobilize bike\n3. Reactivate bike\n4. Emergency phones"
+		return ussdText(lang,
+			"CON Welcome to M-Guard\n1. Find bike\n2. Immobilize bike\n3. Reactivate bike\n4. Emergency phones",
+			"CON Karibu M-Guard\n1. Tafuta pikipiki\n2. Zuia pikipiki\n3. Washa pikipiki\n4. Simu za dharura")
 	}
 
 	choice := steps[0]
 	switch choice {
 	case "1":
-		return s.handleFindBike(bike)
+		return s.handleFindBike(bike, lang)
 	case "2":
-		return s.handleImmobilizeBike(ctx, phone, trigger, bike, steps[1:])
+		return s.handleImmobilizeBike(ctx, phone, trigger, lang, bike, steps[1:])
 	case "3":
-		return s.handleReactivateBike(ctx, phone, trigger, bike, steps[1:])
+		return s.handleReactivateBike(ctx, phone, trigger, lang, bike, steps[1:])
 	case "4":
-		return s.handleEmergencyPhones(bike, steps[1:])
+		return s.handleEmergencyPhones(lang, bike, steps[1:])
 	default:
-		return "END Invalid option. Session ended."
+		return "END " + invalidOptionText(lang)
 	}
 }
 
-func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone, trigger string, bikes []domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleMultiBikeMenu(ctx context.Context, phone, trigger, lang string, bikes []domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
 		var sb strings.Builder
-		sb.WriteString("CON Welcome to M-Guard\nSelect bike:\n")
+		sb.WriteString(ussdText(lang,
+			"CON Welcome to M-Guard\nSelect bike:\n",
+			"CON Karibu M-Guard\nChagua pikipiki:\n"))
 		for i, b := range bikes {
 			sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, b.RegistrationNumber))
 		}
-		sb.WriteString("0. Exit")
+		sb.WriteString(ussdText(lang, "0. Exit", "0. Toka"))
 		return sb.String()
 	}
 
 	idxStr := steps[0]
 	idx, err := strconv.Atoi(idxStr)
 	if err != nil || idx < 1 || idx > len(bikes) {
-		return "END Invalid selection. Session ended."
+		return "END " + ussdText(lang, "Invalid selection. Session ended.", "Uchaguzi batili. Kipindi kimefungwa.")
 	}
 
 	selectedBike := bikes[idx-1]
-	return s.handleSingleBikeMenu(ctx, phone, trigger, selectedBike, steps[1:])
+	return s.handleSingleBikeMenu(ctx, phone, trigger, lang, selectedBike, steps[1:])
+}
+
+// invalidOptionText is the end-of-session text for an option the rider did not pick from the menu.
+func invalidOptionText(lang string) string {
+	return ussdText(lang, "Invalid option. Session ended.", "Chaguo batili. Kipindi kimefungwa.")
 }
 
 // 1. Find bike
-func (s *USSDService) handleFindBike(bike domain.RiderBikeInfo) string {
-	return s.renderBikeStatus(bike)
+func (s *USSDService) handleFindBike(bike domain.RiderBikeInfo, lang string) string {
+	return s.renderBikeStatus(bike, lang)
 }
 
-func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo) string {
+func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo, lang string) string {
 	loc := strings.TrimSpace(bike.CurrentAddress)
 	if loc == "" || strings.EqualFold(loc, "Location pending update") {
 		subCounty := strings.TrimSpace(bike.SubCounty)
@@ -216,42 +230,52 @@ func (s *USSDService) renderBikeStatus(bike domain.RiderBikeInfo) string {
 		} else if bike.Latitude != 0 && bike.Longitude != 0 {
 			loc = fmt.Sprintf("%.4f, %.4f", bike.Latitude, bike.Longitude)
 		} else {
-			loc = "Location pending update"
+			loc = ussdText(lang, "Location pending update", "Mahali kunasubiriwa")
 		}
 	}
 
 	status := strings.TrimSpace(bike.Status)
 	if status == "" {
 		if bike.Ignition {
-			status = "RUNNING"
+			status = ussdText(lang, "RUNNING", "INATEMBEA")
 		} else {
-			status = "STOPPED"
+			status = ussdText(lang, "STOPPED", "IMESIMAMA")
 		}
 	}
 
-	return fmt.Sprintf("CON Bike %s\nStatus: %s\nBattery: %d%%\nLocation: %s\n0. Back",
+	return fmt.Sprintf(ussdText(lang,
+		"CON Bike %s\nStatus: %s\nBattery: %d%%\nLocation: %s\n0. Back",
+		"CON Pikipiki %s\nHali: %s\nBetri: %d%%\nMahali: %s\n0. Rudi"),
 		bike.RegistrationNumber, status, bike.BatteryPercent, loc)
 }
 
 // 2. Immobilize bike
-func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger, lang string, bike domain.RiderBikeInfo, steps []string) string {
 	if bike.IsImmobilized {
-		return fmt.Sprintf("END Bike %s is already immobilized.", bike.RegistrationNumber)
+		return fmt.Sprintf(ussdText(lang,
+			"END Bike %s is already immobilized.",
+			"END Pikipiki %s tayari imezuiwa."), bike.RegistrationNumber)
 	}
 
 	if len(steps) == 0 {
-		return fmt.Sprintf("CON Turn off engine for %s?\n1. Yes, shut down\n0. Back", bike.RegistrationNumber)
+		return fmt.Sprintf(ussdText(lang,
+			"CON Turn off engine for %s?\n1. Yes, shut down\n0. Back",
+			"CON Zima injini ya %s?\n1. Ndiyo, zima\n0. Rudi"), bike.RegistrationNumber)
 	}
 
 	if steps[0] == "1" {
 		ts := time.Now().Unix()
 		imei, userID, err := s.repo.CreatePendingCommand(ctx, bike.ID, true, ts)
 		if errors.Is(err, repository.ErrCommandPending) {
-			return fmt.Sprintf("END A command for %s is still awaiting confirmation. Please wait.", bike.RegistrationNumber)
+			return fmt.Sprintf(ussdText(lang,
+				"END A command for %s is still awaiting confirmation. Please wait.",
+				"END Amri ya %s bado inasubiri uthibitisho. Tafadhali subiri."), bike.RegistrationNumber)
 		}
 		if err != nil {
 			slog.Error("Failed to request immobilization via USSD", "bike_id", bike.ID, "error", err)
-			return "END Unable to immobilize bike at this time. Please try again."
+			return "END " + ussdText(lang,
+				"Unable to immobilize bike at this time. Please try again.",
+				"Haiwezekani kuzuia pikipiki kwa sasa. Tafadhali jaribu tena.")
 		}
 
 		if s.cmdPub != nil && imei != "" {
@@ -280,31 +304,41 @@ func (s *USSDService) handleImmobilizeBike(ctx context.Context, phone, trigger s
 			})
 		}
 
-		return "END Immobilization requested. The starter is disabled once the bike confirms."
+		return "END " + ussdText(lang,
+			"Immobilization requested. The starter is disabled once the bike confirms.",
+			"Ombi la kuzuia limetumwa. Kianzishi kitazimwa pikipiki itakapothibitisha.")
 	}
 
-	return "END Invalid option. Session ended."
+	return "END " + invalidOptionText(lang)
 }
 
 // 3. Reactivate bike
-func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger string, bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger, lang string, bike domain.RiderBikeInfo, steps []string) string {
 	if !bike.IsImmobilized {
-		return fmt.Sprintf("END Bike %s is already active.", bike.RegistrationNumber)
+		return fmt.Sprintf(ussdText(lang,
+			"END Bike %s is already active.",
+			"END Pikipiki %s tayari inafanya kazi."), bike.RegistrationNumber)
 	}
 
 	if len(steps) == 0 {
-		return fmt.Sprintf("CON Restore engine for %s?\n1. Yes, reactivate\n0. Back", bike.RegistrationNumber)
+		return fmt.Sprintf(ussdText(lang,
+			"CON Restore engine for %s?\n1. Yes, reactivate\n0. Back",
+			"CON Washa injini ya %s?\n1. Ndiyo, washa\n0. Rudi"), bike.RegistrationNumber)
 	}
 
 	if steps[0] == "1" {
 		ts := time.Now().Unix()
 		imei, userID, err := s.repo.CreatePendingCommand(ctx, bike.ID, false, ts)
 		if errors.Is(err, repository.ErrCommandPending) {
-			return fmt.Sprintf("END A command for %s is still awaiting confirmation. Please wait.", bike.RegistrationNumber)
+			return fmt.Sprintf(ussdText(lang,
+				"END A command for %s is still awaiting confirmation. Please wait.",
+				"END Amri ya %s bado inasubiri uthibitisho. Tafadhali subiri."), bike.RegistrationNumber)
 		}
 		if err != nil {
 			slog.Error("Failed to request reactivation via USSD", "bike_id", bike.ID, "error", err)
-			return "END Unable to reactivate bike at this time. Please try again."
+			return "END " + ussdText(lang,
+				"Unable to reactivate bike at this time. Please try again.",
+				"Haiwezekani kuwasha pikipiki kwa sasa. Tafadhali jaribu tena.")
 		}
 
 		if s.cmdPub != nil && imei != "" {
@@ -333,54 +367,62 @@ func (s *USSDService) handleReactivateBike(ctx context.Context, phone, trigger s
 			})
 		}
 
-		return "END Reactivation requested. The bike is ready to ride once it confirms."
+		return "END " + ussdText(lang,
+			"Reactivation requested. The bike is ready to ride once it confirms.",
+			"Ombi la kuwasha limetumwa. Pikipiki itakuwa tayari kutumika itakapothibitisha.")
 	}
 
-	return "END Invalid option. Session ended."
+	return "END " + invalidOptionText(lang)
 }
 
 // 4. Emergency phones - searchable police & fleet directory
-func (s *USSDService) handleEmergencyPhones(bike domain.RiderBikeInfo, steps []string) string {
+func (s *USSDService) handleEmergencyPhones(lang string, bike domain.RiderBikeInfo, steps []string) string {
 	if len(steps) == 0 {
-		return "CON Emergency Directory:\n1. Fleet Owner\n2. Search Police Station\n0. Back"
+		return ussdText(lang,
+			"CON Emergency Directory:\n1. Fleet Owner\n2. Search Police Station\n0. Back",
+			"CON Orodha ya dharura:\n1. Mmiliki wa meli\n2. Tafuta kituo cha polisi\n0. Rudi")
 	}
 
 	switch steps[0] {
 	case "1":
 		var sb strings.Builder
-		sb.WriteString("CON Fleet Owner:\n")
+		sb.WriteString(ussdText(lang, "CON Fleet Owner:\n", "CON Mmiliki wa meli:\n"))
 		if strings.TrimSpace(bike.OwnerPhone) != "" {
 			ownerLabel := strings.TrimSpace(bike.OwnerName)
 			if ownerLabel == "" || strings.EqualFold(ownerLabel, "Fleet Owner") {
-				ownerLabel = "Fleet Manager"
+				ownerLabel = ussdText(lang, "Fleet Manager", "Msimamizi wa meli")
 			}
 			sb.WriteString(fmt.Sprintf("%s: %s\n", ownerLabel, strings.TrimSpace(bike.OwnerPhone)))
 		} else {
-			sb.WriteString("No fleet owner phone on record.\n")
+			sb.WriteString(ussdText(lang,
+				"No fleet owner phone on record.\n",
+				"Hakuna namba ya simu ya mmiliki.\n"))
 		}
 
 		supportPhone := strings.TrimSpace(os.Getenv("EMERGENCY_SUPPORT_PHONE"))
 		if supportPhone != "" {
-			sb.WriteString(fmt.Sprintf("Support: %s\n", supportPhone))
+			sb.WriteString(fmt.Sprintf(ussdText(lang, "Support: %s\n", "Msaada: %s\n"), supportPhone))
 		}
 
 		policeHotline := strings.TrimSpace(os.Getenv("POLICE_HOTLINE"))
 		if policeHotline == "" {
 			policeHotline = "999 / 112"
 		}
-		sb.WriteString(fmt.Sprintf("National Police: %s\n", policeHotline))
-		sb.WriteString("0. Back")
+		sb.WriteString(fmt.Sprintf(ussdText(lang, "National Police: %s\n", "Polisi wa Taifa: %s\n"), policeHotline))
+		sb.WriteString(ussdText(lang, "0. Back", "0. Rudi"))
 		return sb.String()
 
 	case "2":
 		if len(steps) == 1 {
-			return "CON Enter town or station name (e.g. Rongai, Karen, Central):\n0. Back"
+			return ussdText(lang,
+				"CON Enter town or station name (e.g. Rongai, Karen, Central):\n0. Back",
+				"CON Andika jina la mji au kituo (k.m. Rongai, Karen, Central):\n0. Rudi")
 		}
 		searchTerm := strings.TrimSpace(steps[1])
-		return searchPoliceStations(searchTerm)
+		return searchPoliceStations(searchTerm, lang)
 
 	default:
-		return "END Invalid option. Session ended."
+		return "END " + invalidOptionText(lang)
 	}
 }
 
@@ -417,10 +459,12 @@ var kenyaPoliceStations = []policeStationEntry{
 	{Name: "Malindi Police Station", Phone: "0722 841 999", Keywords: []string{"malindi", "kilifi"}},
 }
 
-func searchPoliceStations(term string) string {
+func searchPoliceStations(term, lang string) string {
 	q := strings.ToLower(strings.TrimSpace(term))
 	if q == "" {
-		return "CON Enter a valid town or station name:\n0. Back"
+		return ussdText(lang,
+			"CON Enter a valid town or station name:\n0. Back",
+			"CON Andika jina sahihi la mji au kituo:\n0. Rudi")
 	}
 
 	var matched []policeStationEntry
@@ -441,15 +485,17 @@ func searchPoliceStations(term string) string {
 	}
 
 	if len(matched) == 0 {
-		return fmt.Sprintf("CON No station found for %q.\nNational Hotline: 999 / 112\nDCI Hotline: 0800 722 203\n0. Back", term)
+		return fmt.Sprintf(ussdText(lang,
+			"CON No station found for %q.\nNational Hotline: 999 / 112\nDCI Hotline: 0800 722 203\n0. Back",
+			"CON Hakuna kituo kilichopatikana kwa %q.\nNambari ya dharura ya taifa: 999 / 112\nDCI: 0800 722 203\n0. Rudi"), term)
 	}
 
 	var sb strings.Builder
-	sb.WriteString("CON Search Results:\n")
+	sb.WriteString(ussdText(lang, "CON Search Results:\n", "CON Matokeo ya utafutaji:\n"))
 	for _, st := range matched {
 		sb.WriteString(fmt.Sprintf("%s:\n%s\n", st.Name, st.Phone))
 	}
-	sb.WriteString("0. Back")
+	sb.WriteString(ussdText(lang, "0. Back", "0. Rudi"))
 	return sb.String()
 }
 
