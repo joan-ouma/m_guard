@@ -35,15 +35,21 @@ func (r *RecoveryRepository) BikeOwnedBy(ctx context.Context, userID, bikeID str
 func (r *RecoveryRepository) LostBikeDetails(ctx context.Context, userID, bikeID string) (domain.LostBikeDetails, error) {
 	var d domain.LostBikeDetails
 	err := r.pool.QueryRow(ctx, `
-		SELECT b.registration_number, COALESCE(b.current_address, ''), COALESCE(u.name, '')
+		SELECT b.registration_number, COALESCE(b.current_address, ''), COALESCE(u.name, ''),
+		       COALESCE(u.phone_number, '')
 		FROM bikes b
 		JOIN users u ON u.id = b.user_id
 		WHERE b.id = $1 AND b.user_id = $2
-	`, bikeID, userID).Scan(&d.Plate, &d.LastAddress, &d.OwnerName)
+	`, bikeID, userID).Scan(&d.Plate, &d.LastAddress, &d.OwnerName, &d.OwnerPhone)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return d, ErrNotFound
 	}
 	return d, err
+}
+
+// SMSLanguage returns the SMS language the rider chose for a phone number ("en" or "sw").
+func (r *RecoveryRepository) SMSLanguage(ctx context.Context, phone string) (string, error) {
+	return getSMSLanguage(ctx, r.pool, phone)
 }
 
 func (r *RecoveryRepository) CreateIncident(ctx context.Context, in domain.TheftIncident) (domain.TheftIncident, error) {

@@ -279,6 +279,49 @@ func (r *USSDRepository) DeleteSMSSession(ctx context.Context, phone string) err
 	return nil
 }
 
+// GetSMSLanguage returns the language a phone number chose for SMS ("en" or "sw"). A number that
+// has never chosen one gets "en".
+func (r *USSDRepository) GetSMSLanguage(ctx context.Context, phone string) (string, error) {
+	return getSMSLanguage(ctx, r.pool, phone)
+}
+
+// SaveSMSLanguage stores the language a phone number chose for SMS.
+func (r *USSDRepository) SaveSMSLanguage(ctx context.Context, phone, lang string) error {
+	return saveSMSLanguage(ctx, r.pool, phone, lang)
+}
+
+// getSMSLanguage reads a phone's SMS language preference, defaulting to English.
+func getSMSLanguage(ctx context.Context, pool *pgxpool.Pool, phone string) (string, error) {
+	normalized, _ := NormalizePhoneNumber(phone)
+
+	var lang string
+	err := pool.QueryRow(ctx, `SELECT language FROM sms_preferences WHERE phone_number = $1`, normalized).Scan(&lang)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "en", nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("get sms language error: %w", err)
+	}
+	return lang, nil
+}
+
+// saveSMSLanguage stores a phone's SMS language preference, replacing any earlier choice.
+func saveSMSLanguage(ctx context.Context, pool *pgxpool.Pool, phone, lang string) error {
+	normalized, _ := NormalizePhoneNumber(phone)
+
+	query := `
+		INSERT INTO sms_preferences (phone_number, language, updated_at)
+		VALUES ($1, $2, NOW())
+		ON CONFLICT (phone_number) DO UPDATE
+		SET language = EXCLUDED.language,
+		    updated_at = NOW()
+	`
+	if _, err := pool.Exec(ctx, query, normalized, lang); err != nil {
+		return fmt.Errorf("save sms language error: %w", err)
+	}
+	return nil
+}
+
 // RecordEmergencySOS creates a high-priority security SOS alert record in the database.
 func (r *USSDRepository) RecordEmergencySOS(ctx context.Context, bikeID, userID string, lat, lng float64, details string) error {
 	query := `
